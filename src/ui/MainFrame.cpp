@@ -189,14 +189,14 @@ void MainFrame::OnNewArchive()
 // ── Open Archive ───────────────────────────────────────────────────────
 void MainFrame::OnOpenArchive()
 {
-    wxString filter = _(
+    wxString filter =
         "Supported Archives (*.zip;*.7z;*.rar;*.tar;*.tgz;*.tar.gz)"
         "|*.zip;*.7z;*.rar;*.tar;*.tgz;*.tar.gz"
         "|ZIP Files (*.zip)|*.zip"
         "|7z Files (*.7z)|*.7z"
         "|RAR Files (*.rar)|*.rar"
         "|TAR Files (*.tar;*.tgz;*.tar.gz)|*.tar;*.tgz;*.tar.gz"
-        "|All Files (*.*)|*.*");
+        "|All Files (*.*)|*.*";
 
     wxFileDialog dlg(this, _("Open Archive"), "", "", filter,
         wxFD_OPEN | wxFD_FILE_MUST_EXIST);
