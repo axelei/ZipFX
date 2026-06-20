@@ -72,6 +72,7 @@ set(ENABLE_PCREPOSIX    OFF CACHE BOOL "" FORCE)
 set(ENABLE_ICONV        OFF CACHE BOOL "" FORCE)
 set(ENABLE_NETTLE       OFF CACHE BOOL "" FORCE)
 set(ENABLE_CNG          OFF CACHE BOOL "" FORCE)
+set(ENABLE_SHARED       OFF CACHE BOOL "" FORCE)
 set(ENABLE_TAR          OFF CACHE BOOL "" FORCE)
 set(ENABLE_CPIO         OFF CACHE BOOL "" FORCE)
 set(ENABLE_CAT          OFF CACHE BOOL "" FORCE)
@@ -103,6 +104,9 @@ set(ZIPFX_SOURCES
     src/engine/SevenZipEngine.cpp
     src/engine/RarEngine.cpp
     ${miniz_SOURCE_DIR}/miniz.c
+    ${miniz_SOURCE_DIR}/miniz_tdef.c
+    ${miniz_SOURCE_DIR}/miniz_tinfl.c
+    ${miniz_SOURCE_DIR}/miniz_zip.c
 )
 
 add_executable(ZipFX ${ZIPFX_SOURCES})
@@ -128,6 +132,15 @@ if(WIN32)
     )
 endif()
 
-# Copy assets and locale directories next to the executable
-file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY ${CMAKE_SOURCE_DIR}/locale    DESTINATION ${CMAKE_BINARY_DIR})
+# Windows GUI subsystem (required by wxWidgets on MSVC)
+set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
+
+# Copy assets and locale next to the executable (handles multi-config generators)
+add_custom_command(TARGET ZipFX POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/src/assets
+        $<TARGET_FILE_DIR:ZipFX>/assets
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+        ${CMAKE_SOURCE_DIR}/locale
+        $<TARGET_FILE_DIR:ZipFX>/locale
+)

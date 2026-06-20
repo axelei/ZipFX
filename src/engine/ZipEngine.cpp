@@ -122,7 +122,7 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
 
-    int result = mz_zip_reader_extract_file_to_file(
+    mz_bool result = mz_zip_reader_extract_file_to_file(
         &m_archive, entryName.data(), dest.string().c_str(), 0);
 
     return result != 0;

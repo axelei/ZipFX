@@ -36,7 +36,7 @@ void FileListPanel::SetEntries(const std::vector<ArchiveEntry>& entries)
         m_list->SetItem(idx, 4, "—"); // simplified date
         m_list->SetItem(idx, 5, e.crc != 0
             ? wxString::Format("%08X", e.crc)
-            : "—");
+            : wxString("—"));
     }
 }
 

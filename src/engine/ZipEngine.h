@@ -3,6 +3,9 @@
 
 #include "ArchiveEngine.h"
 
+// Must be defined before including miniz to prevent
+// #define crc32 mz_crc32 from corrupting other headers.
+#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
 #include <miniz.h>
 
 class ZipEngine : public ArchiveEngine
@@ -34,6 +37,8 @@ private:
     bool m_isOpen = false;
     bool m_modified = false;
     bool m_isWriter = false;
+
+    std::vector<ArchiveEntry> m_entries;
 
     void ClearEntryCache();
     void LoadEntryCache();
