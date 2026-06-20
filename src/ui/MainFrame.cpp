@@ -304,16 +304,20 @@ void MainFrame::OnToolAdd()
     wxArrayString paths;
     dlg.GetPaths(paths);
 
-    wxString basePath = dlg.GetDirectory();
+    wxString prefix = m_fileList->GetCurrentDir();
+    if (!prefix.empty())
+    {
+        prefix += "/";
+    }
 
     for (const auto& fullPath : paths)
     {
         wxFileName fn(fullPath);
-        wxString relPath = fn.GetFullName();
+        wxString archivePath = prefix + fn.GetFullName();
 
-        wxLogDebug("Adding file: %s  →  %s", fullPath, relPath);
+        wxLogDebug("Adding file: %s  →  %s", fullPath, archivePath);
 
-        if (!m_engine->AddFile(fullPath.ToStdString(), relPath.ToStdString()))
+        if (!m_engine->AddFile(fullPath.ToStdString(), archivePath.ToStdString()))
         {
             wxLogWarning("Failed to add file: %s", fullPath);
         }

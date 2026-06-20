@@ -223,10 +223,14 @@ bool ZipEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
         return false;
     }
 
+    m_pendingAdds.push_back({std::string(srcPath), std::string(archivePath)});
     m_modified = true;
 
-    // We need to be in writer mode. If we opened as reader, we'll
-    // need to rewrite the whole archive on Save().
+    ArchiveEntry placeholder;
+    placeholder.name = std::string(archivePath);
+    placeholder.path = placeholder.name;
+    m_entries.push_back(std::move(placeholder));
+
     return true;
 }
 
@@ -248,29 +252,42 @@ bool ZipEngine::Save()
         return true;
     }
 
-    // Read all current data into memory, then rewrite
+    // Read existing entries into memory (skip if we're in writer/create mode)
     std::vector<std::vector<uint8_t>> fileData;
     std::vector<std::string> fileNames;
 
-    for (const auto& entry : m_entries)
+    if (!m_isWriter)
     {
-        fileNames.push_back(entry.path);
-        fileData.push_back(ReadFile(entry.path));
+        for (const auto& entry : m_entries)
+        {
+            auto data = ReadFile(entry.path);
+            if (!data.empty())
+            {
+                fileNames.push_back(entry.path);
+                fileData.push_back(std::move(data));
+            }
+        }
+
+        // Close reader
+        mz_zip_reader_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
+    }
+    else
+    {
+        // Already in writer mode — flush and reopen as writer
+        mz_zip_writer_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
     }
 
-    // Close reader
-    mz_zip_reader_end(&m_archive);
-    std::memset(&m_archive, 0, sizeof(m_archive));
-
     // Open as writer (overwrite)
-    if (!mz_zip_writer_init_file(&m_archive, m_path.c_str(), 65537))
+    if (!mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
     {
         return false;
     }
 
     m_isWriter = true;
 
-    // Rewrite all entries
+    // Rewrite existing entries
     for (size_t i = 0; i < fileNames.size(); ++i)
     {
         if (!mz_zip_writer_add_mem(
@@ -281,6 +298,19 @@ bool ZipEngine::Save()
             return false;
         }
     }
+
+    // Write pending additions
+    for (const auto& pf : m_pendingAdds)
+    {
+        if (!mz_zip_writer_add_file(
+                &m_archive, pf.archivePath.c_str(),
+                pf.srcPath.c_str(), nullptr, 0,
+                MZ_BEST_COMPRESSION))
+        {
+            wxLogWarning("ZipEngine: can't add %s", pf.srcPath);
+        }
+    }
+    m_pendingAdds.clear();
 
     m_modified = false;
     return true;

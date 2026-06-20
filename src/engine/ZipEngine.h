@@ -39,7 +39,14 @@ private:
     bool m_modified = false;
     bool m_isWriter = false;
 
+    struct PendingFile
+    {
+        std::string srcPath;
+        std::string archivePath;
+    };
+
     std::vector<ArchiveEntry> m_entries;
+    std::vector<PendingFile>  m_pendingAdds;
 
     void ClearEntryCache();
     void LoadEntryCache();
