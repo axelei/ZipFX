@@ -79,7 +79,7 @@ void ZipEngine::LoadEntryCache()
     for (mz_uint i = 0; i < numFiles; ++i)
     {
         mz_zip_archive_file_stat stat;
-        if (!mz_zip_reader_stat(&m_archive, i, &stat))
+        if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
         {
             continue;
         }
@@ -89,14 +89,14 @@ void ZipEngine::LoadEntryCache()
         entry.path = entry.name;
         entry.size = static_cast<uint64_t>(stat.m_uncomp_size);
         entry.packedSize = static_cast<uint64_t>(stat.m_comp_size);
-        entry.crc32 = stat.m_crc32;
+        entry.crc = stat.m_crc32;
         entry.isDirectory = mz_zip_reader_is_file_a_directory(&m_archive, i);
         entry.modified = FromTimeT(stat.m_time);
 
         switch (stat.m_method)
         {
         case MZ_DEFLATED:  entry.compressionMethod = "Deflate"; break;
-        case MZ_STORED:    entry.compressionMethod = "Stored";  break;
+        case MZ_NO_COMPRESSION: entry.compressionMethod = "Stored";  break;
         default:           entry.compressionMethod = "Unknown"; break;
         }
 
@@ -122,7 +122,7 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
 
-    int result = mz_zip_reader_extract_to_file(
+    int result = mz_zip_reader_extract_file_to_file(
         &m_archive, entryName.data(), dest.string().c_str(), 0);
 
     return result != 0;
@@ -146,7 +146,7 @@ bool ZipEngine::ExtractAll(std::string_view destPath)
         fs::path fullPath = fs::path(destPath) / entry.name;
         fs::create_directories(fullPath.parent_path());
 
-        if (!mz_zip_reader_extract_to_file(
+        if (!mz_zip_reader_extract_file_to_file(
                 &m_archive, entry.name.c_str(),
                 fullPath.string().c_str(), 0))
         {

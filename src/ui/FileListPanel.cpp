@@ -34,8 +34,8 @@ void FileListPanel::SetEntries(const std::vector<ArchiveEntry>& entries)
         m_list->SetItem(idx, 2, std::to_string(e.packedSize));
         m_list->SetItem(idx, 3, e.isDirectory ? _("Folder") : _("File"));
         m_list->SetItem(idx, 4, "—"); // simplified date
-        m_list->SetItem(idx, 5, e.crc32 != 0
-            ? wxString::Format("%08X", e.crc32)
+        m_list->SetItem(idx, 5, e.crc != 0
+            ? wxString::Format("%08X", e.crc)
             : "—");
     }
 }

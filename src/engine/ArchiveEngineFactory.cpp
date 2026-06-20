@@ -9,14 +9,12 @@
 #include <cctype>
 #include <string_view>
 
-static std::string_view ToLower(std::string_view s)
+static void ToLowerInPlace(std::string& s)
 {
-    // Simple lowercasing for ASCII extensions
-    for (auto& c : const_cast<std::string&>(std::string(s)))
+    for (auto& c : s)
     {
         c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
     }
-    return s;
 }
 
 static std::string_view Extension(std::string_view path)
@@ -32,7 +30,8 @@ static std::string_view Extension(std::string_view path)
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)
 {
-    auto ext = ToLower(Extension(path));
+    std::string ext(Extension(path));
+    ToLowerInPlace(ext);
 
     if (ext == ".zip")
     {
@@ -55,8 +54,9 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     // Check for .tar.gz double extension
     if (path.size() > 7)
     {
-        auto doubleExt = path.substr(path.size() - 7);
-        if (ToLower(doubleExt) == ".tar.gz")
+        std::string doubleExt(path.substr(path.size() - 7));
+        ToLowerInPlace(doubleExt);
+        if (doubleExt == ".tar.gz")
         {
             return std::make_unique<TarGzEngine>();
         }
@@ -68,7 +68,8 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
     std::string_view format)
 {
-    auto fmt = ToLower(format);
+    std::string fmt(format);
+    ToLowerInPlace(fmt);
 
     if (fmt == "zip")   return std::make_unique<ZipEngine>();
     if (fmt == "7z")    return std::make_unique<SevenZipEngine>();

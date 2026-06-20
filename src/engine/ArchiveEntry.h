@@ -11,7 +11,7 @@ struct ArchiveEntry
     std::string path;
     uint64_t size = 0;
     uint64_t packedSize = 0;
-    uint32_t crc32 = 0;
+    uint32_t crc = 0;
     bool isDirectory = false;
     std::chrono::system_clock::time_point modified;
     std::string compressionMethod;
