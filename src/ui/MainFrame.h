@@ -53,6 +53,7 @@ private:
         ID_Wizard,
         ID_Info,
         ID_NewArchive,
+        ID_ToggleFlatMode,
     };
 };
 

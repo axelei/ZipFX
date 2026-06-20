@@ -16,8 +16,27 @@ public:
     long GetSelectedIndex() const;
     wxString GetItemText(long index, int col) const;
 
+    // Navigation
+    void SetFlatMode(bool flat);
+    bool IsFlatMode() const { return m_flatMode; }
+    wxString GetCurrentDir() const { return m_currentDir; }
+    void SetCurrentDir(const wxString& dir);
+    bool NavigateInto(const wxString& subdir);
+    void NavigateUp();
+    bool IsSelectedDirectory() const;
+
+    wxString GetSelectedEntryPath() const;
+
 protected:
+    void RebuildList();
+    void OnItemActivated(wxListEvent&);
+
     wxListCtrl* m_list = nullptr;
+    std::vector<ArchiveEntry> m_allEntries;
+
+    bool m_flatMode = false;
+    wxString m_currentDir;       // e.g. "subdir/subdir2" or empty (root)
+    wxString m_currentDirPrefix; // e.g. "subdir/subdir2/" (with trailing /)
 };
 
 #endif

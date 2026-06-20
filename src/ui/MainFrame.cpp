@@ -54,8 +54,9 @@ MainFrame::MainFrame()
     menuBar->Append(favMenu, _("&Favorites"));
 
     auto optsMenu = new wxMenu();
-    optsMenu->AppendCheckItem(wxID_ANY, _("&Toolbar"));
-    optsMenu->AppendCheckItem(wxID_ANY, _("&Status Bar"));
+    optsMenu->AppendCheckItem(ID_ToggleFlatMode, _("&Flat File List"));
+    optsMenu->AppendCheckItem(wxID_ANY,         _("&Toolbar"));
+    optsMenu->AppendCheckItem(wxID_ANY,         _("&Status Bar"));
     menuBar->Append(optsMenu, _("&Options"));
 
     auto helpMenu = new wxMenu();
@@ -129,6 +130,26 @@ MainFrame::MainFrame()
     bindCmd(ID_Test,    &MainFrame::OnToolTest);
     bindCmd(ID_View,    &MainFrame::OnToolView);
     bindCmd(ID_Delete,  &MainFrame::OnToolDelete);
+
+    // Flat mode toggle
+    Bind(wxEVT_MENU, [this](wxCommandEvent&)
+    {
+        bool flat = !m_fileList->IsFlatMode();
+        m_fileList->SetFlatMode(flat);
+    }, ID_ToggleFlatMode);
+
+    // "Up" button in address bar
+    upBtn->Bind(wxEVT_BUTTON, [this](wxCommandEvent&)
+    {
+        m_fileList->NavigateUp();
+        m_addrBox->SetValue(m_fileList->GetCurrentDir());
+    });
+
+    // Sync address bar when user double-clicks a directory in the list
+    m_fileList->Bind(wxEVT_LIST_ITEM_ACTIVATED, [this](wxListEvent&)
+    {
+        m_addrBox->SetValue(m_fileList->GetCurrentDir());
+    });
 }
 
 MainFrame::~MainFrame()
@@ -385,18 +406,23 @@ void MainFrame::OnToolView()
         return;
     }
 
-    long item = m_fileList->GetSelectedIndex();
-    if (item < 0)
+    if (!m_fileList->IsFlatMode() && m_fileList->IsSelectedDirectory())
+    {
+        m_fileList->NavigateInto(
+            m_fileList->GetItemText(m_fileList->GetSelectedIndex(), 0));
+        return;
+    }
+
+    wxString entryPath = m_fileList->GetSelectedEntryPath();
+    if (entryPath.empty())
     {
         wxMessageBox(_("Please select a file first."), _("Info"),
                      wxOK | wxICON_INFORMATION);
         return;
     }
 
-    wxString name = m_fileList->GetItemText(item, 0);
-
-    wxLogDebug("Viewing file: %s", name);
-    auto data = m_engine->ReadFile(name.ToStdString());
+    wxLogDebug("Viewing file: %s", entryPath);
+    auto data = m_engine->ReadFile(entryPath.ToStdString());
 
     if (data.empty())
     {
@@ -427,27 +453,32 @@ void MainFrame::OnToolDelete()
         return;
     }
 
-    long item = m_fileList->GetSelectedIndex();
-    if (item < 0)
+    if (m_fileList->IsSelectedDirectory())
+    {
+        wxMessageBox(_("Cannot delete a folder."), _("Info"),
+                     wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    wxString entryPath = m_fileList->GetSelectedEntryPath();
+    if (entryPath.empty())
     {
         wxMessageBox(_("Please select a file first."), _("Info"),
                      wxOK | wxICON_INFORMATION);
         return;
     }
 
-    wxString name = m_fileList->GetItemText(item, 0);
-
     if (wxMessageBox(
-            wxString::Format(_("Delete \"%s\" from archive?"), name),
+            wxString::Format(_("Delete \"%s\" from archive?"), entryPath),
             _("Confirm Delete"),
             wxYES_NO | wxICON_QUESTION) != wxYES)
     {
         return;
     }
 
-    wxLogDebug("Deleting entry: %s", name);
+    wxLogDebug("Deleting entry: %s", entryPath);
 
-    if (!m_engine->RemoveEntry(name.ToStdString()) || !m_engine->Save())
+    if (!m_engine->RemoveEntry(entryPath.ToStdString()) || !m_engine->Save())
     {
         wxLogError("Failed to delete entry: %s", name);
         wxMessageBox(_("Could not delete the file."),
