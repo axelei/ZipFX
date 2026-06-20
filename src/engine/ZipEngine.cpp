@@ -49,6 +49,25 @@ bool ZipEngine::Open(std::string_view path)
     return false;
 }
 
+bool ZipEngine::Create(std::string_view path)
+{
+    Close();
+    m_path = path;
+
+    if (mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
+    {
+        wxLogDebug("ZipEngine: created new archive %s", m_path.c_str());
+        m_isOpen = true;
+        m_isWriter = true;
+        m_modified = false;
+        LoadEntryCache();
+        return true;
+    }
+
+    wxLogError("ZipEngine: failed to create %s", m_path.c_str());
+    return false;
+}
+
 void ZipEngine::Close()
 {
     wxLogDebug("ZipEngine: closing %s", m_path.c_str());

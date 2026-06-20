@@ -62,9 +62,18 @@ static uint64_t ParseOctal(const char* data, size_t len)
     return value;
 }
 
+static void FormatOctal(char* buf, size_t len, uint64_t value)
+{
+    buf[len - 1] = '\0';
+    for (size_t i = len - 1; i > 0; --i)
+    {
+        buf[i - 1] = static_cast<char>('0' + (value & 7));
+        value >>= 3;
+    }
+}
+
 static bool ValidateChecksum(const TarHeader* hdr)
 {
-    // The checksum field is treated as spaces when computing
     uint64_t stored = ParseOctal(hdr->chksum, 8);
 
     uint64_t computed = 0;
@@ -73,7 +82,7 @@ static bool ValidateChecksum(const TarHeader* hdr)
     {
         if (i >= 148 && i < 156)
         {
-            computed += ' '; // checksum field treated as spaces
+            computed += ' ';
         }
         else
         {
@@ -82,6 +91,24 @@ static bool ValidateChecksum(const TarHeader* hdr)
     }
 
     return stored == computed;
+}
+
+static uint64_t ComputeChecksum(const TarHeader* hdr)
+{
+    uint64_t computed = 0;
+    const char* p = reinterpret_cast<const char*>(hdr);
+    for (size_t i = 0; i < TAR_BLOCK_SIZE; ++i)
+    {
+        if (i >= 148 && i < 156)
+        {
+            computed += ' ';
+        }
+        else
+        {
+            computed += static_cast<unsigned char>(p[i]);
+        }
+    }
+    return computed;
 }
 
 static std::string TarName(const TarHeader* hdr)
@@ -135,7 +162,6 @@ bool TarGzEngine::Open(std::string_view path)
             break;
         }
 
-        // Skip non-regular files (directories, symlinks, etc.)
         if (!ValidateChecksum(&hdr))
         {
             break;
@@ -152,15 +178,12 @@ bool TarGzEngine::Open(std::string_view path)
         entry.isDirectory = (hdr.typeflag == '5');
 
         struct tm timeinfo = {};
-        timeinfo.tm_sec  = 0;
-        // Parse mtime from octal
         uint64_t mtime = ParseOctal(hdr.mtime, 12);
         entry.modified = std::chrono::system_clock::from_time_t(
             static_cast<time_t>(mtime));
 
         m_entries.push_back(std::move(entry));
 
-        // Skip file data (padded to block boundary)
         uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
         std::vector<char> skipBuf(static_cast<size_t>(
             std::min(skipBytes, static_cast<uint64_t>(65536))));
@@ -253,7 +276,6 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
         return {};
     }
 
-    // Re-open and scan
     gzclose(m_gzFile);
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile)
@@ -300,7 +322,6 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
             return result;
         }
 
-        // Skip data
         std::vector<char> skipBuf(static_cast<size_t>(
             std::min(paddedSize, static_cast<uint64_t>(65536))));
         while (paddedSize > 0)
@@ -321,6 +342,7 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
 bool TarGzEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {
     m_modified = true;
+    m_entryQueue.push_back(QueueEntry{std::string(srcPath), std::string(archivePath)});
     return true;
 }
 
@@ -332,17 +354,99 @@ bool TarGzEngine::RemoveEntry(std::string_view entryName)
 
 bool TarGzEngine::Save()
 {
-    // Not yet implemented — writing tar.gz requires rebuilding
-    // the entire archive from the cached entries.
-    // For now, return false to indicate it's not functional yet.
-    (void)0;
-    return false;
+    if (!m_modified && m_entryQueue.empty())
+    {
+        return true;
+    }
+
+    wxLogDebug("TarGzEngine: saving %s (%zu queued files)", m_path.c_str(), m_entryQueue.size());
+
+    gzFile out = gzopen(m_path.c_str(), "wb");
+    if (!out)
+    {
+        wxLogError("TarGzEngine: cannot write %s", m_path.c_str());
+        return false;
+    }
+
+    auto writeBlock = [&](const void* data, size_t size)
+    {
+        gzwrite(out, data, static_cast<unsigned int>(size));
+        // Pad to block boundary
+        size_t pad = (TAR_BLOCK_SIZE - size % TAR_BLOCK_SIZE) % TAR_BLOCK_SIZE;
+        if (pad)
+        {
+            std::vector<char> zeros(pad, 0);
+            gzwrite(out, zeros.data(), static_cast<unsigned int>(pad));
+        }
+    };
+
+    for (const auto& qe : m_entryQueue)
+    {
+        std::string name = qe.archivePath;
+        std::string prefix;
+        size_t slash = name.rfind('/');
+        if (slash != std::string::npos && slash <= TAR_PREFIX_SIZE)
+        {
+            prefix = name.substr(0, slash);
+            name = name.substr(slash + 1);
+        }
+        if (name.size() >= TAR_NAME_SIZE)
+        {
+            wxLogWarning("TarGzEngine: filename too long, truncated: %s", name.c_str());
+            name.resize(TAR_NAME_SIZE - 1);
+        }
+        if (prefix.size() >= TAR_PREFIX_SIZE)
+        {
+            wxLogWarning("TarGzEngine: path too long, truncated: %s", prefix.c_str());
+            prefix.resize(TAR_PREFIX_SIZE - 1);
+        }
+
+        std::ifstream in(qe.srcPath, std::ios::binary | std::ios::ate);
+        if (!in)
+        {
+            wxLogWarning("TarGzEngine: cannot read %s", qe.srcPath.c_str());
+            continue;
+        }
+
+        uint64_t fileSize = static_cast<uint64_t>(in.tellg());
+        in.seekg(0, std::ios::beg);
+
+        auto fileData = std::vector<uint8_t>(static_cast<size_t>(fileSize));
+        in.read(reinterpret_cast<char*>(fileData.data()), fileData.size());
+
+        TarHeader hdr = {};
+        std::memcpy(hdr.name, name.c_str(), name.size());
+        std::memcpy(hdr.prefix, prefix.c_str(), prefix.size());
+        FormatOctal(hdr.mode, 8, 0644);
+        FormatOctal(hdr.size, 12, fileSize);
+
+        auto now = std::chrono::system_clock::to_time_t(
+            std::chrono::system_clock::now());
+        FormatOctal(hdr.mtime, 12, static_cast<uint64_t>(now));
+
+        hdr.typeflag = '0';
+        std::memcpy(hdr.magic, "ustar", 5);
+        std::memcpy(hdr.version, "00", 2);
+
+        FormatOctal(hdr.chksum, 8, 0);
+        FormatOctal(hdr.chksum, 8, ComputeChecksum(&hdr));
+
+        writeBlock(&hdr, sizeof(hdr));
+        writeBlock(fileData.data(), fileData.size());
+    }
+
+    // End-of-archive: two zero blocks
+    std::vector<char> endBlock(TAR_BLOCK_SIZE * 2, 0);
+    gzwrite(out, endBlock.data(), static_cast<unsigned int>(endBlock.size()));
+
+    gzclose(out);
+    wxLogDebug("TarGzEngine: saved successfully");
+    return true;
 }
 
 // ── Testing ────────────────────────────────────────────────────────────
 bool TarGzEngine::TestIntegrity()
 {
-    // Re-open and verify checksums
     gzFile f = gzopen(m_path.c_str(), "rb");
     if (!f)
     {

@@ -98,6 +98,7 @@ set(ZIPFX_SOURCES
     src/main.cpp
     src/ui/MainFrame.cpp
     src/ui/FileListPanel.cpp
+    src/ui/CreateArchiveDialog.cpp
     src/engine/ArchiveEngineFactory.cpp
     src/engine/ZipEngine.cpp
     src/engine/TarGzEngine.cpp

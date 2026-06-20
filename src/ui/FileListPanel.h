@@ -13,9 +13,8 @@ public:
 
     void SetEntries(const std::vector<ArchiveEntry>& entries);
     void Clear();
-
-protected:
-    wxListCtrl* m_list = nullptr;
+    long GetSelectedIndex() const;
+    wxString GetItemText(long index, int col) const;
 };
 
 #endif

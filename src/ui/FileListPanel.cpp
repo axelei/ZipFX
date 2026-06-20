@@ -44,3 +44,14 @@ void FileListPanel::Clear()
 {
     m_list->DeleteAllItems();
 }
+
+long FileListPanel::GetSelectedIndex() const
+{
+    return m_list->GetNextItem(-1, wxLIST_NEXT_ALL,
+                               wxLIST_STATE_SELECTED);
+}
+
+wxString FileListPanel::GetItemText(long index, int col) const
+{
+    return m_list->GetItemText(index, col);
+}

@@ -14,6 +14,7 @@ public:
     ~ZipEngine() override;
 
     bool Open(std::string_view path) override;
+    bool Create(std::string_view path) override;
     void Close() override;
 
     std::vector<ArchiveEntry> ListContents() override;

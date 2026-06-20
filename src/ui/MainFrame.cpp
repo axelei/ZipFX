@@ -1,9 +1,10 @@
 #include "MainFrame.h"
+#include "CreateArchiveDialog.h"
 
 #include <wx/log.h>
-#include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
+#include <wx/dirdlg.h>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -18,30 +19,31 @@ MainFrame::MainFrame()
     // ── Menu bar ────────────────────────────────────────────────────
     auto menuBar  = new wxMenuBar();
     auto fileMenu = new wxMenu();
-    fileMenu->Append(wxID_OPEN,   _("&Open Archive...\tCtrl+O"));
-    fileMenu->Append(wxID_CLOSE,  _("&Close Archive\tCtrl+C"));
+    fileMenu->Append(ID_NewArchive, _("&New Archive...\tCtrl+N"));
+    fileMenu->Append(wxID_OPEN,     _("&Open Archive...\tCtrl+O"));
+    fileMenu->Append(wxID_CLOSE,    _("&Close Archive\tCtrl+C"));
     fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_SAVEAS, _("Save Archive &As...\tCtrl+S"));
+    fileMenu->Append(wxID_SAVEAS,   _("Save Archive &As...\tCtrl+S"));
     fileMenu->AppendSeparator();
-    fileMenu->Append(wxID_EXIT,   _("E&xit\tAlt+F4"));
+    fileMenu->Append(wxID_EXIT,     _("E&xit\tAlt+F4"));
     menuBar->Append(fileMenu, _("&File"));
 
     auto cmdMenu = new wxMenu();
-    cmdMenu->Append(wxID_ANY, _("&Add Files to Archive...\tAlt+A"));
-    cmdMenu->Append(wxID_ANY, _("E&xtract Files...\tAlt+E"));
-    cmdMenu->Append(wxID_ANY, _("&Test Archive\tAlt+T"));
-    cmdMenu->Append(wxID_ANY, _("&View File\tAlt+V"));
-    cmdMenu->Append(wxID_ANY, _("&Delete Files\tDel"));
+    cmdMenu->Append(ID_Add,     _("&Add Files to Archive...\tAlt+A"));
+    cmdMenu->Append(ID_Extract, _("E&xtract Files...\tAlt+E"));
+    cmdMenu->Append(ID_Test,    _("&Test Archive\tAlt+T"));
+    cmdMenu->Append(ID_View,    _("&View File\tAlt+V"));
+    cmdMenu->Append(ID_Delete,  _("&Delete Files\tDel"));
     cmdMenu->AppendSeparator();
-    cmdMenu->Append(wxID_ANY, _("&Find Files...\tF3"));
-    cmdMenu->Append(wxID_ANY, _("&Wizard...\tCtrl+W"));
-    cmdMenu->Append(wxID_ANY, _("&Information...\tCtrl+I"));
+    cmdMenu->Append(ID_Find,    _("&Find Files...\tF3"));
+    cmdMenu->Append(ID_Wizard,  _("&Wizard...\tCtrl+W"));
+    cmdMenu->Append(ID_Info,    _("&Information...\tCtrl+I"));
     menuBar->Append(cmdMenu, _("&Commands"));
 
     auto toolsMenu = new wxMenu();
-    toolsMenu->Append(wxID_ANY,       _("&Repair Archive..."));
-    toolsMenu->Append(wxID_ANY,       _("&Convert Archive..."));
-    toolsMenu->Append(wxID_ANY,       _("&Benchmark..."));
+    toolsMenu->Append(wxID_ANY,         _("&Repair Archive..."));
+    toolsMenu->Append(wxID_ANY,         _("&Convert Archive..."));
+    toolsMenu->Append(wxID_ANY,         _("&Benchmark..."));
     toolsMenu->AppendSeparator();
     toolsMenu->Append(wxID_PREFERENCES, _("&Settings..."));
     menuBar->Append(toolsMenu, _("&Tools"));
@@ -65,16 +67,16 @@ MainFrame::MainFrame()
     auto tb = CreateToolBar(wxTB_HORIZONTAL | wxTB_FLAT | wxTB_TEXT);
     tb->SetToolBitmapSize(wxSize(20, 20));
 
-    tb->AddTool(wxID_ANY, _("Add"),        m_icons.add);
-    tb->AddTool(wxID_ANY, _("Extract To"), m_icons.extract);
-    tb->AddTool(wxID_ANY, _("Test"),       m_icons.test);
-    tb->AddTool(wxID_ANY, _("View"),       m_icons.view);
+    tb->AddTool(ID_Add,     _("Add"),        m_icons.add);
+    tb->AddTool(ID_Extract, _("Extract To"), m_icons.extract);
+    tb->AddTool(ID_Test,    _("Test"),       m_icons.test);
+    tb->AddTool(ID_View,    _("View"),       m_icons.view);
     tb->AddSeparator();
-    tb->AddTool(wxID_ANY, _("Delete"),     m_icons.del);
-    tb->AddTool(wxID_ANY, _("Find"),       m_icons.find);
+    tb->AddTool(ID_Delete,  _("Delete"),     m_icons.del);
+    tb->AddTool(ID_Find,    _("Find"),       m_icons.find);
     tb->AddSeparator();
-    tb->AddTool(wxID_ANY, _("Wizard"),     m_icons.wizard);
-    tb->AddTool(wxID_ANY, _("Info"),       m_icons.info);
+    tb->AddTool(ID_Wizard,  _("Wizard"),     m_icons.wizard);
+    tb->AddTool(ID_Info,    _("Info"),       m_icons.info);
 
     tb->Realize();
 
@@ -110,10 +112,24 @@ MainFrame::MainFrame()
     SetSizer(frameSizer);
 
     // ── Event bindings ──────────────────────────────────────────────
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnNewArchive(); },  ID_NewArchive);
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnOpenArchive(); }, wxID_OPEN);
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnCloseArchive(); }, wxID_CLOSE);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); }, wxID_EXIT);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnAbout(); }, wxID_ABOUT);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); },     wxID_EXIT);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnAbout(); },       wxID_ABOUT);
+
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolAdd(); },     ID_Add);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolExtract(); },  ID_Extract);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolTest(); },    ID_Test);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolView(); },    ID_View);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolDelete(); },  ID_Delete);
+
+    // Toolbar-to-menu forwarding (wxEVT_TOOL → wxEVT_MENU)
+    Bind(wxEVT_TOOL, [this](wxCommandEvent& e)
+    {
+        wxCommandEvent evt(wxEVT_MENU, e.GetId());
+        GetEventHandler()->ProcessEvent(evt);
+    });
 }
 
 MainFrame::~MainFrame()
@@ -121,7 +137,56 @@ MainFrame::~MainFrame()
     OnCloseArchive();
 }
 
-// ── Actions ────────────────────────────────────────────────────────────
+// ── New Archive ────────────────────────────────────────────────────────
+void MainFrame::OnNewArchive()
+{
+    CreateArchiveDialog dlg(this);
+    if (dlg.ShowModal() != wxID_OK)
+    {
+        return;
+    }
+
+    auto result = dlg.GetResult();
+    OnCloseArchive();
+
+    auto engine = ArchiveEngineFactory::CreateForFormat(
+        result.format.ToStdString());
+
+    if (!engine)
+    {
+        wxLogError("No engine for format: %s", result.format);
+        wxMessageBox(_("This format is not supported."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    if (!engine->SupportsCreation())
+    {
+        wxMessageBox(_("This format does not support archive creation."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    wxLogDebug("Creating %s archive: %s  (level %d)",
+               result.format, result.path, result.compressionLevel);
+
+    if (!engine->Create(result.path.ToStdString()))
+    {
+        wxLogError("Failed to create archive: %s", result.path);
+        wxMessageBox(_("Could not create the archive."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    m_engine = std::move(engine);
+    m_currentPath = result.path.ToStdString();
+    m_addrBox->SetValue(m_currentPath);
+
+    wxLogMessage("Archive created: %s", m_currentPath);
+    RefreshFileList();
+}
+
+// ── Open Archive ───────────────────────────────────────────────────────
 void MainFrame::OnOpenArchive()
 {
     wxString filter = _(
@@ -179,7 +244,7 @@ void MainFrame::OnCloseArchive()
     m_fileList->Clear();
     m_addrBox->SetValue("");
 
-    SetStatusText("No archive open", 0);
+    SetStatusText(_("No archive open"), 0);
     SetStatusText("", 1);
 }
 
@@ -193,6 +258,210 @@ void MainFrame::OnAbout()
         wxOK | wxICON_INFORMATION);
 }
 
+// ── Add Files ──────────────────────────────────────────────────────────
+void MainFrame::OnToolAdd()
+{
+    if (!m_engine)
+    {
+        wxMessageBox(_("No archive is open."), _("Error"),
+                     wxOK | wxICON_WARNING);
+        return;
+    }
+
+    if (!m_engine->SupportsCreation())
+    {
+        wxMessageBox(_("This archive format does not support adding files."),
+                     _("Error"), wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxFileDialog dlg(this, _("Add Files"), "", "", "*.*",
+        wxFD_OPEN | wxFD_MULTIPLE | wxFD_FILE_MUST_EXIST);
+
+    if (dlg.ShowModal() != wxID_OK)
+    {
+        return;
+    }
+
+    wxArrayString paths;
+    dlg.GetPaths(paths);
+
+    wxString basePath = dlg.GetDirectory();
+
+    for (const auto& fullPath : paths)
+    {
+        wxFileName fn(fullPath);
+        wxString relPath = fn.GetFullName();
+
+        wxLogDebug("Adding file: %s  →  %s", fullPath, relPath);
+
+        if (!m_engine->AddFile(fullPath.ToStdString(), relPath.ToStdString()))
+        {
+            wxLogWarning("Failed to add file: %s", fullPath);
+        }
+    }
+
+    // Save changes
+    if (!m_engine->Save())
+    {
+        wxLogError("Failed to save archive after adding files");
+        wxMessageBox(_("Could not save the archive after adding files."),
+                     _("Error"), wxOK | wxICON_ERROR);
+    }
+
+    wxLogMessage("Files added to archive");
+    RefreshFileList();
+}
+
+// ── Extract ────────────────────────────────────────────────────────────
+void MainFrame::OnToolExtract()
+{
+    if (!m_engine)
+    {
+        wxMessageBox(_("No archive is open."), _("Error"),
+                     wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxDirDialog dlg(this, _("Select destination folder"), "",
+                    wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+
+    if (dlg.ShowModal() != wxID_OK)
+    {
+        return;
+    }
+
+    DoExtract(dlg.GetPath().ToStdString());
+}
+
+void MainFrame::DoExtract(const std::string& destPath)
+{
+    wxLogDebug("Extracting to: %s", destPath);
+
+    // Check if any items are selected in the file list
+    // For now, extract all
+    if (!m_engine->ExtractAll(destPath))
+    {
+        wxLogError("Extraction failed");
+        wxMessageBox(_("Some files could not be extracted."),
+                     _("Extraction Warning"), wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxLogMessage("Extraction complete");
+    wxMessageBox(_("Files extracted successfully."),
+                 _("Extraction Complete"), wxOK | wxICON_INFORMATION);
+}
+
+// ── Test ───────────────────────────────────────────────────────────────
+void MainFrame::OnToolTest()
+{
+    if (!m_engine)
+    {
+        wxMessageBox(_("No archive is open."), _("Error"),
+                     wxOK | wxICON_WARNING);
+        return;
+    }
+
+    wxLogDebug("Testing archive integrity");
+
+    if (m_engine->TestIntegrity())
+    {
+        wxMessageBox(_("Archive integrity check passed."),
+                     _("Test Result"), wxOK | wxICON_INFORMATION);
+    }
+    else
+    {
+        wxMessageBox(_("Archive integrity check FAILED."),
+                     _("Test Result"), wxOK | wxICON_ERROR);
+    }
+}
+
+// ── View & Delete ──────────────────────────────────────────────────────
+void MainFrame::OnToolView()
+{
+    if (!m_engine)
+    {
+        wxMessageBox(_("No archive is open."), _("Error"),
+                     wxOK | wxICON_WARNING);
+        return;
+    }
+
+    long item = m_fileList->GetSelectedIndex();
+    if (item < 0)
+    {
+        wxMessageBox(_("Please select a file first."), _("Info"),
+                     wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    wxString name = m_fileList->GetItemText(item, 0);
+
+    wxLogDebug("Viewing file: %s", name);
+    auto data = m_engine->ReadFile(name.ToStdString());
+
+    if (data.empty())
+    {
+        wxMessageBox(_("Could not read the file."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    // For now, show size info — full hex viewer can come later
+    wxString msg = wxString::Format(
+        _("File: %s\nSize: %zu bytes"), name, data.size());
+    wxMessageBox(msg, _("File Information"), wxOK | wxICON_INFORMATION);
+}
+
+void MainFrame::OnToolDelete()
+{
+    if (!m_engine)
+    {
+        wxMessageBox(_("No archive is open."), _("Error"),
+                     wxOK | wxICON_WARNING);
+        return;
+    }
+
+    if (!m_engine->SupportsCreation())
+    {
+        wxMessageBox(_("This archive format does not support deletion."),
+                     _("Error"), wxOK | wxICON_WARNING);
+        return;
+    }
+
+    long item = m_fileList->GetSelectedIndex();
+    if (item < 0)
+    {
+        wxMessageBox(_("Please select a file first."), _("Info"),
+                     wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    wxString name = m_fileList->GetItemText(item, 0);
+
+    if (wxMessageBox(
+            wxString::Format(_("Delete \"%s\" from archive?"), name),
+            _("Confirm Delete"),
+            wxYES_NO | wxICON_QUESTION) != wxYES)
+    {
+        return;
+    }
+
+    wxLogDebug("Deleting entry: %s", name);
+
+    if (!m_engine->RemoveEntry(name.ToStdString()) || !m_engine->Save())
+    {
+        wxLogError("Failed to delete entry: %s", name);
+        wxMessageBox(_("Could not delete the file."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return;
+    }
+
+    wxLogMessage("Deleted entry: %s", name);
+    RefreshFileList();
+}
+
+// ── Refresh ────────────────────────────────────────────────────────────
 void MainFrame::RefreshFileList()
 {
     if (!m_engine)

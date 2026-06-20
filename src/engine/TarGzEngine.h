@@ -30,11 +30,18 @@ public:
     bool IsOpen() const override { return m_isOpen; }
 
 private:
+    struct QueueEntry
+    {
+        std::string srcPath;
+        std::string archivePath;
+    };
+
     gzFile m_gzFile = nullptr;
     std::string m_path;
     bool m_isOpen = false;
     bool m_modified = false;
     std::vector<ArchiveEntry> m_entries;
+    std::vector<QueueEntry> m_entryQueue;
 };
 
 #endif

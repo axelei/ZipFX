@@ -15,6 +15,7 @@ public:
     virtual ~ArchiveEngine() = default;
 
     virtual bool Open(std::string_view path) = 0;
+    virtual bool Create(std::string_view path) { return false; }
     virtual void Close() = 0;
 
     virtual std::vector<ArchiveEntry> ListContents() = 0;
