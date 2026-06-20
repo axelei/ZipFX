@@ -43,12 +43,12 @@ void FileListPanel::SetEntries(const std::vector<ArchiveEntry>& entries)
             }
             else
             {
-                m_list->SetItem(idx, 4, wxString("—"));
+                m_list->SetItem(idx, 4, wxString("-"));
             }
         }
         m_list->SetItem(idx, 5, e.crc != 0
             ? wxString::Format("%08X", e.crc)
-            : wxString("—"));
+            : wxString("-"));
     }
 }
 
