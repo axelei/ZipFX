@@ -153,8 +153,8 @@ add_custom_command(TARGET ZipFX POST_BUILD
 # Install rules
 # ====================================================================
 install(TARGETS ZipFX
-    RUNTIME_DESTINATION .
-    BUNDLE_DESTINATION .
+    RUNTIME DESTINATION .
+    BUNDLE  DESTINATION .
 )
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/assets/ DESTINATION assets
