@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 // ── Lifecycle ──────────────────────────────────────────────────────────
 SevenZipEngine::~SevenZipEngine()
 {
-    Close();
+    SevenZipEngine::Close();
 }
 
 bool SevenZipEngine::Open(std::string_view path)

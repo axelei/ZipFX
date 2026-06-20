@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 // ── Lifecycle ──────────────────────────────────────────────────────────
 RarEngine::~RarEngine()
 {
-    Close();
+    RarEngine::Close();
 }
 
 bool RarEngine::Open(std::string_view path)

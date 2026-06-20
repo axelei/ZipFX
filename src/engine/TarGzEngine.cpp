@@ -126,7 +126,7 @@ static std::string TarName(const TarHeader* hdr)
 // ── Lifecycle ──────────────────────────────────────────────────────────
 TarGzEngine::~TarGzEngine()
 {
-    Close();
+    TarGzEngine::Close();
 }
 
 bool TarGzEngine::Open(std::string_view path)

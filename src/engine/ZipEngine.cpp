@@ -27,7 +27,7 @@ static std::chrono::system_clock::time_point FromTimeT(time_t t)
 // -----------------------------------------------------------------------
 ZipEngine::~ZipEngine()
 {
-    Close();
+    ZipEngine::Close();
 }
 
 bool ZipEngine::Open(std::string_view path)

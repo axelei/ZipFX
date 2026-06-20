@@ -118,23 +118,22 @@ MainFrame::MainFrame()
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { Close(true); },     wxID_EXIT);
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnAbout(); },       wxID_ABOUT);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolAdd(); },     ID_Add);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolExtract(); },  ID_Extract);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolTest(); },    ID_Test);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolView(); },    ID_View);
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolDelete(); },  ID_Delete);
-
-    // Toolbar-to-menu forwarding (wxEVT_TOOL → wxEVT_MENU)
-    Bind(wxEVT_TOOL, [this](wxCommandEvent& e)
+    auto bindCmd = [this](int id, void (MainFrame::*fn)())
     {
-        wxCommandEvent evt(wxEVT_MENU, e.GetId());
-        GetEventHandler()->ProcessEvent(evt);
-    });
+        Bind(wxEVT_MENU, [this, fn](wxCommandEvent&) { (this->*fn)(); }, id);
+        Bind(wxEVT_TOOL, [this, fn](wxCommandEvent&) { (this->*fn)(); }, id);
+    };
+
+    bindCmd(ID_Add,     &MainFrame::OnToolAdd);
+    bindCmd(ID_Extract, &MainFrame::OnToolExtract);
+    bindCmd(ID_Test,    &MainFrame::OnToolTest);
+    bindCmd(ID_View,    &MainFrame::OnToolView);
+    bindCmd(ID_Delete,  &MainFrame::OnToolDelete);
 }
 
 MainFrame::~MainFrame()
 {
-    OnCloseArchive();
+    // Children are destroyed before this runs — do nothing here.
 }
 
 // ── New Archive ────────────────────────────────────────────────────────
