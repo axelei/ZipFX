@@ -431,9 +431,8 @@ void MainFrame::OnToolView()
         return;
     }
 
-    // For now, show size info — full hex viewer can come later
     wxString msg = wxString::Format(
-        _("File: %s\nSize: %zu bytes"), name, data.size());
+        _("File: %s\nSize: %zu bytes"), entryPath, data.size());
     wxMessageBox(msg, _("File Information"), wxOK | wxICON_INFORMATION);
 }
 
@@ -480,13 +479,13 @@ void MainFrame::OnToolDelete()
 
     if (!m_engine->RemoveEntry(entryPath.ToStdString()) || !m_engine->Save())
     {
-        wxLogError("Failed to delete entry: %s", name);
+        wxLogError("Failed to delete entry: %s", entryPath);
         wxMessageBox(_("Could not delete the file."),
                      _("Error"), wxOK | wxICON_ERROR);
         return;
     }
 
-    wxLogMessage("Deleted entry: %s", name);
+    wxLogMessage("Deleted entry: %s", entryPath);
     RefreshFileList();
 }
 
