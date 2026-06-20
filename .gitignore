@@ -1,0 +1,15 @@
+# Build directories
+cmake-build-*/
+build/
+
+# IDE
+.idea/
+*.user
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Dependencies fetched by CMake
+_deps/
