@@ -181,7 +181,7 @@ MainFrame::MainFrame()
             m_engine->ReadFile(entryPath.ToStdString());
     }, ID_CtxView);
 
-    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolExtract(); }, ID_CtxExtract);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { DoExtractSelected(); }, ID_CtxExtract);
     Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolDelete(); },  ID_CtxDelete);
 
     // ── Drag source (extract by dragging to explorer) ───────────
@@ -261,16 +261,20 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         return;
     }
 
-    // Extract selected files to a temp directory
-    wxString tmpRoot = wxStandardPaths::Get().GetTempDir() + "/ZipFX_Drag/";
+    // Unique temp folder for this drag operation
+    wxString tmpRoot = wxStandardPaths::Get().GetTempDir()
+                     + "/ZipFX_Drag/"
+                     + wxString::Format("%u", (unsigned)time(nullptr))
+                     + "/";
+
+    wxFileName::Mkdir(tmpRoot, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
     wxFileDataObject data;
+    int okCount = 0;
 
     for (const auto& entryPath : sel)
     {
-        wxString safeName = entryPath;
-        safeName.Replace("/", "_");
-        wxString destPath = tmpRoot + safeName;
+        wxString destPath = tmpRoot + entryPath.AfterLast('/');
 
         wxFileName::Mkdir(wxFileName(destPath).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
@@ -278,10 +282,15 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         if (m_engine->Extract(entryPath.ToStdString(), destPath.ToStdString()))
         {
             data.AddFile(destPath);
+            okCount++;
+        }
+        else
+        {
+            wxLogWarning("Drag: failed to extract %s", entryPath);
         }
     }
 
-    if (!data.GetFilenames().IsEmpty())
+    if (okCount > 0)
     {
         wxDropSource source(data, this);
         source.DoDragDrop(wxDrag_CopyOnly);
@@ -632,6 +641,58 @@ void MainFrame::DoExtract(const std::string& destPath)
     wxLogMessage("Extraction complete: %d extracted, %d skipped", extracted, skipped);
     SetStatusText(
         wxString::Format(_("Extraction complete (%d files)"), extracted), 2);
+}
+
+void MainFrame::DoExtractSelected()
+{
+    if (!m_engine) return;
+
+    auto sel = m_fileList->GetSelectedEntryPaths();
+    if (sel.empty())
+    {
+        wxMessageBox(_("Please select at least one file."), _("Info"),
+                     wxOK | wxICON_INFORMATION);
+        return;
+    }
+
+    wxDirDialog dirDlg(this, _("Extract selected to"), "",
+                       wxDD_DEFAULT_STYLE | wxDD_DIR_MUST_EXIST);
+    if (dirDlg.ShowModal() != wxID_OK) return;
+
+    wxString destRoot = dirDlg.GetPath();
+    wxLogDebug("Extracting %zu selected entries to %s",
+               sel.size(), destRoot);
+
+    wxProgressDialog progress(_("Extracting"),
+        _("Preparing..."),
+        static_cast<int>(sel.size()), this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    int extracted = 0;
+
+    for (size_t i = 0; i < sel.size(); ++i)
+    {
+        wxString msg = wxString::Format(_("Extracting: %s"), sel[i]);
+        if (!progress.Update(static_cast<int>(i), msg)) break;
+
+        wxString destFile = destRoot + "/" + sel[i].AfterLast('/');
+
+        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
+                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        if (m_engine->Extract(sel[i].ToStdString(), destFile.ToStdString()))
+        {
+            extracted++;
+        }
+        else
+        {
+            wxLogWarning("Failed to extract: %s", sel[i]);
+        }
+    }
+
+    progress.Update(static_cast<int>(sel.size()));
+    wxLogMessage("Extracted %d selected files", extracted);
+    SetStatusText(wxString::Format(_("Extracted %d files"), extracted), 2);
 }
 
 // ── Test ───────────────────────────────────────────────────────────────

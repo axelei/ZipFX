@@ -38,6 +38,7 @@ private:
 
     void RefreshFileList();
     void DoExtract(const std::string& destPath);
+    void DoExtractSelected();
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;
