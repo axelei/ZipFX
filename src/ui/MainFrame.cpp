@@ -274,7 +274,7 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
     for (const auto& entryPath : sel)
     {
-        wxString destPath = tmpRoot + entryPath.AfterLast('/');
+        wxString destPath = tmpRoot + entryPath;
 
         wxFileName::Mkdir(wxFileName(destPath).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
@@ -675,7 +675,7 @@ void MainFrame::DoExtractSelected()
         wxString msg = wxString::Format(_("Extracting: %s"), sel[i]);
         if (!progress.Update(static_cast<int>(i), msg)) break;
 
-        wxString destFile = destRoot + "/" + sel[i].AfterLast('/');
+        wxString destFile = destRoot + "/" + sel[i];
 
         wxFileName::Mkdir(wxFileName(destFile).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
