@@ -148,3 +148,52 @@ add_custom_command(TARGET ZipFX POST_BUILD
         ${CMAKE_SOURCE_DIR}/locale
         $<TARGET_FILE_DIR:ZipFX>/locale
 )
+
+# ====================================================================
+# Install rules
+# ====================================================================
+install(TARGETS ZipFX
+    RUNTIME_DESTINATION .
+    BUNDLE_DESTINATION .
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/src/assets/ DESTINATION assets
+    USE_SOURCE_PERMISSIONS
+)
+
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/locale/ DESTINATION locale
+    USE_SOURCE_PERMISSIONS
+)
+
+# ====================================================================
+# CPack  –  Multi-platform installer generation
+# ====================================================================
+set(CPACK_PACKAGE_NAME             "ZipFX")
+set(CPACK_PACKAGE_VERSION          "${PROJECT_VERSION}")
+set(CPACK_PACKAGE_VENDOR           "ZipFX Team")
+set(CPACK_PACKAGE_HOMEPAGE_URL     "https://github.com/axelei/ZipFX")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A cross-platform archive manager (ZIP, 7z, RAR, TAR.GZ)")
+set(CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_SOURCE_DIR}/LICENSE")
+
+if(WIN32)
+    # NSIS  –  Windows installer  (requires NSIS installed)
+    set(CPACK_GENERATOR "NSIS;ZIP")
+    set(CPACK_NSIS_DISPLAY_NAME "ZipFX")
+    set(CPACK_NSIS_INSTALL_ROOT "$PROGRAMFILES64")
+    set(CPACK_NSIS_MENU_LINKS
+        "https://github.com/axelei/ZipFX" "ZipFX Homepage")
+elseif(APPLE)
+    # DragNDrop  –  macOS .dmg  +  portable .tar.gz
+    set(CPACK_GENERATOR "DragNDrop;TGZ")
+    set(CPACK_DMG_VOLUME_NAME "ZipFX")
+    set(CPACK_DMG_DISABLE_APPLICATIONS_SYMLINK ON)
+else()
+    # DEB / RPM / TGZ  –  Linux
+    set(CPACK_GENERATOR "DEB;RPM;TGZ")
+    set(CPACK_DEBIAN_PACKAGE_MAINTAINER "ZipFX Team")
+    set(CPACK_DEBIAN_FILE_NAME    "ZipFX-${CPACK_PACKAGE_VERSION}.deb")
+    set(CPACK_RPM_PACKAGE_RELEASE "1")
+    set(CPACK_RPM_PACKAGE_LICENSE "GPL-3.0-or-later")
+endif()
+
+include(CPack)
