@@ -31,7 +31,14 @@ protected:
     void RebuildList();
     void OnItemActivated(wxListEvent&);
 
-    wxListCtrl* m_list = nullptr;
+    int GetIconForFile(const wxString& name);
+
+    wxListCtrl*  m_list    = nullptr;
+    wxImageList* m_icons   = nullptr;
+    int m_iconFolder = -1;
+    int m_iconFile   = -1;
+    int m_iconParent = -1;
+
     std::vector<ArchiveEntry> m_allEntries;
 
     bool m_flatMode = false;

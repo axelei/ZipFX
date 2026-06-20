@@ -242,8 +242,6 @@ void MainFrame::OnOpenArchive()
         return;
     }
 
-    wxLogMessage("Archive opened: %s  [%s]", path, engine->FormatName().data());
-
     m_engine = std::move(engine);
     m_currentPath = path;
     m_addrBox->SetValue(path);

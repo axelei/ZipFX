@@ -1,6 +1,14 @@
 #include "FileListPanel.h"
 
 #include <wx/sizer.h>
+#include <wx/artprov.h>
+
+#include <unordered_map>
+
+#ifdef __WXMSW__
+#include <wx/icon.h>
+#include <shellapi.h>
+#endif
 
 FileListPanel::FileListPanel(wxWindow* parent)
     : wxPanel(parent)
@@ -8,6 +16,18 @@ FileListPanel::FileListPanel(wxWindow* parent)
     m_list = new wxListCtrl(this, wxID_ANY,
         wxDefaultPosition, wxDefaultSize,
         wxLC_REPORT | wxLC_HRULES | wxLC_VRULES);
+
+    // ── Icon image list ─────────────────────────────────────────────
+    m_icons = new wxImageList(16, 16, true);
+
+    // Default folder / file icons (cross-platform fallback)
+    m_iconFolder = m_icons->Add(
+        wxArtProvider::GetIcon(wxART_FOLDER,       wxART_LIST, wxSize(16, 16)));
+    m_iconFile   = m_icons->Add(
+        wxArtProvider::GetIcon(wxART_NORMAL_FILE,  wxART_LIST, wxSize(16, 16)));
+    m_iconParent = m_iconFolder; // ".." uses folder icon
+
+    m_list->SetImageList(m_icons, wxIMAGE_LIST_SMALL);
 
     m_list->AppendColumn(_("Name"),     wxLIST_FORMAT_LEFT,  240);
     m_list->AppendColumn(_("Size"),     wxLIST_FORMAT_RIGHT,  90);
@@ -170,134 +190,187 @@ bool FileListPanel::IsSelectedDirectory() const
     return false;
 }
 
+// ── Icon lookup ────────────────────────────────────────────────────────
+int FileListPanel::GetIconForFile(const wxString& name)
+{
+    if (name == "..")
+    {
+        return m_iconParent;
+    }
+
+    // Check if it looks like a directory
+    if (name.Find('.') == wxNOT_FOUND || name.Last() == '/')
+    {
+        return m_iconFolder;
+    }
+
+    wxString ext = name.AfterLast('.').Lower();
+
+    static std::unordered_map<wxString, int> s_extCache;
+
+    auto it = s_extCache.find(ext);
+    if (it != s_extCache.end())
+    {
+        return it->second;
+    }
+
+#ifdef __WXMSW__
+    // Try to extract the icon from the Windows shell
+    SHFILEINFOW sfi = {};
+    wxString wildcard = "*." + ext;
+    if (SHGetFileInfoW(wildcard.wc_str(), FILE_ATTRIBUTE_NORMAL, &sfi,
+                       sizeof(sfi), SHGFI_USEFILEATTRIBUTES | SHGFI_ICON |
+                       SHGFI_SMALLICON | SHGFI_SHELLICONSIZE))
+    {
+        wxIcon icon;
+        icon.CreateFromHICON(sfi.hIcon);
+        int idx = m_icons->Add(icon);
+        DestroyIcon(sfi.hIcon);
+        s_extCache[ext] = idx;
+        return idx;
+    }
+#else
+    (void)ext;
+#endif
+
+    return m_iconFile;
+}
+
 // ── Rebuild list ───────────────────────────────────────────────────────
 void FileListPanel::RebuildList()
 {
     m_list->DeleteAllItems();
 
-    std::vector<const ArchiveEntry*> displayEntries;
-
     if (m_flatMode)
     {
-        // Show everything flat
+        // ── Flat mode: show everything ──
         for (const auto& e : m_allEntries)
         {
-            displayEntries.push_back(&e);
-        }
-    }
-    else
-    {
-        // Show only direct children of current directory
-        if (!m_currentDir.empty())
-        {
-            // Add ".." entry for navigation
-            long idx = m_list->InsertItem(0, "..");
-            m_list->SetItem(idx, 1, "");
-            m_list->SetItem(idx, 2, "");
-            m_list->SetItem(idx, 3, _("Parent Folder"));
-            m_list->SetItem(idx, 4, "");
-            m_list->SetItem(idx, 5, "");
-        }
+            wxString name = wxString::FromUTF8(e.name.c_str());
+            int icon = e.isDirectory ? m_iconFolder : GetIconForFile(name);
+            long idx = m_list->InsertItem(m_list->GetItemCount(), name, icon);
 
-        // Collect immediate children (entries at this level)
-        struct Child
-        {
-            const ArchiveEntry* entry = nullptr;
-            bool isDir = false;
-            wxString displayName;
-        };
-        std::vector<Child> children;
+            m_list->SetItem(idx, 1, std::to_string(e.size));
+            m_list->SetItem(idx, 2, std::to_string(e.packedSize));
+            m_list->SetItem(idx, 3, e.isDirectory ? _("Folder") : _("File"));
 
-        for (const auto& e : m_allEntries)
-        {
-            // Must start with prefix
-            const auto& ep = e.path;
-            if (ep.size() < m_currentDirPrefix.size() ||
-                ep.compare(0, m_currentDirPrefix.size(),
-                           m_currentDirPrefix.ToStdString()) != 0)
+            auto secs = std::chrono::duration_cast<std::chrono::seconds>(
+                e.modified.time_since_epoch()).count();
+            if (secs > 86400 * 365)
             {
-                continue;
-            }
-
-            wxString remainder = wxString::FromUTF8(ep.c_str() + m_currentDirPrefix.size());
-
-            // Remove everything after the first /
-            auto slash = remainder.Find('/');
-            bool isDir = slash != wxNOT_FOUND || e.isDirectory;
-
-            if (isDir && slash != wxNOT_FOUND)
-            {
-                // It's a subdirectory — truncate to just the dir name
-                wxString dirName = remainder.Left(slash);
-
-                // Deduplicate: check if we already added this subdirectory
-                bool alreadyAdded = false;
-                for (const auto& c : children)
-                {
-                    if (c.displayName == dirName)
-                    {
-                        alreadyAdded = true;
-                        break;
-                    }
-                }
-                if (!alreadyAdded)
-                {
-                    children.push_back({nullptr, true, dirName});
-                }
-            }
-            else if (!e.isDirectory)
-            {
-                children.push_back({&e, false, remainder});
-            }
-        }
-
-        // Sort: directories first, then files, alphabetically
-        std::sort(children.begin(), children.end(),
-            [](const Child& a, const Child& b)
-            {
-                if (a.isDir != b.isDir)
-                {
-                    return a.isDir > b.isDir; // dirs first
-                }
-                return a.displayName < b.displayName;
-            });
-
-        for (const auto& c : children)
-        {
-            long idx = m_list->InsertItem(m_list->GetItemCount(), c.displayName);
-
-            if (c.entry)
-            {
-                m_list->SetItem(idx, 1, std::to_string(c.entry->size));
-                m_list->SetItem(idx, 2, std::to_string(c.entry->packedSize));
-                m_list->SetItem(idx, 3, c.entry->isDirectory
-                    ? _("Folder") : _("File"));
-
-                auto secs = std::chrono::duration_cast<std::chrono::seconds>(
-                    c.entry->modified.time_since_epoch()).count();
-                if (secs > 86400 * 365)
-                {
-                    wxDateTime dt(static_cast<time_t>(secs));
-                    m_list->SetItem(idx, 4, dt.Format("%Y-%m-%d %H:%M"));
-                }
-                else
-                {
-                    m_list->SetItem(idx, 4, wxString("-"));
-                }
-
-                m_list->SetItem(idx, 5, c.entry->crc != 0
-                    ? wxString::Format("%08X", c.entry->crc)
-                    : wxString("-"));
+                wxDateTime dt(static_cast<time_t>(secs));
+                m_list->SetItem(idx, 4, dt.Format("%Y-%m-%d %H:%M"));
             }
             else
             {
-                // Directory placeholder — show aggregated info
-                m_list->SetItem(idx, 1, "");
-                m_list->SetItem(idx, 2, "");
-                m_list->SetItem(idx, 3, _("Folder"));
-                m_list->SetItem(idx, 4, "");
-                m_list->SetItem(idx, 5, "");
+                m_list->SetItem(idx, 4, wxString("-"));
             }
+
+            m_list->SetItem(idx, 5, e.crc != 0
+                ? wxString::Format("%08X", e.crc)
+                : wxString("-"));
+        }
+        return;
+    }
+
+    // ── Hierarchical mode ──
+    if (!m_currentDir.empty())
+    {
+        long idx = m_list->InsertItem(0, "..", m_iconParent);
+        m_list->SetItem(idx, 1, "");
+        m_list->SetItem(idx, 2, "");
+        m_list->SetItem(idx, 3, _("Parent Folder"));
+        m_list->SetItem(idx, 4, "");
+        m_list->SetItem(idx, 5, "");
+    }
+
+    struct Child
+    {
+        const ArchiveEntry* entry = nullptr;
+        bool isDir = false;
+        wxString displayName;
+    };
+    std::vector<Child> children;
+
+    for (const auto& e : m_allEntries)
+    {
+        const auto& ep = e.path;
+        if (ep.size() < m_currentDirPrefix.size() ||
+            ep.compare(0, m_currentDirPrefix.size(),
+                       m_currentDirPrefix.ToStdString()) != 0)
+        {
+            continue;
+        }
+
+        wxString remainder = wxString::FromUTF8(ep.c_str() + m_currentDirPrefix.size());
+        auto slash = remainder.Find('/');
+        bool isDir = slash != wxNOT_FOUND || e.isDirectory;
+
+        if (isDir && slash != wxNOT_FOUND)
+        {
+            wxString dirName = remainder.Left(slash);
+            bool alreadyAdded = false;
+            for (const auto& c : children)
+            {
+                if (c.displayName == dirName)
+                {
+                    alreadyAdded = true;
+                    break;
+                }
+            }
+            if (!alreadyAdded)
+            {
+                children.push_back({nullptr, true, dirName});
+            }
+        }
+        else if (!e.isDirectory)
+        {
+            children.push_back({&e, false, remainder});
+        }
+    }
+
+    std::sort(children.begin(), children.end(),
+        [](const Child& a, const Child& b)
+        {
+            if (a.isDir != b.isDir)
+                return a.isDir > b.isDir;
+            return a.displayName < b.displayName;
+        });
+
+    for (const auto& c : children)
+    {
+        int icon = c.isDir ? m_iconFolder : GetIconForFile(c.displayName);
+        long idx = m_list->InsertItem(m_list->GetItemCount(), c.displayName, icon);
+
+        if (c.entry)
+        {
+            m_list->SetItem(idx, 1, std::to_string(c.entry->size));
+            m_list->SetItem(idx, 2, std::to_string(c.entry->packedSize));
+            m_list->SetItem(idx, 3, _("File"));
+
+            auto secs = std::chrono::duration_cast<std::chrono::seconds>(
+                c.entry->modified.time_since_epoch()).count();
+            if (secs > 86400 * 365)
+            {
+                wxDateTime dt(static_cast<time_t>(secs));
+                m_list->SetItem(idx, 4, dt.Format("%Y-%m-%d %H:%M"));
+            }
+            else
+            {
+                m_list->SetItem(idx, 4, wxString("-"));
+            }
+
+            m_list->SetItem(idx, 5, c.entry->crc != 0
+                ? wxString::Format("%08X", c.entry->crc)
+                : wxString("-"));
+        }
+        else
+        {
+            m_list->SetItem(idx, 1, "");
+            m_list->SetItem(idx, 2, "");
+            m_list->SetItem(idx, 3, _("Folder"));
+            m_list->SetItem(idx, 4, "");
+            m_list->SetItem(idx, 5, "");
         }
     }
 }
