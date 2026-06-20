@@ -128,5 +128,6 @@ if(WIN32)
     )
 endif()
 
-# Copy assets directory next to the executable (so PNGs ship with it)
+# Copy assets and locale directories next to the executable
 file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/locale    DESTINATION ${CMAKE_BINARY_DIR})

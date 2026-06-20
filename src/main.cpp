@@ -1,3 +1,6 @@
+#include <wx/wx.h>
+#include <wx/locale.h>
+
 #include "ui/MainFrame.h"
 
 class ZipFXApp : public wxApp
@@ -5,10 +8,17 @@ class ZipFXApp : public wxApp
 public:
     bool OnInit() override
     {
+        m_locale.Init(wxLANGUAGE_DEFAULT);
+        m_locale.AddCatalogLookupPathPrefix("./locale");
+        m_locale.AddCatalog("ZipFX");
+
         auto frame = new MainFrame();
         frame->Show(true);
         return true;
     }
+
+private:
+    wxLocale m_locale;
 };
 
 wxIMPLEMENT_APP(ZipFXApp);

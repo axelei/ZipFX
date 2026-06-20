@@ -1,0 +1,213 @@
+# Spanish translations for ZipFX
+# Copyright (C) 2026
+# This file is distributed under the GPLv3 license.
+#
+msgid ""
+msgstr ""
+"Project-Id-Version: ZipFX 1.0\n"
+"Language: es\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+
+# ── Frame ──────────────────────────────────────────────────────────────
+msgid "ZipFX"
+msgstr "ZipFX"
+
+# ── File menu ──────────────────────────────────────────────────────────
+msgid "&File"
+msgstr "&Archivo"
+
+msgid "&Open Archive...\tCtrl+O"
+msgstr "&Abrir archivo...\tCtrl+O"
+
+msgid "&Close Archive\tCtrl+C"
+msgstr "&Cerrar archivo\tCtrl+C"
+
+msgid "Save Archive &As...\tCtrl+S"
+msgstr "Guardar archivo &como...\tCtrl+S"
+
+msgid "E&xit\tAlt+F4"
+msgstr "&Salir\tAlt+F4"
+
+# ── Commands menu ──────────────────────────────────────────────────────
+msgid "&Commands"
+msgstr "&Comandos"
+
+msgid "&Add Files to Archive...\tAlt+A"
+msgstr "&Añadir archivos...\tAlt+A"
+
+msgid "E&xtract Files...\tAlt+E"
+msgstr "E&xtraer archivos...\tAlt+E"
+
+msgid "&Test Archive\tAlt+T"
+msgstr "&Probar archivo\tAlt+T"
+
+msgid "&View File\tAlt+V"
+msgstr "&Ver archivo\tAlt+V"
+
+msgid "&Delete Files\tDel"
+msgstr "&Eliminar archivos\tDel"
+
+msgid "&Find Files...\tF3"
+msgstr "&Buscar archivos...\tF3"
+
+msgid "&Wizard...\tCtrl+W"
+msgstr "&Asistente...\tCtrl+W"
+
+msgid "&Information...\tCtrl+I"
+msgstr "&Información...\tCtrl+I"
+
+# ── Tools menu ─────────────────────────────────────────────────────────
+msgid "&Tools"
+msgstr "&Herramientas"
+
+msgid "&Repair Archive..."
+msgstr "&Reparar archivo..."
+
+msgid "&Convert Archive..."
+msgstr "&Convertir archivo..."
+
+msgid "&Benchmark..."
+msgstr "&Prueba de rendimiento..."
+
+msgid "&Settings..."
+msgstr "&Configuración..."
+
+# ── Favorites menu ─────────────────────────────────────────────────────
+msgid "&Favorites"
+msgstr "&Favoritos"
+
+msgid "&Add to Favorites"
+msgstr "&Añadir a favoritos"
+
+msgid "&Organize Favorites..."
+msgstr "&Organizar favoritos..."
+
+# ── Options menu ───────────────────────────────────────────────────────
+msgid "&Options"
+msgstr "&Opciones"
+
+msgid "&Toolbar"
+msgstr "&Barra de herramientas"
+
+msgid "&Status Bar"
+msgstr "&Barra de estado"
+
+# ── Help menu ──────────────────────────────────────────────────────────
+msgid "&Help"
+msgstr "&Ayuda"
+
+msgid "&About ZipFX"
+msgstr "&Acerca de ZipFX"
+
+# ── Toolbar ────────────────────────────────────────────────────────────
+msgid "Add"
+msgstr "Añadir"
+
+msgid "Extract To"
+msgstr "Extraer en"
+
+msgid "Test"
+msgstr "Probar"
+
+msgid "View"
+msgstr "Ver"
+
+msgid "Delete"
+msgstr "Eliminar"
+
+msgid "Find"
+msgstr "Buscar"
+
+msgid "Wizard"
+msgstr "Asistente"
+
+msgid "Info"
+msgstr "Información"
+
+# ── Address bar ────────────────────────────────────────────────────────
+msgid "Address:"
+msgstr "Dirección:"
+
+# ── File list columns ──────────────────────────────────────────────────
+msgid "Name"
+msgstr "Nombre"
+
+msgid "Size"
+msgstr "Tamaño"
+
+msgid "Packed"
+msgstr "Comprimido"
+
+msgid "Type"
+msgstr "Tipo"
+
+msgid "Modified"
+msgstr "Modificado"
+
+msgid "CRC"
+msgstr "CRC"
+
+msgid "Folder"
+msgstr "Carpeta"
+
+msgid "File"
+msgstr "Archivo"
+
+# ── Status bar ─────────────────────────────────────────────────────────
+msgid "No archive open"
+msgstr "Ningún archivo abierto"
+
+msgid "Ready"
+msgstr "Listo"
+
+# ── File dialog ────────────────────────────────────────────────────────
+msgid "Open Archive"
+msgstr "Abrir archivo"
+
+msgid "Supported Archives"
+msgstr "Archivos soportados"
+
+msgid "ZIP Files"
+msgstr "Archivos ZIP"
+
+msgid "7z Files"
+msgstr "Archivos 7z"
+
+msgid "RAR Files"
+msgstr "Archivos RAR"
+
+msgid "TAR Files"
+msgstr "Archivos TAR"
+
+msgid "All Files"
+msgstr "Todos los archivos"
+
+# ── Messages ───────────────────────────────────────────────────────────
+msgid "Could not open the archive. It may be corrupted or in an unsupported format."
+msgstr "No se pudo abrir el archivo. Puede estar corrupto o tener un formato no soportado."
+
+msgid "Open Failed"
+msgstr "Error al abrir"
+
+msgid "About ZipFX"
+msgstr "Acerca de ZipFX"
+
+msgid ""
+"ZipFX v1.0\n"
+"\n"
+"A cross-platform archive manager.\n"
+"Supported formats: ZIP, 7z, RAR, TAR.GZ"
+msgstr ""
+"ZipFX v1.0\n"
+"\n"
+"Un gestor de archivos multiplataforma.\n"
+"Formatos soportados: ZIP, 7z, RAR, TAR.GZ"
+
+# ── Numbers ────────────────────────────────────────────────────────────
+msgid "%zu files"
+msgstr "%zu archivos"
+
+msgid "bytes"
+msgstr "bytes"
