@@ -40,9 +40,25 @@ inline wxString GetAssetsDir()
 
     // 3. Source tree relative (CLion default working dir)
     dir = wxFileName::GetCwd() + "/../src/assets";
-    if (wxDirExists(dir))
     {
-        return dir;
+        wxFileName fn(dir);
+        fn.Normalize();
+        if (wxDirExists(fn.GetFullPath()))
+        {
+            return fn.GetFullPath();
+        }
+    }
+
+    // 4. Source tree relative to executable (IDE builds)
+    {
+        wxFileName exePath(wxStandardPaths::Get().GetExecutablePath());
+        dir = exePath.GetPath() + "/../src/assets";
+        wxFileName fn(dir);
+        fn.Normalize();
+        if (wxDirExists(fn.GetFullPath()))
+        {
+            return fn.GetFullPath();
+        }
     }
 
     return {};

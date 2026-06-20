@@ -137,7 +137,9 @@ endif()
 # Windows GUI subsystem (required by wxWidgets on MSVC)
 set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
 
-# Copy assets and locale next to the executable (handles multi-config generators)
+# Copy assets and locale next to the build output
+file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/locale    DESTINATION ${CMAKE_BINARY_DIR})
 add_custom_command(TARGET ZipFX POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory
         ${CMAKE_SOURCE_DIR}/src/assets

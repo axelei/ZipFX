@@ -7,6 +7,8 @@ class ZipFXApp : public wxApp
 public:
     bool OnInit() override
     {
+        wxInitAllImageHandlers();
+
         m_locale.Init(wxLANGUAGE_DEFAULT);
         m_locale.AddCatalogLookupPathPrefix("./locale");
         m_locale.AddCatalogLookupPathPrefix(
