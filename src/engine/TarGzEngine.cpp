@@ -1,5 +1,7 @@
 #include "TarGzEngine.h"
 
+#include <wx/log.h>
+
 #include <zlib.h>
 
 #include <cstring>
@@ -116,6 +118,8 @@ bool TarGzEngine::Open(std::string_view path)
     m_modified = false;
     m_entries.clear();
 
+    wxLogDebug("TarGzEngine: reading entries from %s", m_path.c_str());
+
     // Read all entries
     TarHeader hdr;
     while (true)
@@ -171,6 +175,7 @@ bool TarGzEngine::Open(std::string_view path)
         }
     }
 
+    wxLogDebug("TarGzEngine: loaded %zu entries", m_entries.size());
     return true;
 }
 

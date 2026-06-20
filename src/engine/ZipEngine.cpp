@@ -1,5 +1,7 @@
 #include "ZipEngine.h"
 
+#include <wx/log.h>
+
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -35,6 +37,7 @@ bool ZipEngine::Open(std::string_view path)
 
     if (mz_zip_reader_init_file(&m_archive, m_path.c_str(), 0))
     {
+        wxLogDebug("ZipEngine: opened %s", m_path.c_str());
         m_isOpen = true;
         m_isWriter = false;
         m_modified = false;
@@ -42,11 +45,14 @@ bool ZipEngine::Open(std::string_view path)
         return true;
     }
 
+    wxLogError("ZipEngine: failed to open %s", m_path.c_str());
     return false;
 }
 
 void ZipEngine::Close()
 {
+    wxLogDebug("ZipEngine: closing %s", m_path.c_str());
+
     if (m_isWriter)
     {
         mz_zip_writer_end(&m_archive);
@@ -75,6 +81,8 @@ void ZipEngine::LoadEntryCache()
 {
     ClearEntryCache();
     mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
+
+    wxLogDebug("ZipEngine: caching %u entries", numFiles);
 
     for (mz_uint i = 0; i < numFiles; ++i)
     {
@@ -124,6 +132,11 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 
     mz_bool result = mz_zip_reader_extract_file_to_file(
         &m_archive, entryName.data(), dest.string().c_str(), 0);
+
+    if (result)
+        wxLogDebug("ZipEngine: extracted %s", entryName.data());
+    else
+        wxLogWarning("ZipEngine: failed to extract %s", entryName.data());
 
     return result != 0;
 }
@@ -266,16 +279,20 @@ bool ZipEngine::TestIntegrity()
 
     mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
 
+    wxLogDebug("ZipEngine: testing integrity (%u files)", numFiles);
+
     for (mz_uint i = 0; i < numFiles; ++i)
     {
         size_t size = 0;
         void* data = mz_zip_reader_extract_to_heap(&m_archive, i, &size, 0);
         if (!data)
         {
+            wxLogWarning("ZipEngine: integrity check failed at entry %u", i);
             return false;
         }
         mz_free(data);
     }
 
+    wxLogDebug("ZipEngine: integrity check passed");
     return true;
 }

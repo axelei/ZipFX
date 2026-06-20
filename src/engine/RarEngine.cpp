@@ -1,5 +1,7 @@
 #include "RarEngine.h"
 
+#include <wx/log.h>
+
 #include <archive.h>
 #include <archive_entry.h>
 
@@ -26,17 +28,20 @@ bool RarEngine::Open(std::string_view path)
 
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
+        wxLogError("RarEngine: failed to open %s", m_path.c_str());
         archive_read_free(m_archive);
         m_archive = nullptr;
         return false;
     }
 
     m_isOpen = true;
+    wxLogDebug("RarEngine: opened %s", m_path.c_str());
     return LoadEntries();
 }
 
 void RarEngine::Close()
 {
+    wxLogDebug("RarEngine: closing %s", m_path.c_str());
     if (m_archive)
     {
         archive_read_close(m_archive);

@@ -1,5 +1,6 @@
 #include "MainFrame.h"
 
+#include <wx/log.h>
 #include <wx/aboutdlg.h>
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
@@ -143,15 +144,20 @@ void MainFrame::OnOpenArchive()
     OnCloseArchive();
 
     auto path = dlg.GetPath().ToStdString();
+    wxLogDebug("Opening archive: %s", path);
+
     auto engine = ArchiveEngineFactory::CreateForFile(path);
 
     if (!engine || !engine->Open(path))
     {
+        wxLogError("Failed to open archive: %s", path);
         wxMessageBox(_("Could not open the archive. It may be "
                        "corrupted or in an unsupported format."),
                      _("Open Failed"), wxOK | wxICON_ERROR);
         return;
     }
+
+    wxLogMessage("Archive opened: %s  [%s]", path, engine->FormatName().data());
 
     m_engine = std::move(engine);
     m_currentPath = path;
@@ -164,6 +170,7 @@ void MainFrame::OnCloseArchive()
 {
     if (m_engine)
     {
+        wxLogDebug("Closing archive: %s", m_currentPath);
         m_engine->Close();
         m_engine.reset();
     }
@@ -194,6 +201,7 @@ void MainFrame::RefreshFileList()
     }
 
     auto entries = m_engine->ListContents();
+    wxLogDebug("Listing %zu entries", entries.size());
     m_fileList->SetEntries(entries);
 
     SetStatusText(
