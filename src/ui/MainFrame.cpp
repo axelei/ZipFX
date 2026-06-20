@@ -348,8 +348,7 @@ void MainFrame::DoExtract(const std::string& destPath)
     }
 
     wxLogMessage("Extraction complete");
-    wxMessageBox(_("Files extracted successfully."),
-                 _("Extraction Complete"), wxOK | wxICON_INFORMATION);
+    SetStatusText(_("Extraction complete"), 2);
 }
 
 // ── Test ───────────────────────────────────────────────────────────────

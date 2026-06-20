@@ -33,7 +33,19 @@ void FileListPanel::SetEntries(const std::vector<ArchiveEntry>& entries)
         m_list->SetItem(idx, 1, std::to_string(e.size));
         m_list->SetItem(idx, 2, std::to_string(e.packedSize));
         m_list->SetItem(idx, 3, e.isDirectory ? _("Folder") : _("File"));
-        m_list->SetItem(idx, 4, "—"); // simplified date
+        {
+            auto secs = std::chrono::duration_cast<std::chrono::seconds>(
+                e.modified.time_since_epoch()).count();
+            if (secs > 86400 * 365) // skip epoch / unknown dates
+            {
+                wxDateTime dt(static_cast<time_t>(secs));
+                m_list->SetItem(idx, 4, dt.Format("%Y-%m-%d %H:%M"));
+            }
+            else
+            {
+                m_list->SetItem(idx, 4, wxString("—"));
+            }
+        }
         m_list->SetItem(idx, 5, e.crc != 0
             ? wxString::Format("%08X", e.crc)
             : wxString("—"));
