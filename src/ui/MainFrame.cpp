@@ -5,6 +5,8 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 #include <wx/dirdlg.h>
+#include <wx/progdlg.h>
+#include <wx/checkbox.h>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -310,20 +312,29 @@ void MainFrame::OnToolAdd()
         prefix += "/";
     }
 
-    for (const auto& fullPath : paths)
+    wxProgressDialog progress(_("Adding Files"),
+        _("Preparing..."), static_cast<int>(paths.size()) + 1, this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    for (int i = 0; i < static_cast<int>(paths.size()); ++i)
     {
-        wxFileName fn(fullPath);
+        wxFileName fn(paths[i]);
         wxString archivePath = prefix + fn.GetFullName();
 
-        wxLogDebug("Adding file: %s  →  %s", fullPath, archivePath);
-
-        if (!m_engine->AddFile(fullPath.ToStdString(), archivePath.ToStdString()))
+        wxString msg = wxString::Format(_("Adding: %s"), fn.GetFullName());
+        if (!progress.Update(i, msg))
         {
-            wxLogWarning("Failed to add file: %s", fullPath);
+            break;
+        }
+
+        if (!m_engine->AddFile(paths[i].ToStdString(), archivePath.ToStdString()))
+        {
+            wxLogWarning("Failed to add file: %s", paths[i]);
         }
     }
 
-    // Save changes
+    progress.Update(static_cast<int>(paths.size()), _("Saving archive..."));
+
     if (!m_engine->Save())
     {
         wxLogError("Failed to save archive after adding files");
@@ -333,6 +344,61 @@ void MainFrame::OnToolAdd()
 
     wxLogMessage("Files added to archive");
     RefreshFileList();
+}
+
+// ── Overwrite confirmation dialog ──────────────────────────────────────
+enum class OverwriteAction { Yes, YesToAll, No, NoToAll, Cancel };
+
+static OverwriteAction ConfirmOverwrite(wxWindow* parent,
+    const wxString& filename, bool& applyToAll)
+{
+    if (applyToAll)
+    {
+        return OverwriteAction::YesToAll;
+    }
+
+    wxDialog dlg(parent, wxID_ANY, _("Confirm Overwrite"),
+                 wxDefaultPosition, wxSize(420, 170));
+    auto vs = new wxBoxSizer(wxVERTICAL);
+
+    vs->Add(new wxStaticText(&dlg, wxID_ANY,
+        wxString::Format(_("File \"%s\" already exists.\nOverwrite?"), filename)),
+        0, wxALL, 12);
+
+    auto cb = new wxCheckBox(&dlg, wxID_ANY, _("Apply to all files"));
+    vs->Add(cb, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
+
+    auto hs = new wxBoxSizer(wxHORIZONTAL);
+    auto btnYes   = new wxButton(&dlg, wxID_YES, _("Overwrite"));
+    auto btnNo    = new wxButton(&dlg, wxID_NO,  _("Skip"));
+    auto btnCancel = new wxButton(&dlg, wxID_CANCEL, _("Cancel"));
+
+    hs->Add(btnYes,    0, wxRIGHT, 6);
+    hs->Add(btnNo,     0, wxRIGHT, 6);
+    hs->Add(btnCancel, 0);
+    vs->Add(hs, 0, wxALIGN_CENTER | wxBOTTOM, 10);
+
+    dlg.SetSizer(vs);
+
+    btnYes->Bind(wxEVT_BUTTON, [&](wxCommandEvent&)
+    {
+        applyToAll = cb->GetValue();
+        dlg.EndModal(wxID_YES);
+    });
+    btnNo->Bind(wxEVT_BUTTON, [&](wxCommandEvent&)
+    {
+        applyToAll = cb->GetValue();
+        dlg.EndModal(wxID_NO);
+    });
+    btnCancel->Bind(wxEVT_BUTTON, [&](wxCommandEvent&)
+    {
+        dlg.EndModal(wxID_CANCEL);
+    });
+
+    int ret = dlg.ShowModal();
+    if (ret == wxID_YES)    return OverwriteAction::Yes;
+    if (ret == wxID_NO)     return OverwriteAction::No;
+    return OverwriteAction::Cancel;
 }
 
 // ── Extract ────────────────────────────────────────────────────────────
@@ -360,18 +426,83 @@ void MainFrame::DoExtract(const std::string& destPath)
 {
     wxLogDebug("Extracting to: %s", destPath);
 
-    // Check if any items are selected in the file list
-    // For now, extract all
-    if (!m_engine->ExtractAll(destPath))
+    auto entries = m_engine->ListContents();
+    if (entries.empty())
     {
-        wxLogError("Extraction failed");
-        wxMessageBox(_("Some files could not be extracted."),
-                     _("Extraction Warning"), wxOK | wxICON_WARNING);
+        wxMessageBox(_("The archive is empty."), _("Info"),
+                     wxOK | wxICON_INFORMATION);
         return;
     }
 
-    wxLogMessage("Extraction complete");
-    SetStatusText(_("Extraction complete"), 2);
+    wxProgressDialog progress(_("Extracting"),
+        _("Preparing..."),
+        static_cast<int>(entries.size()),
+        this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    bool applyToAll = false;
+    int extracted = 0;
+    int skipped   = 0;
+
+    for (size_t i = 0; i < entries.size(); ++i)
+    {
+        const auto& entry = entries[i];
+
+        wxString msg = wxString::Format(_("Extracting: %s"),
+            wxString::FromUTF8(entry.name.c_str()));
+
+        if (!progress.Update(static_cast<int>(i), msg))
+        {
+            wxLogDebug("Extraction cancelled by user");
+            break;
+        }
+
+        wxString destFile = wxString::FromUTF8(
+            (destPath + "/" + entry.name).c_str());
+
+        // Overwrite check
+        if (wxFileExists(destFile) || wxDirExists(destFile))
+        {
+            OverwriteAction action = ConfirmOverwrite(
+                this, wxString::FromUTF8(entry.name.c_str()), applyToAll);
+
+            if (action == OverwriteAction::Cancel)
+            {
+                wxLogDebug("Extraction cancelled by user");
+                break;
+            }
+            if (action == OverwriteAction::No)
+            {
+                skipped++;
+                continue;
+            }
+            // Yes / YesToAll falls through to extraction
+        }
+
+        if (entry.isDirectory)
+        {
+            wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+            continue;
+        }
+
+        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
+                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        if (!m_engine->Extract(entry.name, destFile.ToStdString()))
+        {
+            wxLogWarning("Failed to extract: %s", entry.name);
+        }
+        else
+        {
+            extracted++;
+        }
+    }
+
+    progress.Update(static_cast<int>(entries.size()));
+
+    wxLogMessage("Extraction complete: %d extracted, %d skipped", extracted, skipped);
+    SetStatusText(
+        wxString::Format(_("Extraction complete (%d files)"), extracted), 2);
 }
 
 // ── Test ───────────────────────────────────────────────────────────────
