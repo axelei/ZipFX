@@ -9,6 +9,8 @@ public:
     {
         m_locale.Init(wxLANGUAGE_DEFAULT);
         m_locale.AddCatalogLookupPathPrefix("./locale");
+        m_locale.AddCatalogLookupPathPrefix(
+            wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() + "/locale");
         m_locale.AddCatalog("ZipFX");
 
         auto frame = new MainFrame();

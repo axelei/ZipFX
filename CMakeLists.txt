@@ -119,10 +119,12 @@ target_include_directories(ZipFX PRIVATE
     ${wxwidgets_BINARY_DIR}/include
 )
 
+target_compile_definitions(ZipFX PRIVATE LIBARCHIVE_STATIC)
+
 target_link_libraries(ZipFX PRIVATE
     wxmono
-    archive
-    zlib
+    archive_static
+    zlibstatic
 )
 
 if(WIN32)
