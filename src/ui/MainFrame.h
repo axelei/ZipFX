@@ -32,7 +32,7 @@ private:
     void OnToolView();
 
     void RefreshFileList();
-    void DoExtract(bool all);
+    void DoExtract(const std::string& destPath);
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;

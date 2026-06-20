@@ -15,6 +15,9 @@ public:
     void Clear();
     long GetSelectedIndex() const;
     wxString GetItemText(long index, int col) const;
+
+protected:
+    wxListCtrl* m_list = nullptr;
 };
 
 #endif
