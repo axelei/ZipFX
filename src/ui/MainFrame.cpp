@@ -7,6 +7,8 @@
 #include <wx/dirdlg.h>
 #include <wx/progdlg.h>
 #include <wx/checkbox.h>
+#include <wx/dnd.h>
+#include <wx/stdpaths.h>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -152,11 +154,138 @@ MainFrame::MainFrame()
     {
         m_addrBox->SetValue(m_fileList->GetCurrentDir());
     });
+
+    // ── Context menu (right-click) ──────────────────────────────
+    m_fileList->Bind(wxEVT_LIST_ITEM_RIGHT_CLICK,
+        &MainFrame::OnContextMenu, this);
+
+    Bind(wxEVT_MENU, [this](wxCommandEvent&)
+    {
+        wxString entryPath = m_fileList->GetSelectedEntryPath();
+        if (!entryPath.empty())
+            m_engine->ReadFile(entryPath.ToStdString());
+    }, ID_CtxView);
+
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolExtract(); }, ID_CtxExtract);
+    Bind(wxEVT_MENU, [this](wxCommandEvent&) { OnToolDelete(); },  ID_CtxDelete);
+
+    // ── Drag source (extract by dragging to explorer) ───────────
+    m_fileList->Bind(wxEVT_LIST_BEGIN_DRAG, &MainFrame::OnBeginDrag, this);
+
+    // ── Drop target (add files by dropping onto window) ─────────
+    SetDropTarget(new ZipFXDropTarget(this));
 }
 
 MainFrame::~MainFrame()
 {
     // Children are destroyed before this runs — do nothing here.
+}
+
+// ── Drop target ────────────────────────────────────────────────────────
+class ZipFXDropTarget : public wxFileDropTarget
+{
+public:
+    ZipFXDropTarget(MainFrame* frame) : m_frame(frame) {}
+
+    bool OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames) override
+    {
+        return m_frame->OnDropFiles(filenames);
+    }
+
+private:
+    MainFrame* m_frame;
+};
+
+void MainFrame::OnContextMenu(wxListEvent& event)
+{
+    if (!m_engine)
+    {
+        return;
+    }
+
+    wxMenu menu;
+    menu.Append(ID_CtxExtract, _("Extract..."));
+    if (!m_fileList->IsFlatMode())
+    {
+        menu.Append(ID_CtxView, _("Open"));
+    }
+    if (m_engine->SupportsCreation())
+    {
+        menu.AppendSeparator();
+        menu.Append(ID_CtxDelete, _("Delete"));
+    }
+
+    PopupMenu(&menu);
+}
+
+bool MainFrame::OnDropFiles(const wxArrayString& filenames)
+{
+    if (!m_engine || !m_engine->SupportsCreation())
+    {
+        wxMessageBox(_("No archive open or format does not support adding files."),
+                     _("Error"), wxOK | wxICON_WARNING);
+        return false;
+    }
+
+    wxString prefix = m_fileList->GetCurrentDir();
+    if (!prefix.empty()) prefix += "/";
+
+    for (const auto& path : filenames)
+    {
+        wxFileName fn(path);
+        wxString archivePath = prefix + fn.GetFullName();
+        m_engine->AddFile(path.ToStdString(), archivePath.ToStdString());
+    }
+
+    if (!m_engine->Save())
+    {
+        wxLogError("Failed to save archive after drop");
+        wxMessageBox(_("Could not save the archive."),
+                     _("Error"), wxOK | wxICON_ERROR);
+    }
+
+    RefreshFileList();
+    return true;
+}
+
+void MainFrame::OnBeginDrag(wxListEvent& event)
+{
+    if (!m_engine)
+    {
+        return;
+    }
+
+    auto sel = m_fileList->GetSelectedEntryPaths();
+    if (sel.empty())
+    {
+        return;
+    }
+
+    // Extract selected files to a temp directory
+    wxString tmpRoot = wxStandardPaths::Get().GetTempDir() + "/ZipFX_Drag/";
+
+    wxFileDataObject data;
+
+    for (const auto& entryPath : sel)
+    {
+        wxString safeName = entryPath;
+        safeName.Replace("/", "_");
+        wxString destPath = tmpRoot + safeName;
+
+        wxFileName::Mkdir(wxFileName(destPath).GetPath(),
+                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        if (m_engine->Extract(entryPath.ToStdString(), destPath.ToStdString()))
+        {
+            data.AddFile(destPath);
+        }
+    }
+
+    if (!data.GetFilenames().IsEmpty())
+    {
+        wxDropSource source(data, this);
+        source.DoDragDrop(wxDrag_CopyOnly);
+    }
 }
 
 // ── New Archive ────────────────────────────────────────────────────────

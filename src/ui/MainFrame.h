@@ -28,7 +28,13 @@ private:
     void OnToolAdd();
     void OnToolExtract();
     void OnToolTest();
+    void OnToolView();
     void OnToolDelete();
+
+    // Context menu / drag & drop
+    void OnContextMenu(wxListEvent&);
+    void OnBeginDrag(wxListEvent&);
+    bool OnDropFiles(const wxArrayString& filenames);
     void OnToolView();
 
     void RefreshFileList();
@@ -54,6 +60,9 @@ private:
         ID_Info,
         ID_NewArchive,
         ID_ToggleFlatMode,
+        ID_CtxExtract,
+        ID_CtxView,
+        ID_CtxDelete,
     };
 };
 

@@ -152,6 +152,24 @@ wxString FileListPanel::GetSelectedEntryPath() const
     return m_currentDirPrefix + name;
 }
 
+std::vector<wxString> FileListPanel::GetSelectedEntryPaths() const
+{
+    std::vector<wxString> result;
+    long idx = -1;
+    while (true)
+    {
+        idx = m_list->GetNextItem(idx, wxLIST_NEXT_ALL,
+                                  wxLIST_STATE_SELECTED);
+        if (idx < 0) break;
+
+        wxString name = GetItemText(idx, 0);
+        if (name == "..") continue;
+
+        result.push_back(m_currentDirPrefix + name);
+    }
+    return result;
+}
+
 bool FileListPanel::IsSelectedDirectory() const
 {
     long idx = GetSelectedIndex();

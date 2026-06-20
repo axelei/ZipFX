@@ -26,6 +26,7 @@ public:
     bool IsSelectedDirectory() const;
 
     wxString GetSelectedEntryPath() const;
+    std::vector<wxString> GetSelectedEntryPaths() const;
 
 protected:
     void RebuildList();
