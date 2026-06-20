@@ -274,26 +274,34 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
     for (const auto& entryPath : sel)
     {
-        wxString destPath = tmpRoot + entryPath;
+        // Extract to tmpRoot using the flat filename (no subdirs)
+        wxFileName tmpFile(tmpRoot + entryPath.AfterLast('/'));
+        tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
 
-        wxFileName::Mkdir(wxFileName(destPath).GetPath(),
+        wxFileName::Mkdir(tmpFile.GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
-        if (m_engine->Extract(entryPath.ToStdString(), destPath.ToStdString()))
+        if (m_engine->Extract(entryPath.ToStdString(), tmpFile.GetFullPath().ToStdString()))
         {
-            data.AddFile(destPath);
+            data.AddFile(tmpFile.GetFullPath());
             okCount++;
         }
         else
         {
-            wxLogWarning("Drag: failed to extract %s", entryPath);
+            wxLogWarning("Drag: failed to extract %s  →  %s",
+                         entryPath, tmpFile.GetFullPath());
         }
     }
 
     if (okCount > 0)
     {
+        wxLogDebug("Starting drag with %d temp files", okCount);
         wxDropSource source(data, this);
         source.DoDragDrop(wxDrag_CopyOnly);
+    }
+    else
+    {
+        wxLogWarning("No files extracted for drag");
     }
 }
 
@@ -675,7 +683,7 @@ void MainFrame::DoExtractSelected()
         wxString msg = wxString::Format(_("Extracting: %s"), sel[i]);
         if (!progress.Update(static_cast<int>(i), msg)) break;
 
-        wxString destFile = destRoot + "/" + sel[i];
+        wxString destFile = destRoot + "/" + sel[i].AfterLast('/');
 
         wxFileName::Mkdir(wxFileName(destFile).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
