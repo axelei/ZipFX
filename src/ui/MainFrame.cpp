@@ -4,6 +4,7 @@
 #include <wx/filedlg.h>
 #include <wx/msgdlg.h>
 
+#include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
 
 // ── Constructor ────────────────────────────────────────────────────────

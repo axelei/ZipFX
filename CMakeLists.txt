@@ -110,6 +110,7 @@ add_executable(ZipFX ${ZIPFX_SOURCES})
 target_include_directories(ZipFX PRIVATE
     src
     ${miniz_SOURCE_DIR}
+    ${libarchive_SOURCE_DIR}/libarchive
     ${wxwidgets_SOURCE_DIR}/include
     ${wxwidgets_BINARY_DIR}/include
 )
