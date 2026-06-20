@@ -42,7 +42,7 @@ inline wxString GetAssetsDir()
     dir = wxFileName::GetCwd() + "/../src/assets";
     {
         wxFileName fn(dir);
-        fn.Normalize();
+        fn.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
         if (wxDirExists(fn.GetFullPath()))
         {
             return fn.GetFullPath();
@@ -54,7 +54,7 @@ inline wxString GetAssetsDir()
         wxFileName exePath(wxStandardPaths::Get().GetExecutablePath());
         dir = exePath.GetPath() + "/../src/assets";
         wxFileName fn(dir);
-        fn.Normalize();
+        fn.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
         if (wxDirExists(fn.GetFullPath()))
         {
             return fn.GetFullPath();
