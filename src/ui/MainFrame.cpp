@@ -13,6 +13,21 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
 
+// ── Drop target for receiving files from the OS ────────────────────────
+class ZipFXDropTarget : public wxFileDropTarget
+{
+public:
+    ZipFXDropTarget(MainFrame* frame) : m_frame(frame) {}
+
+    bool OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames) override
+    {
+        return m_frame->OnDropFiles(filenames);
+    }
+
+private:
+    MainFrame* m_frame;
+};
+
 // ── Constructor ────────────────────────────────────────────────────────
 MainFrame::MainFrame()
     : wxFrame(nullptr, wxID_ANY, _("ZipFX"),
@@ -180,21 +195,6 @@ MainFrame::~MainFrame()
 {
     // Children are destroyed before this runs — do nothing here.
 }
-
-// ── Drop target ────────────────────────────────────────────────────────
-class ZipFXDropTarget : public wxFileDropTarget
-{
-public:
-    ZipFXDropTarget(MainFrame* frame) : m_frame(frame) {}
-
-    bool OnDropFiles(wxCoord, wxCoord, const wxArrayString& filenames) override
-    {
-        return m_frame->OnDropFiles(filenames);
-    }
-
-private:
-    MainFrame* m_frame;
-};
 
 void MainFrame::OnContextMenu(wxListEvent& event)
 {

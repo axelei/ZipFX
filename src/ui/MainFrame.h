@@ -17,6 +17,7 @@ class MainFrame : public wxFrame
 public:
     MainFrame();
     ~MainFrame() override;
+    bool OnDropFiles(const wxArrayString& filenames);
 
 private:
     // Archive actions
@@ -34,8 +35,6 @@ private:
     // Context menu / drag & drop
     void OnContextMenu(wxListEvent&);
     void OnBeginDrag(wxListEvent&);
-    bool OnDropFiles(const wxArrayString& filenames);
-    void OnToolView();
 
     void RefreshFileList();
     void DoExtract(const std::string& destPath);
