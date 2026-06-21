@@ -742,13 +742,11 @@ void MainFrame::DoExtractSelected()
     if (dirDlg.ShowModal() != wxID_OK) return;
 
     wxString destRoot = dirDlg.GetPath();
-    wxLogDebug("Extracting %zu selected entries to %s",
-               sel.size(), destRoot);
 
     auto allEntries = m_engine->ListContents();
 
     // Expand selection: directories → all files inside them
-    std::vector<wxString> filePaths;
+    std::vector<ArchiveEntry> expanded;
     for (const auto& entryPath : sel)
     {
         std::string ep = entryPath.ToStdString();
@@ -762,50 +760,45 @@ void MainFrame::DoExtractSelected()
             std::string prefix = ep + "/";
             for (const auto& e : allEntries)
                 if (!e.isDirectory && e.path.compare(0, prefix.size(), prefix) == 0)
-                    filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
+                    expanded.push_back(e);
         }
         else
         {
-            filePaths.push_back(entryPath);
+            for (const auto& e : allEntries)
+                if (e.path == ep) { expanded.push_back(e); break; }
         }
     }
 
-    int total = static_cast<int>(filePaths.size());
+    // After-action dialog
+    wxDialog afterDlg(this, wxID_ANY, _("Extraction options"),
+                      wxDefaultPosition, wxSize(380, 150));
+    auto vs = new wxBoxSizer(wxVERTICAL);
+    vs->Add(new wxStaticText(&afterDlg, wxID_ANY,
+        _("After extraction:")), 0, wxALL, 10);
+    wxComboBox* afterCombo = new wxComboBox(&afterDlg, wxID_ANY, _("Do nothing"),
+        wxDefaultPosition, wxDefaultSize, GetAfterActionLabels(), wxCB_READONLY);
+    vs->Add(afterCombo, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    auto hs = new wxBoxSizer(wxHORIZONTAL);
+    hs->Add(new wxButton(&afterDlg, wxID_OK, _("Start")), 0, wxRIGHT, 6);
+    hs->Add(new wxButton(&afterDlg, wxID_CANCEL, _("Cancel")), 0);
+    vs->Add(hs, 0, wxALIGN_CENTER | wxBOTTOM, 10);
+    afterDlg.SetSizer(vs);
 
-    wxProgressDialog progress(_("Extracting"),
-        _("Preparing..."), total, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+    if (afterDlg.ShowModal() != wxID_OK) return;
 
-    bool applyToAll = false;
-    int extracted = 0;
+    m_afterAction = static_cast<AfterAction>(afterCombo->GetSelection());
 
-    for (size_t i = 0; i < filePaths.size(); ++i)
-    {
-        wxString msg = wxString::Format(_("Extracting: %s"), filePaths[i]);
-        if (!progress.Update(static_cast<int>(i), msg)) break;
+    // Background worker
+    m_worker = std::make_unique<ExtractionWorker>(
+        this, m_engine.get(), std::move(expanded), destRoot, false);
 
-        wxString destFile = destRoot + "/" + filePaths[i];
+    m_extractDlg = new wxProgressDialog(
+        _("Extracting"), _("Starting..."),
+        m_worker->m_progressTotal, this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
 
-        // Overwrite check
-        if (wxFileExists(destFile) || wxDirExists(destFile))
-        {
-            auto action = ConfirmOverwrite(this, filePaths[i], applyToAll);
-            if (action == OverwriteAction::Cancel) break;
-            if (action == OverwriteAction::No) continue;
-        }
-
-        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-        if (m_engine->Extract(filePaths[i].ToStdString(), destFile.ToStdString()))
-            extracted++;
-        else
-            wxLogWarning("Failed to extract: %s", filePaths[i]);
-    }
-
-    progress.Update(total);
-    wxLogMessage("Extracted %d selected files", extracted);
-    SetStatusText(wxString::Format(_("Extracted %d files"), extracted), 2);
+    m_extractTimer.Start(100);
+    m_worker->Start();
 }
 
 // ── Background extraction timer ─────────────────────────────────────
@@ -819,7 +812,6 @@ void MainFrame::OnExtractTimer(wxTimerEvent&)
 
     int done = m_worker->m_progressCount.load();
     int total = m_worker->m_progressTotal.load();
-    wxString cur;
 
     if (!m_extractDlg->Update(done,
             wxString::Format(_("Extracting... (%d / %d)"), done, total)))
