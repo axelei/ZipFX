@@ -317,7 +317,7 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
     for (const auto& entryPath : filePaths)
     {
-        wxFileName tmpFile(tmpRoot + entryPath.AfterLast('/'));
+        wxFileName tmpFile(tmpRoot + entryPath);
         tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
 
         wxFileName::Mkdir(tmpFile.GetPath(),
