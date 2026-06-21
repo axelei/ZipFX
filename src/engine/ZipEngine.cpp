@@ -143,6 +143,8 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_isOpen || m_isWriter)
     {
+        wxLogDebug("ZipEngine: Extract blocked (open=%d writer=%d): %s",
+                   m_isOpen, m_isWriter, std::string(entryName).c_str());
         return false;
     }
 

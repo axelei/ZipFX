@@ -252,8 +252,13 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 {
     if (!m_engine)
     {
+        wxLogDebug("Drag: no engine");
         return;
     }
+
+    wxLogDebug("Drag: engine=%s isOpen=%d isWriter=%d",
+               m_engine->FormatName().data(),
+               m_engine->IsOpen(), false);
 
     auto sel = m_fileList->GetSelectedEntryPaths();
     if (sel.empty())
@@ -279,9 +284,13 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     for (const auto& entryPath : sel)
     {
         bool isDir = false;
+        std::string entryStr = entryPath.ToStdString();
+
+        // Try matching with and without trailing slash
         for (const auto& e : allEntries)
         {
-            if (e.path == entryPath.ToStdString())
+            if (e.path == entryStr ||
+                e.path == entryStr + "/")
             {
                 isDir = e.isDirectory;
                 break;
@@ -290,8 +299,7 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
         if (isDir)
         {
-            // Add all files under this directory
-            std::string prefix = entryPath.ToStdString() + "/";
+            std::string prefix = entryStr + "/";
             for (const auto& e : allEntries)
             {
                 if (!e.isDirectory &&
@@ -722,9 +730,12 @@ void MainFrame::DoExtractSelected()
     for (const auto& entryPath : sel)
     {
         bool isDir = false;
+        std::string entryStr = entryPath.ToStdString();
+
         for (const auto& e : allEntries)
         {
-            if (e.path == entryPath.ToStdString())
+            if (e.path == entryStr ||
+                e.path == entryStr + "/")
             {
                 isDir = e.isDirectory;
                 break;
@@ -733,7 +744,7 @@ void MainFrame::DoExtractSelected()
 
         if (isDir)
         {
-            std::string prefix = entryPath.ToStdString() + "/";
+            std::string prefix = entryStr + "/";
             for (const auto& e : allEntries)
             {
                 if (!e.isDirectory &&
