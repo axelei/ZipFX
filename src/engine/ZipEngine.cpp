@@ -146,7 +146,9 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         return false;
     }
 
-    // Create parent directory using raw string path
+    std::string name(entryName);
+
+    // Create parent directory
     std::string dp(destPath);
     auto slash = dp.find_last_of("/\\");
     if (slash != std::string::npos)
@@ -156,13 +158,13 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
     }
 
     mz_bool result = mz_zip_reader_extract_file_to_file(
-        &m_archive, entryName.data(), dp.c_str(), 0);
+        &m_archive, name.c_str(), dp.c_str(), 0);
 
     if (result)
-        wxLogDebug("ZipEngine: extracted %s", entryName.data());
+        wxLogDebug("ZipEngine: extracted %s", name.c_str());
     else
         wxLogWarning("ZipEngine: failed to extract %s  →  %s",
-                     entryName.data(), dp.c_str());
+                     name.c_str(), dp.c_str());
 
     return result != 0;
 }
@@ -203,9 +205,10 @@ std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
         return {};
     }
 
+    std::string name(entryName);
     size_t size = 0;
     void* data = mz_zip_reader_extract_file_to_heap(
-        &m_archive, entryName.data(), &size, 0);
+        &m_archive, name.c_str(), &size, 0);
 
     if (!data)
     {
