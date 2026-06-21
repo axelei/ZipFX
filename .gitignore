@@ -13,3 +13,5 @@ Thumbs.db
 
 # Dependencies fetched by CMake
 _deps/
+
+test_build/
