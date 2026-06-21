@@ -694,77 +694,40 @@ void MainFrame::DoExtractSelected()
     wxLogDebug("Extracting %zu selected entries to %s",
                sel.size(), destRoot);
 
-    wxProgressDialog progress(_("Extracting"),
-        _("Preparing..."),
-        static_cast<int>(sel.size()), this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
-
-    int extracted = 0;
-
     auto allEntries = m_engine->ListContents();
 
     // Expand selection: directories → all files inside them
-    std::vector<wxString> filePaths;
+    std::vector<ArchiveEntry> expanded;
     for (const auto& entryPath : sel)
     {
+        std::string ep = entryPath.ToStdString();
         bool isDir = false;
-        std::string entryStr = entryPath.ToStdString();
-
         for (const auto& e : allEntries)
-        {
-            if (e.path == entryStr ||
-                e.path == entryStr + "/")
-            {
-                isDir = e.isDirectory;
-                break;
-            }
-        }
+            if (e.path == ep || e.path == ep + "/")
+                { isDir = e.isDirectory; break; }
 
         if (isDir)
         {
-            std::string prefix = entryStr + "/";
+            std::string prefix = ep + "/";
             for (const auto& e : allEntries)
-            {
-                if (!e.isDirectory &&
-                    e.path.compare(0, prefix.size(), prefix) == 0)
-                {
-                    filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
-                }
-            }
+                if (!e.isDirectory && e.path.compare(0, prefix.size(), prefix) == 0)
+                    expanded.push_back(e);
         }
         else
         {
-            filePaths.push_back(entryPath);
+            for (const auto& e : allEntries)
+                if (e.path == ep) { expanded.push_back(e); break; }
         }
     }
 
-    for (size_t i = 0; i < filePaths.size(); ++i)
-    {
-        wxString msg = wxString::Format(_("Extracting: %s"), filePaths[i]);
-        if (!progress.Update(static_cast<int>(i), msg)) break;
-
-        wxString destFile = destRoot + "/" + filePaths[i];
-
-        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-        if (m_engine->Extract(filePaths[i].ToStdString(), destFile.ToStdString()))
-        {
-            extracted++;
-        }
-        else
-        {
-            wxLogWarning("Failed to extract: %s", filePaths[i]);
-        }
-    }
+    int total = static_cast<int>(expanded.size());
 
     m_extractWorker = std::make_unique<ExtractionWorker>(
-        this, m_engine.get(), std::move(entries),
+        this, m_engine.get(), std::move(expanded),
         destRoot, false);   // flat — no subdirs
 
     m_progressDlg = new wxProgressDialog(
-        _("Extracting"), _("Starting..."),
-        static_cast<int>(entries.size()), this,
+        _("Extracting"), _("Starting..."), total, this,
         wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
     m_extractWorker->Start();

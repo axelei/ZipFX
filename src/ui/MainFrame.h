@@ -2,6 +2,7 @@
 #define ZIPFX_MAINFRAME_H
 
 #include <wx/wx.h>
+#include <wx/progdlg.h>
 
 #include "FileListPanel.h"
 #include "icons.h"

@@ -3,6 +3,7 @@
 
 #include <wx/wx.h>
 #include <wx/event.h>
+#include <wx/thread.h>
 #include <atomic>
 #include <memory>
 #include <thread>
@@ -11,9 +12,9 @@
 class ArchiveEngine;
 struct ArchiveEntry;
 
-// Event IDs for extraction progress
-constexpr int wxEVT_EXTRACT_PROGRESS = wxID_HIGHEST + 1000;
-constexpr int wxEVT_EXTRACT_DONE     = wxID_HIGHEST + 1001;
+// Custom events for background extraction progress
+wxDECLARE_EVENT(wxEVT_EXTRACT_PROGRESS, wxThreadEvent);
+wxDECLARE_EVENT(wxEVT_EXTRACT_DONE,     wxThreadEvent);
 
 // Background thread that extracts files and posts progress to the main thread.
 class ExtractionWorker : public wxEvtHandler
