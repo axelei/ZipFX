@@ -336,6 +336,9 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     else
     {
         wxLogWarning("No files extracted for drag");
+        wxMessageBox(_("Could not extract the selected files. "
+                       "Only archive entries are supported for drag."),
+                     _("Drag Failed"), wxOK | wxICON_INFORMATION);
     }
 }
 

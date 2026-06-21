@@ -146,16 +146,23 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         return false;
     }
 
-    fs::path dest(destPath);
-    fs::create_directories(dest.parent_path());
+    // Create parent directory using raw string path
+    std::string dp(destPath);
+    auto slash = dp.find_last_of("/\\");
+    if (slash != std::string::npos)
+    {
+        std::string parent = dp.substr(0, slash);
+        fs::create_directories(fs::path(parent));
+    }
 
     mz_bool result = mz_zip_reader_extract_file_to_file(
-        &m_archive, entryName.data(), dest.string().c_str(), 0);
+        &m_archive, entryName.data(), dp.c_str(), 0);
 
     if (result)
         wxLogDebug("ZipEngine: extracted %s", entryName.data());
     else
-        wxLogWarning("ZipEngine: failed to extract %s", entryName.data());
+        wxLogWarning("ZipEngine: failed to extract %s  →  %s",
+                     entryName.data(), dp.c_str());
 
     return result != 0;
 }
