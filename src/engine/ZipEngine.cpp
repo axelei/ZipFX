@@ -35,7 +35,8 @@ bool ZipEngine::Open(std::string_view path)
     Close();
     m_path = path;
 
-    if (mz_zip_reader_init_file(&m_archive, m_path.c_str(), 0))
+    if (mz_zip_reader_init_file(&m_archive, m_path.c_str(),
+            MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
     {
         wxLogDebug("ZipEngine: opened %s", m_path.c_str());
         m_isOpen = true;
