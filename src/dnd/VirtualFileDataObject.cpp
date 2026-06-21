@@ -245,22 +245,7 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (!entry.info.engine)
         return E_UNEXPECTED;
 
-    // Show progress dialog on first call
-    if (!m_progressDlg && m_parentHwnd)
-    {
-        wxWindow* parent = wxFindWinFromHandle(m_parentHwnd);
-        if (parent)
-        {
-            m_progressDlg = new wxProgressDialog(
-                _("Extracting files..."),
-                _("Extracting..."),
-                m_progressTotal, parent,
-                wxPD_AUTO_HIDE);
-        }
-    }
-
-    wxLogDebug("VFDO: extracting %s on demand (%d/%d)",
-               entry.info.archivePath, idx + 1, m_progressTotal);
+    wxLogDebug("VFDO: extracting %s on demand", entry.info.archivePath);
 
     auto data = entry.info.engine->ReadFile(entry.info.archivePath);
     if (data.empty())
@@ -269,27 +254,11 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return E_FAIL;
     }
 
-    // Update progress
-    if (m_progressDlg)
-    {
-        m_progressDlg->Update(idx + 1,
-            wxString::Format(_("Extracting: %s"),
-                wxString::FromUTF8(entry.info.archivePath)));
-    }
-
     auto* stream = new MemStream(std::move(data));
     pSTM->tymed          = TYMED_ISTREAM;
     pSTM->pstm           = stream;
     pSTM->pUnkForRelease = nullptr;
     stream->AddRef();
-
-    // Close dialog on last file
-    if (m_progressDlg && idx + 1 >= m_progressTotal)
-    {
-        m_progressDlg->Update(m_progressTotal, _("Done."));
-        m_progressDlg->Destroy();
-        m_progressDlg = nullptr;
-    }
 
     return S_OK;
 }
@@ -329,13 +298,6 @@ bool StartVirtualDrag(VirtualFileDataObject* data, HWND hwnd)
 
     DWORD effect = 0;
     HRESULT hr = ::DoDragDrop(data, source, DROPEFFECT_COPY, &effect);
-
-    // Clean up progress dialog if still open (e.g. drag cancelled)
-    if (data->m_progressDlg)
-    {
-        data->m_progressDlg->Destroy();
-        data->m_progressDlg = nullptr;
-    }
 
     source->Release();
     data->Release();

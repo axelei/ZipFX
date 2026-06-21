@@ -2,7 +2,6 @@
 #define ZIPFX_VIRTUAL_FILE_DATA_OBJECT_H
 
 #include <wx/wx.h>
-#include <wx/progdlg.h>
 #include <cstdint>
 
 #ifdef __WXMSW__
@@ -61,7 +60,6 @@ private:
     int m_progressTotal = 0;
 
 public:
-    wxProgressDialog* m_progressDlg = nullptr;
     HWND m_parentHwnd = nullptr;
 
 private:

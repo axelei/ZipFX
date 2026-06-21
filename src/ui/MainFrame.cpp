@@ -793,7 +793,7 @@ void MainFrame::DoExtractSelected()
         }
     }
 
-    StartExtraction(std::move(expanded), destRoot, false);
+    StartExtraction(std::move(expanded), destRoot, true);
 }
 
 // ── Test ───────────────────────────────────────────────────────────────
