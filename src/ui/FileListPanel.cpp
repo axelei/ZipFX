@@ -229,13 +229,12 @@ int FileListPanel::GetIconForFile(const wxString& name)
         return m_iconParent;
     }
 
-    // Check if it looks like a directory
-    if (name.Find('.') == wxNOT_FOUND || name.Last() == '/')
-    {
-        return m_iconFolder;
-    }
-
+    // No extension → use generic file icon
     wxString ext = name.AfterLast('.').Lower();
+    if (name.Find('.') == wxNOT_FOUND || ext.empty())
+    {
+        return m_iconFile;
+    }
 
     static std::unordered_map<wxString, int> s_extCache;
 

@@ -570,8 +570,10 @@ void MainFrame::OnToolAdd()
     }
 
     wxProgressDialog progress(_("Adding Files"),
-        _("Preparing..."), static_cast<int>(paths.size()) + 1, this,
+        _("Saving..."), static_cast<int>(paths.size()) + 2, this,
         wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    wxYieldIfNeeded();
 
     for (int i = 0; i < static_cast<int>(paths.size()); ++i)
     {
@@ -598,6 +600,8 @@ void MainFrame::OnToolAdd()
         wxMessageBox(_("Could not save the archive after adding files."),
                      _("Error"), wxOK | wxICON_ERROR);
     }
+
+    progress.Update(static_cast<int>(paths.size()) + 1, _("Done."));
 
     wxLogMessage("Files added to archive");
     RefreshFileList();
