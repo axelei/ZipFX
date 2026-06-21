@@ -3,10 +3,10 @@
 
 #include "ArchiveEngine.h"
 
-// Must be defined before including miniz to prevent
-// #define crc32 mz_crc32 from corrupting other headers.
-#define MINIZ_NO_ZLIB_COMPATIBLE_NAMES
-#include <miniz.h>
+#include <zip.h>
+
+#include <string>
+#include <vector>
 
 class ZipEngine : public ArchiveEngine
 {
@@ -30,27 +30,25 @@ public:
 
     std::string_view FormatName() const override { return "ZIP"; }
     bool SupportsCreation() const override { return true; }
-    bool IsOpen() const override { return m_isOpen; }
+    bool IsOpen() const override { return m_zip != nullptr; }
 
 private:
-    mz_zip_archive m_archive = {};
+    zip_t*  m_zip = nullptr;
     std::string m_path;
-    bool m_isOpen = false;
-    bool m_modified = false;
-    bool m_isWriter = false;
+    bool    m_modified = false;
+    bool    m_isNew = false; // created via Create(), not opened
 
-    struct PendingFile
+    std::vector<ArchiveEntry> m_entries;
+
+    struct PendingAdd
     {
         std::string srcPath;
         std::string archivePath;
     };
+    std::vector<PendingAdd> m_pendingAdds;
 
-    std::vector<ArchiveEntry> m_entries;
-    std::vector<PendingFile>  m_pendingAdds;
-    std::vector<std::string>  m_pendingRemoves;
-
-    void ClearEntryCache();
-    void LoadEntryCache();
+    void LoadEntries();
+    static int GetCompressionLevel();
 };
 
 #endif

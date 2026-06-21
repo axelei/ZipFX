@@ -29,19 +29,25 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(wxwidgets)
 
 # ====================================================================
-# miniz  –  ZIP read/write (single-file C library, no CMakeLists)
+# libzip  –  ZIP read/write (in-place delete/add, no full rewrite)
 # ====================================================================
+set(ENABLE_COMMONCRYPTO OFF CACHE BOOL "" FORCE)
+set(ENABLE_GNUTLS      OFF CACHE BOOL "" FORCE)
+set(ENABLE_MBEDTLS     OFF CACHE BOOL "" FORCE)
+set(ENABLE_OPENSSL     OFF CACHE BOOL "" FORCE)
+set(BUILD_TOOLS        OFF CACHE BOOL "" FORCE)
+set(BUILD_REGRESS      OFF CACHE BOOL "" FORCE)
+set(BUILD_EXAMPLES     OFF CACHE BOOL "" FORCE)
+set(BUILD_DOC          OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
-    miniz
-    GIT_REPOSITORY https://github.com/richgel999/miniz.git
-    GIT_TAG        3.0.2
+    libzip
+    GIT_REPOSITORY https://github.com/nih-at/libzip.git
+    GIT_TAG        v1.11.3
     GIT_SHALLOW    TRUE
 )
 
-FetchContent_GetProperties(miniz)
-if(NOT miniz_POPULATED)
-    FetchContent_Populate(miniz)
-endif()
+FetchContent_MakeAvailable(libzip)
 
 # ====================================================================
 # zlib  –  gzip compression for .tar.gz support
@@ -107,17 +113,14 @@ set(ZIPFX_SOURCES
     src/engine/TarGzEngine.cpp
     src/engine/SevenZipEngine.cpp
     src/engine/RarEngine.cpp
-    ${miniz_SOURCE_DIR}/miniz.c
-    ${miniz_SOURCE_DIR}/miniz_tdef.c
-    ${miniz_SOURCE_DIR}/miniz_tinfl.c
-    ${miniz_SOURCE_DIR}/miniz_zip.c
 )
 
 add_executable(ZipFX ${ZIPFX_SOURCES})
 
 target_include_directories(ZipFX PRIVATE
     src
-    ${miniz_SOURCE_DIR}
+    ${libzip_SOURCE_DIR}/lib
+    ${libzip_BINARY_DIR}/lib
     ${libarchive_SOURCE_DIR}/libarchive
     ${wxwidgets_SOURCE_DIR}/include
     ${wxwidgets_BINARY_DIR}/include
@@ -129,6 +132,7 @@ target_link_libraries(ZipFX PRIVATE
     wxmono
     archive_static
     zlibstatic
+    zip
 )
 
 if(WIN32)

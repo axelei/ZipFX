@@ -2,33 +2,24 @@
 
 #include <wx/log.h>
 
-#include <cstring>
 #include <filesystem>
 #include <fstream>
-#include <unordered_set>
-#include <vector>
+#include <cstring>
 
 namespace fs = std::filesystem;
 
-// -----------------------------------------------------------------------
-// Helpers
-// -----------------------------------------------------------------------
-static time_t ToTimeT(const std::chrono::system_clock::time_point& tp)
+// libzip flags
+static constexpr int ZIP_FLAGS = ZIP_FL_OVERWRITE | ZIP_FL_ENC_GUESS;
+
+int ZipEngine::GetCompressionLevel()
 {
-    return std::chrono::system_clock::to_time_t(tp);
+    return 6; // default compression (0=store, 9=max)
 }
 
-static std::chrono::system_clock::time_point FromTimeT(time_t t)
-{
-    return std::chrono::system_clock::from_time_t(t);
-}
-
-// -----------------------------------------------------------------------
-// Lifecycle
-// -----------------------------------------------------------------------
+// ── Lifecycle ──────────────────────────────────────────────────────────
 ZipEngine::~ZipEngine()
 {
-    ZipEngine::Close();
+    Close();
 }
 
 bool ZipEngine::Open(std::string_view path)
@@ -36,19 +27,19 @@ bool ZipEngine::Open(std::string_view path)
     Close();
     m_path = path;
 
-    if (mz_zip_reader_init_file(&m_archive, m_path.c_str(),
-            MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+    int err = 0;
+    m_zip = zip_open(m_path.c_str(), ZIP_RDONLY, &err);
+    if (!m_zip)
     {
-        wxLogDebug("ZipEngine: opened %s", m_path.c_str());
-        m_isOpen = true;
-        m_isWriter = false;
-        m_modified = false;
-        LoadEntryCache();
-        return true;
+        wxLogDebug("ZipEngine: failed to open %s (error %d)", m_path.c_str(), err);
+        return false;
     }
 
-    wxLogError("ZipEngine: failed to open %s", m_path.c_str());
-    return false;
+    m_isNew = false;
+    m_modified = false;
+    LoadEntries();
+    wxLogDebug("ZipEngine: opened %s (%zu entries)", m_path.c_str(), m_entries.size());
+    return true;
 }
 
 bool ZipEngine::Create(std::string_view path)
@@ -56,86 +47,68 @@ bool ZipEngine::Create(std::string_view path)
     Close();
     m_path = path;
 
-    if (mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
+    int err = 0;
+    m_zip = zip_open(m_path.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &err);
+    if (!m_zip)
     {
-        wxLogDebug("ZipEngine: created new archive %s", m_path.c_str());
-        m_isOpen = true;
-        m_isWriter = true;
-        m_modified = false;
-        LoadEntryCache();
-        return true;
+        wxLogError("ZipEngine: failed to create %s (error %d)", m_path.c_str(), err);
+        return false;
     }
 
-    wxLogError("ZipEngine: failed to create %s", m_path.c_str());
-    return false;
+    m_isNew = true;
+    m_modified = false;
+    m_entries.clear();
+    wxLogDebug("ZipEngine: created %s", m_path.c_str());
+    return true;
 }
 
 void ZipEngine::Close()
 {
-    wxLogDebug("ZipEngine: closing %s", m_path.c_str());
-
-    if (m_isWriter)
+    if (m_zip)
     {
-        mz_zip_writer_end(&m_archive);
+        zip_close(m_zip);
+        m_zip = nullptr;
     }
-    else if (m_isOpen)
-    {
-        mz_zip_reader_end(&m_archive);
-    }
-
-    std::memset(&m_archive, 0, sizeof(m_archive));
-    m_isOpen = false;
-    m_isWriter = false;
+    m_entries.clear();
+    m_pendingAdds.clear();
     m_modified = false;
-    ClearEntryCache();
 }
 
-// -----------------------------------------------------------------------
-// Entry cache
-// -----------------------------------------------------------------------
-void ZipEngine::ClearEntryCache()
+// ── Entry cache ────────────────────────────────────────────────────────
+void ZipEngine::LoadEntries()
 {
     m_entries.clear();
-}
+    if (!m_zip) return;
 
-void ZipEngine::LoadEntryCache()
-{
-    ClearEntryCache();
-    mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
+    zip_int64_t num = zip_get_num_entries(m_zip, 0);
+    if (num < 0) return;
 
-    wxLogDebug("ZipEngine: caching %u entries", numFiles);
-
-    for (mz_uint i = 0; i < numFiles; ++i)
+    for (zip_int64_t i = 0; i < num; ++i)
     {
-        mz_zip_archive_file_stat stat;
-        if (!mz_zip_reader_file_stat(&m_archive, i, &stat))
-        {
+        struct zip_stat st;
+        zip_stat_init(&st);
+        if (zip_stat_index(m_zip, i, 0, &st) != 0)
             continue;
-        }
+
+        const char* name = zip_get_name(m_zip, i, 0);
+        if (!name) continue;
 
         ArchiveEntry entry;
-        entry.name = stat.m_filename ? stat.m_filename : "";
-        entry.path = entry.name;
-        entry.size = static_cast<uint64_t>(stat.m_uncomp_size);
-        entry.packedSize = static_cast<uint64_t>(stat.m_comp_size);
-        entry.crc = stat.m_crc32;
-        entry.isDirectory = mz_zip_reader_is_file_a_directory(&m_archive, i);
-        entry.modified = FromTimeT(stat.m_time);
+        entry.name = name;
+        entry.path = name;
+        entry.size = st.size;
+        entry.packedSize = st.comp_size;
+        entry.crc = st.crc;
+        entry.isDirectory = (name[0] && name[strlen(name) - 1] == '/');
 
-        switch (stat.m_method)
-        {
-        case MZ_DEFLATED:  entry.compressionMethod = "Deflate"; break;
-        case MZ_NO_COMPRESSION: entry.compressionMethod = "Stored";  break;
-        default:           entry.compressionMethod = "Unknown"; break;
-        }
+        if (st.mtime > 0)
+            entry.modified = std::chrono::system_clock::from_time_t(st.mtime);
 
         m_entries.push_back(std::move(entry));
     }
 }
 
-// -----------------------------------------------------------------------
-// Reading
-// -----------------------------------------------------------------------
+// ── Reading ────────────────────────────────────────────────────────────
 std::vector<ArchiveEntry> ZipEngine::ListContents()
 {
     return m_entries;
@@ -143,115 +116,104 @@ std::vector<ArchiveEntry> ZipEngine::ListContents()
 
 bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    if (!m_isOpen) return false;
-
-    // If in writer mode, re-open as reader so we can read
-    if (m_isWriter)
-    {
-        wxLogDebug("ZipEngine: switching writer→reader for Extract");
-        mz_zip_writer_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
-                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
-            return false;
-        m_isWriter = false;
-    }
+    if (!m_zip) return false;
 
     std::string name(entryName);
+    std::string dp(destPath);
 
     // Create parent directory
-    std::string dp(destPath);
     auto slash = dp.find_last_of("/\\");
     if (slash != std::string::npos)
+        fs::create_directories(fs::path(dp.substr(0, slash)));
+
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0)
     {
-        std::string parent = dp.substr(0, slash);
-        fs::create_directories(fs::path(parent));
+        wxLogWarning("ZipEngine: entry not found: %s", name.c_str());
+        return false;
     }
 
-    mz_bool result = mz_zip_reader_extract_file_to_file(
-        &m_archive, name.c_str(), dp.c_str(), 0);
+    struct zip_stat st;
+    zip_stat_init(&st);
+    if (zip_stat_index(m_zip, idx, 0, &st) != 0)
+        return false;
 
-    if (result)
-        wxLogDebug("ZipEngine: extracted %s", name.c_str());
-    else
-        wxLogWarning("ZipEngine: failed to extract %s  →  %s",
-                     name.c_str(), dp.c_str());
+    if (st.size == 0 && name.back() == '/') // directory
+    {
+        fs::create_directories(fs::path(dp));
+        return true;
+    }
 
-    return result != 0;
+    zip_file_t* zf = zip_fopen_index(m_zip, idx, 0);
+    if (!zf) return false;
+
+    std::vector<uint8_t> buf(static_cast<size_t>(st.size));
+    if (st.size > 0)
+    {
+        zip_int64_t n = zip_fread(zf, buf.data(), buf.size());
+        if (n < 0 || static_cast<zip_uint64_t>(n) != st.size)
+        {
+            zip_fclose(zf);
+            return false;
+        }
+    }
+    zip_fclose(zf);
+
+    std::ofstream out(dp, std::ios::binary);
+    if (!out) return false;
+    out.write(reinterpret_cast<const char*>(buf.data()), buf.size());
+    return out.good();
 }
 
 bool ZipEngine::ExtractAll(std::string_view destPath)
 {
-    if (!m_isOpen || m_isWriter)
-    {
-        return false;
-    }
-
     for (const auto& entry : m_entries)
     {
         if (entry.isDirectory)
         {
-            fs::create_directories(fs::path(destPath) / entry.name);
+            fs::create_directories(fs::path(std::string(destPath) + "/" + entry.name));
             continue;
         }
 
-        fs::path fullPath = fs::path(destPath) / entry.name;
-        fs::create_directories(fullPath.parent_path());
-
-        if (!mz_zip_reader_extract_file_to_file(
-                &m_archive, entry.name.c_str(),
-                fullPath.string().c_str(), 0))
+        if (!Extract(entry.name, std::string(destPath) + "/" + entry.name))
         {
-            return false;
+            wxLogWarning("ZipEngine: failed to extract %s", entry.name.c_str());
         }
     }
-
     return true;
 }
 
 std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
 {
-    if (!m_isOpen) return {};
-
-    if (m_isWriter)
-    {
-        wxLogDebug("ZipEngine: switching writer→reader for ReadFile");
-        mz_zip_writer_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
-                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
-            return {};
-        m_isWriter = false;
-    }
+    if (!m_zip) return {};
 
     std::string name(entryName);
-    size_t size = 0;
-    void* data = mz_zip_reader_extract_file_to_heap(
-        &m_archive, name.c_str(), &size, 0);
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0) return {};
 
-    if (!data)
-    {
+    struct zip_stat st;
+    zip_stat_init(&st);
+    if (zip_stat_index(m_zip, idx, 0, &st) != 0)
         return {};
-    }
 
-    std::vector<uint8_t> result(
-        static_cast<uint8_t*>(data),
-        static_cast<uint8_t*>(data) + size);
+    if (st.size == 0) return {};
 
-    mz_free(data);
-    return result;
+    zip_file_t* zf = zip_fopen_index(m_zip, idx, 0);
+    if (!zf) return {};
+
+    std::vector<uint8_t> data(static_cast<size_t>(st.size));
+    zip_int64_t n = zip_fread(zf, data.data(), data.size());
+    zip_fclose(zf);
+
+    if (n < 0 || static_cast<zip_uint64_t>(n) != st.size)
+        return {};
+
+    return data;
 }
 
-// -----------------------------------------------------------------------
-// Writing
-// -----------------------------------------------------------------------
+// ── Writing ────────────────────────────────────────────────────────────
 bool ZipEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {
-    if (!m_isOpen)
-    {
-        return false;
-    }
-
     m_pendingAdds.push_back({std::string(srcPath), std::string(archivePath)});
     m_modified = true;
 
@@ -265,157 +227,114 @@ bool ZipEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 
 bool ZipEngine::RemoveEntry(std::string_view entryName)
 {
-    if (!m_isOpen)
+    if (!m_zip) return false;
+
+    std::string name(entryName);
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0)
     {
+        // Also try with trailing slash (directory)
+        idx = zip_name_locate(m_zip, (name + "/").c_str(), 0);
+        if (idx < 0) return false;
+    }
+
+    if (zip_delete(m_zip, idx) != 0)
+    {
+        wxLogWarning("ZipEngine: failed to delete %s", name.c_str());
         return false;
     }
 
-    m_pendingRemoves.push_back(std::string(entryName));
     m_modified = true;
     return true;
 }
 
 bool ZipEngine::Save()
 {
-    if (!m_isOpen || !m_modified)
-    {
-        return true;
-    }
+    if (!m_zip || !m_modified) return true;
 
-    bool hasRemoves = !m_pendingRemoves.empty();
-
-    if (hasRemoves)
+    // Flush pending additions
+    for (const auto& pa : m_pendingAdds)
     {
-        // Build a set of paths to remove for fast lookup
-        std::unordered_set<std::string> removeSet;
-        for (const auto& r : m_pendingRemoves)
+        zip_source_t* src = zip_source_file_create(
+            pa.srcPath.c_str(), 0, -1, nullptr);
+        if (!src)
         {
-            removeSet.insert(r);
-            removeSet.insert(r + "/");
+            wxLogWarning("ZipEngine: can't create source for %s", pa.srcPath.c_str());
+            continue;
         }
 
-        mz_zip_reader_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-
-        // Re-open as reader to read entries by index (much faster than by name)
-        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
-                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
-            return false;
-
-        // Read entries by index, skipping removed ones
-        mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
-        std::vector<std::vector<uint8_t>> fileData;
-        std::vector<std::string> fileNames;
-
-        for (mz_uint i = 0; i < numFiles; ++i)
+        zip_int64_t idx = zip_name_locate(
+            m_zip, pa.archivePath.c_str(), 0);
+        if (idx >= 0)
         {
-            mz_zip_archive_file_stat st;
-            if (!mz_zip_reader_file_stat(&m_archive, i, &st))
-                continue;
-
-            std::string entryPath = st.m_filename ? st.m_filename : "";
-            if (removeSet.count(entryPath))
-                continue;
-
-            size_t size = 0;
-            void* data = mz_zip_reader_extract_to_heap(&m_archive, i, &size, 0);
-            if (data)
+            // Replace existing entry
+            if (zip_file_replace(m_zip, idx, src, GetCompressionLevel()) != 0)
             {
-                fileNames.push_back(std::move(entryPath));
-                fileData.emplace_back(static_cast<uint8_t*>(data),
-                                      static_cast<uint8_t*>(data) + size);
-                mz_free(data);
+                wxLogWarning("ZipEngine: can't replace %s", pa.archivePath.c_str());
+                zip_source_free(src);
             }
         }
-
-        mz_zip_reader_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-
-        if (!mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
-            return false;
-
-        m_isWriter = true;
-
-        for (size_t i = 0; i < fileNames.size(); ++i)
-            if (!mz_zip_writer_add_mem(&m_archive, fileNames[i].c_str(),
-                    fileData[i].data(), fileData[i].size(), MZ_BEST_COMPRESSION))
-                return false;
-
-        m_pendingRemoves.clear();
-    }
-    else if (!m_isWriter)
-    {
-        // Append-only: convert reader to writer
-        if (!mz_zip_writer_init_from_reader(&m_archive, m_path.c_str()))
+        else
         {
-            wxLogError("ZipEngine: failed to convert reader to writer");
-            return false;
-        }
-        m_isWriter = true;
-    }
-
-    // Write pending additions
-    for (const auto& pf : m_pendingAdds)
-    {
-        if (!mz_zip_writer_add_file(
-                &m_archive, pf.archivePath.c_str(),
-                pf.srcPath.c_str(), nullptr, 0,
-                MZ_BEST_COMPRESSION))
-        {
-            wxLogWarning("ZipEngine: can't add %s", pf.srcPath);
+            // Add new entry
+            if (zip_file_add(m_zip, pa.archivePath.c_str(),
+                             src, GetCompressionLevel()) < 0)
+            {
+                wxLogWarning("ZipEngine: can't add %s", pa.archivePath.c_str());
+                zip_source_free(src);
+            }
         }
     }
     m_pendingAdds.clear();
 
-    // Finalize
-    if (!mz_zip_writer_finalize_archive(&m_archive))
+    // Commit changes to disk (libzip handles everything in-place)
+    if (zip_close(m_zip) != 0)
     {
-        wxLogError("ZipEngine: failed to finalize archive");
+        wxLogError("ZipEngine: failed to close/commit archive");
+        return false;
+    }
+    m_zip = nullptr;
+
+    // Re-open as reader
+    int err = 0;
+    m_zip = zip_open(m_path.c_str(), ZIP_RDONLY, &err);
+    if (!m_zip)
+    {
+        wxLogError("ZipEngine: failed to re-open after save");
         return false;
     }
 
-    mz_zip_writer_end(&m_archive);
-    std::memset(&m_archive, 0, sizeof(m_archive));
-
-    if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
-            MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
-    {
-        wxLogError("ZipEngine: failed to re-open saved archive");
-        return false;
-    }
-
-    m_isWriter = false;
+    m_isNew = false;
     m_modified = false;
     m_entries.clear();
-    LoadEntryCache();
-
+    LoadEntries();
     return true;
 }
 
-// -----------------------------------------------------------------------
-// Testing
-// -----------------------------------------------------------------------
+// ── Testing ────────────────────────────────────────────────────────────
 bool ZipEngine::TestIntegrity()
 {
-    if (!m_isOpen)
+    if (!m_zip) return false;
+
+    zip_int64_t num = zip_get_num_entries(m_zip, 0);
+    wxLogDebug("ZipEngine: testing integrity (%lld entries)", (long long)num);
+
+    for (zip_int64_t i = 0; i < num; ++i)
     {
-        return false;
-    }
-
-    mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
-
-    wxLogDebug("ZipEngine: testing integrity (%u files)", numFiles);
-
-    for (mz_uint i = 0; i < numFiles; ++i)
-    {
-        size_t size = 0;
-        void* data = mz_zip_reader_extract_to_heap(&m_archive, i, &size, 0);
-        if (!data)
-        {
-            wxLogWarning("ZipEngine: integrity check failed at entry %u", i);
+        struct zip_stat st;
+        zip_stat_init(&st);
+        if (zip_stat_index(m_zip, i, 0, &st) != 0)
             return false;
-        }
-        mz_free(data);
+
+        if (st.size == 0) continue;
+
+        zip_file_t* zf = zip_fopen_index(m_zip, i, 0);
+        if (!zf) return false;
+
+        std::vector<uint8_t> buf(8192);
+        while (zip_fread(zf, buf.data(), buf.size()) > 0) {}
+
+        zip_fclose(zf);
     }
 
     wxLogDebug("ZipEngine: integrity check passed");
