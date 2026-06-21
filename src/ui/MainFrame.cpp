@@ -659,6 +659,7 @@ void MainFrame::DoExtract(const std::string& destPath)
         static_cast<int>(entries.size()), this,
         wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
+    bool applyToAll = false;
     int extracted = 0;
     int skipped   = 0;
 
@@ -677,6 +678,16 @@ void MainFrame::DoExtract(const std::string& destPath)
 
         wxString destFile = wxString::FromUTF8(
             (destPath + "/" + entry.name).c_str());
+
+        // Overwrite check
+        if (wxFileExists(destFile) || wxDirExists(destFile))
+        {
+            auto action = ConfirmOverwrite(this,
+                wxString::FromUTF8(entry.name.c_str()), applyToAll);
+
+            if (action == OverwriteAction::Cancel) break;
+            if (action == OverwriteAction::No) { skipped++; continue; }
+        }
 
         if (entry.isDirectory)
         {
@@ -756,6 +767,7 @@ void MainFrame::DoExtractSelected()
         _("Preparing..."), total, this,
         wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
+    bool applyToAll = false;
     int extracted = 0;
 
     for (size_t i = 0; i < filePaths.size(); ++i)
@@ -764,6 +776,15 @@ void MainFrame::DoExtractSelected()
         if (!progress.Update(static_cast<int>(i), msg)) break;
 
         wxString destFile = destRoot + "/" + filePaths[i];
+
+        // Overwrite check
+        if (wxFileExists(destFile) || wxDirExists(destFile))
+        {
+            auto action = ConfirmOverwrite(this, filePaths[i], applyToAll);
+            if (action == OverwriteAction::Cancel) break;
+            if (action == OverwriteAction::No) continue;
+        }
+
         wxFileName::Mkdir(wxFileName(destFile).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
