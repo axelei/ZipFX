@@ -914,32 +914,52 @@ void MainFrame::OnToolDelete()
         }
     }
 
-    wxString names;
-    for (const auto& ep : sel)
-        names += "\n  " + ep;
+    wxString confirmMsg = sel.size() == 1
+        ? wxString::Format(_("Delete \"%s\" from archive?"), sel[0])
+        : wxString::Format(_("Delete these %zu files?"), sel.size());
 
-    if (wxMessageBox(
-            wxString::Format(_("Delete these %zu files?%s"), sel.size(), names),
-            _("Confirm Delete"),
-            wxYES_NO | wxICON_QUESTION) != wxYES)
+    if (wxMessageBox(confirmMsg, _("Confirm Delete"),
+                     wxYES_NO | wxICON_QUESTION) != wxYES)
     {
         return;
     }
 
-    for (const auto& ep : sel)
+    ExtractionProgressDialog dlg(this, static_cast<int>(sel.size()) + 1);
+    dlg.Show();
+
+    for (size_t i = 0; i < sel.size(); ++i)
     {
-        wxLogDebug("Deleting entry: %s", ep);
-        m_engine->RemoveEntry(ep.ToStdString());
+        wxYieldIfNeeded();
+        if (dlg.WasCancelled()) break;
+        if (dlg.WasPaused())
+        {
+            while (dlg.WasPaused() && !dlg.WasCancelled())
+            {
+                wxMilliSleep(100);
+                wxYieldIfNeeded();
+            }
+            if (dlg.WasCancelled()) break;
+        }
+
+        dlg.UpdateProgress(static_cast<int>(i),
+            wxString::Format(_("(%zu / %zu) Removing: %s"),
+                             i + 1, sel.size(), sel[i]));
+        m_engine->RemoveEntry(sel[i].ToStdString());
     }
 
-    if (!m_engine->Save())
+    if (!dlg.WasCancelled())
     {
-        wxLogError("Failed to save after delete");
-        wxMessageBox(_("Could not save after deleting files."),
-                     _("Error"), wxOK | wxICON_ERROR);
-        return;
+        dlg.UpdateProgress(static_cast<int>(sel.size()), _("Saving archive..."));
+        if (!m_engine->Save())
+        {
+            wxLogError("Failed to save after delete");
+            wxMessageBox(_("Could not save after deleting files."),
+                         _("Error"), wxOK | wxICON_ERROR);
+        }
     }
 
+    dlg.UpdateProgress(static_cast<int>(sel.size()) + 1, _("Done."));
+    dlg.Close();
     wxLogMessage("Deleted %zu entries", sel.size());
     RefreshFileList();
 }
