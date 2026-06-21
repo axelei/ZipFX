@@ -142,11 +142,18 @@ std::vector<ArchiveEntry> ZipEngine::ListContents()
 
 bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    if (!m_isOpen || m_isWriter)
+    if (!m_isOpen) return false;
+
+    // If in writer mode, re-open as reader so we can read
+    if (m_isWriter)
     {
-        wxLogDebug("ZipEngine: Extract blocked (open=%d writer=%d): %s",
-                   m_isOpen, m_isWriter, std::string(entryName).c_str());
-        return false;
+        wxLogDebug("ZipEngine: switching writer→reader for Extract");
+        mz_zip_writer_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
+        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
+                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+            return false;
+        m_isWriter = false;
     }
 
     std::string name(entryName);
@@ -203,9 +210,17 @@ bool ZipEngine::ExtractAll(std::string_view destPath)
 
 std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
 {
-    if (!m_isOpen || m_isWriter)
+    if (!m_isOpen) return {};
+
+    if (m_isWriter)
     {
-        return {};
+        wxLogDebug("ZipEngine: switching writer→reader for ReadFile");
+        mz_zip_writer_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
+        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
+                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+            return {};
+        m_isWriter = false;
     }
 
     std::string name(entryName);
