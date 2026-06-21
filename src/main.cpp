@@ -1,5 +1,7 @@
 #include <wx/wx.h>
 #include <wx/log.h>
+#include <wx/wfstream.h>
+#include <wx/datetime.h>
 
 #include "ui/MainFrame.h"
 
@@ -11,8 +13,23 @@ public:
         wxInitAllImageHandlers();
 
 #ifdef _DEBUG
-        // Forward logs to stderr in debug builds (error dialogs still appear)
+        // 1. Console logging (stderr) — chained so error dialogs still appear
         new wxLogChain(new wxLogStream(&std::clog));
+
+        // 2. File logging  — chained on top, so messages reach both files and console
+        wxString logDir  = wxStandardPaths::Get().GetTempDir() + "/ZipFX/logs";
+        wxFileName::Mkdir(logDir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        wxString logPath = logDir + "/" +
+            wxDateTime::Now().Format("%Y-%m-%d_%H-%M-%S") + ".log";
+
+        wxFFileOutputStream* fstream = new wxFFileOutputStream(logPath);
+        if (fstream->IsOk())
+        {
+            new wxLogChain(new wxLogStream(fstream));
+            wxLogMessage("Log file: %s", logPath);
+        }
+
         wxLogMessage("ZipFX started (debug build)");
 #endif
 
