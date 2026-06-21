@@ -3,6 +3,7 @@
 #include <wx/log.h>
 #include <wx/window.h>
 #include <wx/filename.h>
+#include <wx/event.h>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEntry.h"
