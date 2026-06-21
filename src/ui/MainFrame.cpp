@@ -10,6 +10,10 @@
 #include <wx/dnd.h>
 #include <wx/stdpaths.h>
 
+#ifdef __WXMSW__
+#include "dnd/VirtualFileDataObject.h"
+#endif
+
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
 
@@ -250,32 +254,10 @@ bool MainFrame::OnDropFiles(const wxArrayString& filenames)
 
 void MainFrame::OnBeginDrag(wxListEvent& event)
 {
-    if (!m_engine)
-    {
-        wxLogDebug("Drag: no engine");
-        return;
-    }
-
-    wxLogDebug("Drag: engine=%s isOpen=%d isWriter=%d",
-               m_engine->FormatName().data(),
-               m_engine->IsOpen(), false);
+    if (!m_engine) return;
 
     auto sel = m_fileList->GetSelectedEntryPaths();
-    if (sel.empty())
-    {
-        return;
-    }
-
-    // Unique temp folder for this drag operation
-    wxString tmpRoot = wxStandardPaths::Get().GetTempDir()
-                     + "/ZipFX_Drag/"
-                     + wxString::Format("%u", (unsigned)time(nullptr))
-                     + "/";
-
-    wxFileName::Mkdir(tmpRoot, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-    wxFileDataObject data;
-    int okCount = 0;
+    if (sel.empty()) return;
 
     auto allEntries = m_engine->ListContents();
 
@@ -286,11 +268,9 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         bool isDir = false;
         std::string entryStr = entryPath.ToStdString();
 
-        // Try matching with and without trailing slash
         for (const auto& e : allEntries)
         {
-            if (e.path == entryStr ||
-                e.path == entryStr + "/")
+            if (e.path == entryStr || e.path == entryStr + "/")
             {
                 isDir = e.isDirectory;
                 break;
@@ -301,13 +281,9 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         {
             std::string prefix = entryStr + "/";
             for (const auto& e : allEntries)
-            {
                 if (!e.isDirectory &&
                     e.path.compare(0, prefix.size(), prefix) == 0)
-                {
                     filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
-                }
-            }
         }
         else
         {
@@ -315,39 +291,66 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         }
     }
 
-    for (const auto& entryPath : filePaths)
-    {
-        wxFileName tmpFile(tmpRoot + entryPath);
-        tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
+    if (filePaths.empty()) return;
 
+#ifdef __WXMSW__
+    // Windows: VirtualFileDataObject with CFSTR_FILECONTENTS
+    // Files extracted on drop — instant start, structure preserved.
+    VirtualFileDataObject* vfdo = new VirtualFileDataObject();
+    for (const auto& fp : filePaths)
+    {
+        VirtualFileEntry ve;
+        ve.name = fp.ToStdWstring();
+        std::string ep = fp.ToStdString();
+        for (const auto& e : allEntries)
+            if (e.path == ep) { ve.size = e.size; break; }
+        ve.engine = m_engine.get();
+        ve.archivePath = ep;
+        vfdo->AddFile(ve);
+    }
+    if (vfdo->GetCount() > 0)
+    {
+        vfdo->AddRef(); // wxDropSource will release
+        wxDropSource source(vfdo, this);
+        source.DoDragDrop(wxDrag_CopyOnly);
+    }
+#else
+    // Linux/macOS: extract to temp, show progress, use wxFileDataObject
+    wxString tmpRoot = wxStandardPaths::Get().GetTempDir()
+                     + "/ZipFX_Drag/"
+                     + wxString::Format("%u", (unsigned)time(nullptr))
+                     + "/";
+    wxFileName::Mkdir(tmpRoot, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+    wxProgressDialog progress(_("Preparing files for drag"),
+        _("Extracting..."), (int)filePaths.size(), this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    wxFileDataObject data;
+    for (size_t i = 0; i < filePaths.size(); ++i)
+    {
+        if (!progress.Update((int)i,
+                wxString::Format(_("Extracting: %s"), filePaths[i])))
+            break;
+
+        wxFileName tmpFile(tmpRoot + filePaths[i].AfterLast('/'));
+        tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE |
+                          wxPATH_NORM_ABSOLUTE);
         wxFileName::Mkdir(tmpFile.GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
-        if (m_engine->Extract(entryPath.ToStdString(), tmpFile.GetFullPath().ToStdString()))
-        {
+        if (m_engine->Extract(filePaths[i].ToStdString(),
+                              tmpFile.GetFullPath().ToStdString()))
             data.AddFile(tmpFile.GetFullPath());
-            okCount++;
-        }
-        else
-        {
-            wxLogWarning("Drag: failed to extract %s  →  %s",
-                         entryPath, tmpFile.GetFullPath());
-        }
     }
+    progress.Update((int)filePaths.size());
 
-    if (okCount > 0)
+    if (!data.GetFilenames().IsEmpty())
     {
-        wxLogDebug("Starting drag with %d temp files", okCount);
         wxDropSource source(data, this);
         source.DoDragDrop(wxDrag_CopyOnly);
     }
-    else
-    {
-        wxLogWarning("No files extracted for drag");
-        wxMessageBox(_("Could not extract the selected files. "
-                       "Only archive entries are supported for drag."),
-                     _("Drag Failed"), wxOK | wxICON_INFORMATION);
-    }
+#endif
 }
 
 // ── New Archive ────────────────────────────────────────────────────────

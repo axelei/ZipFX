@@ -99,6 +99,7 @@ set(ZIPFX_SOURCES
     src/ui/MainFrame.cpp
     src/ui/FileListPanel.cpp
     src/ui/CreateArchiveDialog.cpp
+    src/dnd/VirtualFileDataObject.cpp
     src/engine/ArchiveEngineFactory.cpp
     src/engine/ZipEngine.cpp
     src/engine/TarGzEngine.cpp
@@ -132,6 +133,7 @@ if(WIN32)
     target_link_libraries(ZipFX PRIVATE
         winmm comctl32 uuid oleacc uxtheme
         rpcrt4 shlwapi version imm32
+        ole32 oleaut32
     )
 endif()
 
