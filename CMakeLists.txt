@@ -100,6 +100,7 @@ set(ZIPFX_SOURCES
     src/ui/FileListPanel.cpp
     src/ui/CreateArchiveDialog.cpp
     src/ui/ExtractionWorker.cpp
+    src/ui/ExtractionProgressDialog.cpp
     src/dnd/VirtualFileDataObject.cpp
     src/engine/ArchiveEngineFactory.cpp
     src/engine/ZipEngine.cpp

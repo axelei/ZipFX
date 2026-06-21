@@ -6,6 +6,7 @@
 #include "FileListPanel.h"
 #include "icons.h"
 #include "ExtractionWorker.h"
+#include "ExtractionProgressDialog.h"
 #include "PowerManager.h"
 
 #include <memory>
@@ -42,12 +43,14 @@ private:
     void DoExtract(const std::string& destPath);
     void DoExtractSelected();
     bool OpenFileAsArchive(const wxString& path);
+    void StartExtraction(std::vector<ArchiveEntry> entries,
+                         const wxString& destPath, bool preserveStructure);
 
     // Background extraction
     void OnExtractTimer(wxTimerEvent&);
     std::unique_ptr<ExtractionWorker> m_worker;
     wxTimer m_extractTimer;
-    wxProgressDialog* m_extractDlg = nullptr;
+    wxDialog* m_extractDlg = nullptr;
     AfterAction m_afterAction = AfterAction::Nothing;
 
     ZipFXIcons m_icons;

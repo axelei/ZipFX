@@ -681,6 +681,21 @@ void MainFrame::OnToolExtract()
     DoExtract(dlg.GetPath().ToStdString());
 }
 
+void MainFrame::StartExtraction(std::vector<ArchiveEntry> entries,
+    const wxString& destPath, bool preserveStructure)
+{
+    auto* dlg = new ExtractionProgressDialog(this,
+        static_cast<int>(entries.size()));
+
+    m_worker = std::make_unique<ExtractionWorker>(
+        this, m_engine.get(), std::move(entries), destPath, preserveStructure);
+    m_extractDlg = dlg;
+
+    dlg->Show();
+    m_extractTimer.Start(100);
+    m_worker->Start();
+}
+
 void MainFrame::DoExtract(const std::string& destPath)
 {
     wxLogDebug("Extracting to: %s", destPath);
@@ -693,36 +708,7 @@ void MainFrame::DoExtract(const std::string& destPath)
         return;
     }
 
-    // Ask for after-action
-    wxDialog afterDlg(this, wxID_ANY, _("Extraction options"),
-                      wxDefaultPosition, wxSize(380, 150));
-    auto vs = new wxBoxSizer(wxVERTICAL);
-    vs->Add(new wxStaticText(&afterDlg, wxID_ANY,
-        _("After extraction:")), 0, wxALL, 10);
-    wxComboBox* afterCombo = new wxComboBox(&afterDlg, wxID_ANY, _("Do nothing"),
-        wxDefaultPosition, wxDefaultSize, GetAfterActionLabels(), wxCB_READONLY);
-    vs->Add(afterCombo, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    auto hs = new wxBoxSizer(wxHORIZONTAL);
-    hs->Add(new wxButton(&afterDlg, wxID_OK, _("Start")), 0, wxRIGHT, 6);
-    hs->Add(new wxButton(&afterDlg, wxID_CANCEL, _("Cancel")), 0);
-    vs->Add(hs, 0, wxALIGN_CENTER | wxBOTTOM, 10);
-    afterDlg.SetSizer(vs);
-
-    if (afterDlg.ShowModal() != wxID_OK) return;
-
-    m_afterAction = static_cast<AfterAction>(afterCombo->GetSelection());
-
-    // Background worker
-    m_worker = std::make_unique<ExtractionWorker>(
-        this, m_engine.get(), std::move(entries), destPath, true);
-
-    m_extractDlg = new wxProgressDialog(
-        _("Extracting"), _("Starting..."),
-        m_worker->m_progressTotal, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
-
-    m_extractTimer.Start(100);
-    m_worker->Start();
+    StartExtraction(std::move(entries), destPath, true);
 }
 
 void MainFrame::DoExtractSelected()
@@ -745,7 +731,6 @@ void MainFrame::DoExtractSelected()
 
     auto allEntries = m_engine->ListContents();
 
-    // Expand selection: directories → all files inside them
     std::vector<ArchiveEntry> expanded;
     for (const auto& entryPath : sel)
     {
@@ -769,36 +754,7 @@ void MainFrame::DoExtractSelected()
         }
     }
 
-    // After-action dialog
-    wxDialog afterDlg(this, wxID_ANY, _("Extraction options"),
-                      wxDefaultPosition, wxSize(380, 150));
-    auto vs = new wxBoxSizer(wxVERTICAL);
-    vs->Add(new wxStaticText(&afterDlg, wxID_ANY,
-        _("After extraction:")), 0, wxALL, 10);
-    wxComboBox* afterCombo = new wxComboBox(&afterDlg, wxID_ANY, _("Do nothing"),
-        wxDefaultPosition, wxDefaultSize, GetAfterActionLabels(), wxCB_READONLY);
-    vs->Add(afterCombo, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
-    auto hs = new wxBoxSizer(wxHORIZONTAL);
-    hs->Add(new wxButton(&afterDlg, wxID_OK, _("Start")), 0, wxRIGHT, 6);
-    hs->Add(new wxButton(&afterDlg, wxID_CANCEL, _("Cancel")), 0);
-    vs->Add(hs, 0, wxALIGN_CENTER | wxBOTTOM, 10);
-    afterDlg.SetSizer(vs);
-
-    if (afterDlg.ShowModal() != wxID_OK) return;
-
-    m_afterAction = static_cast<AfterAction>(afterCombo->GetSelection());
-
-    // Background worker
-    m_worker = std::make_unique<ExtractionWorker>(
-        this, m_engine.get(), std::move(expanded), destRoot, false);
-
-    m_extractDlg = new wxProgressDialog(
-        _("Extracting"), _("Starting..."),
-        m_worker->m_progressTotal, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
-
-    m_extractTimer.Start(100);
-    m_worker->Start();
+    StartExtraction(std::move(expanded), destRoot, false);
 }
 
 // ── Background extraction timer ─────────────────────────────────────
@@ -810,29 +766,46 @@ void MainFrame::OnExtractTimer(wxTimerEvent&)
         return;
     }
 
-    int done = m_worker->m_progressCount.load();
-    int total = m_worker->m_progressTotal.load();
+    // Cast to our custom dialog — wxProgressDialog is the base
+    auto* dlg = static_cast<ExtractionProgressDialog*>(m_extractDlg);
 
-    if (!m_extractDlg->Update(done,
-            wxString::Format(_("Extracting... (%d / %d)"), done, total)))
+    if (dlg->WasCancelled())
     {
         m_worker->Cancel();
         m_extractTimer.Stop();
+        dlg->Close();
+        m_extractDlg = nullptr;
+        m_worker.reset();
         return;
     }
+
+    if (dlg->WasPaused())
+    {
+        m_worker->Pause();
+    }
+    else
+    {
+        m_worker->Resume();
+    }
+
+    int done = m_worker->m_progressCount.load();
+    int total = m_worker->m_progressTotal.load();
+
+    dlg->UpdateProgress(done,
+        wxString::Format(_("(%d / %d)"), done, total));
 
     if (m_worker->m_finished.load())
     {
         m_extractTimer.Stop();
-        m_extractDlg->Update(total, _("Done."));
-        m_extractDlg->Destroy();
+        dlg->UpdateProgress(total, _("Done."));
+        m_afterAction = dlg->GetAfterAction();
+        dlg->Close();
         m_extractDlg = nullptr;
 
         wxLogMessage("Extraction complete");
         SetStatusText(_("Extraction complete"), 2);
         m_worker.reset();
 
-        // After-action
         if (m_afterAction != AfterAction::Nothing)
             ExecuteAfterAction(m_afterAction);
     }
