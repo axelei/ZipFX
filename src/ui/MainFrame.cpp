@@ -274,9 +274,10 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
     auto allEntries = m_engine->ListContents();
 
+    // Expand selection: directories → all files inside them
+    std::vector<wxString> filePaths;
     for (const auto& entryPath : sel)
     {
-        // Check if this is a directory entry (skip directories)
         bool isDir = false;
         for (const auto& e : allEntries)
         {
@@ -286,12 +287,28 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
                 break;
             }
         }
+
         if (isDir)
         {
-            continue;
+            // Add all files under this directory
+            std::string prefix = entryPath.ToStdString() + "/";
+            for (const auto& e : allEntries)
+            {
+                if (!e.isDirectory &&
+                    e.path.compare(0, prefix.size(), prefix) == 0)
+                {
+                    filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
+                }
+            }
         }
+        else
+        {
+            filePaths.push_back(entryPath);
+        }
+    }
 
-        // Extract to tmpRoot using the flat filename (no subdirs)
+    for (const auto& entryPath : filePaths)
+    {
         wxFileName tmpFile(tmpRoot + entryPath.AfterLast('/'));
         tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
 
@@ -697,35 +714,55 @@ void MainFrame::DoExtractSelected()
 
     auto allEntries = m_engine->ListContents();
 
-    for (size_t i = 0; i < sel.size(); ++i)
+    // Expand selection: directories → all files inside them
+    std::vector<wxString> filePaths;
+    for (const auto& entryPath : sel)
     {
-        wxString msg = wxString::Format(_("Extracting: %s"), sel[i]);
-        if (!progress.Update(static_cast<int>(i), msg)) break;
-
-        // Skip directory entries
         bool isDir = false;
         for (const auto& e : allEntries)
         {
-            if (e.path == sel[i].ToStdString())
+            if (e.path == entryPath.ToStdString())
             {
                 isDir = e.isDirectory;
                 break;
             }
         }
-        if (isDir) continue;
 
-        wxString destFile = destRoot + "/" + sel[i].AfterLast('/');
+        if (isDir)
+        {
+            std::string prefix = entryPath.ToStdString() + "/";
+            for (const auto& e : allEntries)
+            {
+                if (!e.isDirectory &&
+                    e.path.compare(0, prefix.size(), prefix) == 0)
+                {
+                    filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
+                }
+            }
+        }
+        else
+        {
+            filePaths.push_back(entryPath);
+        }
+    }
+
+    for (size_t i = 0; i < filePaths.size(); ++i)
+    {
+        wxString msg = wxString::Format(_("Extracting: %s"), filePaths[i]);
+        if (!progress.Update(static_cast<int>(i), msg)) break;
+
+        wxString destFile = destRoot + "/" + filePaths[i].AfterLast('/');
 
         wxFileName::Mkdir(wxFileName(destFile).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
-        if (m_engine->Extract(sel[i].ToStdString(), destFile.ToStdString()))
+        if (m_engine->Extract(filePaths[i].ToStdString(), destFile.ToStdString()))
         {
             extracted++;
         }
         else
         {
-            wxLogWarning("Failed to extract: %s", sel[i]);
+            wxLogWarning("Failed to extract: %s", filePaths[i]);
         }
     }
 
