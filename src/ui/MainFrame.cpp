@@ -322,17 +322,17 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     for (const auto& fp : filePaths)
     {
         VirtualFileEntry ve;
-        std::string ep = fp.ToStdString();
+        std::string fullPath = fp.ToStdString();
         // Strip common prefix to get relative name
-        if (!commonPrefix.empty() && ep.compare(0, commonPrefix.size(), commonPrefix) == 0)
-            ve.name = wxString::FromUTF8(ep.c_str() + commonPrefix.size()).ToStdWstring();
+        if (!commonPrefix.empty() && fullPath.compare(0, commonPrefix.size(), commonPrefix) == 0)
+            ve.name = wxString::FromUTF8(fullPath.c_str() + commonPrefix.size()).ToStdWstring();
         else
             ve.name = fp.ToStdWstring();
         std::string ep = fp.ToStdString();
         for (const auto& e : allEntries)
             if (e.path == ep) { ve.size = e.size; break; }
         ve.engine      = m_engine.get();
-        ve.archivePath = ep;   // full archive path for extraction
+        ve.archivePath = fullPath;   // full archive path for extraction
         vfdo->AddFile(ve);
     }
     if (vfdo->GetCount() > 0)
