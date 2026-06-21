@@ -685,6 +685,8 @@ void MainFrame::StartExtraction(std::vector<ArchiveEntry> entries,
     ExtractionProgressDialog dlg(this, static_cast<int>(entries.size()));
     dlg.Show();
 
+    bool applyToAll = false;
+
     for (size_t i = 0; i < entries.size(); ++i)
     {
         wxYieldIfNeeded();
@@ -710,6 +712,14 @@ void MainFrame::StartExtraction(std::vector<ArchiveEntry> entries,
 
         dlg.UpdateProgress(static_cast<int>(i),
             wxString::Format(_("(%zu / %zu) %s"), i + 1, entries.size(), name));
+
+        // Overwrite check
+        if (wxFileExists(destFile) || wxDirExists(destFile))
+        {
+            auto action = ConfirmOverwrite(this, name, applyToAll);
+            if (action == OverwriteAction::Cancel) break;
+            if (action == OverwriteAction::No) continue;
+        }
 
         if (entry.isDirectory)
         {
