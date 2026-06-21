@@ -5,6 +5,7 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <unordered_set>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -285,22 +286,45 @@ bool ZipEngine::Save()
 
     if (hasRemoves)
     {
-        // Full rewrite: read all entries except removed ones, then rebuild
+        // Build a set of paths to remove for fast lookup
+        std::unordered_set<std::string> removeSet;
+        for (const auto& r : m_pendingRemoves)
+        {
+            removeSet.insert(r);
+            removeSet.insert(r + "/");
+        }
+
+        mz_zip_reader_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
+
+        // Re-open as reader to read entries by index (much faster than by name)
+        if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
+                MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+            return false;
+
+        // Read entries by index, skipping removed ones
+        mz_uint numFiles = mz_zip_reader_get_num_files(&m_archive);
         std::vector<std::vector<uint8_t>> fileData;
         std::vector<std::string> fileNames;
 
-        for (const auto& entry : m_entries)
+        for (mz_uint i = 0; i < numFiles; ++i)
         {
-            bool removed = false;
-            for (const auto& r : m_pendingRemoves)
-                if (entry.path == r || entry.path == r + "/") { removed = true; break; }
-            if (removed) continue;
+            mz_zip_archive_file_stat st;
+            if (!mz_zip_reader_file_stat(&m_archive, i, &st))
+                continue;
 
-            auto data = ReadFile(entry.path);
-            if (!data.empty())
+            std::string entryPath = st.m_filename ? st.m_filename : "";
+            if (removeSet.count(entryPath))
+                continue;
+
+            size_t size = 0;
+            void* data = mz_zip_reader_extract_to_heap(&m_archive, i, &size, 0);
+            if (data)
             {
-                fileNames.push_back(entry.path);
-                fileData.push_back(std::move(data));
+                fileNames.push_back(std::move(entryPath));
+                fileData.emplace_back(static_cast<uint8_t*>(data),
+                                      static_cast<uint8_t*>(data) + size);
+                mz_free(data);
             }
         }
 
