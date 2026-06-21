@@ -29,6 +29,38 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(wxwidgets)
 
 # ====================================================================
+# zlib  –  required by libzip (and TarGzEngine)
+# ====================================================================
+FetchContent_Declare(
+    zlib
+    GIT_REPOSITORY https://github.com/madler/zlib.git
+    GIT_TAG        v1.3.1
+    GIT_SHALLOW    TRUE
+)
+
+set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ZLIB_INSTALL      OFF CACHE BOOL "" FORCE)
+FetchContent_MakeAvailable(zlib)
+
+# libzip's FindZLIB needs the actual library file at configure time.
+# Point it at our fetched zlib (built later, but the target exists now).
+if(TARGET zlibstatic)
+    # Get the actual output path for the zlib library (handles all generators)
+    get_target_property(_zlib_type zlibstatic TYPE)
+    if(_zlib_type STREQUAL "STATIC_LIBRARY")
+        get_target_property(_zlib_out zlibstatic ARCHIVE_OUTPUT_DIRECTORY)
+        if(NOT _zlib_out)
+            set(_zlib_out "${CMAKE_CURRENT_BINARY_DIR}")
+        endif()
+    endif()
+
+    set(ZLIB_FOUND       TRUE                              CACHE INTERNAL "")
+    set(ZLIB_INCLUDE_DIR "${zlib_SOURCE_DIR}" "${zlib_BINARY_DIR}" CACHE PATH "")
+    set(ZLIB_LIBRARY     "zlibstatic"                      CACHE STRING   "")
+    set(ZLIB_LIBRARIES   "zlibstatic"                      CACHE STRING   "")
+endif()
+
+# ====================================================================
 # libzip  –  ZIP read/write (in-place delete/add, no full rewrite)
 # ====================================================================
 set(ENABLE_COMMONCRYPTO OFF CACHE BOOL "" FORCE)
@@ -40,6 +72,13 @@ set(BUILD_REGRESS      OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES     OFF CACHE BOOL "" FORCE)
 set(BUILD_DOC          OFF CACHE BOOL "" FORCE)
 
+# Tell libzip that snprintf exists (MSVC 2015+) to avoid macro conflict in compat.h
+set(HAVE_SNPRINTF TRUE CACHE INTERNAL "Have snprintf")
+set(CMAKE_REQUIRED_DEFINITIONS "-DHAVE_SNPRINTF=1")
+
+# Help libzip find our zlib target (also handles MSVC Debug config via target name)
+set(ZLIB_LIBRARIES "zlibstatic" CACHE STRING "Zlib library")
+
 FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
@@ -48,19 +87,6 @@ FetchContent_Declare(
 )
 
 FetchContent_MakeAvailable(libzip)
-
-# ====================================================================
-# zlib  –  gzip compression for .tar.gz support
-# ====================================================================
-FetchContent_Declare(
-    zlib
-    GIT_REPOSITORY https://github.com/madler/zlib.git
-    GIT_TAG        v1.3.1
-    GIT_SHALLOW    TRUE
-)
-
-set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
-FetchContent_MakeAvailable(zlib)
 
 # ====================================================================
 # libarchive  –  7z read/write + RAR read
