@@ -193,6 +193,10 @@ MainFrame::MainFrame()
 
     // ── Drop target (add files by dropping onto window) ─────────
     SetDropTarget(new ZipFXDropTarget(this));
+
+    // ── Background extraction events ─────────────────────────────
+    Bind(wxEVT_EXTRACT_PROGRESS, &MainFrame::OnExtractProgress, this);
+    Bind(wxEVT_EXTRACT_DONE,     &MainFrame::OnExtractDone,     this);
 }
 
 MainFrame::~MainFrame()
@@ -654,75 +658,20 @@ void MainFrame::DoExtract(const std::string& destPath)
         return;
     }
 
-    wxProgressDialog progress(_("Extracting"),
-        _("Preparing..."),
-        static_cast<int>(entries.size()),
-        this,
+    int total = static_cast<int>(entries.size());
+
+    // Launch background extraction
+    m_extractWorker = std::make_unique<ExtractionWorker>(
+        this, m_engine.get(), std::move(entries),
+        destPath, true);   // preserve structure
+
+    m_progressDlg = new wxProgressDialog(
+        _("Extracting"), _("Starting..."), total, this,
         wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
-    bool applyToAll = false;
-    int extracted = 0;
-    int skipped   = 0;
+    m_extractWorker->Start();
+}
 
-    for (size_t i = 0; i < entries.size(); ++i)
-    {
-        const auto& entry = entries[i];
-
-        wxString msg = wxString::Format(_("Extracting: %s"),
-            wxString::FromUTF8(entry.name.c_str()));
-
-        if (!progress.Update(static_cast<int>(i), msg))
-        {
-            wxLogDebug("Extraction cancelled by user");
-            break;
-        }
-
-        wxString destFile = wxString::FromUTF8(
-            (destPath + "/" + entry.name).c_str());
-
-        // Overwrite check
-        if (wxFileExists(destFile) || wxDirExists(destFile))
-        {
-            OverwriteAction action = ConfirmOverwrite(
-                this, wxString::FromUTF8(entry.name.c_str()), applyToAll);
-
-            if (action == OverwriteAction::Cancel)
-            {
-                wxLogDebug("Extraction cancelled by user");
-                break;
-            }
-            if (action == OverwriteAction::No)
-            {
-                skipped++;
-                continue;
-            }
-            // Yes / YesToAll falls through to extraction
-        }
-
-        if (entry.isDirectory)
-        {
-            wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-            continue;
-        }
-
-        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-        if (!m_engine->Extract(entry.name, destFile.ToStdString()))
-        {
-            wxLogWarning("Failed to extract: %s", entry.name);
-        }
-        else
-        {
-            extracted++;
-        }
-    }
-
-    progress.Update(static_cast<int>(entries.size()));
-
-    wxLogMessage("Extraction complete: %d extracted, %d skipped", extracted, skipped);
-    SetStatusText(
-        wxString::Format(_("Extraction complete (%d files)"), extracted), 2);
 }
 
 void MainFrame::DoExtractSelected()
@@ -809,9 +758,53 @@ void MainFrame::DoExtractSelected()
         }
     }
 
-    progress.Update(static_cast<int>(sel.size()));
-    wxLogMessage("Extracted %d selected files", extracted);
-    SetStatusText(wxString::Format(_("Extracted %d files"), extracted), 2);
+    m_extractWorker = std::make_unique<ExtractionWorker>(
+        this, m_engine.get(), std::move(entries),
+        destRoot, false);   // flat — no subdirs
+
+    m_progressDlg = new wxProgressDialog(
+        _("Extracting"), _("Starting..."),
+        static_cast<int>(entries.size()), this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+
+    m_extractWorker->Start();
+}
+
+// ── Background extraction event handlers ─────────────────────────────
+void MainFrame::OnExtractProgress(wxThreadEvent& evt)
+{
+    int done = evt.GetInt();
+    int total = static_cast<int>(evt.GetExtraLong());
+    wxString current = evt.GetString();
+
+    if (m_progressDlg)
+    {
+        if (!m_progressDlg->Update(done,
+                wxString::Format(_("Extracting: %s"), current)))
+        {
+            // User cancelled
+            if (m_extractWorker) m_extractWorker->Cancel();
+        }
+    }
+}
+
+void MainFrame::OnExtractDone(wxThreadEvent& evt)
+{
+    int ok = evt.GetInt();
+    int skipped = static_cast<int>(evt.GetExtraLong());
+
+    if (m_progressDlg)
+    {
+        m_progressDlg->Update(ok + skipped);
+        m_progressDlg->Destroy();
+        m_progressDlg = nullptr;
+    }
+
+    m_extractWorker.reset();
+
+    wxLogMessage("Extraction done: %d OK, %d skipped", ok, skipped);
+    SetStatusText(wxString::Format(_("Extraction done (%d files)"), ok), 2);
+    RefreshFileList();
 }
 
 // ── Test ───────────────────────────────────────────────────────────────

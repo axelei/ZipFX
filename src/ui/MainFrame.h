@@ -5,6 +5,7 @@
 
 #include "FileListPanel.h"
 #include "icons.h"
+#include "ExtractionWorker.h"
 
 #include <memory>
 #include <string>
@@ -39,6 +40,12 @@ private:
     void RefreshFileList();
     void DoExtract(const std::string& destPath);
     void DoExtractSelected();
+
+    // Background extraction
+    void OnExtractProgress(wxThreadEvent&);
+    void OnExtractDone(wxThreadEvent&);
+    std::unique_ptr<ExtractionWorker> m_extractWorker;
+    wxProgressDialog* m_progressDlg = nullptr;
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;
