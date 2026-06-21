@@ -340,7 +340,31 @@ bool ZipEngine::Save()
     }
     m_pendingAdds.clear();
 
+    // Finalize the archive — this writes the central directory and EOCD,
+    // making the zip file readable by other programs.
+    if (!mz_zip_writer_finalize_archive(&m_archive))
+    {
+        wxLogError("ZipEngine: failed to finalize archive");
+        return false;
+    }
+
+    // Close writer and re-open as reader so subsequent operations work
+    mz_zip_writer_end(&m_archive);
+    std::memset(&m_archive, 0, sizeof(m_archive));
+
+    if (!mz_zip_reader_init_file(&m_archive, m_path.c_str(),
+            MZ_ZIP_FLAG_DO_NOT_SORT_CENTRAL_DIRECTORY))
+    {
+        wxLogError("ZipEngine: failed to re-open saved archive");
+        return false;
+    }
+
+    m_isWriter = false;
     m_modified = false;
+
+    // Reload entry cache to reflect the new contents
+    LoadEntryCache();
+
     return true;
 }
 
