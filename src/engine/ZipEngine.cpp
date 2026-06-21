@@ -280,54 +280,18 @@ bool ZipEngine::Save()
         return true;
     }
 
-    // Read existing entries into memory (skip if we're in writer/create mode)
-    std::vector<std::vector<uint8_t>> fileData;
-    std::vector<std::string> fileNames;
-
     if (!m_isWriter)
     {
-        for (const auto& entry : m_entries)
+        // Reader mode → convert to writer (appends to existing archive)
+        if (!mz_zip_writer_init_from_reader(&m_archive, m_path.c_str()))
         {
-            auto data = ReadFile(entry.path);
-            if (!data.empty())
-            {
-                fileNames.push_back(entry.path);
-                fileData.push_back(std::move(data));
-            }
-        }
-
-        // Close reader
-        mz_zip_reader_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-    }
-    else
-    {
-        // Already in writer mode — flush and reopen as writer
-        mz_zip_writer_end(&m_archive);
-        std::memset(&m_archive, 0, sizeof(m_archive));
-    }
-
-    // Open as writer (overwrite)
-    if (!mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
-    {
-        return false;
-    }
-
-    m_isWriter = true;
-
-    // Rewrite existing entries
-    for (size_t i = 0; i < fileNames.size(); ++i)
-    {
-        if (!mz_zip_writer_add_mem(
-                &m_archive, fileNames[i].c_str(),
-                fileData[i].data(), fileData[i].size(),
-                MZ_BEST_COMPRESSION))
-        {
+            wxLogError("ZipEngine: failed to convert reader to writer");
             return false;
         }
+        m_isWriter = true;
     }
 
-    // Write pending additions
+    // Write pending additions directly (no full rewrite needed)
     for (const auto& pf : m_pendingAdds)
     {
         if (!mz_zip_writer_add_file(
@@ -340,15 +304,14 @@ bool ZipEngine::Save()
     }
     m_pendingAdds.clear();
 
-    // Finalize the archive — this writes the central directory and EOCD,
-    // making the zip file readable by other programs.
+    // Finalize — writes central directory + EOCD
     if (!mz_zip_writer_finalize_archive(&m_archive))
     {
         wxLogError("ZipEngine: failed to finalize archive");
         return false;
     }
 
-    // Close writer and re-open as reader so subsequent operations work
+    // Close writer and re-open as reader for subsequent operations
     mz_zip_writer_end(&m_archive);
     std::memset(&m_archive, 0, sizeof(m_archive));
 
@@ -361,8 +324,8 @@ bool ZipEngine::Save()
 
     m_isWriter = false;
     m_modified = false;
+    m_entries.clear();
 
-    // Reload entry cache to reflect the new contents
     LoadEntryCache();
 
     return true;
