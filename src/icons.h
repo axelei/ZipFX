@@ -73,7 +73,12 @@ inline wxBitmap LoadIcon(const wxString& name)
         wxString path = assetsDir + "/" + name + ".png";
         if (bmp.LoadFile(path, wxBITMAP_TYPE_PNG))
         {
-            return bmp;
+            wxImage img = bmp.ConvertToImage();
+            if (!img.HasAlpha())
+            {
+                img.InitAlpha();
+            }
+            return wxBitmap(img);
         }
     }
     return {};
