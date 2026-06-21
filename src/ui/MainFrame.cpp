@@ -890,40 +890,57 @@ void MainFrame::OnToolDelete()
         return;
     }
 
-    if (m_fileList->IsSelectedDirectory())
+    auto sel = m_fileList->GetSelectedEntryPaths();
+    if (sel.empty())
     {
-        wxMessageBox(_("Cannot delete a folder."), _("Info"),
+        wxMessageBox(_("Please select at least one file."), _("Info"),
                      wxOK | wxICON_INFORMATION);
         return;
     }
 
-    wxString entryPath = m_fileList->GetSelectedEntryPath();
-    if (entryPath.empty())
+    // Check for actual directory entries
     {
-        wxMessageBox(_("Please select a file first."), _("Info"),
-                     wxOK | wxICON_INFORMATION);
-        return;
+        auto allEntries = m_engine->ListContents();
+        for (const auto& ep : sel)
+        {
+            std::string es = ep.ToStdString();
+            for (const auto& e : allEntries)
+                if ((e.path == es || e.path == es + "/") && e.isDirectory)
+                {
+                    wxMessageBox(_("Cannot delete folders."), _("Info"),
+                                 wxOK | wxICON_INFORMATION);
+                    return;
+                }
+        }
     }
+
+    wxString names;
+    for (const auto& ep : sel)
+        names += "\n  " + ep;
 
     if (wxMessageBox(
-            wxString::Format(_("Delete \"%s\" from archive?"), entryPath),
+            wxString::Format(_("Delete these %zu files?%s"), sel.size(), names),
             _("Confirm Delete"),
             wxYES_NO | wxICON_QUESTION) != wxYES)
     {
         return;
     }
 
-    wxLogDebug("Deleting entry: %s", entryPath);
-
-    if (!m_engine->RemoveEntry(entryPath.ToStdString()) || !m_engine->Save())
+    for (const auto& ep : sel)
     {
-        wxLogError("Failed to delete entry: %s", entryPath);
-        wxMessageBox(_("Could not delete the file."),
+        wxLogDebug("Deleting entry: %s", ep);
+        m_engine->RemoveEntry(ep.ToStdString());
+    }
+
+    if (!m_engine->Save())
+    {
+        wxLogError("Failed to save after delete");
+        wxMessageBox(_("Could not save after deleting files."),
                      _("Error"), wxOK | wxICON_ERROR);
         return;
     }
 
-    wxLogMessage("Deleted entry: %s", entryPath);
+    wxLogMessage("Deleted %zu entries", sel.size());
     RefreshFileList();
 }
 
