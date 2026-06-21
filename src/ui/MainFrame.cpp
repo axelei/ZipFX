@@ -9,6 +9,9 @@
 #include <wx/checkbox.h>
 #include <wx/dnd.h>
 #include <wx/stdpaths.h>
+#ifdef __WXMSW__
+#include "dnd/VirtualFileDataObject.h"
+#endif
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -344,7 +347,35 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
             commonPrefix.clear();
     }
 
-    // Extract to temp dir with progress dialog, then start the OS drag.
+#ifdef __WXMSW__
+    // Windows: VirtualFileDataObject with CFSTR_FILECONTENTS
+    // Instant start — files extracted on demand when drop occurs.
+    // Structure is preserved (Explorer gets full relative paths).
+    VirtualFileDataObject* vfdo = new VirtualFileDataObject();
+        for (const auto& fp : filePaths)
+        {
+            VirtualFileEntry ve;
+            std::string fullPath = fp.ToStdString();
+            // Strip common prefix for the display name
+            std::string displayName = fullPath;
+            if (!commonPrefix.empty() && fullPath.compare(0, commonPrefix.size(), commonPrefix) == 0)
+                displayName = fullPath.substr(commonPrefix.size());
+            if (displayName.empty()) displayName = fullPath.substr(fullPath.rfind('/') + 1);
+
+            ve.name = wxString::FromUTF8(displayName).ToStdWstring();
+            for (const auto& e : allEntries)
+                if (e.path == fullPath) { ve.size = e.size; break; }
+            ve.engine      = m_engine.get();
+            ve.archivePath = fullPath;
+            vfdo->AddFile(ve);
+        }
+        if (vfdo->GetCount() > 0)
+        {
+            vfdo->AddRef();
+            StartVirtualDrag(vfdo, (HWND)GetHWND());
+        }
+#else
+    // Non-Windows: extract to temp dir, show progress
     wxString tmpRoot = wxStandardPaths::Get().GetTempDir()
                      + "/ZipFX_Drag/"
                      + wxString::Format("%u", (unsigned)time(nullptr))
@@ -362,7 +393,6 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
                 wxString::Format(_("Extracting: %s"), filePaths[i])))
             break;
 
-        // Display name (strip common prefix)
         std::string fp = filePaths[i].ToStdString();
         std::string displayName = fp;
         if (!commonPrefix.empty() && fp.compare(0, commonPrefix.size(), commonPrefix) == 0)
@@ -370,10 +400,8 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         if (displayName.empty()) displayName = fp.substr(fp.rfind('/') + 1);
 
         wxFileName tmpFile(tmpRoot + wxString::FromUTF8(displayName));
-        tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE |
-                          wxPATH_NORM_ABSOLUTE);
-        wxFileName::Mkdir(tmpFile.GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+        tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
+        wxFileName::Mkdir(tmpFile.GetPath(), wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
         if (m_engine->Extract(fp, tmpFile.GetFullPath().ToStdString()))
             data.AddFile(tmpFile.GetFullPath());
@@ -385,6 +413,7 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
         wxDropSource source(data, this);
         source.DoDragDrop(wxDrag_CopyOnly);
     }
+#endif
 }
 
 // ── New Archive ────────────────────────────────────────────────────────
