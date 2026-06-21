@@ -23,6 +23,7 @@ public:
     ExtractionWorker(wxWindow* parent, ArchiveEngine* engine,
                      std::vector<ArchiveEntry> entries,
                      const wxString& destPath, bool preserveStructure);
+    ~ExtractionWorker();
 
     void Start();
     void Cancel();

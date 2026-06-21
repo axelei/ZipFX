@@ -25,6 +25,13 @@ ExtractionWorker::ExtractionWorker(wxWindow* parent, ArchiveEngine* engine,
 {
 }
 
+ExtractionWorker::~ExtractionWorker()
+{
+    Cancel();
+    if (m_thread.joinable())
+        m_thread.join();
+}
+
 void ExtractionWorker::Start()
 {
     m_thread = std::thread(&ExtractionWorker::Run, this);
@@ -40,18 +47,20 @@ void ExtractionWorker::Run()
     int total = static_cast<int>(m_entries.size());
     int ok = 0, skipped = 0;
 
-    for (int i = 0; i < total; ++i)
+    try
     {
-        if (m_cancelled) break;
+        for (int i = 0; i < total; ++i)
+        {
+            if (m_cancelled) break;
 
-        const auto& entry = m_entries[i];
-        wxString name = wxString::FromUTF8(entry.name.c_str());
+            const auto& entry = m_entries[i];
+            wxString name = wxString::FromUTF8(entry.name.c_str());
 
-        // Build destination path
-        wxString relName = m_preserveStructure
-            ? wxString::FromUTF8(entry.path.c_str())
-            : name.AfterLast('/');
-        wxString destFile = m_destPath + "/" + relName;
+            // Build destination path
+            wxString relName = m_preserveStructure
+                ? wxString::FromUTF8(entry.path.c_str())
+                : name.AfterLast('/');
+            wxString destFile = m_destPath + "/" + relName;
 
         // Skip directories
         if (entry.isDirectory)
@@ -80,6 +89,16 @@ void ExtractionWorker::Run()
         evt->SetExtraLong(total);
         evt->SetString(name);
         wxQueueEvent(m_parent, evt);
+    }
+
+    }
+    catch (std::exception& e)
+    {
+        wxLogError("ExtractWorker: exception: %s", e.what());
+    }
+    catch (...)
+    {
+        wxLogError("ExtractWorker: unknown exception");
     }
 
     // Post completion
