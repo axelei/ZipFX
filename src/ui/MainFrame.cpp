@@ -272,8 +272,25 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     wxFileDataObject data;
     int okCount = 0;
 
+    auto allEntries = m_engine->ListContents();
+
     for (const auto& entryPath : sel)
     {
+        // Check if this is a directory entry (skip directories)
+        bool isDir = false;
+        for (const auto& e : allEntries)
+        {
+            if (e.path == entryPath.ToStdString())
+            {
+                isDir = e.isDirectory;
+                break;
+            }
+        }
+        if (isDir)
+        {
+            continue;
+        }
+
         // Extract to tmpRoot using the flat filename (no subdirs)
         wxFileName tmpFile(tmpRoot + entryPath.AfterLast('/'));
         tmpFile.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
@@ -678,10 +695,24 @@ void MainFrame::DoExtractSelected()
 
     int extracted = 0;
 
+    auto allEntries = m_engine->ListContents();
+
     for (size_t i = 0; i < sel.size(); ++i)
     {
         wxString msg = wxString::Format(_("Extracting: %s"), sel[i]);
         if (!progress.Update(static_cast<int>(i), msg)) break;
+
+        // Skip directory entries
+        bool isDir = false;
+        for (const auto& e : allEntries)
+        {
+            if (e.path == sel[i].ToStdString())
+            {
+                isDir = e.isDirectory;
+                break;
+            }
+        }
+        if (isDir) continue;
 
         wxString destFile = destRoot + "/" + sel[i].AfterLast('/');
 
