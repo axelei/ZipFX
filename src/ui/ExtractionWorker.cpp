@@ -1,9 +1,7 @@
 #include "ExtractionWorker.h"
 
 #include <wx/log.h>
-#include <wx/window.h>
 #include <wx/filename.h>
-#include <wx/event.h>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEntry.h"
@@ -23,6 +21,7 @@ ExtractionWorker::ExtractionWorker(wxWindow* parent, ArchiveEngine* engine,
     , m_destPath(destPath)
     , m_preserveStructure(preserveStructure)
 {
+    m_progressTotal = static_cast<int>(m_entries.size());
 }
 
 ExtractionWorker::~ExtractionWorker()
@@ -56,41 +55,33 @@ void ExtractionWorker::Run()
             const auto& entry = m_entries[i];
             wxString name = wxString::FromUTF8(entry.name.c_str());
 
-            // Build destination path
             wxString relName = m_preserveStructure
                 ? wxString::FromUTF8(entry.path.c_str())
                 : name.AfterLast('/');
             wxString destFile = m_destPath + "/" + relName;
 
-        // Skip directories
-        if (entry.isDirectory)
-        {
-            wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-            continue;
+            if (entry.isDirectory)
+            {
+                wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+                m_progressCount = i + 1;
+                continue;
+            }
+
+            wxFileName::Mkdir(wxFileName(destFile).GetPath(),
+                              wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+            if (m_engine->Extract(entry.path, destFile.ToStdString()))
+            {
+                ++ok;
+            }
+            else
+            {
+                wxLogWarning("ExtractWorker: failed %s", name);
+                ++skipped;
+            }
+
+            m_progressCount = i + 1;
         }
-
-        // Create parent directory
-        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-        if (m_engine->Extract(entry.path, destFile.ToStdString()))
-        {
-            ++ok;
-        }
-        else
-        {
-            wxLogWarning("ExtractWorker: failed %s", name);
-            ++skipped;
-        }
-
-        // Post progress to main thread
-        wxThreadEvent* evt = new wxThreadEvent(wxEVT_EXTRACT_PROGRESS);
-        evt->SetInt(i + 1);
-        evt->SetExtraLong(total);
-        evt->SetString(name);
-        wxQueueEvent(m_parent, evt);
-    }
-
     }
     catch (std::exception& e)
     {
@@ -101,9 +92,5 @@ void ExtractionWorker::Run()
         wxLogError("ExtractWorker: unknown exception");
     }
 
-    // Post completion
-    wxThreadEvent* done = new wxThreadEvent(wxEVT_EXTRACT_DONE);
-    done->SetInt(ok);
-    done->SetExtraLong(skipped);
-    wxQueueEvent(m_parent, done);
+    m_finished = true;
 }

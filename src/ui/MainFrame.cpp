@@ -194,9 +194,8 @@ MainFrame::MainFrame()
     // ── Drop target (add files by dropping onto window) ─────────
     SetDropTarget(new ZipFXDropTarget(this));
 
-    // ── Background extraction events ─────────────────────────────
-    Bind(wxEVT_EXTRACT_PROGRESS, &MainFrame::OnExtractProgress, this);
-    Bind(wxEVT_EXTRACT_DONE,     &MainFrame::OnExtractDone,     this);
+    // ── Background extraction timer ──────────────────────────────
+    m_extractTimer.Bind(wxEVT_TIMER, &MainFrame::OnExtractTimer, this);
 }
 
 MainFrame::~MainFrame()
@@ -667,8 +666,9 @@ void MainFrame::DoExtract(const std::string& destPath)
 
     m_progressDlg = new wxProgressDialog(
         _("Extracting"), _("Starting..."), total, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
 
+    m_extractTimer.Start(100);
     m_extractWorker->Start();
 }
 
@@ -726,46 +726,44 @@ void MainFrame::DoExtractSelected()
 
     m_progressDlg = new wxProgressDialog(
         _("Extracting"), _("Starting..."), total, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
 
+    m_extractTimer.Start(100);
     m_extractWorker->Start();
 }
 
-// ── Background extraction event handlers ─────────────────────────────
-void MainFrame::OnExtractProgress(wxThreadEvent& evt)
+// ── Background extraction timer ──────────────────────────────────────
+void MainFrame::OnExtractTimer(wxTimerEvent&)
 {
-    int done = evt.GetInt();
-    int total = static_cast<int>(evt.GetExtraLong());
-    wxString current = evt.GetString();
-
-    if (m_progressDlg)
+    if (!m_extractWorker || !m_progressDlg)
     {
-        if (!m_progressDlg->Update(done,
-                wxString::Format(_("Extracting: %s"), current)))
-        {
-            // User cancelled
-            if (m_extractWorker) m_extractWorker->Cancel();
-        }
+        m_extractTimer.Stop();
+        return;
     }
-}
 
-void MainFrame::OnExtractDone(wxThreadEvent& evt)
-{
-    int ok = evt.GetInt();
-    int skipped = static_cast<int>(evt.GetExtraLong());
+    int done = m_extractWorker->m_progressCount.load();
+    int total = m_extractWorker->m_progressTotal.load();
 
-    if (m_progressDlg)
+    if (!m_progressDlg->Update(done,
+            wxString::Format(_("Extracting... (%d / %d)"), done, total)))
     {
-        m_progressDlg->Update(ok + skipped);
+        m_extractWorker->Cancel();
+        m_extractTimer.Stop();
+        return;
+    }
+
+    if (m_extractWorker->m_finished.load())
+    {
+        m_extractTimer.Stop();
+        m_progressDlg->Update(total, _("Done."));
         m_progressDlg->Destroy();
         m_progressDlg = nullptr;
+
+        wxLogMessage("Extraction complete");
+        SetStatusText(_("Extraction complete"), 2);
+        m_extractWorker.reset();
+        RefreshFileList();
     }
-
-    m_extractWorker.reset();
-
-    wxLogMessage("Extraction done: %d OK, %d skipped", ok, skipped);
-    SetStatusText(wxString::Format(_("Extraction done (%d files)"), ok), 2);
-    RefreshFileList();
 }
 
 // ── Test ───────────────────────────────────────────────────────────────

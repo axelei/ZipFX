@@ -29,6 +29,11 @@ public:
     void Cancel();
     bool IsRunning() const { return m_thread.joinable(); }
 
+    // Polled from main thread — atomic so no mutex needed
+    std::atomic<int>  m_progressCount{0};
+    std::atomic<int>  m_progressTotal{0};
+    std::atomic<bool> m_finished{false};
+
 private:
     void Run();
 

@@ -43,10 +43,10 @@ private:
     void DoExtractSelected();
 
     // Background extraction
-    void OnExtractProgress(wxThreadEvent&);
-    void OnExtractDone(wxThreadEvent&);
+    void OnExtractTimer(wxTimerEvent&);
     std::unique_ptr<ExtractionWorker> m_extractWorker;
     wxProgressDialog* m_progressDlg = nullptr;
+    wxTimer m_extractTimer;
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;

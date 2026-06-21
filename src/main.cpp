@@ -1,7 +1,7 @@
 #include <wx/wx.h>
 #include <wx/log.h>
-#include <wx/wfstream.h>
 #include <wx/datetime.h>
+#include <fstream>
 
 #include "ui/MainFrame.h"
 
@@ -23,10 +23,10 @@ public:
         wxString logPath = logDir + "/" +
             wxDateTime::Now().Format("%Y-%m-%d_%H-%M-%S") + ".log";
 
-        wxFFileOutputStream* fstream = new wxFFileOutputStream(logPath);
-        if (fstream->IsOk())
+        std::ofstream* logFile = new std::ofstream(logPath.ToStdString());
+        if (logFile->is_open())
         {
-            new wxLogChain(new wxLogStream(fstream));
+            new wxLogChain(new wxLogStream(logFile));
             wxLogMessage("Log file: %s", logPath);
         }
 
