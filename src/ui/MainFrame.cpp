@@ -194,8 +194,6 @@ MainFrame::MainFrame()
     // ── Drop target (add files by dropping onto window) ─────────
     SetDropTarget(new ZipFXDropTarget(this));
 
-    // ── Background extraction timer ──────────────────────────────
-    m_extractTimer.Bind(wxEVT_TIMER, &MainFrame::OnExtractTimer, this);
 }
 
 MainFrame::~MainFrame()
@@ -657,19 +655,54 @@ void MainFrame::DoExtract(const std::string& destPath)
         return;
     }
 
-    int total = static_cast<int>(entries.size());
+    wxProgressDialog progress(_("Extracting"), _("Preparing..."),
+        static_cast<int>(entries.size()), this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
-    // Launch background extraction
-    m_extractWorker = std::make_unique<ExtractionWorker>(
-        this, m_engine.get(), std::move(entries),
-        destPath, true);   // preserve structure
+    int extracted = 0;
+    int skipped   = 0;
 
-    m_progressDlg = new wxProgressDialog(
-        _("Extracting"), _("Starting..."), total, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
+    for (size_t i = 0; i < entries.size(); ++i)
+    {
+        const auto& entry = entries[i];
 
-    m_extractTimer.Start(100);
-    m_extractWorker->Start();
+        wxString msg = wxString::Format(_("Extracting: %s"),
+            wxString::FromUTF8(entry.name.c_str()));
+
+        if (!progress.Update(static_cast<int>(i), msg))
+        {
+            wxLogDebug("Extraction cancelled by user");
+            break;
+        }
+
+        wxString destFile = wxString::FromUTF8(
+            (destPath + "/" + entry.name).c_str());
+
+        if (entry.isDirectory)
+        {
+            wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+            continue;
+        }
+
+        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
+                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        if (!m_engine->Extract(entry.name, destFile.ToStdString()))
+        {
+            wxLogWarning("Failed to extract: %s", entry.name);
+            ++skipped;
+        }
+        else
+        {
+            ++extracted;
+        }
+    }
+
+    progress.Update(static_cast<int>(entries.size()));
+
+    wxLogMessage("Extraction complete: %d extracted, %d skipped", extracted, skipped);
+    SetStatusText(
+        wxString::Format(_("Extraction complete (%d files)"), extracted), 2);
 }
 
 void MainFrame::DoExtractSelected()
@@ -695,7 +728,7 @@ void MainFrame::DoExtractSelected()
     auto allEntries = m_engine->ListContents();
 
     // Expand selection: directories → all files inside them
-    std::vector<ArchiveEntry> expanded;
+    std::vector<wxString> filePaths;
     for (const auto& entryPath : sel)
     {
         std::string ep = entryPath.ToStdString();
@@ -709,61 +742,40 @@ void MainFrame::DoExtractSelected()
             std::string prefix = ep + "/";
             for (const auto& e : allEntries)
                 if (!e.isDirectory && e.path.compare(0, prefix.size(), prefix) == 0)
-                    expanded.push_back(e);
+                    filePaths.push_back(wxString::FromUTF8(e.path.c_str()));
         }
         else
         {
-            for (const auto& e : allEntries)
-                if (e.path == ep) { expanded.push_back(e); break; }
+            filePaths.push_back(entryPath);
         }
     }
 
-    int total = static_cast<int>(expanded.size());
+    int total = static_cast<int>(filePaths.size());
 
-    m_extractWorker = std::make_unique<ExtractionWorker>(
-        this, m_engine.get(), std::move(expanded),
-        destRoot, false);   // flat — no subdirs
+    wxProgressDialog progress(_("Extracting"),
+        _("Preparing..."), total, this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
 
-    m_progressDlg = new wxProgressDialog(
-        _("Extracting"), _("Starting..."), total, this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
+    int extracted = 0;
 
-    m_extractTimer.Start(100);
-    m_extractWorker->Start();
-}
-
-// ── Background extraction timer ──────────────────────────────────────
-void MainFrame::OnExtractTimer(wxTimerEvent&)
-{
-    if (!m_extractWorker || !m_progressDlg)
+    for (size_t i = 0; i < filePaths.size(); ++i)
     {
-        m_extractTimer.Stop();
-        return;
+        wxString msg = wxString::Format(_("Extracting: %s"), filePaths[i]);
+        if (!progress.Update(static_cast<int>(i), msg)) break;
+
+        wxString destFile = destRoot + "/" + filePaths[i];
+        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
+                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+
+        if (m_engine->Extract(filePaths[i].ToStdString(), destFile.ToStdString()))
+            extracted++;
+        else
+            wxLogWarning("Failed to extract: %s", filePaths[i]);
     }
 
-    int done = m_extractWorker->m_progressCount.load();
-    int total = m_extractWorker->m_progressTotal.load();
-
-    if (!m_progressDlg->Update(done,
-            wxString::Format(_("Extracting... (%d / %d)"), done, total)))
-    {
-        m_extractWorker->Cancel();
-        m_extractTimer.Stop();
-        return;
-    }
-
-    if (m_extractWorker->m_finished.load())
-    {
-        m_extractTimer.Stop();
-        m_progressDlg->Update(total, _("Done."));
-        m_progressDlg->Destroy();
-        m_progressDlg = nullptr;
-
-        wxLogMessage("Extraction complete");
-        SetStatusText(_("Extraction complete"), 2);
-        m_extractWorker.reset();
-        RefreshFileList();
-    }
+    progress.Update(total);
+    wxLogMessage("Extracted %d selected files", extracted);
+    SetStatusText(wxString::Format(_("Extracted %d files"), extracted), 2);
 }
 
 // ── Test ───────────────────────────────────────────────────────────────
