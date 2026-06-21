@@ -4,6 +4,8 @@
 
 #include <wx/log.h>
 #include <wx/window.h>
+#include <wx/gauge.h>
+#include <wx/sizer.h>
 #include <wx/msw/private.h>
 #include <algorithm>
 #include <shlobj.h>
@@ -245,7 +247,29 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (!entry.info.engine)
         return E_UNEXPECTED;
 
-    wxLogDebug("VFDO: extracting %s on demand", entry.info.archivePath);
+    // Show progress dialog on first call
+    if (!m_progressDlg && m_parentHwnd)
+    {
+        wxWindow* parent = wxFindWinFromHandle(m_parentHwnd);
+        if (parent)
+        {
+            m_progressDlg = new wxDialog(parent, wxID_ANY,
+                _("Extracting files..."),
+                wxDefaultPosition, wxSize(320, 80),
+                wxDEFAULT_DIALOG_STYLE & ~wxCLOSE_BOX);
+            auto vs = new wxBoxSizer(wxVERTICAL);
+            m_progressGauge = new wxGauge(m_progressDlg, wxID_ANY,
+                m_progressTotal, wxDefaultPosition, wxSize(-1, 18));
+            vs->Add(m_progressGauge, 0, wxEXPAND | wxALL, 8);
+            m_progressDlg->SetSizer(vs);
+            m_progressDlg->SetTitle(
+                wxString::Format(_("Extracting %d files..."), m_progressTotal));
+            m_progressDlg->Show();
+        }
+    }
+
+    wxLogDebug("VFDO: extracting %s on demand (%d/%d)",
+               entry.info.archivePath, idx + 1, m_progressTotal);
 
     auto data = entry.info.engine->ReadFile(entry.info.archivePath);
     if (data.empty())
@@ -254,11 +278,28 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return E_FAIL;
     }
 
+    // Update progress
+    if (m_progressGauge)
+        m_progressGauge->SetValue(idx + 1);
+
+    if (m_progressDlg)
+        m_progressDlg->SetTitle(
+            wxString::Format(_("Extracting... (%d / %d)"),
+                             idx + 1, m_progressTotal));
+
     auto* stream = new MemStream(std::move(data));
     pSTM->tymed          = TYMED_ISTREAM;
     pSTM->pstm           = stream;
     pSTM->pUnkForRelease = nullptr;
     stream->AddRef();
+
+    // Close on last file
+    if (m_progressDlg && idx + 1 >= m_progressTotal)
+    {
+        m_progressDlg->Destroy();
+        m_progressDlg = nullptr;
+        m_progressGauge = nullptr;
+    }
 
     return S_OK;
 }
@@ -298,6 +339,14 @@ bool StartVirtualDrag(VirtualFileDataObject* data, HWND hwnd)
 
     DWORD effect = 0;
     HRESULT hr = ::DoDragDrop(data, source, DROPEFFECT_COPY, &effect);
+
+    // Clean up progress dialog if drag cancelled before completion
+    if (data->m_progressDlg)
+    {
+        data->m_progressDlg->Destroy();
+        data->m_progressDlg = nullptr;
+        data->m_progressGauge = nullptr;
+    }
 
     source->Release();
     data->Release();

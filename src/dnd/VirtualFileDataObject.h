@@ -61,6 +61,8 @@ private:
 
 public:
     HWND m_parentHwnd = nullptr;
+    wxDialog* m_progressDlg = nullptr;
+    wxGauge*  m_progressGauge = nullptr;
 
 private:
     HRESULT GetFileDescriptor(FORMATETC* pFE, STGMEDIUM* pSTM);
