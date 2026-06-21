@@ -18,14 +18,27 @@ FileListPanel::FileListPanel(wxWindow* parent)
         wxLC_REPORT | wxLC_HRULES | wxLC_VRULES);
 
     // ── Icon image list ─────────────────────────────────────────────
-    m_icons = new wxImageList(16, 16, true);
+    // Create images from art provider and ensure proper alpha transparency
+    auto makeIcon = [](wxArtID id) -> wxBitmap
+    {
+        wxIcon icn = wxArtProvider::GetIcon(id, wxART_LIST, wxSize(16, 16));
+        wxBitmap bmp;
+        bmp.CopyFromIcon(icn);
+        // Ensure the bitmap has an alpha channel for proper transparency
+        if (!bmp.HasAlpha())
+        {
+            wxImage img = bmp.ConvertToImage();
+            img.InitAlpha();
+            bmp = wxBitmap(img);
+        }
+        return bmp;
+    };
 
-    // Default folder / file icons (cross-platform fallback)
-    m_iconFolder = m_icons->Add(
-        wxArtProvider::GetIcon(wxART_FOLDER,       wxART_LIST, wxSize(16, 16)));
-    m_iconFile   = m_icons->Add(
-        wxArtProvider::GetIcon(wxART_NORMAL_FILE,  wxART_LIST, wxSize(16, 16)));
-    m_iconParent = m_iconFolder; // ".." uses folder icon
+    m_icons = new wxImageList(16, 16, false);
+
+    m_iconFolder = m_icons->Add(makeIcon(wxART_FOLDER));
+    m_iconFile   = m_icons->Add(makeIcon(wxART_NORMAL_FILE));
+    m_iconParent = m_iconFolder;
 
     m_list->SetImageList(m_icons, wxIMAGE_LIST_SMALL);
 
@@ -242,8 +255,16 @@ int FileListPanel::GetIconForFile(const wxString& name)
     {
         wxIcon icon;
         icon.CreateFromHICON(sfi.hIcon);
-        int idx = m_icons->Add(icon);
+        wxBitmap bmp;
+        bmp.CopyFromIcon(icon);
         DestroyIcon(sfi.hIcon);
+        if (!bmp.HasAlpha())
+        {
+            wxImage img = bmp.ConvertToImage();
+            img.InitAlpha();
+            bmp = wxBitmap(img);
+        }
+        int idx = m_icons->Add(bmp);
         s_extCache[ext] = idx;
         return idx;
     }
