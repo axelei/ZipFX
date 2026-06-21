@@ -765,7 +765,7 @@ void MainFrame::DoExtractSelected()
         wxString msg = wxString::Format(_("Extracting: %s"), filePaths[i]);
         if (!progress.Update(static_cast<int>(i), msg)) break;
 
-        wxString destFile = destRoot + "/" + filePaths[i].AfterLast('/');
+        wxString destFile = destRoot + "/" + filePaths[i];
 
         wxFileName::Mkdir(wxFileName(destFile).GetPath(),
                           wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
