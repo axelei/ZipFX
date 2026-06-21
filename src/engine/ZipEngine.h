@@ -47,6 +47,7 @@ private:
 
     std::vector<ArchiveEntry> m_entries;
     std::vector<PendingFile>  m_pendingAdds;
+    std::vector<std::string>  m_pendingRemoves;
 
     void ClearEntryCache();
     void LoadEntryCache();

@@ -269,6 +269,7 @@ bool ZipEngine::RemoveEntry(std::string_view entryName)
         return false;
     }
 
+    m_pendingRemoves.push_back(std::string(entryName));
     m_modified = true;
     return true;
 }
@@ -280,9 +281,47 @@ bool ZipEngine::Save()
         return true;
     }
 
-    if (!m_isWriter)
+    bool hasRemoves = !m_pendingRemoves.empty();
+
+    if (hasRemoves)
     {
-        // Reader mode → convert to writer (appends to existing archive)
+        // Full rewrite: read all entries except removed ones, then rebuild
+        std::vector<std::vector<uint8_t>> fileData;
+        std::vector<std::string> fileNames;
+
+        for (const auto& entry : m_entries)
+        {
+            bool removed = false;
+            for (const auto& r : m_pendingRemoves)
+                if (entry.path == r || entry.path == r + "/") { removed = true; break; }
+            if (removed) continue;
+
+            auto data = ReadFile(entry.path);
+            if (!data.empty())
+            {
+                fileNames.push_back(entry.path);
+                fileData.push_back(std::move(data));
+            }
+        }
+
+        mz_zip_reader_end(&m_archive);
+        std::memset(&m_archive, 0, sizeof(m_archive));
+
+        if (!mz_zip_writer_init_file(&m_archive, m_path.c_str(), 0))
+            return false;
+
+        m_isWriter = true;
+
+        for (size_t i = 0; i < fileNames.size(); ++i)
+            if (!mz_zip_writer_add_mem(&m_archive, fileNames[i].c_str(),
+                    fileData[i].data(), fileData[i].size(), MZ_BEST_COMPRESSION))
+                return false;
+
+        m_pendingRemoves.clear();
+    }
+    else if (!m_isWriter)
+    {
+        // Append-only: convert reader to writer
         if (!mz_zip_writer_init_from_reader(&m_archive, m_path.c_str()))
         {
             wxLogError("ZipEngine: failed to convert reader to writer");
@@ -291,7 +330,7 @@ bool ZipEngine::Save()
         m_isWriter = true;
     }
 
-    // Write pending additions directly (no full rewrite needed)
+    // Write pending additions
     for (const auto& pf : m_pendingAdds)
     {
         if (!mz_zip_writer_add_file(
@@ -304,14 +343,13 @@ bool ZipEngine::Save()
     }
     m_pendingAdds.clear();
 
-    // Finalize — writes central directory + EOCD
+    // Finalize
     if (!mz_zip_writer_finalize_archive(&m_archive))
     {
         wxLogError("ZipEngine: failed to finalize archive");
         return false;
     }
 
-    // Close writer and re-open as reader for subsequent operations
     mz_zip_writer_end(&m_archive);
     std::memset(&m_archive, 0, sizeof(m_archive));
 
@@ -325,7 +363,6 @@ bool ZipEngine::Save()
     m_isWriter = false;
     m_modified = false;
     m_entries.clear();
-
     LoadEntryCache();
 
     return true;
