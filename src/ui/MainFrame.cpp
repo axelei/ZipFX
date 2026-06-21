@@ -193,6 +193,8 @@ MainFrame::MainFrame()
     // ── Drop target (add files by dropping onto window) ─────────
     SetDropTarget(new ZipFXDropTarget(this));
 
+    // ── Background extraction timer ─────────────────────────────
+    Bind(wxEVT_TIMER, &MainFrame::OnExtractTimer, this);
 }
 
 MainFrame::~MainFrame()
@@ -691,65 +693,36 @@ void MainFrame::DoExtract(const std::string& destPath)
         return;
     }
 
-    wxProgressDialog progress(_("Extracting"), _("Preparing..."),
-        static_cast<int>(entries.size()), this,
-        wxPD_CAN_ABORT | wxPD_AUTO_HIDE | wxPD_APP_MODAL);
+    // Ask for after-action
+    wxDialog afterDlg(this, wxID_ANY, _("Extraction options"),
+                      wxDefaultPosition, wxSize(380, 150));
+    auto vs = new wxBoxSizer(wxVERTICAL);
+    vs->Add(new wxStaticText(&afterDlg, wxID_ANY,
+        _("After extraction:")), 0, wxALL, 10);
+    wxComboBox* afterCombo = new wxComboBox(&afterDlg, wxID_ANY, _("Do nothing"),
+        wxDefaultPosition, wxDefaultSize, GetAfterActionLabels(), wxCB_READONLY);
+    vs->Add(afterCombo, 0, wxLEFT | wxRIGHT | wxBOTTOM, 10);
+    auto hs = new wxBoxSizer(wxHORIZONTAL);
+    hs->Add(new wxButton(&afterDlg, wxID_OK, _("Start")), 0, wxRIGHT, 6);
+    hs->Add(new wxButton(&afterDlg, wxID_CANCEL, _("Cancel")), 0);
+    vs->Add(hs, 0, wxALIGN_CENTER | wxBOTTOM, 10);
+    afterDlg.SetSizer(vs);
 
-    bool applyToAll = false;
-    int extracted = 0;
-    int skipped   = 0;
+    if (afterDlg.ShowModal() != wxID_OK) return;
 
-    for (size_t i = 0; i < entries.size(); ++i)
-    {
-        const auto& entry = entries[i];
+    m_afterAction = static_cast<AfterAction>(afterCombo->GetSelection());
 
-        wxString msg = wxString::Format(_("Extracting: %s"),
-            wxString::FromUTF8(entry.name.c_str()));
+    // Background worker
+    m_worker = std::make_unique<ExtractionWorker>(
+        this, m_engine.get(), std::move(entries), destPath, true);
 
-        if (!progress.Update(static_cast<int>(i), msg))
-        {
-            wxLogDebug("Extraction cancelled by user");
-            break;
-        }
+    m_extractDlg = new wxProgressDialog(
+        _("Extracting"), _("Starting..."),
+        m_worker->m_progressTotal, this,
+        wxPD_CAN_ABORT | wxPD_AUTO_HIDE);
 
-        wxString destFile = wxString::FromUTF8(
-            (destPath + "/" + entry.name).c_str());
-
-        // Overwrite check
-        if (wxFileExists(destFile) || wxDirExists(destFile))
-        {
-            auto action = ConfirmOverwrite(this,
-                wxString::FromUTF8(entry.name.c_str()), applyToAll);
-
-            if (action == OverwriteAction::Cancel) break;
-            if (action == OverwriteAction::No) { skipped++; continue; }
-        }
-
-        if (entry.isDirectory)
-        {
-            wxFileName::Mkdir(destFile, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-            continue;
-        }
-
-        wxFileName::Mkdir(wxFileName(destFile).GetPath(),
-                          wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
-
-        if (!m_engine->Extract(entry.name, destFile.ToStdString()))
-        {
-            wxLogWarning("Failed to extract: %s", entry.name);
-            ++skipped;
-        }
-        else
-        {
-            ++extracted;
-        }
-    }
-
-    progress.Update(static_cast<int>(entries.size()));
-
-    wxLogMessage("Extraction complete: %d extracted, %d skipped", extracted, skipped);
-    SetStatusText(
-        wxString::Format(_("Extraction complete (%d files)"), extracted), 2);
+    m_extractTimer.Start(100);
+    m_worker->Start();
 }
 
 void MainFrame::DoExtractSelected()
@@ -833,6 +806,44 @@ void MainFrame::DoExtractSelected()
     progress.Update(total);
     wxLogMessage("Extracted %d selected files", extracted);
     SetStatusText(wxString::Format(_("Extracted %d files"), extracted), 2);
+}
+
+// ── Background extraction timer ─────────────────────────────────────
+void MainFrame::OnExtractTimer(wxTimerEvent&)
+{
+    if (!m_worker || !m_extractDlg)
+    {
+        m_extractTimer.Stop();
+        return;
+    }
+
+    int done = m_worker->m_progressCount.load();
+    int total = m_worker->m_progressTotal.load();
+    wxString cur;
+
+    if (!m_extractDlg->Update(done,
+            wxString::Format(_("Extracting... (%d / %d)"), done, total)))
+    {
+        m_worker->Cancel();
+        m_extractTimer.Stop();
+        return;
+    }
+
+    if (m_worker->m_finished.load())
+    {
+        m_extractTimer.Stop();
+        m_extractDlg->Update(total, _("Done."));
+        m_extractDlg->Destroy();
+        m_extractDlg = nullptr;
+
+        wxLogMessage("Extraction complete");
+        SetStatusText(_("Extraction complete"), 2);
+        m_worker.reset();
+
+        // After-action
+        if (m_afterAction != AfterAction::Nothing)
+            ExecuteAfterAction(m_afterAction);
+    }
 }
 
 // ── Test ───────────────────────────────────────────────────────────────

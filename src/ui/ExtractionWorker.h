@@ -5,7 +5,9 @@
 #include <wx/event.h>
 #include <wx/thread.h>
 #include <atomic>
+#include <condition_variable>
 #include <memory>
+#include <mutex>
 #include <thread>
 #include <vector>
 
@@ -27,6 +29,9 @@ public:
 
     void Start();
     void Cancel();
+    void Pause();
+    void Resume();
+    bool IsPaused() const { return m_paused; }
     bool IsRunning() const { return m_thread.joinable(); }
 
     // Polled from main thread — atomic so no mutex needed
@@ -45,6 +50,9 @@ private:
 
     std::thread               m_thread;
     std::atomic<bool>         m_cancelled{false};
+    std::atomic<bool>         m_paused{false};
+    std::mutex                m_pauseMtx;
+    std::condition_variable   m_pauseCv;
 };
 
 #endif

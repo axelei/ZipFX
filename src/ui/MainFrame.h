@@ -2,8 +2,11 @@
 #define ZIPFX_MAINFRAME_H
 
 #include <wx/wx.h>
+#include <wx/progdlg.h>
 #include "FileListPanel.h"
 #include "icons.h"
+#include "ExtractionWorker.h"
+#include "PowerManager.h"
 
 #include <memory>
 #include <string>
@@ -39,6 +42,13 @@ private:
     void DoExtract(const std::string& destPath);
     void DoExtractSelected();
     bool OpenFileAsArchive(const wxString& path);
+
+    // Background extraction
+    void OnExtractTimer(wxTimerEvent&);
+    std::unique_ptr<ExtractionWorker> m_worker;
+    wxTimer m_extractTimer;
+    wxProgressDialog* m_extractDlg = nullptr;
+    AfterAction m_afterAction = AfterAction::Nothing;
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;

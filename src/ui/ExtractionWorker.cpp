@@ -6,9 +6,6 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEntry.h"
 
-#include <filesystem>
-namespace fs = std::filesystem;
-
 wxDEFINE_EVENT(wxEVT_EXTRACT_PROGRESS, wxThreadEvent);
 wxDEFINE_EVENT(wxEVT_EXTRACT_DONE,     wxThreadEvent);
 
@@ -27,6 +24,7 @@ ExtractionWorker::ExtractionWorker(wxWindow* parent, ArchiveEngine* engine,
 ExtractionWorker::~ExtractionWorker()
 {
     Cancel();
+    Resume(); // wake up in case paused
     if (m_thread.joinable())
         m_thread.join();
 }
@@ -41,6 +39,17 @@ void ExtractionWorker::Cancel()
     m_cancelled = true;
 }
 
+void ExtractionWorker::Pause()
+{
+    m_paused = true;
+}
+
+void ExtractionWorker::Resume()
+{
+    m_paused = false;
+    m_pauseCv.notify_all();
+}
+
 void ExtractionWorker::Run()
 {
     int total = static_cast<int>(m_entries.size());
@@ -50,7 +59,16 @@ void ExtractionWorker::Run()
     {
         for (int i = 0; i < total; ++i)
         {
+            // Check cancel
             if (m_cancelled) break;
+
+            // Check pause
+            if (m_paused)
+            {
+                std::unique_lock<std::mutex> lock(m_pauseMtx);
+                m_pauseCv.wait(lock, [this] { return !m_paused || m_cancelled; });
+                if (m_cancelled) break;
+            }
 
             const auto& entry = m_entries[i];
             wxString name = wxString::FromUTF8(entry.name.c_str());
@@ -71,14 +89,9 @@ void ExtractionWorker::Run()
                               wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
 
             if (m_engine->Extract(entry.path, destFile.ToStdString()))
-            {
                 ++ok;
-            }
             else
-            {
                 wxLogWarning("ExtractWorker: failed %s", name);
-                ++skipped;
-            }
 
             m_progressCount = i + 1;
         }
@@ -93,4 +106,6 @@ void ExtractionWorker::Run()
     }
 
     m_finished = true;
+
+    wxLogMessage("ExtractWorker done: %d OK, %d skipped", ok, skipped);
 }
