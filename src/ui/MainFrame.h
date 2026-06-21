@@ -38,6 +38,7 @@ private:
     void RefreshFileList();
     void DoExtract(const std::string& destPath);
     void DoExtractSelected();
+    bool OpenFileAsArchive(const wxString& path);
 
     ZipFXIcons m_icons;
     FileListPanel* m_fileList = nullptr;

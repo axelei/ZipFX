@@ -225,9 +225,17 @@ void MainFrame::OnContextMenu(wxListEvent& event)
 
 bool MainFrame::OnDropFiles(const wxArrayString& filenames)
 {
-    if (!m_engine || !m_engine->SupportsCreation())
+    if (filenames.empty()) return false;
+
+    if (!m_engine)
     {
-        wxMessageBox(_("No archive open or format does not support adding files."),
+        // No archive open → try to open the dropped file as an archive
+        return OpenFileAsArchive(filenames[0]);
+    }
+
+    if (!m_engine->SupportsCreation())
+    {
+        wxMessageBox(_("This archive format does not support adding files."),
                      _("Error"), wxOK | wxICON_WARNING);
         return false;
     }
@@ -249,6 +257,30 @@ bool MainFrame::OnDropFiles(const wxArrayString& filenames)
                      _("Error"), wxOK | wxICON_ERROR);
     }
 
+    RefreshFileList();
+    return true;
+}
+
+bool MainFrame::OpenFileAsArchive(const wxString& path)
+{
+    std::string spath = path.ToStdString();
+    auto engine = ArchiveEngineFactory::CreateForFile(spath);
+
+    if (!engine || !engine->Open(spath))
+    {
+        wxLogError("Drop: could not open %s", spath);
+        wxMessageBox(_("Could not open the dropped file as an archive."),
+                     _("Error"), wxOK | wxICON_ERROR);
+        return false;
+    }
+
+    wxLogMessage("Archive opened via drop: %s  [%s]", spath,
+                 engine->FormatName().data());
+
+    OnCloseArchive();
+    m_engine = std::move(engine);
+    m_currentPath = spath;
+    m_addrBox->SetValue(path);
     RefreshFileList();
     return true;
 }
