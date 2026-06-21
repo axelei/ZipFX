@@ -24,6 +24,12 @@ static CLIPFORMAT GetFileContentsFormat()
 // Simple IStream that wraps a buffer (takes ownership of the data)
 class MemStream : public IStream
 {
+    std::vector<uint8_t> m_owned;
+    const uint8_t* m_data = nullptr;
+    size_t m_size = 0;
+    size_t m_pos = 0;
+    ULONG m_ref = 1;
+
 public:
     MemStream(std::vector<uint8_t>&& data)
         : m_owned(std::move(data)), m_data(m_owned.data()), m_size(m_owned.size()) {}
@@ -88,10 +94,6 @@ public:
 
 private:
     ~MemStream() = default;
-    const uint8_t* m_data;
-    size_t m_size = 0;
-    size_t m_pos = 0;
-    ULONG m_ref = 1;
 };
 
 // ── VirtualFileDataObject ─────────────────────────────────────────────
@@ -255,6 +257,46 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     pSTM->pUnkForRelease = nullptr;
     stream->AddRef();
     return S_OK;
+}
+
+// ── VirtualDropSource ─────────────────────────────────────────────────
+STDMETHODIMP VirtualDropSource::QueryInterface(REFIID riid, void** ppv)
+{
+    if (riid == IID_IUnknown || riid == IID_IDropSource)
+    {
+        *ppv = static_cast<IDropSource*>(this);
+        AddRef();
+        return S_OK;
+    }
+    *ppv = nullptr;
+    return E_NOINTERFACE;
+}
+STDMETHODIMP_(ULONG) VirtualDropSource::AddRef() { return ++m_ref; }
+STDMETHODIMP_(ULONG) VirtualDropSource::Release()
+{
+    ULONG r = --m_ref; if (r == 0) delete this; return r;
+}
+STDMETHODIMP VirtualDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
+{
+    if (fEscapePressed) return DRAGDROP_S_CANCEL;
+    if (!(grfKeyState & (MK_LBUTTON | MK_RBUTTON))) return DRAGDROP_S_DROP;
+    return S_OK;
+}
+STDMETHODIMP VirtualDropSource::GiveFeedback(DWORD) { return DRAGDROP_S_USEDEFAULTCURSORS; }
+
+// ── StartVirtualDrag ───────────────────────────────────────────────────
+bool StartVirtualDrag(VirtualFileDataObject* data, HWND hwnd)
+{
+    VirtualDropSource* source = new VirtualDropSource();
+    source->AddRef();
+
+    DWORD effect = 0;
+    HRESULT hr = ::DoDragDrop(data, source, DROPEFFECT_COPY, &effect);
+
+    source->Release();
+    data->Release();
+
+    return SUCCEEDED(hr);
 }
 
 #endif // __WXMSW__

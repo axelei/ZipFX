@@ -2,6 +2,7 @@
 #define ZIPFX_VIRTUAL_FILE_DATA_OBJECT_H
 
 #include <wx/wx.h>
+#include <cstdint>
 
 #ifdef __WXMSW__
 #include <ole2.h>
@@ -60,6 +61,23 @@ private:
     HRESULT GetFileDescriptor(FORMATETC* pFE, STGMEDIUM* pSTM);
     HRESULT GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM);
 };
+
+// Minimal IDropSource (required by DoDragDrop API)
+class VirtualDropSource : public IDropSource
+{
+public:
+    VirtualDropSource() = default;
+    STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override;
+    STDMETHODIMP_(ULONG) AddRef() override;
+    STDMETHODIMP_(ULONG) Release() override;
+    STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState) override;
+    STDMETHODIMP GiveFeedback(DWORD dwEffect) override;
+private:
+    ULONG m_ref = 1;
+};
+
+// Helper: start a drag with VirtualFileDataObject (bypasses wxDropSource)
+bool StartVirtualDrag(VirtualFileDataObject* data, HWND hwnd);
 
 #endif // __WXMSW__
 #endif

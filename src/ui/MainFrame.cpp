@@ -310,9 +310,8 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     }
     if (vfdo->GetCount() > 0)
     {
-        vfdo->AddRef(); // wxDropSource will release
-        wxDropSource source(vfdo, this);
-        source.DoDragDrop(wxDrag_CopyOnly);
+        vfdo->AddRef(); // StartVirtualDrag will release
+        StartVirtualDrag(vfdo, (HWND)GetHWND());
     }
 #else
     // Linux/macOS: extract to temp, show progress, use wxFileDataObject
