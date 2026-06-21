@@ -672,8 +672,6 @@ void MainFrame::DoExtract(const std::string& destPath)
     m_extractWorker->Start();
 }
 
-}
-
 void MainFrame::DoExtractSelected()
 {
     if (!m_engine) return;
