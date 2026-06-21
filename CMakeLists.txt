@@ -134,7 +134,7 @@ if(WIN32)
     target_link_libraries(ZipFX PRIVATE
         winmm comctl32 uuid oleacc uxtheme
         rpcrt4 shlwapi version imm32
-        ole32 oleaut32
+        ole32 oleaut32 powrprof
     )
 endif()
 

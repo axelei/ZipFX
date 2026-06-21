@@ -5,7 +5,6 @@
 #include <wx/arrstr.h>
 #ifdef _WIN32
 #include <powrprof.h>
-#pragma comment(lib, "powrprof.lib")
 #endif
 
 enum class AfterAction
