@@ -293,6 +293,28 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
 
     if (filePaths.empty()) return;
 
+    // Strip the common prefix from the selected items so files appear
+    // relative to the dragged element.  e.g. drag "b/a" → shows "a".
+    std::string commonPrefix;
+    if (!sel.empty())
+    {
+        commonPrefix = sel[0].ToStdString();
+        for (size_t i = 1; i < sel.size(); ++i)
+        {
+            std::string s = sel[i].ToStdString();
+            size_t j = 0;
+            while (j < commonPrefix.size() && j < s.size() && commonPrefix[j] == s[j])
+                ++j;
+            commonPrefix = commonPrefix.substr(0, j);
+        }
+        // Trim to the last '/' to keep only the directory portion
+        auto slash = commonPrefix.rfind('/');
+        if (slash != std::string::npos)
+            commonPrefix = commonPrefix.substr(0, slash + 1);
+        else
+            commonPrefix.clear();
+    }
+
 #ifdef __WXMSW__
     // Windows: VirtualFileDataObject with CFSTR_FILECONTENTS
     // Files extracted on drop — instant start, structure preserved.
@@ -300,12 +322,17 @@ void MainFrame::OnBeginDrag(wxListEvent& event)
     for (const auto& fp : filePaths)
     {
         VirtualFileEntry ve;
-        ve.name = fp.ToStdWstring();
+        std::string ep = fp.ToStdString();
+        // Strip common prefix to get relative name
+        if (!commonPrefix.empty() && ep.compare(0, commonPrefix.size(), commonPrefix) == 0)
+            ve.name = wxString::FromUTF8(ep.c_str() + commonPrefix.size()).ToStdWstring();
+        else
+            ve.name = fp.ToStdWstring();
         std::string ep = fp.ToStdString();
         for (const auto& e : allEntries)
             if (e.path == ep) { ve.size = e.size; break; }
-        ve.engine = m_engine.get();
-        ve.archivePath = ep;
+        ve.engine      = m_engine.get();
+        ve.archivePath = ep;   // full archive path for extraction
         vfdo->AddFile(ve);
     }
     if (vfdo->GetCount() > 0)
