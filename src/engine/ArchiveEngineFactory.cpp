@@ -4,6 +4,7 @@
 #include "TarGzEngine.h"
 #include "Bit7zEngine.h"
 #include "AdfEngine.h"
+#include "GameArchiveEngine.h"
 #include "LibarchiveEngine.h"
 #include "FileSignature.h"
 
@@ -88,6 +89,17 @@ static const FormatEntry kFormats[] = {
             "AR"); },                                                false },
     { "ADF",    ".adf,.adz",                         ArchiveType::Adf,
         []() { return std::make_unique<AdfEngine>(); },              false },
+
+    // ── Game archive formats ──────────────────────────
+    { "WAD",    ".wad",                              ArchiveType::Wad,
+        []() { return std::make_unique<GameArchiveEngine>(
+            GameFormat::Wad, "WAD"); },                              false },
+    { "PAK",    ".pak",                              ArchiveType::Pak,
+        []() { return std::make_unique<GameArchiveEngine>(
+            GameFormat::Pak, "PAK"); },                              false },
+    { "GRP",    ".grp",                              ArchiveType::Grp,
+        []() { return std::make_unique<GameArchiveEngine>(
+            GameFormat::Grp, "GRP"); },                              false },
 
     // ── Disk images (via Bit7z) ───────────────────────
     // These need 7z.dll; explicit entries give proper FormatName display.

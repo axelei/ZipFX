@@ -169,6 +169,7 @@ set(ZIPFX_SOURCES
     src/engine/FileSignature.cpp
     src/engine/Bit7zEngine.cpp
     src/engine/AdfEngine.cpp
+    src/engine/GameArchiveEngine.cpp
     src/cli/CliHandler.cpp
 )
 
