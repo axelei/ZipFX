@@ -25,6 +25,7 @@
 #include <QDateTime>
 #include <QProgressDialog>
 #include <QActionGroup>
+#include <QSettings>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -35,6 +36,26 @@
 #ifdef _WIN32
 #include "dnd/VirtualFileDataObject.h"
 #endif
+
+// ── Helper ─────────────────────────────────────────────────────────────
+static QTranslator* loadTranslator(const QString& locale)
+{
+    QStringList paths = {
+        QApplication::applicationDirPath() + "/translations",
+        QApplication::applicationDirPath() + "/../translations",
+        "translations"
+    };
+    auto* t = new QTranslator();
+    for (const auto& dir : paths)
+    {
+        if (t->load(QString("zipfx_%1").arg(locale), dir))
+            return t;
+        if (t->load(locale, dir))
+            return t;
+    }
+    delete t;
+    return nullptr;
+}
 
 // ── Constructor ────────────────────────────────────────────────────────
 MainWindow::MainWindow()
@@ -110,20 +131,15 @@ void MainWindow::setupMenus()
 
     connect(langGroup, &QActionGroup::triggered, this, [this](QAction* act) {
         QString locale = act->data().toString();
-        QStringList transPaths = {
-            qApp->applicationDirPath() + "/translations",
-            qApp->applicationDirPath() + "/../translations",
-            "translations"
-        };
-        QTranslator* translator = new QTranslator(this);
-        bool loaded = false;
-        for (const auto& dir : transPaths)
-        {
-            if (translator->load(QString("zipfx_%1").arg(locale), dir))
-                { loaded = true; break; }
-        }
 
-        if (loaded)
+        // Save preference
+        QSettings settings;
+        settings.setValue("language", locale);
+        settings.sync();
+
+        // Try loading the new translator
+        QTranslator* translator = loadTranslator(locale);
+        if (translator)
         {
             if (m_currentTranslator)
             {
@@ -135,10 +151,6 @@ void MainWindow::setupMenus()
             QMessageBox::information(this, tr("Language"),
                 tr("Language changed to %1.\nRestart the app for the change to take full effect.")
                     .arg(act->text()));
-        }
-        else
-        {
-            delete translator;
         }
     });
 
