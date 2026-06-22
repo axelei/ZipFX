@@ -3,6 +3,8 @@
 #include "VirtualFileDataObject.h"
 
 #include <QDebug>
+#include <QApplication>
+#include <QProgressDialog>
 #include <algorithm>
 #include <shlobj.h>
 
@@ -105,7 +107,15 @@ VirtualFileDataObject::VirtualFileDataObject()
     m_cfContents   = GetFileContentsFormat();
 }
 
-VirtualFileDataObject::~VirtualFileDataObject() = default;
+VirtualFileDataObject::~VirtualFileDataObject()
+{
+    if (m_progressDlg)
+    {
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+    }
+}
 
 void VirtualFileDataObject::AddFile(const VirtualFileEntry& entry)
 {
@@ -244,7 +254,23 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (!entry.info.engine)
         return E_UNEXPECTED;
 
-    // Show progress dialog on first call
+    // Show progress dialog on first call (modeless — OLE message loop runs between calls)
+    if (!m_progressDlg)
+    {
+        m_progressDlg = new QProgressDialog(
+            QString(), QString(), 0, m_progressTotal, nullptr);
+        m_progressDlg->setWindowTitle(
+            QObject::tr("Extracting files..."));
+        m_progressDlg->setWindowModality(Qt::NonModal);
+        m_progressDlg->setMinimumDuration(0);
+        m_progressDlg->show();
+    }
+
+    m_progressDlg->setLabelText(
+        QString::fromUtf8(entry.info.archivePath.c_str()));
+    m_progressDlg->setValue(idx + 1);
+    QApplication::processEvents();
+
     qDebug().noquote() << QString("VFDO: extracting %1 on demand (%2/%3)")
         .arg(entry.info.archivePath.c_str())
         .arg(idx + 1)
@@ -255,6 +281,14 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     {
         wxLogWarning("VFDO: failed to extract %s", entry.info.archivePath.c_str());
         return E_FAIL;
+    }
+
+    // Close dialog on last file
+    if (m_progressDlg && idx + 1 >= m_progressTotal)
+    {
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
     }
 
     auto* stream = new MemStream(std::move(data));
