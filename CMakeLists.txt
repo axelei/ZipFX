@@ -6,6 +6,8 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_AUTOMOC ON)
 
+option(BUILD_TESTING "Build unit tests" ON)
+
 include(FetchContent)
 
 # ====================================================================
@@ -184,6 +186,14 @@ if(WIN32)
         ole32 oleaut32 powrprof
     )
     target_link_options(ZipFX PRIVATE "-Wl,--allow-multiple-definition")
+endif()
+
+# ====================================================================
+# Tests
+# ====================================================================
+if(BUILD_TESTING)
+    find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
+    add_subdirectory(tests)
 endif()
 
 # ====================================================================

@@ -1,0 +1,20 @@
+********* Start testing of tst_FileListModel *********
+Config: Using QtTest library 6.11.1, Qt 6.11.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 11
+PASS   : tst_FileListModel::initTestCase()
+PASS   : tst_FileListModel::testInitialState()
+PASS   : tst_FileListModel::testSetEntriesFlat()
+PASS   : tst_FileListModel::testSetEntriesHierarchical()
+FAIL!  : tst_FileListModel::testNavigateInto() Compared values are not the same
+   Actual   (model.currentDir()): "src/docs"
+   Expected ("docs")            : docs
+C:\dev\repos\ZipFX\tests\tst_FileListModel.cpp(74) : failure location
+PASS   : tst_FileListModel::testNavigateUp()
+PASS   : tst_FileListModel::testColumnData()
+PASS   : tst_FileListModel::testFilter()
+PASS   : tst_FileListModel::testSort()
+PASS   : tst_FileListModel::testSelectedEntryPaths()
+PASS   : tst_FileListModel::testClear()
+PASS   : tst_FileListModel::testDirectoryChangedSignal()
+PASS   : tst_FileListModel::cleanupTestCase()
+Totals: 12 passed, 1 failed, 0 skipped, 0 blacklisted, 2ms
+********* Finished testing of tst_FileListModel *********

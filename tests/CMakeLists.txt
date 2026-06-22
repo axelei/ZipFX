@@ -1,0 +1,92 @@
+enable_testing()
+
+# Engine sources needed by tests (shared across all test targets)
+set(ENGINE_SOURCES
+    ${CMAKE_SOURCE_DIR}/src/engine/FileSignature.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/ArchiveEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/ArchiveEngineFactory.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/ZipEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/TarGzEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/LibarchiveEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/Bit7zEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
+)
+
+set(CMAKE_AUTOMOC ON)
+
+set(TEST_LIBS
+    zip
+    archive_static
+    zlibstatic
+    bit7z
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Test
+)
+
+if(WIN32)
+    list(APPEND TEST_LIBS
+        winmm comctl32 oleacc uxtheme
+        rpcrt4 shlwapi version imm32
+        ole32 oleaut32 powrprof
+    )
+endif()
+
+# Collect DLLs that need to be next to test executables
+set(TEST_DLLS "")
+if(WIN32)
+    list(APPEND TEST_DLLS
+        "${libzip_BINARY_DIR}/lib/libzip.dll"
+    )
+    if(7ZIP_DLL)
+        list(APPEND TEST_DLLS "${7ZIP_DLL}")
+    endif()
+endif()
+
+macro(add_zipfx_test TEST_NAME)
+    add_executable(${TEST_NAME}
+        ${TEST_NAME}.cpp
+        TestUtils.cpp
+        ${ENGINE_SOURCES}
+    )
+    target_include_directories(${TEST_NAME} PRIVATE
+        ${CMAKE_SOURCE_DIR}/src
+        ${CMAKE_BINARY_DIR}/generated
+        ${libzip_SOURCE_DIR}/lib
+        ${libzip_BINARY_DIR}/lib
+        ${libarchive_SOURCE_DIR}/libarchive
+        ${CLI11_SOURCE_DIR}/include
+    )
+    target_compile_definitions(${TEST_NAME} PRIVATE
+        LIBARCHIVE_STATIC
+        $<$<CONFIG:Debug>:QT_QML_DEBUG>
+    )
+    target_link_libraries(${TEST_NAME} PRIVATE ${TEST_LIBS})
+
+    # Copy required DLLs next to the test executable
+    if(WIN32)
+        foreach(DLL ${TEST_DLLS})
+            add_custom_command(TARGET ${TEST_NAME} POST_BUILD
+                COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                    "${DLL}" "$<TARGET_FILE_DIR:${TEST_NAME}>/"
+                COMMENT "Copying ${DLL}"
+            )
+        endforeach()
+    endif()
+
+    add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    if(WIN32)
+        # Must include Qt DLL path so the test executables can find Qt6 DLLs
+        get_target_property(_QtWidgets_LOC Qt6::Widgets IMPORTED_LOCATION)
+        get_filename_component(_QT_BIN_DIR "${_QtWidgets_LOC}" DIRECTORY)
+        set_tests_properties(${TEST_NAME} PROPERTIES
+            ENVIRONMENT "PATH=${_QT_BIN_DIR}\;${CMAKE_BINARY_DIR}/tests\;C:/Program Files/7-Zip\;$ENV{PATH}")
+    endif()
+endmacro()
+
+add_zipfx_test(tst_FileSignature)
+add_zipfx_test(tst_ArchiveEngineFactory)
+add_zipfx_test(tst_ZipEngine)
+add_zipfx_test(tst_TarGzEngine)
+add_zipfx_test(tst_LibarchiveEngine)
+add_zipfx_test(tst_FileListModel)
+add_zipfx_test(tst_CliHandler)
