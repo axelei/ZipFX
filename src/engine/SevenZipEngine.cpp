@@ -7,6 +7,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <array>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -107,19 +108,49 @@ bool SevenZipEngine::Extract(std::string_view entryName, std::string_view destPa
 
 bool SevenZipEngine::ExtractAll(std::string_view destPath)
 {
-    for (const auto& entry : m_entries)
+    // Single pass through the archive instead of open/close per entry
+    archive_read_close(m_archive);
+    if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
-        if (entry.isDirectory)
+        LOG_ERR("SevenZipEngine: failed to open archive for ExtractAll");
+        return false;
+    }
+
+    struct archive_entry* entry;
+    while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
+    {
+        const char* currentName = archive_entry_pathname(entry);
+        if (!currentName) continue;
+
+        std::string name(currentName);
+        bool isDir = archive_entry_filetype(entry) == AE_IFDIR;
+
+        fs::path fullPath = fs::path(destPath) / name;
+        if (isDir)
         {
-            fs::create_directories(fs::path(destPath) / entry.name);
+            fs::create_directories(fullPath);
             continue;
         }
 
-        fs::path fullPath = fs::path(destPath) / entry.name;
         fs::create_directories(fullPath.parent_path());
 
-        if (!Extract(entry.name, fullPath.string()))
+        std::ofstream out(fullPath, std::ios::binary);
+        if (!out)
         {
+            LOG_ERR("SevenZipEngine: cannot create %s", fullPath.string().c_str());
+            return false;
+        }
+
+        std::array<char, 65536> buf;
+        la_ssize_t bytesRead;
+        while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
+        {
+            out.write(buf.data(), bytesRead);
+        }
+
+        if (bytesRead < 0)
+        {
+            LOG_WARN("SevenZipEngine: archive_read_data error for %s", name.c_str());
             return false;
         }
     }
