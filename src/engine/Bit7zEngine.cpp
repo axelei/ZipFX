@@ -18,7 +18,7 @@ namespace fs = std::filesystem;
 static const char* kDllNames[] = {
     "7z.dll",
     "lib7z.so",
-    "lib7z.dylib",
+    "7z.so",
 };
 
 Bit7zEngine::Bit7zEngine()

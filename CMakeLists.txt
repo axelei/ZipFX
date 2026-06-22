@@ -210,7 +210,7 @@ endif()
 # will be unavailable.
 # ====================================================================
 find_file(7ZIP_DLL
-    NAMES 7z.dll lib7z.so lib7z.dylib
+    NAMES 7z.dll lib7z.so 7z.so
     PATHS "${CMAKE_SOURCE_DIR}/lib"
     NO_DEFAULT_PATH
 )
