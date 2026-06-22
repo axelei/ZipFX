@@ -14,7 +14,7 @@ namespace fs = std::filesystem;
 // ── Lifecycle ──────────────────────────────────────────────────────────
 LibarchiveEngine::~LibarchiveEngine()
 {
-    Close();
+    LibarchiveEngine::Close();
 }
 
 bool LibarchiveEngine::OpenInternal(std::string_view path)

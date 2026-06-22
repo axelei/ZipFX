@@ -2,7 +2,34 @@
 
 #include <cstdio>
 #include <string>
-#include <vector>
+
+struct SigEntry
+{
+    ArchiveType type;
+    size_t minBytes;
+    bool (*match)(const uint8_t* data, size_t len);
+};
+
+static const SigEntry kSignatures[] =
+{
+    { ArchiveType::Zip,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 0x50 && d[1] == 0x4B &&
+               d[2] == 0x03 && d[3] == 0x04; }},
+    { ArchiveType::SevenZip, 6, [](const uint8_t* d, size_t) {
+        return d[0] == 0x37 && d[1] == 0x7A &&
+               d[2] == 0xBC && d[3] == 0xAF &&
+               d[4] == 0x27 && d[5] == 0x1C; }},
+    { ArchiveType::Rar,      7, [](const uint8_t* d, size_t) {
+        return d[0] == 'R' && d[1] == 'a' && d[2] == 'r' &&
+               d[3] == '!' && d[4] == 0x1A && d[5] == 0x07 &&
+               d[6] == 0x00; }},
+    { ArchiveType::Rar5,     7, [](const uint8_t* d, size_t) {
+        return d[0] == 'R' && d[1] == 'a' && d[2] == 'r' &&
+               d[3] == '!' && d[4] == 0x1A && d[5] == 0x07 &&
+               d[6] == 0x01; }},
+    { ArchiveType::Gzip,     2, [](const uint8_t* d, size_t) {
+        return d[0] == 0x1F && d[1] == 0x8B; }},
+};
 
 ArchiveType FileSignature::Detect(std::string_view path)
 {
@@ -13,34 +40,10 @@ ArchiveType FileSignature::Detect(std::string_view path)
     size_t n = std::fread(header, 1, sizeof(header), f);
     std::fclose(f);
 
-    if (n < 4) return ArchiveType::Unknown;
-
-    // ZIP: PK\x03\x04
-    if (header[0] == 0x50 && header[1] == 0x4B &&
-        header[2] == 0x03 && header[3] == 0x04)
-        return ArchiveType::Zip;
-
-    // 7z: 37 7A BC AF 27 1C
-    if (n >= 6 &&
-        header[0] == 0x37 && header[1] == 0x7A &&
-        header[2] == 0xBC && header[3] == 0xAF &&
-        header[4] == 0x27 && header[5] == 0x1C)
-        return ArchiveType::SevenZip;
-
-    // RAR or RAR5: Rar!\x1a\x07\x00 / \x01
-    if (n >= 7 &&
-        header[0] == 'R' && header[1] == 'a' &&
-        header[2] == 'r' && header[3] == '!' &&
-        header[4] == 0x1A && header[5] == 0x07)
+    for (const auto& sig : kSignatures)
     {
-        if (header[6] == 0x00) return ArchiveType::Rar;
-        if (header[6] == 0x01) return ArchiveType::Rar5;
-        return ArchiveType::Rar;
+        if (n >= sig.minBytes && sig.match(header, n))
+            return sig.type;
     }
-
-    // Gzip: 1F 8B
-    if (n >= 2 && header[0] == 0x1F && header[1] == 0x8B)
-        return ArchiveType::Gzip;
-
     return ArchiveType::Unknown;
 }
