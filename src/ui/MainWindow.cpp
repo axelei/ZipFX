@@ -349,7 +349,7 @@ void MainWindow::onAddFiles()
 
     m_progressDlg = new QProgressDialog(tr("Adding files..."), tr("Cancel"),
         0, files.size(), this);
-    m_progressDlg->setWindowModality(Qt::WindowModal);
+    m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
 
     for (int i = 0; i < files.size(); ++i)
@@ -431,7 +431,7 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
     m_progressDlg = new QProgressDialog(tr("Extracting..."), tr("Cancel"),
         0, (int)toExtract.size(), this);
-    m_progressDlg->setWindowModality(Qt::WindowModal);
+    m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
 
     bool applyToAll = false;
@@ -531,7 +531,7 @@ void MainWindow::onTest()
 
     QProgressDialog prog(tr("Testing integrity..."), tr("Cancel"),
         0, total, this);
-    prog.setWindowModality(Qt::WindowModal);
+    prog.setWindowModality(Qt::ApplicationModal);
     prog.show();
 
     bool result = m_engine->TestIntegrity(
@@ -729,7 +729,7 @@ void MainWindow::onBeginDrag()
 
     QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
         0, filePaths.size(), this);
-    prog.setWindowModality(Qt::WindowModal);
+    prog.setWindowModality(Qt::ApplicationModal);
     prog.show();
 
     QList<QUrl> urls;

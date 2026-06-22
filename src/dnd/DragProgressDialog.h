@@ -18,6 +18,7 @@ public:
         : QDialog(parent, Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint)
     {
         setWindowTitle(tr("Extracting files..."));
+        setWindowModality(Qt::ApplicationModal);
         setFixedSize(400, 160);
 
         auto* layout = new QVBoxLayout(this);
