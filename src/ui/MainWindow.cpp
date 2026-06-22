@@ -155,9 +155,13 @@ void MainWindow::setupUI()
         m_addrBox->setEditText(m_model->currentDir());
     });
 
+    auto closeBtn = new QPushButton(tr("Close"), this);
+    connect(closeBtn, &QPushButton::clicked, this, &MainWindow::onCloseArchive);
+
     addrLayout->addWidget(addrLabel);
     addrLayout->addWidget(m_addrBox, 1);
     addrLayout->addWidget(upBtn);
+    addrLayout->addWidget(closeBtn);
     layout->addLayout(addrLayout);
 
     // File tree
