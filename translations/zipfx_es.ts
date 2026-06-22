@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE TS>
 <TS version="2.1" language="en_US">
 <context>
@@ -556,7 +556,10 @@ Reinicie la aplicación para que el cambio surta efecto completo.</translation>
 
 Multiplatform archiver for power users.
 Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</source>
-        <translation>ZipFX v%1\n\nArchivador multiplataforma para usuarios avanzados.\nCompatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
+        <translation>ZipFX v%1
+
+Archivador multiplataforma para usuarios avanzados.
+Compatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="249"/>
@@ -678,7 +681,10 @@ Sobrescribir?</translation>
 Size: %2 bytes
 
 Cannot preview this format.</source>
-        <translation>Archivo: %1\nTama�o: %2 bytes\n\nNo se puede previsualizar este formato.</translation>
+        <translation>Archivo: %1
+Tamaño: %2 bytes
+
+No se puede previsualizar este formato.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="851"/>
@@ -690,7 +696,9 @@ Cannot preview this format.</source>
         <source>
 
 ... truncated (showing first 100000 bytes)</source>
-        <translation>\n\n... truncado (mostrando primeros 100000 bytes)</translation>
+        <translation>
+
+... truncado (mostrando primeros 100000 bytes)</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="906"/>
@@ -846,5 +854,8 @@ Tamano: %2 bytes</translation>
     </message>
 </context>
 </TS>
+
+
+
 
 
