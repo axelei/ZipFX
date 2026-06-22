@@ -20,7 +20,8 @@ enum class ArchiveType
     Ar,
     Vhd,
     Vmdk,
-    Qcow
+    Qcow,
+    Nrg
 };
 
 struct FileSignature

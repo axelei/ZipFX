@@ -109,6 +109,20 @@ static const FormatEntry kFormats[] = {
             return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
                 std::vector<LibarchiveEngine::FormatRegistrar>{}, "QCOW"));
         },                                                                false },
+    { "NRG",    ".nrg",                              ArchiveType::Nrg,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            if (e->isLibraryLoaded()) return std::unique_ptr<ArchiveEngine>(std::move(e));
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
+                std::vector<LibarchiveEngine::FormatRegistrar>{}, "NRG"));
+        },                                                                false },
+    { "BIN/CUE",".bin,.cue",                         ArchiveType::Unknown,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            if (e->isLibraryLoaded()) return std::unique_ptr<ArchiveEngine>(std::move(e));
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
+                std::vector<LibarchiveEngine::FormatRegistrar>{}, "BIN/CUE"));
+        },                                                                false },
 
     // ── Bit7z fallback (last resort) ──────────────────
     { "Bit7z",  nullptr,                             ArchiveType::Unknown,
