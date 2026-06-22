@@ -159,7 +159,11 @@ if(QT_LRELEASE)
             COMMENT "Generating ${QM_FILE}.qm"
         )
     endforeach()
+    # Copy .qm files to build output (for development)
     file(COPY ${CMAKE_SOURCE_DIR}/translations DESTINATION ${CMAKE_BINARY_DIR})
+    # Also install next to the executable
+    install(DIRECTORY ${CMAKE_SOURCE_DIR}/translations/ DESTINATION translations
+        FILES_MATCHING PATTERN "*.qm")
 endif()
 
 # ====================================================================

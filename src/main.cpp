@@ -19,12 +19,22 @@ int main(int argc, char* argv[])
                           QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
         app.installTranslator(&qtTranslator);
 
-    // Load application translations
+    // Load application translations (next to the executable)
+    QStringList transPaths = {
+        app.applicationDirPath() + "/translations",
+        app.applicationDirPath() + "/../translations",
+        "translations"
+    };
     QTranslator appTranslator;
     QString locale = QLocale::system().name();
-    if (appTranslator.load(QString("zipfx_%1").arg(locale), "translations"))
-        app.installTranslator(&appTranslator);
-    else if (appTranslator.load(locale, "translations"))
+    for (const auto& dir : transPaths)
+    {
+        if (appTranslator.load(QString("zipfx_%1").arg(locale), dir))
+            break;
+        if (appTranslator.load(locale, dir))
+            break;
+    }
+    if (!appTranslator.isEmpty())
         app.installTranslator(&appTranslator);
 
     MainWindow w;

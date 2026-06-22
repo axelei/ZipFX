@@ -110,9 +110,20 @@ void MainWindow::setupMenus()
 
     connect(langGroup, &QActionGroup::triggered, this, [this](QAction* act) {
         QString locale = act->data().toString();
-        // Load and install the selected translator
+        QStringList transPaths = {
+            qApp->applicationDirPath() + "/translations",
+            qApp->applicationDirPath() + "/../translations",
+            "translations"
+        };
         QTranslator* translator = new QTranslator(this);
-        if (translator->load(QString("zipfx_%1").arg(locale), "translations"))
+        bool loaded = false;
+        for (const auto& dir : transPaths)
+        {
+            if (translator->load(QString("zipfx_%1").arg(locale), dir))
+                { loaded = true; break; }
+        }
+
+        if (loaded)
         {
             if (m_currentTranslator)
             {
@@ -122,7 +133,7 @@ void MainWindow::setupMenus()
             m_currentTranslator = translator;
             qApp->installTranslator(translator);
             QMessageBox::information(this, tr("Language"),
-                tr("Language changed to %1.\nRestart the application for the change to take full effect.")
+                tr("Language changed to %1.\nRestart the app for the change to take full effect.")
                     .arg(act->text()));
         }
         else
