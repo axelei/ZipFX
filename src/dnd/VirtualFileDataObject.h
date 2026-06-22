@@ -5,7 +5,7 @@
 #include <QString>
 #include <QObject>
 
-class QProgressDialog;
+class DragProgressDialog;
 
 #ifdef _WIN32
 #include <ole2.h>
@@ -61,7 +61,7 @@ private:
     CLIPFORMAT m_cfDescriptor = 0;
     CLIPFORMAT m_cfContents   = 0;
     int m_progressTotal = 0;
-    class QProgressDialog* m_progressDlg = nullptr;
+    DragProgressDialog* m_progressDlg = nullptr;
 
 public:
     HWND m_parentHwnd = nullptr;

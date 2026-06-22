@@ -4,8 +4,8 @@
 
 #include <QDebug>
 #include <QApplication>
-#include <QProgressDialog>
 #include <algorithm>
+#include "DragProgressDialog.h"
 #include <shlobj.h>
 
 #include "engine/ArchiveEngine.h"
@@ -254,27 +254,17 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (!entry.info.engine)
         return E_UNEXPECTED;
 
-    // Show progress dialog on first call (modeless — OLE message loop runs between calls)
+    // Show progress dialog on first call
     if (!m_progressDlg)
     {
-        m_progressDlg = new QProgressDialog(
-            QString(), QString(), 0, m_progressTotal, nullptr);
-        m_progressDlg->setWindowTitle(
-            QObject::tr("Extracting files..."));
-        m_progressDlg->setWindowModality(Qt::NonModal);
-        m_progressDlg->setMinimumDuration(0);
-        m_progressDlg->show();
+        m_progressDlg = new DragProgressDialog(m_progressTotal, nullptr);
     }
 
-    m_progressDlg->setLabelText(
-        QString::fromUtf8(entry.info.archivePath.c_str()));
-    m_progressDlg->setValue(idx + 1);
-    QApplication::processEvents();
+    if (m_progressDlg->wasCancelled())
+        return E_FAIL;
 
-    qDebug().noquote() << QString("VFDO: extracting %1 on demand (%2/%3)")
-        .arg(entry.info.archivePath.c_str())
-        .arg(idx + 1)
-        .arg(m_progressTotal);
+    m_progressDlg->updateProgress(idx + 1,
+        QString::fromUtf8(entry.info.archivePath.c_str()));
 
     auto data = entry.info.engine->ReadFile(entry.info.archivePath);
     if (data.empty())
@@ -283,9 +273,16 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return E_FAIL;
     }
 
-    // Close dialog on last file
+    // Close on last file
     if (m_progressDlg && idx + 1 >= m_progressTotal)
     {
+        // If cancelled, execute after-action
+        if (!m_progressDlg->wasCancelled())
+        {
+            AfterAction aa = m_progressDlg->afterAction();
+            if (aa != AfterAction::Nothing)
+                ExecuteAfterAction(aa);
+        }
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = nullptr;
