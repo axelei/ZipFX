@@ -12,15 +12,11 @@ int main(int argc, char* argv[])
     app.setApplicationName("ZipFX");
     app.setApplicationVersion("1.0.0");
 
-    // Load translations
+    // Load Qt's built-in translations
     QTranslator qtTranslator;
     if (qtTranslator.load("qt_" + QLocale::system().name(),
                           QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
         app.installTranslator(&qtTranslator);
-
-    QTranslator appTranslator;
-    if (appTranslator.load(QLocale::system().name(), "locale"))
-        app.installTranslator(&appTranslator);
 
     MainWindow w;
     w.show();
