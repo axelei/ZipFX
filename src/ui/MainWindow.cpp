@@ -20,6 +20,7 @@
 #include "dnd/MacPromiseDrag.h"
 #endif
 #include <QDropEvent>
+#include <QFileOpenEvent>
 #include <QUrl>
 #include <QStandardPaths>
 #include <QTemporaryDir>
@@ -90,8 +91,8 @@ static QTranslator* loadTranslator(const QString& locale)
 }
 
 // ── Constructor ────────────────────────────────────────────────────────
-MainWindow::MainWindow()
-    : QMainWindow()
+MainWindow::MainWindow(QWidget* parent)
+    : QMainWindow(parent)
 {
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     resize(960, 640);
@@ -107,6 +108,30 @@ MainWindow::MainWindow()
 
     // Status bar
     statusBar()->showMessage(tr("Ready"));
+
+#ifdef _WIN32
+    registerFileAssociations();
+#endif
+}
+
+MainWindow::MainWindow(const QString& fileToOpen, QWidget* parent)
+    : QMainWindow(parent)
+{
+    setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
+    resize(960, 640);
+    m_icons = new ZipFXIcons(CreatePlaceholderIcons());
+    setupMenus();
+    setupToolbar();
+    setupUI();
+    setAcceptDrops(true);
+    statusBar()->showMessage(tr("Ready"));
+
+#ifdef _WIN32
+    registerFileAssociations();
+#endif
+
+    if (!fileToOpen.isEmpty())
+        openArchive(fileToOpen);
 }
 
 MainWindow::~MainWindow()
@@ -1154,6 +1179,19 @@ void MainWindow::onBeginDrag()
 #endif
 }
 
+// ── macOS: handle "Open with" / double-click in Finder ─────────────
+bool MainWindow::event(QEvent* event)
+{
+    if (event->type() == QEvent::FileOpen)
+    {
+        auto* foe = static_cast<QFileOpenEvent*>(event);
+        if (foe && !foe->file().isEmpty())
+            openArchive(foe->file());
+        return true;
+    }
+    return QMainWindow::event(event);
+}
+
 // ── Drag & Drop ────────────────────────────────────────────────────────
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
@@ -1240,3 +1278,60 @@ void MainWindow::refreshFileList()
     setWindowTitle(tr("ZipFX — %1").arg(
         QString::fromStdString(m_currentPath)));
 }
+
+// ── Windows: register file associations on first launch ────────────
+#ifdef _WIN32
+#include <QSettings>
+#include <QDir>
+#include <shlwapi.h>
+#include <windows.h>
+
+void MainWindow::registerFileAssociations()
+{
+    QSettings s;
+    if (s.value("assoc/registered", false).toBool())
+        return;
+
+    QString appPath = QDir::toNativeSeparators(QApplication::applicationFilePath());
+    QStringList exts = {
+        ".zip", ".7z", ".rar", ".tar", ".gz", ".gzip", ".bz2", ".bzip2",
+        ".xz", ".tgz", ".tbz2", ".txz", ".iso", ".cab", ".arj", ".lz",
+        ".lzma", ".rpm", ".deb", ".msi", ".wim", ".vhd", ".vmdk"
+    };
+
+    for (const QString& ext : exts)
+    {
+        HKEY hKey;
+        QString key = "ZipFX\\" + ext;
+        if (RegCreateKeyExA(HKEY_CLASSES_ROOT, ("." + ext).toStdString().c_str(),
+                0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &hKey, nullptr) == ERROR_SUCCESS)
+        {
+            std::string val = key.toStdString();
+            RegSetValueExA(hKey, nullptr, 0, REG_SZ,
+                reinterpret_cast<const BYTE*>(val.c_str()), val.size() + 1);
+            RegCloseKey(hKey);
+        }
+
+        if (RegCreateKeyExA(HKEY_CLASSES_ROOT, key.toStdString().c_str(),
+                0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &hKey, nullptr) == ERROR_SUCCESS)
+        {
+            RegSetValueExA(hKey, nullptr, 0, REG_SZ,
+                reinterpret_cast<const BYTE*>("ZipFX Archive"), 15);
+            RegCloseKey(hKey);
+        }
+
+        QString cmdKey = key + "\\shell\\open\\command";
+        if (RegCreateKeyExA(HKEY_CLASSES_ROOT, cmdKey.toStdString().c_str(),
+                0, nullptr, REG_OPTION_NON_VOLATILE, KEY_SET_VALUE, nullptr, &hKey, nullptr) == ERROR_SUCCESS)
+        {
+            std::string cmd = ("\"" + appPath + "\" \"%1\"").toStdString();
+            RegSetValueExA(hKey, nullptr, 0, REG_SZ,
+                reinterpret_cast<const BYTE*>(cmd.c_str()), cmd.size() + 1);
+            RegCloseKey(hKey);
+        }
+    }
+
+    s.setValue("assoc/registered", true);
+    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
+}
+#endif

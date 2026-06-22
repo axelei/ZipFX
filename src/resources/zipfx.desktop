@@ -1,0 +1,9 @@
+[Desktop Entry]
+Type=Application
+Name=ZipFX
+Comment=Multi-format archive manager
+Exec=zipfx %f
+Icon=zipfx
+Terminal=false
+Categories=Archiving;Utility;
+MimeType=application/zip;application/x-7z-compressed;application/x-rar;application/x-tar;application/gzip;application/x-bzip2;application/x-xz;application/x-iso9660-image;application/vnd.ms-cab-compressed;application/x-archive;application/x-cpio;application/x-squashfs;application/x-raw-disk-image;application/x-rpm;

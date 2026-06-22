@@ -185,6 +185,20 @@ target_link_libraries(ZipFX PRIVATE
 
 if(APPLE)
     target_link_libraries(ZipFX PRIVATE "-framework Cocoa")
+    string(TIMESTAMP ZIPFX_YEAR "%Y")
+    configure_file(
+        "${CMAKE_SOURCE_DIR}/src/Info.plist.in"
+        "${CMAKE_BINARY_DIR}/Info.plist"
+        @ONLY
+    )
+    set_target_properties(ZipFX PROPERTIES
+        MACOSX_BUNDLE TRUE
+        MACOSX_BUNDLE_GUI_IDENTIFIER "com.zipfx.app"
+        MACOSX_BUNDLE_BUNDLE_NAME "ZipFX"
+        MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
+        MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
+    )
 endif()
 
 if(WIN32)
@@ -341,3 +355,20 @@ else()
 endif()
 
 include(CPack)
+
+# ── Linux: desktop & MIME registration ─────────────────────────────
+if(UNIX AND NOT APPLE)
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx.desktop"
+        DESTINATION "share/applications")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx-mime.xml"
+        DESTINATION "share/mime/packages")
+
+    # Post-install: update XDG databases
+    include(CMakePackageConfigHelpers)
+    install(CODE "
+        execute_process(COMMAND update-desktop-database -q
+            COMMAND_ECHO STDOUT)
+        execute_process(COMMAND update-mime-database ${CMAKE_INSTALL_PREFIX}/share/mime
+            COMMAND_ECHO STDOUT)
+    ")
+endif()

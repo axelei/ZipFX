@@ -41,12 +41,14 @@ class MainWindow : public QMainWindow
 {
     Q_OBJECT
 public:
-    MainWindow();
+    MainWindow(QWidget* parent = nullptr);
+    explicit MainWindow(const QString& fileToOpen, QWidget* parent = nullptr);
     ~MainWindow() override;
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
+    bool event(QEvent* event) override;
 
 private slots:
     void onNewArchive();
@@ -73,6 +75,9 @@ private:
     void refreshFileList();
     void updateStatusBar();
     bool openArchive(const QString& path);
+#ifdef _WIN32
+    void registerFileAssociations();
+#endif
     void doExtract(const QString& destPath, bool all);
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);

@@ -32,11 +32,12 @@ static QTranslator* LoadAppTranslator(const QString& locale)
 
 int main(int argc, char* argv[])
 {
-    // Detect CLI mode: if any argument is a known subcommand,
-    // dispatch to CLI before initializing Qt
+    // Collect bare file arguments (not subcommands) for the GUI
+    QString fileToOpen;
+    bool isCli = false;
+
     if (argc > 1)
     {
-        // --cli forces CLI mode; subcommands are positional
         for (int i = 1; i < argc; ++i)
         {
             std::string arg(argv[i]);
@@ -44,10 +45,17 @@ int main(int argc, char* argv[])
                 arg == "create" || arg == "test" || arg == "info" ||
                 arg == "--help" || arg == "-h")
             {
-                return runCli(argc, argv);
+                isCli = true;
+                break;
             }
+            // First non-subcommand argument is treated as a file path
+            if (fileToOpen.isEmpty() && arg[0] != '-')
+                fileToOpen = QString::fromUtf8(argv[i]);
         }
     }
+
+    if (isCli)
+        return runCli(argc, argv);
 
     // GUI mode – requires Qt
     QApplication app(argc, argv);
@@ -74,7 +82,7 @@ int main(int argc, char* argv[])
     if (appTranslator)
         app.installTranslator(appTranslator);
 
-    MainWindow w;
+    MainWindow w(fileToOpen);
     w.show();
     return app.exec();
 }
