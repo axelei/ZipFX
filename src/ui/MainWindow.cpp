@@ -27,6 +27,9 @@
 #include <QTextEdit>
 #include <QFontDatabase>
 #include <QPixmap>
+#include <QGraphicsView>
+#include <QGraphicsScene>
+#include <QGraphicsPixmapItem>
 #include <QActionGroup>
 #include <QSettings>
 
@@ -37,6 +40,23 @@
 #include <filesystem>
 #include <algorithm>
 namespace fs = std::filesystem;
+
+// Helper: re-fits a graphics view when the parent widget resizes
+class ResizeEventFilter : public QObject
+{
+public:
+    ResizeEventFilter(std::function<void()> onResize, QObject* parent = nullptr)
+        : QObject(parent), m_onResize(std::move(onResize)) {}
+protected:
+    bool eventFilter(QObject* obj, QEvent* event) override
+    {
+        if (event->type() == QEvent::Resize && m_onResize)
+            m_onResize();
+        return QObject::eventFilter(obj, event);
+    }
+private:
+    std::function<void()> m_onResize;
+};
 
 #ifdef _WIN32
 #include "dnd/VirtualFileDataObject.h"
@@ -740,13 +760,22 @@ void MainWindow::onView()
 
     if (imgExts.contains(ext))
     {
-        auto* pixLabel = new QLabel(dlg);
         QPixmap pix;
         if (pix.loadFromData(data.data(), static_cast<uint32_t>(data.size())))
         {
-            pixLabel->setPixmap(pix.scaled(650, 400, Qt::KeepAspectRatio, Qt::SmoothTransformation));
-            pixLabel->setAlignment(Qt::AlignCenter);
-            layout->addWidget(pixLabel);
+            auto* scene = new QGraphicsScene(dlg);
+            auto* pixItem = scene->addPixmap(pix);
+            auto* view = new QGraphicsView(scene, dlg);
+            view->setDragMode(QGraphicsView::ScrollHandDrag);
+            view->setFrameShape(QFrame::NoFrame);
+            layout->addWidget(view, 1);
+
+            // Fit image on show and on resize
+            auto fitImage = [view, pixItem]() {
+                view->fitInView(pixItem->sceneBoundingRect(), Qt::KeepAspectRatio);
+            };
+            fitImage();
+            dlg->installEventFilter(new ResizeEventFilter(fitImage));
         }
         else
         {
