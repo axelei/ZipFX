@@ -85,9 +85,16 @@ target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 # ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
-# Default Qt path if not in CMAKE_PREFIX_PATH (project-local fallback)
-list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.11.1/mingw_64")
+# Common default installation paths per platform.
+# For CI (GitHub Actions), the `jurplel/install-qt-action` sets
+# CMAKE_PREFIX_PATH automatically — no changes needed.
+if(WIN32)
+    list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.11.1/mingw_64")
+elseif(APPLE)
+    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt" "/opt/homebrew/opt/qt")
+endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # ====================================================================
