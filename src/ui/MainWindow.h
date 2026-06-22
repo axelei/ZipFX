@@ -52,6 +52,7 @@ private slots:
     void onOpenArchive();
     void onCloseArchive();
     void onAddFiles();
+    void onAddFolder();
     void onExtractAll();
     void onExtractSelected();
     void onTest();
@@ -72,6 +73,7 @@ private:
     bool openArchive(const QString& path);
     void doExtract(const QString& destPath, bool all);
     void doExtractSelected(const QModelIndexList& selection);
+    void doAddPaths(const QStringList& paths);
 
     std::unique_ptr<ArchiveEngine> m_engine;
     std::string m_currentPath;

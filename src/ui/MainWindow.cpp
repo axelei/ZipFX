@@ -99,6 +99,7 @@ void MainWindow::setupMenus()
     // Commands
     auto cmdMenu = menuBar()->addMenu(tr("&Commands"));
     cmdMenu->addAction(tr("&Add Files...\tAlt+A"), this, &MainWindow::onAddFiles);
+    cmdMenu->addAction(tr("Add Fol&der...\tAlt+D"), this, &MainWindow::onAddFolder);
     cmdMenu->addAction(tr("E&xtract...\tAlt+E"), this, &MainWindow::onExtractAll);
     cmdMenu->addAction(tr("&Test\tAlt+T"), this, &MainWindow::onTest);
     cmdMenu->addAction(tr("&View\tAlt+V"), this, &MainWindow::onView);
@@ -173,6 +174,10 @@ void MainWindow::setupToolbar()
 
     auto addAct = m_toolbar->addAction(m_icons->add, tr("Add"));
     connect(addAct, &QAction::triggered, this, &MainWindow::onAddFiles);
+
+    auto addDirAct = m_toolbar->addAction(
+        style()->standardIcon(QStyle::SP_FileDialogNewFolder), tr("Add Folder"));
+    connect(addDirAct, &QAction::triggered, this, &MainWindow::onAddFolder);
 
     auto extractAct = m_toolbar->addAction(m_icons->extract, tr("Extract To"));
     connect(extractAct, &QAction::triggered, this, &MainWindow::onExtractAll);
@@ -410,26 +415,87 @@ void MainWindow::onAddFiles()
     }
 
     QStringList files = QFileDialog::getOpenFileNames(this, tr("Add Files"));
-    if (files.isEmpty()) return;
+    if (!files.isEmpty())
+        doAddPaths(files);
+}
+
+void MainWindow::onAddFolder()
+{
+    if (!m_engine || !m_engine->SupportsCreation())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("No archive open or read-only."));
+        return;
+    }
+
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Add Folder"));
+    if (!dir.isEmpty())
+        doAddPaths({dir});
+}
+
+void MainWindow::doAddPaths(const QStringList& paths)
+{
+    if (paths.isEmpty()) return;
 
     QString prefix = m_model->currentDir();
     if (!prefix.isEmpty()) prefix += "/";
 
+    // Count total files (recursing directories)
+    int total = 0;
+    for (const auto& path : paths)
+    {
+        fs::path src(path.toStdWString());
+        if (fs::is_directory(src))
+        {
+            for (const auto& de : fs::recursive_directory_iterator(src))
+                if (de.is_regular_file()) total++;
+        }
+        else if (fs::is_regular_file(src))
+        {
+            total++;
+        }
+    }
+
+    if (total == 0) return;
+
     m_progressDlg = new QProgressDialog(tr("Adding files..."), tr("Cancel"),
-        0, files.size(), this);
+        0, total, this);
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
 
-    for (int i = 0; i < files.size(); ++i)
+    int count = 0;
+    for (const auto& path : paths)
     {
         if (m_progressDlg->wasCanceled()) break;
-        m_progressDlg->setValue(i);
-        m_progressDlg->setLabelText(tr("Adding: %1").arg(QFileInfo(files[i]).fileName()));
-        QApplication::processEvents();
 
-        QFileInfo fi(files[i]);
-        QString archivePath = prefix + fi.fileName();
-        m_engine->AddFile(files[i].toStdString(), archivePath.toStdString());
+        fs::path src(path.toStdWString());
+        QString archiveBase = prefix + QString::fromStdWString(src.filename().wstring());
+
+        if (fs::is_directory(src))
+        {
+            for (const auto& de : fs::recursive_directory_iterator(src))
+            {
+                if (m_progressDlg->wasCanceled()) break;
+                if (de.is_regular_file())
+                {
+                    fs::path rel = de.path().lexically_relative(src);
+                    QString archivePath = archiveBase + "/"
+                        + QString::fromStdWString(rel.generic_wstring());
+                    m_engine->AddFile(de.path().string(), archivePath.toStdString());
+                    m_progressDlg->setValue(++count);
+                    m_progressDlg->setLabelText(tr("Adding: %1").arg(
+                        QString::fromStdWString(rel.wstring())));
+                    QApplication::processEvents();
+                }
+            }
+        }
+        else if (fs::is_regular_file(src))
+        {
+            m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
+            m_progressDlg->setValue(++count);
+            m_progressDlg->setLabelText(tr("Adding: %1").arg(
+                QString::fromStdWString(src.filename().wstring())));
+            QApplication::processEvents();
+        }
     }
 
     m_progressDlg->setLabelText(tr("Saving..."));
