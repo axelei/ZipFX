@@ -134,14 +134,20 @@ std::vector<uint8_t> RarEngine::ReadFile(std::string_view entryName)
     }
 
     archive_read_close(m_archive);
-    archive_read_open_filename(m_archive, m_path.c_str(), 10240);
+    if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
+    {
+        LOG_ERR("RarEngine: failed to re-open for ReadFile");
+        return {};
+    }
 
+    std::string name(entryName);
     struct archive_entry* entry;
     while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
     {
-        std::string currentName = archive_entry_pathname(entry);
+        const char* currentName = archive_entry_pathname(entry);
+        if (!currentName) continue;
 
-        if (currentName == entryName)
+        if (name == currentName)
         {
             la_int64_t size = archive_entry_size(entry);
             if (size <= 0)
@@ -155,6 +161,7 @@ std::vector<uint8_t> RarEngine::ReadFile(std::string_view entryName)
 
             if (bytesRead < 0)
             {
+                LOG_WARN("RarEngine: archive_read_data failed");
                 return {};
             }
 
@@ -165,6 +172,7 @@ std::vector<uint8_t> RarEngine::ReadFile(std::string_view entryName)
         archive_read_data_skip(m_archive);
     }
 
+    LOG_WARN("RarEngine: entry '%s' not found", name.c_str());
     return {};
 }
 
