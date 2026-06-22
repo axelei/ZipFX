@@ -164,6 +164,7 @@ void MainWindow::setupUI()
     m_model = new FileListModel(this);
     m_treeView = new ArchiveTreeView(this);
     m_treeView->setModel(m_model);
+    m_treeView->setAcceptDrops(false); // drops handled by MainWindow
     connect(m_treeView, &ArchiveTreeView::dragStarted, this, &MainWindow::onBeginDrag);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeView->setDragEnabled(true);
