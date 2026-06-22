@@ -256,13 +256,20 @@ endif()
 
 # Deploy Qt DLLs next to the executable
 if(WIN32)
-    find_program(QT_WINDEPLOYQT windeployqt PATHS "${Qt6_DIR}/../../bin" NO_DEFAULT_PATH)
+    find_program(QT_WINDEPLOYQT windeployqt
+        PATHS "${Qt6_DIR}/../../bin"
+        "${Qt6_DIR}/../../../bin"
+        "${CMAKE_PREFIX_PATH}/bin"
+    )
     if(QT_WINDEPLOYQT)
         add_custom_command(TARGET ZipFX POST_BUILD
             COMMAND ${QT_WINDEPLOYQT} --no-translations --no-compiler-runtime
                 "$<TARGET_FILE_DIR:ZipFX>/ZipFX.exe"
             COMMENT "Running windeployqt..."
         )
+    else()
+        message(WARNING "windeployqt not found. "
+            "Copy Qt DLLs manually or add Qt bin dir to PATH.")
     endif()
 endif()
 
