@@ -262,6 +262,28 @@ bool ZipEngine::RemoveEntry(std::string_view entryName)
     return true;
 }
 
+bool ZipEngine::RenameEntry(std::string_view entryName, std::string_view newName)
+{
+    if (!m_zip) return false;
+
+    std::string name(entryName);
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0)
+    {
+        idx = zip_name_locate(m_zip, (name + "/").c_str(), 0);
+        if (idx < 0) return false;
+    }
+
+    if (zip_file_rename(m_zip, idx, std::string(newName).c_str(), 0) != 0)
+    {
+        LOG_WARN("ZipEngine: failed to rename %s", name.c_str());
+        return false;
+    }
+
+    m_modified = true;
+    return true;
+}
+
 bool ZipEngine::Save()
 {
     if (!m_zip || !m_modified) return true;

@@ -24,6 +24,7 @@
 #include <QHeaderView>
 #include <QDateTime>
 #include <QProgressDialog>
+#include <QInputDialog>
 #include <QTextEdit>
 #include <QFontDatabase>
 #include <QPixmap>
@@ -984,6 +985,29 @@ void MainWindow::onContextMenu(const QPoint& pos)
 
     if (hasEngine && m_engine->SupportsCreation())
     {
+        QAction* renameAct = menu.addAction(tr("Rename..."), this, [this]() {
+            auto sel = m_treeView->selectionModel()->selectedRows(0);
+            if (sel.isEmpty()) return;
+            auto paths = m_model->selectedEntryPaths({sel[0]});
+            if (paths.isEmpty()) return;
+
+            QString oldName = paths[0];
+            QString newName = QInputDialog::getText(this, tr("Rename"),
+                tr("New name for %1:").arg(oldName),
+                QLineEdit::Normal, oldName);
+            if (newName.isEmpty() || newName == oldName) return;
+
+            QString prefix = m_model->currentDir();
+            if (!prefix.isEmpty()) prefix += "/";
+            QString fullNew = prefix + newName;
+
+            if (m_engine->RenameEntry(oldName.toStdString(), fullNew.toStdString()))
+                refreshFileList();
+            else
+                QMessageBox::warning(this, tr("Error"), tr("Rename failed."));
+        });
+        renameAct->setEnabled(hasSelection);
+
         QAction* delAct = menu.addAction(tr("Delete"), this, &MainWindow::onDelete);
         delAct->setEnabled(hasSelection);
     }

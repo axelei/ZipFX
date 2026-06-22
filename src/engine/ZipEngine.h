@@ -24,6 +24,7 @@ public:
 
     bool AddFile(std::string_view srcPath, std::string_view archivePath) override;
     bool RemoveEntry(std::string_view entryName) override;
+    bool RenameEntry(std::string_view entryName, std::string_view newName) override;
     bool Save() override;
 
     bool TestIntegrity(

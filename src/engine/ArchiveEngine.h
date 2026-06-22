@@ -26,6 +26,7 @@ public:
 
     virtual bool AddFile(std::string_view srcPath, std::string_view archivePath) { return false; }
     virtual bool RemoveEntry(std::string_view entryName) { return false; }
+    virtual bool RenameEntry(std::string_view entryName, std::string_view newName);
     virtual bool Save() { return false; }
 
     virtual bool TestIntegrity(

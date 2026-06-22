@@ -28,3 +28,35 @@ bool ArchiveEngine::Extract(std::string_view entryName, std::string_view destPat
               static_cast<std::streamsize>(data.size()));
     return out.good();
 }
+
+bool ArchiveEngine::RenameEntry(std::string_view entryName, std::string_view newName)
+{
+    // Default implementation: read, add new, remove old, save
+    auto data = ReadFile(entryName);
+    if (data.empty()) return false;
+
+    // Write to temp file
+    auto tmpPath = fs::temp_directory_path() / ("zipfx-rename-" + std::to_string(time(nullptr)));
+    {
+        std::ofstream tmp(tmpPath, std::ios::binary);
+        if (!tmp) return false;
+        tmp.write(reinterpret_cast<const char*>(data.data()), data.size());
+        if (!tmp) { fs::remove(tmpPath); return false; }
+    }
+
+    if (!AddFile(tmpPath.string(), newName))
+    {
+        fs::remove(tmpPath);
+        return false;
+    }
+
+    if (!RemoveEntry(entryName))
+    {
+        fs::remove(tmpPath);
+        return false;
+    }
+
+    bool saved = Save();
+    fs::remove(tmpPath);
+    return saved;
+}
