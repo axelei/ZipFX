@@ -316,7 +316,7 @@ void MainWindow::onNewArchive()
                     if (de.is_regular_file())
                     {
                         fs::path rel = de.path().lexically_relative(src);
-                        m_engine->AddFile(de.path().string(), rel.string());
+                        m_engine->AddFile(de.path().string(), rel.generic_string());
                         m_progressDlg->setValue(++count);
                         QApplication::processEvents();
                     }
@@ -881,7 +881,7 @@ void MainWindow::dropEvent(QDropEvent* event)
                 {
                     fs::path rel = de.path().lexically_relative(src);
                     QString archivePath = archiveBase + "/"
-                        + QString::fromStdWString(rel.wstring());
+                        + QString::fromStdWString(rel.generic_wstring());
                     m_engine->AddFile(de.path().string(), archivePath.toStdString());
                 }
             }
