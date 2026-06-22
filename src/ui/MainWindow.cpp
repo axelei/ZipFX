@@ -115,6 +115,7 @@ void MainWindow::setupMenus()
     flatAction->setCheckable(true);
     connect(flatAction, &QAction::toggled, this, [this](bool checked) {
         m_model->setFlatMode(checked);
+        m_upBtn->setVisible(checked);
     });
 
     optsMenu->addSeparator();
@@ -223,16 +224,18 @@ void MainWindow::setupUI()
     auto addrLabel = new QLabel(tr("Address:"), this);
     m_addrBox = new QComboBox(this);
     m_addrBox->setEditable(true);
-    auto upBtn = new QPushButton("..", this);
-    upBtn->setFixedWidth(28);
-    connect(upBtn, &QPushButton::clicked, this, [this]() {
+    m_upBtn = new QPushButton(
+        style()->standardIcon(QStyle::SP_ArrowUp), QString(), this);
+    m_upBtn->setToolTip(tr("Go to parent directory"));
+    m_upBtn->setVisible(false);
+    connect(m_upBtn, &QPushButton::clicked, this, [this]() {
         m_model->navigateUp();
         m_addrBox->setEditText(m_model->currentDir());
     });
 
     addrLayout->addWidget(addrLabel);
     addrLayout->addWidget(m_addrBox, 1);
-    addrLayout->addWidget(upBtn);
+    addrLayout->addWidget(m_upBtn);
     m_mainLayout->addLayout(addrLayout);
 
     // File tree

@@ -84,6 +84,7 @@ private:
     ArchiveTreeView* m_treeView = nullptr;
     FileListModel*    m_model = nullptr;
     QComboBox*    m_addrBox = nullptr;
+    QPushButton*  m_upBtn = nullptr;
     QToolBar*     m_toolbar = nullptr;
     ZipFXIcons*   m_icons = nullptr;
 
