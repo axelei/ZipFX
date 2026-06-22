@@ -163,10 +163,9 @@ if(WIN32)
 endif()
 
 # ====================================================================
-# Copy assets and locale next to the executable
+# Copy locale next to the executable
 # ====================================================================
-file(COPY ${CMAKE_SOURCE_DIR}/src/assets DESTINATION ${CMAKE_BINARY_DIR})
-file(COPY ${CMAKE_SOURCE_DIR}/locale    DESTINATION ${CMAKE_BINARY_DIR})
+file(COPY ${CMAKE_SOURCE_DIR}/locale DESTINATION ${CMAKE_BINARY_DIR})
 
 # ====================================================================
 # CPack
