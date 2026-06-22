@@ -128,7 +128,11 @@ void MainWindow::setupMenus()
     cmdMenu->addAction(tr("&View\tAlt+V"), this, &MainWindow::onView);
     cmdMenu->addAction(tr("&Delete\tDel"), this, &MainWindow::onDelete);
     cmdMenu->addSeparator();
-    cmdMenu->addAction(tr("&Find...\tF3"));
+    cmdMenu->addAction(tr("&Find...\tF3"), this, [this]() {
+        m_searchBox->setVisible(!m_searchBox->isVisible());
+        if (m_searchBox->isVisible()) m_searchBox->setFocus();
+        else m_model->setFilterString(QString());
+    });
     cmdMenu->addAction(tr("&Wizard...\tCtrl+W"));
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
 
@@ -223,8 +227,11 @@ void MainWindow::setupToolbar()
         style()->standardIcon(QStyle::SP_DialogCloseButton), tr("Close"));
     connect(closeAct, &QAction::triggered, this, &MainWindow::onCloseArchive);
 
-    auto findAct = m_toolbar->addAction(m_icons->find, tr("Find"));
-    Q_UNUSED(findAct);
+    m_toolbar->addAction(m_icons->find, tr("Find"), this, [this]() {
+        m_searchBox->setVisible(!m_searchBox->isVisible());
+        if (m_searchBox->isVisible()) m_searchBox->setFocus();
+        else m_model->setFilterString(QString());
+    });
 
     m_toolbar->addSeparator();
 
@@ -259,6 +266,16 @@ void MainWindow::setupUI()
     addrLayout->addWidget(m_addrBox, 1);
     addrLayout->addWidget(m_upBtn);
     m_mainLayout->addLayout(addrLayout);
+
+    // Search bar
+    m_searchBox = new QLineEdit(this);
+    m_searchBox->setPlaceholderText(tr("Search files..."));
+    m_searchBox->setClearButtonEnabled(true);
+    m_searchBox->setVisible(false);
+    connect(m_searchBox, &QLineEdit::textChanged, this, [this](const QString& text) {
+        m_model->setFilterString(text);
+    });
+    m_mainLayout->addWidget(m_searchBox);
 
     // File tree
     m_model = new FileListModel(this);

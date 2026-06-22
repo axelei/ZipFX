@@ -32,6 +32,10 @@ public:
     bool isFlatMode() const { return m_flatMode; }
     void setFlatMode(bool flat);
 
+    // Filtering
+    void setFilterString(const QString& filter);
+    QString filterString() const { return m_filterString; }
+
     // Navigation
     QString currentDir() const { return m_currentDir; }
     void setCurrentDir(const QString& dir);
@@ -85,6 +89,8 @@ private:
 
     // Cache for file type icons
     mutable QFileIconProvider* m_iconProvider = nullptr;
+
+    QString m_filterString;
 
     int m_sortColumn = 0;
     Qt::SortOrder m_sortOrder = Qt::AscendingOrder;

@@ -93,6 +93,13 @@ QStringList FileListModel::selectedEntryPaths(
     return result;
 }
 
+// ── Filtering ──────────────────────────────────────────────────────────
+void FileListModel::setFilterString(const QString& filter)
+{
+    m_filterString = filter;
+    rebuild();
+}
+
 // ── Rebuild ────────────────────────────────────────────────────────────
 void FileListModel::rebuild()
 {
@@ -110,11 +117,17 @@ void FileListModel::rebuild()
         return;
     }
 
+    auto matchesFilter = [this](const std::string& name) {
+        if (m_filterString.isEmpty()) return true;
+        return QString::fromUtf8(name.c_str()).contains(m_filterString, Qt::CaseInsensitive);
+    };
+
     if (m_flatMode)
     {
         for (const auto& e : m_allEntries)
         {
             if (e.name.empty()) continue;
+            if (!matchesFilter(e.name)) continue;
             auto* item = new Item;
             item->name = QString::fromUtf8(e.name.c_str());
             item->fullPath = QString::fromUtf8(e.path.c_str());
@@ -150,6 +163,10 @@ void FileListModel::rebuild()
                 continue;
 
             QString remainder = ep.mid(m_currentDirPrefix.size());
+            if (!m_filterString.isEmpty() &&
+                !remainder.contains(m_filterString, Qt::CaseInsensitive))
+                continue;
+
             int slash = remainder.indexOf('/');
             bool isDir = slash >= 0 || e.isDirectory;
 

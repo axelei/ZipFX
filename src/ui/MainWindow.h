@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTreeView>
 #include <QComboBox>
+#include <QLineEdit>
 #include <QPushButton>
 #include <QStatusBar>
 #include <QToolBar>
@@ -87,6 +88,7 @@ private:
     QComboBox*    m_addrBox = nullptr;
     QPushButton*  m_upBtn = nullptr;
     QToolBar*     m_toolbar = nullptr;
+    QLineEdit*    m_searchBox = nullptr;
     ZipFXIcons*   m_icons = nullptr;
 
     // Translation
