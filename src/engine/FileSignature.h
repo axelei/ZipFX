@@ -25,7 +25,8 @@ enum class ArchiveType
     Adf,
     Wad,
     Pak,
-    Grp
+    Grp,
+    Hog
 };
 
 struct FileSignature

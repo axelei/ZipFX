@@ -59,13 +59,17 @@ static const SigEntry kSignatures[] =
         return d[0] == 'D' && d[1] == 'O' && d[2] == 'S'; }},
     { ArchiveType::Wad,      4, [](const uint8_t* d, size_t) {
         return (d[0] == 'I' && d[1] == 'W' && d[2] == 'A' && d[3] == 'D') ||
-               (d[0] == 'P' && d[1] == 'W' && d[2] == 'A' && d[3] == 'D'); }},
+               (d[0] == 'P' && d[1] == 'W' && d[2] == 'A' && d[3] == 'D') ||
+               (d[0] == 'W' && d[1] == 'A' && d[2] == 'D' && d[3] == '2') ||
+               (d[0] == 'W' && d[1] == 'A' && d[2] == 'D' && d[3] == '3'); }},
     { ArchiveType::Pak,      4, [](const uint8_t* d, size_t) {
         return d[0] == 'P' && d[1] == 'A' && d[2] == 'C' && d[3] == 'K'; }},
     { ArchiveType::Grp,     12, [](const uint8_t* d, size_t) {
         return d[0] == 'K' && d[1] == 'e' && d[2] == 'n' && d[3] == 'S' &&
                d[4] == 'i' && d[5] == 'l' && d[6] == 'v' && d[7] == 'e' &&
                d[8] == 'r' && d[9] == 'm' && d[10] == 'a' && d[11] == 'n'; }},
+    { ArchiveType::Hog,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'H' && d[1] == 'O' && d[2] == 'G' && d[3] == 0xF0; }},
 };
 
 ArchiveType FileSignature::Detect(std::string_view path)

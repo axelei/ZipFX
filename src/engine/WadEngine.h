@@ -7,7 +7,10 @@ class WadEngine : public FlatArchiveEngine
 {
 public:
     bool Open(std::string_view path) override;
-    std::string_view FormatName() const override { return "WAD"; }
+    std::string_view FormatName() const override { return m_fmtName; }
+
+private:
+    std::string m_fmtName = "WAD";
 };
 
 #endif

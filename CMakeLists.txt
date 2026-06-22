@@ -172,6 +172,7 @@ set(ZIPFX_SOURCES
     src/engine/FlatArchiveEngine.cpp
     src/engine/WadEngine.cpp
     src/engine/PakEngine.cpp
+    src/engine/HogEngine.cpp
     src/engine/GrpEngine.cpp
     src/cli/CliHandler.cpp
 )
