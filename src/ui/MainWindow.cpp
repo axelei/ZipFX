@@ -172,6 +172,7 @@ void MainWindow::setupUI()
     m_treeView->setRootIsDecorated(false);
     m_treeView->setAlternatingRowColors(true);
     m_treeView->setSortingEnabled(false);
+    m_treeView->setEnabled(false); // gray until an archive is opened
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
@@ -211,6 +212,7 @@ void MainWindow::onNewArchive()
     m_engine = std::move(engine);
     m_currentPath = result.path.toStdString();
     m_addrBox->setEditText(result.path);
+    m_treeView->setEnabled(true);
     statusBar()->showMessage(tr("Archive created"), 3000);
     refreshFileList();
 }
@@ -242,6 +244,7 @@ bool MainWindow::openArchive(const QString& path)
     m_engine = std::move(engine);
     m_currentPath = spath;
     m_addrBox->setEditText(path);
+    m_treeView->setEnabled(true);
     statusBar()->showMessage(tr("Opened: %1").arg(path), 3000);
     refreshFileList();
     return true;
@@ -257,6 +260,7 @@ void MainWindow::onCloseArchive()
     m_currentPath.clear();
     m_model->clear();
     m_addrBox->clearEditText();
+    m_treeView->setEnabled(false);
     statusBar()->showMessage(tr("No archive open"));
 }
 
@@ -516,20 +520,28 @@ void MainWindow::onItemDoubleClicked(const QModelIndex& index)
 
 void MainWindow::onContextMenu(const QPoint& pos)
 {
+    bool hasEngine = (m_engine != nullptr);
+    bool hasSelection = !m_treeView->selectionModel()->selectedRows(0).isEmpty();
+
     QMenu menu(this);
 
-    menu.addAction(tr("Extract..."), this, [this]() {
+    QAction* extractAct = menu.addAction(tr("Extract..."), this, [this, hasSelection]() {
         auto sel = m_treeView->selectionModel()->selectedRows(0);
-        if (!sel.isEmpty())
+        if (hasSelection)
             doExtractSelected(sel);
         else
             onExtractAll();
     });
+    extractAct->setEnabled(hasEngine);
 
-    menu.addAction(tr("View"), this, &MainWindow::onView);
+    QAction* viewAct = menu.addAction(tr("View"), this, &MainWindow::onView);
+    viewAct->setEnabled(hasEngine && hasSelection);
 
-    if (m_engine && m_engine->SupportsCreation())
-        menu.addAction(tr("Delete"), this, &MainWindow::onDelete);
+    if (hasEngine && m_engine->SupportsCreation())
+    {
+        QAction* delAct = menu.addAction(tr("Delete"), this, &MainWindow::onDelete);
+        delAct->setEnabled(hasSelection);
+    }
 
     menu.exec(m_treeView->viewport()->mapToGlobal(pos));
 }
