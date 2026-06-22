@@ -220,33 +220,6 @@ std::vector<ArchiveEntry> TarGzEngine::ListContents()
     return m_entries;
 }
 
-bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
-{
-    if (!m_isOpen)
-    {
-        return false;
-    }
-
-    auto data = ReadFile(entryName);
-    if (data.empty())
-    {
-        return false;
-    }
-
-    fs::path dest(destPath);
-    fs::create_directories(dest.parent_path());
-
-    std::ofstream out(dest, std::ios::binary);
-    if (!out)
-    {
-        return false;
-    }
-
-    out.write(reinterpret_cast<const char*>(data.data()),
-              static_cast<std::streamsize>(data.size()));
-    return out.good();
-}
-
 bool TarGzEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& entry : m_entries)
