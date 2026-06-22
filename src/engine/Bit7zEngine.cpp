@@ -224,21 +224,29 @@ bool Bit7zEngine::Save()
 
     try
     {
-        bit7z::BitArchiveWriter writer(*m_lib, bit7z::BitFormat::SevenZip);
+        // Use different writer constructor for new vs existing archives
+        auto writer = m_isNew
+            ? std::unique_ptr<bit7z::BitArchiveWriter>(
+                new bit7z::BitArchiveWriter(*m_lib, bit7z::BitFormat::SevenZip))
+            : std::unique_ptr<bit7z::BitArchiveWriter>(
+                new bit7z::BitArchiveWriter(*m_lib, m_path, bit7z::BitFormat::SevenZip));
 
         if (!m_password.empty())
-            writer.setPassword(m_password, m_encryptHeaders);
+            writer->setPassword(m_password, m_encryptHeaders);
 
-        writer.setCompressionLevel(
+        writer->setCompressionLevel(
             static_cast<bit7z::BitCompressionLevel>(6));
 
         if (m_volumeSize > 0)
-            writer.setVolumeSize(m_volumeSize);
+            writer->setVolumeSize(m_volumeSize);
+
+        if (!m_isNew)
+            writer->setUpdateMode(bit7z::UpdateMode::Append);
 
         for (const auto& [archivePath, srcPath] : m_pendingAdds)
-            writer.addFile(srcPath, archivePath);
+            writer->addFile(srcPath, archivePath);
 
-        writer.compressTo(m_path);
+        writer->compressTo(m_path);
 
         // Re-open in read mode
         m_isNew = false;
