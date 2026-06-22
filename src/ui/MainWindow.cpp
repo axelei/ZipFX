@@ -130,7 +130,7 @@ void MainWindow::setupMenus()
     cmdMenu->addSeparator();
     cmdMenu->addAction(tr("&Find...\tF3"));
     cmdMenu->addAction(tr("&Wizard...\tCtrl+W"));
-    cmdMenu->addAction(tr("&Information...\tCtrl+I"));
+    cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
 
     // Options
     auto optsMenu = menuBar()->addMenu(tr("&Options"));
@@ -231,8 +231,7 @@ void MainWindow::setupToolbar()
     auto wizardAct = m_toolbar->addAction(m_icons->wizard, tr("Wizard"));
     Q_UNUSED(wizardAct);
 
-    auto infoAct = m_toolbar->addAction(m_icons->info, tr("Info"));
-    Q_UNUSED(infoAct);
+    m_toolbar->addAction(m_icons->info, tr("Info"), this, &MainWindow::onInfo);
 }
 
 void MainWindow::setupUI()
@@ -851,6 +850,43 @@ void MainWindow::onView()
 
     dlg->setAttribute(Qt::WA_DeleteOnClose);
     dlg->show();
+}
+
+void MainWindow::onInfo()
+{
+    if (!m_engine) return;
+
+    auto entries = m_engine->ListContents();
+    if (entries.empty())
+    {
+        QMessageBox::information(this, tr("Info"), tr("Archive is empty."));
+        return;
+    }
+
+    uint64_t totalSize = 0, totalPacked = 0;
+    int files = 0, folders = 0;
+    for (const auto& e : entries)
+    {
+        if (e.isDirectory) { folders++; continue; }
+        files++;
+        totalSize += e.size;
+        totalPacked += e.packedSize;
+    }
+
+    QString text;
+    text += tr("Archive: %1\n").arg(QString::fromStdString(m_currentPath));
+    text += tr("Format: %1\n").arg(QString::fromUtf8(m_engine->FormatName().data()));
+    text += tr("Files: %1\n").arg(files);
+    text += tr("Folders: %1\n").arg(folders);
+    text += tr("Total size: %1 bytes\n").arg(totalSize);
+    text += tr("Packed size: %1 bytes\n").arg(totalPacked);
+    if (totalSize > 0)
+    {
+        int ratio = static_cast<int>(totalPacked * 100 / totalSize);
+        text += tr("Compression ratio: %1%\n").arg(ratio);
+    }
+
+    QMessageBox::information(this, tr("Archive Information"), text);
 }
 
 void MainWindow::onDelete()

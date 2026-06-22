@@ -57,6 +57,7 @@ private slots:
     void onExtractSelected();
     void onTest();
     void onView();
+    void onInfo();
     void onDelete();
 
     void onItemDoubleClicked(const QModelIndex& index);
