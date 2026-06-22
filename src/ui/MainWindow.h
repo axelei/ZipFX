@@ -8,6 +8,7 @@
 #include <QStatusBar>
 #include <QToolBar>
 #include <QLabel>
+#include <QVBoxLayout>
 #include <QProgressDialog>
 #include <QTranslator>
 
@@ -76,6 +77,8 @@ private:
     std::string m_currentPath;
 
     // UI
+    QWidget*      m_centralWidget = nullptr;
+    QVBoxLayout*  m_mainLayout = nullptr;
     ArchiveTreeView* m_treeView = nullptr;
     FileListModel*    m_model = nullptr;
     QComboBox*    m_addrBox = nullptr;

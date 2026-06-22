@@ -206,10 +206,10 @@ void MainWindow::setupToolbar()
 
 void MainWindow::setupUI()
 {
-    auto central = new QWidget(this);
-    auto layout = new QVBoxLayout(central);
-    layout->setContentsMargins(4, 4, 4, 4);
-    layout->setSpacing(4);
+    m_centralWidget = new QWidget(this);
+    m_mainLayout = new QVBoxLayout(m_centralWidget);
+    m_mainLayout->setContentsMargins(4, 4, 4, 4);
+    m_mainLayout->setSpacing(4);
 
     // Address bar
     auto addrLayout = new QHBoxLayout();
@@ -226,7 +226,7 @@ void MainWindow::setupUI()
     addrLayout->addWidget(addrLabel);
     addrLayout->addWidget(m_addrBox, 1);
     addrLayout->addWidget(upBtn);
-    layout->addLayout(addrLayout);
+    m_mainLayout->addLayout(addrLayout);
 
     // File tree
     m_model = new FileListModel(this);
@@ -251,9 +251,9 @@ void MainWindow::setupUI()
         m_addrBox->setEditText(dir);
     });
 
-    layout->addWidget(m_treeView, 1);
+    m_mainLayout->addWidget(m_treeView, 1);
 
-    setCentralWidget(central);
+    setCentralWidget(m_centralWidget);
 }
 
 // ── Archive actions ────────────────────────────────────────────────────
