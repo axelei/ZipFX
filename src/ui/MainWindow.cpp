@@ -153,15 +153,15 @@ void MainWindow::setupMenus()
     QActionGroup* langGroup = new QActionGroup(this);
     langGroup->setExclusive(true);
 
-    auto addLang = [&](const QString& name, const QString& locale) {
-        QAction* act = langMenu->addAction(name);
+    auto addLang = [&](const QString& flag, const QString& name, const QString& locale) {
+        QAction* act = langMenu->addAction(flag + "  " + name);
         act->setData(locale);
         act->setCheckable(true);
         act->setChecked(locale == QLocale::system().name().left(2));
         langGroup->addAction(act);
     };
-    addLang(tr("English"), "en");
-    addLang(tr("Spanish"), "es");
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAC\xF0\x9F\x87\xA7"), tr("English"), "en");  // 🇬🇧
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAA\xF0\x9F\x87\xB8"), tr("Spanish"), "es");  // 🇪🇸
 
     connect(langGroup, &QActionGroup::triggered, this, [this](QAction* act) {
         QString locale = act->data().toString();
