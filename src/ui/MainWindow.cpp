@@ -930,18 +930,20 @@ void MainWindow::onItemDoubleClicked(const QModelIndex& index)
     if (!index.isValid()) return;
     auto* model = static_cast<FileListModel*>(m_treeView->model());
 
-    if (model->isFlatMode()) return;
-
     auto* item = static_cast<FileListModel::Item*>(index.internalPointer());
     if (!item) return;
 
-    if (item->name == "..")
+    if (item->name == ".." && !model->isFlatMode())
     {
         model->navigateUp();
     }
-    else if (item->isDir)
+    else if (item->isDir && !model->isFlatMode())
     {
         model->navigateInto(item->name);
+    }
+    else if (!item->isDir && !item->isParent)
+    {
+        onView();
     }
 }
 
