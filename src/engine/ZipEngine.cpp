@@ -116,7 +116,7 @@ std::vector<ArchiveEntry> ZipEngine::ListContents()
 
 bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    if (!m_zip) return false;
+    if (!m_zip) { qWarning("Extract: m_zip is null"); return false; }
 
     std::string name(entryName);
     std::string dp(destPath);
@@ -126,17 +126,27 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (slash != std::string::npos)
         fs::create_directories(fs::path(dp.substr(0, slash)));
 
+    zip_int64_t num = zip_get_num_entries(m_zip, 0);
+    qDebug("Extract: looking for '%s' in zip with %lld entries", name.c_str(), (long long)num);
+
     zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
     if (idx < 0)
     {
-        wxLogWarning("ZipEngine: entry not found: %s", name.c_str());
+        zip_error_t* err = zip_get_error(m_zip);
+        qWarning("ZipEngine: entry '%s' not found (zip error %d: %s)",
+                 name.c_str(),
+                 zip_error_code_zip(err),
+                 zip_error_strerror(err));
         return false;
     }
 
     struct zip_stat st;
     zip_stat_init(&st);
     if (zip_stat_index(m_zip, idx, 0, &st) != 0)
+    {
+        qWarning("ZipEngine: zip_stat_index failed for '%s'", name.c_str());
         return false;
+    }
 
     if (st.size == 0 && name.back() == '/') // directory
     {
@@ -145,7 +155,11 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
     }
 
     zip_file_t* zf = zip_fopen_index(m_zip, idx, 0);
-    if (!zf) return false;
+    if (!zf)
+    {
+        qWarning("ZipEngine: zip_fopen_index failed for '%s'", name.c_str());
+        return false;
+    }
 
     std::vector<uint8_t> buf(static_cast<size_t>(st.size));
     if (st.size > 0)
