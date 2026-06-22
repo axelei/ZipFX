@@ -21,6 +21,7 @@ public:
         ColType,
         ColModified,
         ColCRC,
+        ColPermissions,
         ColCount
     };
 
@@ -65,6 +66,7 @@ public:
         uint64_t    size = 0;
         uint64_t    packedSize = 0;
         uint32_t    crc = 0;
+        uint32_t    permissions = 0;
         time_t      modified = 0;
         bool        hasEntry = false;
 

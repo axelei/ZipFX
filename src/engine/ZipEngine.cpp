@@ -100,6 +100,13 @@ void ZipEngine::LoadEntries()
         entry.packedSize = st.comp_size;
         entry.crc = st.crc;
         entry.isDirectory = (name[0] && name[strlen(name) - 1] == '/');
+        // permission bits from zip_file_attributes
+        {
+            zip_uint8_t opsys;
+            zip_uint32_t attrs;
+            if (zip_file_get_external_attributes(m_zip, i, 0, &opsys, &attrs) == 0 && opsys == 3) // Unix
+                entry.permissions = (attrs >> 16) & 0xFFF;
+        }
 
         if (st.mtime > 0)
             entry.modified = std::chrono::system_clock::from_time_t(st.mtime);

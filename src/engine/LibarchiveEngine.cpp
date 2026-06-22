@@ -89,6 +89,7 @@ bool LibarchiveEngine::LoadEntries()
         ae.size = static_cast<uint64_t>(archive_entry_size(entry));
         ae.packedSize = ae.size;
         ae.isDirectory = archive_entry_filetype(entry) == AE_IFDIR;
+        ae.permissions = archive_entry_perm(entry) & 0xFFF;
 
         time_t mtime = archive_entry_mtime(entry);
         ae.modified = std::chrono::system_clock::from_time_t(mtime);

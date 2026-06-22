@@ -135,6 +135,7 @@ void FileListModel::rebuild()
             item->size = e.size;
             item->packedSize = e.packedSize;
             item->crc = e.crc;
+            item->permissions = e.permissions;
             item->modified = std::chrono::system_clock::to_time_t(e.modified);
             item->hasEntry = true;
             item->parentItem = m_rootItem;
@@ -240,6 +241,22 @@ QVariant FileListModel::data(const QModelIndex& index, int role) const
             return item->hasEntry && item->crc
                 ? QString::number(item->crc, 16).toUpper().rightJustified(8, '0')
                 : "-";
+        case ColPermissions:
+            if (!item->hasEntry || item->permissions == 0) return "-";
+        {
+            QString s;
+            uint32_t m = item->permissions;
+            s += (m & 00400) ? 'r' : '-';
+            s += (m & 00200) ? 'w' : '-';
+            s += (m & 00100) ? 'x' : '-';
+            s += (m & 00040) ? 'r' : '-';
+            s += (m & 00020) ? 'w' : '-';
+            s += (m & 00010) ? 'x' : '-';
+            s += (m & 00004) ? 'r' : '-';
+            s += (m & 00002) ? 'w' : '-';
+            s += (m & 00001) ? 'x' : '-';
+            return s;
+        }
         }
     }
 
@@ -259,6 +276,7 @@ QVariant FileListModel::headerData(int section, Qt::Orientation orientation, int
     case ColType:     return tr("Type");
     case ColModified: return tr("Modified");
     case ColCRC:      return tr("CRC");
+    case ColPermissions: return tr("Permissions");
     }
     return {};
 }
@@ -337,6 +355,10 @@ void FileListModel::sortItems()
                 case ColCRC:
                     if (a->crc < b->crc) return -1;
                     if (a->crc > b->crc) return 1;
+                    return 0;
+                case ColPermissions:
+                    if (a->permissions < b->permissions) return -1;
+                    if (a->permissions > b->permissions) return 1;
                     return 0;
                 }
                 return 0;

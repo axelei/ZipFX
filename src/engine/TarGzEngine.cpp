@@ -176,6 +176,7 @@ bool TarGzEngine::Open(std::string_view path)
         entry.size = fileSize;
         entry.packedSize = fileSize;
         entry.isDirectory = (hdr.typeflag == '5');
+        entry.permissions = ParseOctal(hdr.mode, 8) & 0xFFF;
 
         struct tm timeinfo = {};
         uint64_t mtime = ParseOctal(hdr.mtime, 12);
