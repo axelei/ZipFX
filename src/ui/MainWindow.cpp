@@ -24,6 +24,9 @@
 #include <QHeaderView>
 #include <QDateTime>
 #include <QProgressDialog>
+#include <QTextEdit>
+#include <QFontDatabase>
+#include <QPixmap>
 #include <QActionGroup>
 #include <QSettings>
 
@@ -714,8 +717,111 @@ void MainWindow::onView()
         QMessageBox::warning(this, tr("Info"), tr("Could not read file."));
         return;
     }
-    QMessageBox::information(this, tr("File Info"),
-        tr("File: %1\nSize: %2 bytes").arg(paths[0]).arg(data.size()));
+
+    QString name = paths[0];
+    QString ext = QFileInfo(name).suffix().toLower();
+    QStringList imgExts = {"png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif"};
+
+    auto dlg = new QDialog(this);
+    dlg->setWindowTitle(tr("View: %1").arg(name));
+    dlg->resize(700, 500);
+    auto* layout = new QVBoxLayout(dlg);
+
+    auto* infoLabel = new QLabel(tr("%1  —  %2 bytes").arg(name).arg(data.size()), dlg);
+    layout->addWidget(infoLabel);
+
+    if (ext == "pdf" || ext == "doc" || ext == "docx" || ext == "xls" || ext == "xlsx")
+    {
+        QMessageBox::information(this, tr("Info"),
+            tr("File: %1\nSize: %2 bytes\n\nCannot preview this format.").arg(name).arg(data.size()));
+        delete dlg;
+        return;
+    }
+
+    if (imgExts.contains(ext))
+    {
+        auto* pixLabel = new QLabel(dlg);
+        QPixmap pix;
+        if (pix.loadFromData(data.data(), static_cast<uint32_t>(data.size())))
+        {
+            pixLabel->setPixmap(pix.scaled(650, 400, Qt::KeepAspectRatio, Qt::SmoothTransformation));
+            pixLabel->setAlignment(Qt::AlignCenter);
+            layout->addWidget(pixLabel);
+        }
+        else
+        {
+            auto* text = new QTextEdit(dlg);
+            text->setReadOnly(true);
+            text->setPlainText(tr("Failed to load image."));
+            layout->addWidget(text);
+        }
+    }
+    else
+    {
+        // Check if text by looking for null bytes
+        bool isText = data.size() > 0;
+        for (size_t i = 0; i < data.size() && i < 4096; ++i)
+        {
+            if (data[i] == 0 || (data[i] < 0x09 && data[i] != 0x0A && data[i] != 0x0D))
+            {
+                isText = false;
+                break;
+            }
+        }
+
+        auto* text = new QTextEdit(dlg);
+        text->setReadOnly(true);
+        text->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+
+        if (isText)
+        {
+            QString content = QString::fromUtf8(
+                reinterpret_cast<const char*>(data.data()),
+                static_cast<int>(data.size()));
+            if (data.size() > 100000)
+                content = content.left(100000) + tr("\n\n... truncated (showing first 100000 bytes)");
+            text->setPlainText(content);
+        }
+        else
+        {
+            // Hex dump
+            QString hex;
+            size_t maxBytes = std::min(data.size(), size_t(4096));
+            for (size_t i = 0; i < maxBytes; i += 16)
+            {
+                hex += QString("%1  ").arg(i, 8, 16, QChar('0'));
+                for (size_t j = 0; j < 16; ++j)
+                {
+                    if (i + j < maxBytes)
+                        hex += QString("%1 ").arg(data[i + j], 2, 16, QChar('0'));
+                    else
+                        hex += "   ";
+                    if (j == 7) hex += " ";
+                }
+                hex += " ";
+                for (size_t j = 0; j < 16 && i + j < maxBytes; ++j)
+                {
+                    char c = static_cast<char>(data[i + j]);
+                    hex += (c >= 32 && c < 127) ? c : '.';
+                }
+                hex += "\n";
+            }
+            if (data.size() > 4096)
+                hex += tr("... truncated (showing first 4096 bytes)");
+            text->setPlainText(hex);
+        }
+        layout->addWidget(text, 1);
+    }
+
+    auto* btnLayout = new QHBoxLayout();
+    btnLayout->addStretch();
+    auto* closeBtn = new QPushButton(tr("Close"), dlg);
+    connect(closeBtn, &QPushButton::clicked, dlg, &QDialog::accept);
+    btnLayout->addWidget(closeBtn);
+    layout->addLayout(btnLayout);
+
+    dlg->setAttribute(Qt::WA_DeleteOnClose);
+    dlg->show();
 }
 
 void MainWindow::onDelete()
