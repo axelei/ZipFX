@@ -254,6 +254,18 @@ if(WIN32 AND MSVC)
     set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
+# Deploy Qt DLLs next to the executable
+if(WIN32)
+    find_program(QT_WINDEPLOYQT windeployqt PATHS "${Qt6_DIR}/../../bin" NO_DEFAULT_PATH)
+    if(QT_WINDEPLOYQT)
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${QT_WINDEPLOYQT} --no-translations --no-compiler-runtime
+                "$<TARGET_FILE_DIR:ZipFX>/ZipFX.exe"
+            COMMENT "Running windeployqt..."
+        )
+    endif()
+endif()
+
 # Copy libzip.dll next to the executable (shared library)
 if(WIN32)
     add_custom_command(TARGET ZipFX POST_BUILD

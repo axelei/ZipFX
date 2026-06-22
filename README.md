@@ -91,11 +91,22 @@ cmake --build build
 
 #### Windows (MinGW)
 
+**Important:** Use Qt's MinGW toolchain, not the one bundled with CLion.
+CLion's bundled MinGW has incompatible `off_t`/`mode_t` definitions that
+break libarchive and libzip.
+
 ```bash
+# Set PATH to Qt's MinGW before any cmake or build command
+set PATH=C:\Qt\6.x.x\mingw_64\bin;C:\Qt\Tools\mingw1310_64\bin;%PATH%
+
 cmake -B build -G "MinGW Makefiles" \
     -DCMAKE_PREFIX_PATH=C:/Qt/6.x.x/mingw_64
 cmake --build build
 ```
+
+**CLion users:** Go to **Settings → Build, Execution, Deployment → Toolchains**
+and change the toolchain from the bundled MinGW to
+`C:\Qt\Tools\mingw1310_64`. Then **File → Reload CMake Project**.
 
 #### macOS
 
