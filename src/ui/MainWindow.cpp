@@ -191,7 +191,7 @@ void MainWindow::setupMenus()
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About ZipFX"), this, [this]() {
         QMessageBox::about(this, tr("About ZipFX"),
-            tr("ZipFX v%1\n\nA cross-platform archive manager.\n"
+            tr("ZipFX v%1\n\nMultiplatform archiver for power users.\n"
                "Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...")
             .arg(ZIPFX_VERSION));
     });

@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
-project(ZipFX VERSION 1.0.0 LANGUAGES C CXX)
+project(ZipFX VERSION 0.2.0 LANGUAGES C CXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -291,7 +291,7 @@ set(CPACK_PACKAGE_NAME             "ZipFX")
 set(CPACK_PACKAGE_VERSION          "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR           "ZipFX Team")
 set(CPACK_PACKAGE_HOMEPAGE_URL     "https://github.com/axelei/ZipFX")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "A cross-platform archive manager")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ZipFX - Multiplatform archiver for power users")
 set(CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_SOURCE_DIR}/LICENSE")
 
 if(WIN32)
