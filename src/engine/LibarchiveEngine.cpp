@@ -94,6 +94,9 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
         LOG_ERR("%s: failed to open archive for ExtractAll", FormatName().data());
+        archive_read_free(m_archive);
+        m_archive = nullptr;
+        m_isOpen = false;
         return false;
     }
 
@@ -151,6 +154,9 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
         LOG_ERR("%s: failed to re-open for ReadFile", FormatName().data());
+        archive_read_free(m_archive);
+        m_archive = nullptr;
+        m_isOpen = false;
         return {};
     }
 
