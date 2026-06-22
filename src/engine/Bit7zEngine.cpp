@@ -194,10 +194,15 @@ std::vector<uint8_t> Bit7zEngine::ReadFile(std::string_view entryName)
 // ── Writing ────────────────────────────────────────────────────────────
 bool Bit7zEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {
-    m_pendingAdds[std::string(archivePath)] = std::string(srcPath);
+    // Normalize to forward slashes for archive-internal paths
+    std::string normPath(archivePath);
+    for (auto& c : normPath)
+        if (c == '\\') c = '/';
+
+    m_pendingAdds[normPath] = std::string(srcPath);
 
     ArchiveEntry placeholder;
-    placeholder.name = std::string(archivePath);
+    placeholder.name = normPath;
     placeholder.path = placeholder.name;
     placeholder.size = fs::file_size(std::string(srcPath));
     m_entries.push_back(std::move(placeholder));
