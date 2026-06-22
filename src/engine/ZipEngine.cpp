@@ -326,7 +326,9 @@ bool ZipEngine::Save()
 }
 
 // ── Testing ────────────────────────────────────────────────────────────
-bool ZipEngine::TestIntegrity()
+bool ZipEngine::TestIntegrity(
+    std::function<void(int, int)> progressCallback,
+    std::function<bool()> cancelFlag)
 {
     if (!m_zip) return false;
 
@@ -335,6 +337,9 @@ bool ZipEngine::TestIntegrity()
 
     for (zip_int64_t i = 0; i < num; ++i)
     {
+        if (cancelFlag && cancelFlag()) return false;
+        if (progressCallback) progressCallback((int)i, (int)num);
+
         struct zip_stat st;
         zip_stat_init(&st);
         if (zip_stat_index(m_zip, i, 0, &st) != 0)

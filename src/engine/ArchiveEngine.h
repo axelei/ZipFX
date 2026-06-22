@@ -2,6 +2,7 @@
 #define ZIPFX_ARCHIVE_ENGINE_H
 
 #include <cstdint>
+#include <functional>
 #include <memory>
 #include <string>
 #include <string_view>
@@ -27,7 +28,9 @@ public:
     virtual bool RemoveEntry(std::string_view entryName) { return false; }
     virtual bool Save() { return false; }
 
-    virtual bool TestIntegrity() = 0;
+    virtual bool TestIntegrity(
+        std::function<void(int current, int total)> progressCallback = nullptr,
+        std::function<bool()> cancelFlag = nullptr) = 0;
 
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;

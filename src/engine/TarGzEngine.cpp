@@ -418,7 +418,9 @@ bool TarGzEngine::Save()
 }
 
 // ── Testing ────────────────────────────────────────────────────────────
-bool TarGzEngine::TestIntegrity()
+bool TarGzEngine::TestIntegrity(
+    std::function<void(int, int)> progressCallback,
+    std::function<bool()> cancelFlag)
 {
     gzFile f = gzopen(m_path.c_str(), "rb");
     if (!f)
@@ -426,9 +428,19 @@ bool TarGzEngine::TestIntegrity()
         return false;
     }
 
+    int total = (int)m_entries.size();
+    int current = 0;
+
     TarHeader hdr;
     while (true)
     {
+        if (cancelFlag && cancelFlag())
+        {
+            gzclose(f);
+            return false;
+        }
+        if (progressCallback) progressCallback(current, total);
+
         int bytesRead = gzread(f, &hdr, TAR_BLOCK_SIZE);
         if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE))
         {
@@ -460,6 +472,7 @@ bool TarGzEngine::TestIntegrity()
             if (r <= 0) break;
             paddedSize -= static_cast<uint64_t>(r);
         }
+        current++;
     }
 
     gzclose(f);

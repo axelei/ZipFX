@@ -192,7 +192,9 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
 }
 
 // ── Testing ────────────────────────────────────────────────────────────
-bool LibarchiveEngine::TestIntegrity()
+bool LibarchiveEngine::TestIntegrity(
+    std::function<void(int, int)> progressCallback,
+    std::function<bool()> cancelFlag)
 {
     struct archive* a = archive_read_new();
     RegisterFormat(a);
@@ -203,15 +205,27 @@ bool LibarchiveEngine::TestIntegrity()
         return false;
     }
 
+    int total = (int)m_entries.size();
+    int current = 0;
+
     struct archive_entry* entry;
     while (archive_read_next_header(a, &entry) == ARCHIVE_OK)
     {
+        if (cancelFlag && cancelFlag())
+        {
+            archive_read_close(a);
+            archive_read_free(a);
+            return false;
+        }
+        if (progressCallback) progressCallback(current, total);
+
         if (archive_read_data_skip(a) != ARCHIVE_OK)
         {
             archive_read_close(a);
             archive_read_free(a);
             return false;
         }
+        current++;
     }
 
     archive_read_close(a);

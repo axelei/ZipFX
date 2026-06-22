@@ -519,8 +519,40 @@ void MainWindow::doExtractSelected(const QModelIndexList& selection)
 void MainWindow::onTest()
 {
     if (!m_engine) return;
-    if (m_engine->TestIntegrity())
+
+    auto entries = m_engine->ListContents();
+    if (entries.empty())
+    {
+        QMessageBox::information(this, tr("Test"), tr("Archive is empty."));
+        return;
+    }
+
+    int total = (int)entries.size();
+
+    QProgressDialog prog(tr("Testing integrity..."), tr("Cancel"),
+        0, total, this);
+    prog.setWindowModality(Qt::WindowModal);
+    prog.show();
+
+    bool result = m_engine->TestIntegrity(
+        [&](int current, int) {
+            prog.setValue(current);
+            if (current < total)
+            {
+                prog.setLabelText(tr("Testing: %1").arg(
+                    QString::fromUtf8(entries[current].name.c_str())));
+            }
+            QApplication::processEvents();
+        },
+        [&]() -> bool { return prog.wasCanceled(); }
+    );
+
+    prog.close();
+
+    if (result)
         QMessageBox::information(this, tr("Test"), tr("Integrity check passed."));
+    else if (prog.wasCanceled())
+        statusBar()->showMessage(tr("Integrity check cancelled."), 3000);
     else
         QMessageBox::warning(this, tr("Test"), tr("Integrity check FAILED."));
 }

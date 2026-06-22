@@ -26,7 +26,9 @@ public:
     bool RemoveEntry(std::string_view entryName) override;
     bool Save() override;
 
-    bool TestIntegrity() override;
+    bool TestIntegrity(
+        std::function<void(int current, int total)> progressCallback = nullptr,
+        std::function<bool()> cancelFlag = nullptr) override;
 
     std::string_view FormatName() const override { return "ZIP"; }
     bool SupportsCreation() const override { return true; }

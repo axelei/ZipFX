@@ -3,6 +3,8 @@
 
 #include "ArchiveEngine.h"
 
+#include <functional>
+
 struct archive;
 struct archive_entry;
 
@@ -16,7 +18,9 @@ public:
     std::vector<ArchiveEntry> ListContents() override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
-    bool TestIntegrity() override;
+    bool TestIntegrity(
+        std::function<void(int current, int total)> progressCallback = nullptr,
+        std::function<bool()> cancelFlag = nullptr) override;
 
     bool IsOpen() const override { return m_isOpen; }
     bool SupportsCreation() const override { return false; }
