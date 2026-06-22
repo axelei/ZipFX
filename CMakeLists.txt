@@ -85,6 +85,8 @@ target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 # ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
+# Default Qt path if not in CMAKE_PREFIX_PATH (project-local fallback)
+list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.11.1/mingw_64")
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
