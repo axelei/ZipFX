@@ -31,7 +31,9 @@
 #include "engine/ArchiveEngineFactory.h"
 #include "engine/ArchiveEntry.h"
 
+#include <filesystem>
 #include <algorithm>
+namespace fs = std::filesystem;
 
 #ifdef _WIN32
 #include "dnd/VirtualFileDataObject.h"
@@ -801,9 +803,27 @@ void MainWindow::dropEvent(QDropEvent* event)
 
     for (const auto& path : paths)
     {
-        QFileInfo fi(path);
-        QString archivePath = prefix + fi.fileName();
-        m_engine->AddFile(path.toStdString(), archivePath.toStdString());
+        fs::path src(path.toStdWString());
+        QString archiveBase = prefix + QString::fromStdWString(src.filename().wstring());
+
+        if (fs::is_directory(src))
+        {
+            // Recurse into directory and add every file inside
+            for (const auto& de : fs::recursive_directory_iterator(src))
+            {
+                if (de.is_regular_file())
+                {
+                    fs::path rel = de.path().lexically_relative(src);
+                    QString archivePath = archiveBase + "/"
+                        + QString::fromStdWString(rel.wstring());
+                    m_engine->AddFile(de.path().string(), archivePath.toStdString());
+                }
+            }
+        }
+        else if (fs::is_regular_file(src))
+        {
+            m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
+        }
     }
 
     if (!m_engine->Save())
