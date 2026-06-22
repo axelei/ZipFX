@@ -36,7 +36,7 @@ for additional formats like ARJ, DMG, MSI, NSIS, VDI, VHD, VMDK, WIM, and more.
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
 | ZIP | ✅ | ✅ | libzip | In-place modify |
-| 7z | ✅ | ⚠️ | libarchive | Write support stub |
+| 7z | ✅ | ✅ | Bit7z / libarchive | Full write via Bit7z (AES-256, solid, multi-volume), read-only via libarchive fallback |
 | RAR | ✅ | ❌ | libarchive | |
 | RAR5 | ✅ | ❌ | libarchive | |
 | ISO | ✅ | ❌ | libarchive | |
@@ -50,8 +50,11 @@ for additional formats like ARJ, DMG, MSI, NSIS, VDI, VHD, VMDK, WIM, and more.
 
 ### 7-Zip Engine (Bit7z)
 
-The Bit7z backend handles formats not covered by libarchive. It requires the
-7-Zip shared library at runtime:
+The Bit7z backend handles formats not covered by libarchive (ARJ, DMG, MSI, VDI, etc.)
+and provides full **7z creation** with AES-256 encryption, header encryption, solid
+compression, dictionary tuning, and multi-volume support.
+
+It requires the 7-Zip shared library at runtime:
 
 | Platform | Library | Source |
 |----------|---------|--------|
@@ -159,7 +162,7 @@ ArchiveEngine (pure virtual interface)
 │   └── Parameterized with format registration functions
 ├── ZipEngine (libzip)
 ├── TarGzEngine (zlib + manual tar)
-└── Bit7zEngine (7-Zip DLL/SO, fallback)
+└── Bit7zEngine (7-Zip DLL/SO, read + write, fallback for exotic formats)
 ```
 
 Format detection uses magic bytes first, then extension fallback.
