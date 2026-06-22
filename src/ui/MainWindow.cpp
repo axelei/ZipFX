@@ -172,7 +172,8 @@ void MainWindow::setupUI()
     m_treeView->setRootIsDecorated(false);
     m_treeView->setAlternatingRowColors(true);
     m_treeView->setSortingEnabled(false);
-    m_treeView->setEnabled(false); // gray until an archive is opened
+    m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_treeView->setEnabled(false);
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
