@@ -362,8 +362,8 @@ void MainWindow::onNewArchive()
 void MainWindow::onOpenArchive()
 {
     QString path = QFileDialog::getOpenFileName(this, tr("Open Archive"), "",
-        tr("Supported Archives (*.zip *.7z *.rar *.tar *.tgz *.tar.gz);;"
-           "ZIP (*.zip);;7z (*.7z);;RAR (*.rar);;"
+        tr("Supported Archives (*.zip *.7z *.rar *.iso *.cab *.tar *.tgz *.tar.gz);;"
+           "ZIP (*.zip);;7z (*.7z);;RAR (*.rar);;ISO (*.iso);;CAB (*.cab);;"
            "TAR (*.tar *.tgz *.tar.gz);;All (*.*)"));
     if (path.isEmpty()) return;
 

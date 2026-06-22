@@ -29,6 +29,8 @@ static const SigEntry kSignatures[] =
                d[6] == 0x01; }},
     { ArchiveType::Gzip,     2, [](const uint8_t* d, size_t) {
         return d[0] == 0x1F && d[1] == 0x8B; }},
+    { ArchiveType::Cab,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'M' && d[1] == 'S' && d[2] == 'C' && d[3] == 'F'; }},
 };
 
 ArchiveType FileSignature::Detect(std::string_view path)

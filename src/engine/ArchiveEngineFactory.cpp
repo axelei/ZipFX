@@ -5,6 +5,8 @@
 #include "SevenZipEngine.h"
 #include "RarEngine.h"
 #include "Rar5Engine.h"
+#include "IsoEngine.h"
+#include "CabEngine.h"
 #include "FileSignature.h"
 
 #include <algorithm>
@@ -22,17 +24,14 @@ static void ToLowerInPlace(std::string& s)
 static std::string_view Extension(std::string_view path)
 {
     auto pos = path.rfind('.');
-    if (pos == std::string_view::npos)
-    {
-        return {};
-    }
+    if (pos == std::string_view::npos) return {};
     return path.substr(pos);
 }
 
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)
 {
-    // Detect by magic number first — opens any file regardless of extension
+    // Detect by magic number first
     ArchiveType sig = FileSignature::Detect(path);
     switch (sig)
     {
@@ -40,34 +39,30 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     case ArchiveType::SevenZip: return std::make_unique<SevenZipEngine>();
     case ArchiveType::Rar:      return std::make_unique<RarEngine>();
     case ArchiveType::Rar5:     return std::make_unique<Rar5Engine>();
+    case ArchiveType::Cab:      return std::make_unique<CabEngine>();
     case ArchiveType::Gzip:
-    {
-        // Gzip magic alone could be .gz or .tar.gz — treat as TarGzEngine
         return std::make_unique<TarGzEngine>();
-    }
     default: break;
     }
 
-    // Fall back to extension-based detection for formats without unique magic
-    // (e.g. plain .tar files have no universal signature)
+    // Fall back to extension-based detection
     std::string ext(Extension(path));
     ToLowerInPlace(ext);
 
     if (ext == ".zip")   return std::make_unique<ZipEngine>();
     if (ext == ".7z")    return std::make_unique<SevenZipEngine>();
     if (ext == ".rar")   return std::make_unique<RarEngine>();
+    if (ext == ".iso")   return std::make_unique<IsoEngine>();
+    if (ext == ".cab")   return std::make_unique<CabEngine>();
     if (ext == ".tar" || ext == ".tgz" || ext == ".gz")
         return std::make_unique<TarGzEngine>();
 
-    // Check for .tar.gz double extension
     if (path.size() > 7)
     {
         std::string doubleExt(path.substr(path.size() - 7));
         ToLowerInPlace(doubleExt);
         if (doubleExt == ".tar.gz")
-        {
             return std::make_unique<TarGzEngine>();
-        }
     }
 
     return nullptr;
@@ -83,6 +78,8 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
     if (fmt == "7z")    return std::make_unique<SevenZipEngine>();
     if (fmt == "rar")   return std::make_unique<RarEngine>();
     if (fmt == "rar5")  return std::make_unique<Rar5Engine>();
+    if (fmt == "iso")   return std::make_unique<IsoEngine>();
+    if (fmt == "cab")   return std::make_unique<CabEngine>();
     if (fmt == "tar" || fmt == "tgz" || fmt == "tar.gz")
         return std::make_unique<TarGzEngine>();
 
@@ -91,5 +88,5 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
 
 std::vector<std::string> ArchiveEngineFactory::SupportedExtensions()
 {
-    return {".zip", ".7z", ".rar", ".rar5", ".tar", ".tgz", ".tar.gz"};
+    return {".zip", ".7z", ".rar", ".iso", ".cab", ".tar", ".tgz", ".tar.gz"};
 }

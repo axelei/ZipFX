@@ -11,7 +11,9 @@ enum class ArchiveType
     SevenZip,
     Rar,
     Rar5,
-    Gzip
+    Gzip,
+    Cab,
+    Iso
 };
 
 struct FileSignature
