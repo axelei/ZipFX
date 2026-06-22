@@ -551,9 +551,21 @@ void MainWindow::onBeginDrag()
     {
         std::string sp = p.toStdString();
         bool isDir = false;
+
+        // Check for explicit directory entry (e.g. "folder/")
         for (const auto& e : allEntries)
             if (e.path == sp || e.path == sp + "/")
                 { isDir = e.isDirectory; break; }
+
+        // Check for implicit directory (no directory marker in the zip,
+        // but files exist under this prefix)
+        if (!isDir)
+        {
+            std::string prefix = sp + "/";
+            for (const auto& e : allEntries)
+                if (e.path.compare(0, prefix.size(), prefix) == 0)
+                    { isDir = true; break; }
+        }
 
         if (isDir)
         {
