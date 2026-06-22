@@ -696,14 +696,19 @@ void MainWindow::onBeginDrag()
 
     if (filePaths.isEmpty()) return;
 
+    // Strip the current browsing prefix so dropped items appear as the user sees them
+    QString prefix = m_model->currentDir();
+    if (!prefix.isEmpty()) prefix += "/";
+
 #ifdef _WIN32
-    // Windows: VirtualFileDataObject — preserves structure
+    // Windows: VirtualFileDataObject
     VirtualFileDataObject* vfdo = new VirtualFileDataObject();
     for (const auto& fp : filePaths)
     {
         VirtualFileEntry ve;
         std::string fullPath = fp.toStdString();
-        ve.name = QString::fromUtf8(fullPath.c_str()).toStdWString();
+        QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
+        ve.name = dragName.toStdWString();
         for (const auto& e : allEntries)
             if (e.path == fullPath) { ve.size = e.size; break; }
         ve.engine = m_engine.get();
@@ -736,7 +741,8 @@ void MainWindow::onBeginDrag()
         QApplication::processEvents();
 
         std::string fp = filePaths[i].toStdString();
-        QString destPath = tmpRoot + filePaths[i];
+        QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
+        QString destPath = tmpRoot + dragName;
         QDir().mkpath(QFileInfo(destPath).path());
 
         if (m_engine->Extract(fp, destPath.toStdString()))
