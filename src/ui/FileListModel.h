@@ -49,6 +49,7 @@ public:
     Qt::ItemFlags flags(const QModelIndex& index) const override;
     QModelIndex index(int row, int column, const QModelIndex& parent = {}) const override;
     QModelIndex parent(const QModelIndex& index) const override;
+    void sort(int column, Qt::SortOrder order = Qt::AscendingOrder) override;
 
     // Item is accessed by MainWindow via internalPointer()
     struct Item
@@ -72,6 +73,7 @@ signals:
 
 private:
     void rebuild();
+    void sortItems();
     QString relativePath(const QString& full) const;
     QIcon iconForFile(const QString& name, bool isDir) const;
 
@@ -83,6 +85,9 @@ private:
 
     // Cache for file type icons
     mutable QFileIconProvider* m_iconProvider = nullptr;
+
+    int m_sortColumn = 0;
+    Qt::SortOrder m_sortOrder = Qt::AscendingOrder;
 };
 
 #endif

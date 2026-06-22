@@ -241,7 +241,7 @@ void MainWindow::setupUI()
     m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
     m_treeView->setRootIsDecorated(false);
     m_treeView->setAlternatingRowColors(true);
-    m_treeView->setSortingEnabled(false);
+    m_treeView->setSortingEnabled(true);
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_treeView->setEnabled(false);
     m_treeView->header()->setStretchLastSection(false);
@@ -330,15 +330,21 @@ void MainWindow::onNewArchive()
             }
         }
 
-        m_progressDlg->close();
-        delete m_progressDlg;
-        m_progressDlg = nullptr;
+        m_progressDlg->setLabelText(tr("Saving..."));
+        QApplication::processEvents();
 
         if (!m_engine->Save())
         {
+            m_progressDlg->close();
+            delete m_progressDlg;
+            m_progressDlg = nullptr;
             QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
             return;
         }
+
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
     }
 
     m_currentPath = result.path.toStdString();

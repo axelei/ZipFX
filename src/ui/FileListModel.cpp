@@ -112,7 +112,6 @@ void FileListModel::rebuild()
 
     if (m_flatMode)
     {
-        // Flat: all items at root
         for (const auto& e : m_allEntries)
         {
             if (e.name.empty()) continue;
@@ -131,8 +130,6 @@ void FileListModel::rebuild()
     }
     else
     {
-        // Hierarchical: build tree from paths
-        // Add ".." if not at root
         if (!m_currentDir.isEmpty())
         {
             auto* parent = new Item;
@@ -144,18 +141,6 @@ void FileListModel::rebuild()
             m_rootItem->children.push_back(parent);
         }
 
-        // Collect direct children
-        struct ChildInfo {
-            QString displayName;
-            bool    isDir = false;
-            uint64_t size = 0;
-            uint64_t packedSize = 0;
-            uint32_t crc = 0;
-            time_t   modified = 0;
-            QString  fullPath;
-            bool     hasEntry = false;
-        };
-        std::vector<ChildInfo> children;
         std::set<QString> seenDirs;
 
         for (const auto& e : m_allEntries)
@@ -170,56 +155,35 @@ void FileListModel::rebuild()
 
             if (isDir && slash >= 0)
             {
-                // Subdirectory
                 QString dirName = remainder.left(slash);
                 if (seenDirs.insert(dirName).second)
                 {
-                    ChildInfo ci;
-                    ci.displayName = dirName;
-                    ci.isDir = true;
-                    ci.fullPath = m_currentDirPrefix + dirName;
-                    children.push_back(ci);
+                    auto* item = new Item;
+                    item->name = dirName;
+                    item->fullPath = m_currentDirPrefix + dirName;
+                    item->isDir = true;
+                    item->parentItem = m_rootItem;
+                    m_rootItem->children.push_back(item);
                 }
             }
             else if (!e.isDirectory && !remainder.isEmpty())
             {
-                // File
-                ChildInfo ci;
-                ci.displayName = remainder;
-                ci.isDir = false;
-                ci.size = e.size;
-                ci.packedSize = e.packedSize;
-                ci.crc = e.crc;
-                ci.modified = std::chrono::system_clock::to_time_t(e.modified);
-                ci.fullPath = ep;
-                ci.hasEntry = true;
-                children.push_back(ci);
+                auto* item = new Item;
+                item->name = remainder;
+                item->fullPath = ep;
+                item->isDir = false;
+                item->size = e.size;
+                item->packedSize = e.packedSize;
+                item->crc = e.crc;
+                item->modified = std::chrono::system_clock::to_time_t(e.modified);
+                item->hasEntry = true;
+                item->parentItem = m_rootItem;
+                m_rootItem->children.push_back(item);
             }
-        }
-
-        // Sort: directories first, then alphabetically
-        std::sort(children.begin(), children.end(),
-            [](const ChildInfo& a, const ChildInfo& b) {
-                if (a.isDir != b.isDir) return a.isDir > b.isDir;
-                return a.displayName < b.displayName;
-            });
-
-        for (const auto& ci : children)
-        {
-            auto* item = new Item;
-            item->name = ci.displayName;
-            item->fullPath = ci.fullPath;
-            item->isDir = ci.isDir;
-            item->size = ci.size;
-            item->packedSize = ci.packedSize;
-            item->crc = ci.crc;
-            item->modified = ci.modified;
-            item->hasEntry = ci.hasEntry;
-            item->parentItem = m_rootItem;
-            m_rootItem->children.push_back(item);
         }
     }
 
+    sortItems();
     endResetModel();
 }
 
@@ -309,6 +273,60 @@ QModelIndex FileListModel::parent(const QModelIndex& index) const
     if (it == grandpa->children.end()) return {};
     int row = (int)(it - grandpa->children.begin());
     return createIndex(row, 0, item->parentItem);
+}
+
+// ── Sorting ────────────────────────────────────────────────────────────
+void FileListModel::sort(int column, Qt::SortOrder order)
+{
+    m_sortColumn = column;
+    m_sortOrder = order;
+    rebuild();
+}
+
+void FileListModel::sortItems()
+{
+    std::sort(m_rootItem->children.begin(), m_rootItem->children.end(),
+        [this](const Item* a, const Item* b) {
+            // ".." always first
+            if (a->isParent) return true;
+            if (b->isParent) return false;
+
+            // Directories before files
+            if (a->isDir != b->isDir) return a->isDir > b->isDir;
+
+            auto cmp = [&]() -> int {
+                switch (m_sortColumn)
+                {
+                case ColName:
+                    return a->name.compare(b->name, Qt::CaseInsensitive);
+                case ColSize:
+                    if (a->size < b->size) return -1;
+                    if (a->size > b->size) return 1;
+                    return 0;
+                case ColPacked:
+                    if (a->packedSize < b->packedSize) return -1;
+                    if (a->packedSize > b->packedSize) return 1;
+                    return 0;
+                case ColType:
+                    return (a->isDir ? QStringLiteral("Folder") :
+                            a->hasEntry ? QStringLiteral("File") : QString())
+                        .compare(b->isDir ? QStringLiteral("Folder") :
+                                 b->hasEntry ? QStringLiteral("File") : QString(),
+                                 Qt::CaseInsensitive);
+                case ColModified:
+                    if (a->modified < b->modified) return -1;
+                    if (a->modified > b->modified) return 1;
+                    return 0;
+                case ColCRC:
+                    if (a->crc < b->crc) return -1;
+                    if (a->crc > b->crc) return 1;
+                    return 0;
+                }
+                return 0;
+            };
+            int r = cmp();
+            return m_sortOrder == Qt::AscendingOrder ? r < 0 : r > 0;
+        });
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
