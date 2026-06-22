@@ -112,6 +112,17 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # ====================================================================
+# CLI11  –  header-only command-line parser
+# ====================================================================
+FetchContent_Declare(
+    CLI11
+    GIT_REPOSITORY https://github.com/CLIUtils/CLI11.git
+    GIT_TAG        v2.4.2
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(CLI11)
+
+# ====================================================================
 # Version header  –  generated from CMake project version
 # ====================================================================
 configure_file(
@@ -135,6 +146,7 @@ set(ZIPFX_SOURCES
     src/engine/LibarchiveEngine.cpp
     src/engine/FileSignature.cpp
     src/engine/Bit7zEngine.cpp
+    src/cli/CliHandler.cpp
 )
 
 if(WIN32)
@@ -149,6 +161,7 @@ target_include_directories(ZipFX PRIVATE
     ${libzip_SOURCE_DIR}/lib
     ${libzip_BINARY_DIR}/lib
     ${libarchive_SOURCE_DIR}/libarchive
+    ${CLI11_SOURCE_DIR}/include
 )
 
 target_compile_definitions(ZipFX PRIVATE

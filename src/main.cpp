@@ -1,3 +1,6 @@
+#include "cli/CliHandler.h"
+#include "version.h"
+
 #include <QApplication>
 #include <QDir>
 #include <QStandardPaths>
@@ -29,10 +32,28 @@ static QTranslator* LoadAppTranslator(const QString& locale)
 
 int main(int argc, char* argv[])
 {
+    // Detect CLI mode: if any argument is a known subcommand,
+    // dispatch to CLI before initializing Qt
+    if (argc > 1)
+    {
+        // --cli forces CLI mode; subcommands are positional
+        for (int i = 1; i < argc; ++i)
+        {
+            std::string arg(argv[i]);
+            if (arg == "--cli" || arg == "list" || arg == "extract" ||
+                arg == "create" || arg == "test" || arg == "info" ||
+                arg == "--help" || arg == "-h")
+            {
+                return runCli(argc, argv);
+            }
+        }
+    }
+
+    // GUI mode – requires Qt
     QApplication app(argc, argv);
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
-    app.setApplicationVersion("1.0.0");
+    app.setApplicationVersion(ZIPFX_VERSION);
 
     // Load Qt's built-in translations
     {
