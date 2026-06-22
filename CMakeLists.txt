@@ -112,6 +112,8 @@ set(ZIPFX_SOURCES
     src/engine/LibarchiveEngine.cpp
     src/engine/SevenZipEngine.cpp
     src/engine/RarEngine.cpp
+    src/engine/Rar5Engine.cpp
+    src/engine/FileSignature.cpp
 )
 
 if(WIN32)

@@ -4,6 +4,8 @@
 #include "TarGzEngine.h"
 #include "SevenZipEngine.h"
 #include "RarEngine.h"
+#include "Rar5Engine.h"
+#include "FileSignature.h"
 
 #include <algorithm>
 #include <cctype>
@@ -30,6 +32,12 @@ static std::string_view Extension(std::string_view path)
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)
 {
+    // Try magic-signature detection first for formats with ambiguous extensions
+    ArchiveType sig = FileSignature::Detect(path);
+    if (sig == ArchiveType::Rar)  return std::make_unique<RarEngine>();
+    if (sig == ArchiveType::Rar5) return std::make_unique<Rar5Engine>();
+
+    // Fall back to extension-based detection
     std::string ext(Extension(path));
     ToLowerInPlace(ext);
 
@@ -47,7 +55,6 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     }
     if (ext == ".tar" || ext == ".tgz" || ext == ".gz")
     {
-        // .tgz is tar.gz; .gz alone is gzip; treat as tar.gz
         return std::make_unique<TarGzEngine>();
     }
 
@@ -74,6 +81,7 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
     if (fmt == "zip")   return std::make_unique<ZipEngine>();
     if (fmt == "7z")    return std::make_unique<SevenZipEngine>();
     if (fmt == "rar")   return std::make_unique<RarEngine>();
+    if (fmt == "rar5")  return std::make_unique<Rar5Engine>();
     if (fmt == "tar" || fmt == "tgz" || fmt == "tar.gz")
         return std::make_unique<TarGzEngine>();
 
@@ -82,5 +90,5 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
 
 std::vector<std::string> ArchiveEngineFactory::SupportedExtensions()
 {
-    return {".zip", ".7z", ".rar", ".tar", ".tgz", ".tar.gz"};
+    return {".zip", ".7z", ".rar", ".rar5", ".tar", ".tgz", ".tar.gz"};
 }
