@@ -124,6 +124,12 @@ void MainWindow::setupToolbar()
     auto delAct = m_toolbar->addAction(m_icons->del, tr("Delete"));
     connect(delAct, &QAction::triggered, this, &MainWindow::onDelete);
 
+    m_toolbar->addSeparator();
+
+    auto closeAct = m_toolbar->addAction(
+        style()->standardIcon(QStyle::SP_DialogCloseButton), tr("Close"));
+    connect(closeAct, &QAction::triggered, this, &MainWindow::onCloseArchive);
+
     auto findAct = m_toolbar->addAction(m_icons->find, tr("Find"));
     Q_UNUSED(findAct);
 
@@ -155,13 +161,9 @@ void MainWindow::setupUI()
         m_addrBox->setEditText(m_model->currentDir());
     });
 
-    auto closeBtn = new QPushButton(tr("Close"), this);
-    connect(closeBtn, &QPushButton::clicked, this, &MainWindow::onCloseArchive);
-
     addrLayout->addWidget(addrLabel);
     addrLayout->addWidget(m_addrBox, 1);
     addrLayout->addWidget(upBtn);
-    addrLayout->addWidget(closeBtn);
     layout->addLayout(addrLayout);
 
     // File tree
