@@ -152,6 +152,16 @@ if(WIN32 AND MSVC)
     set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
+# Copy libzip.dll next to the executable (shared library)
+if(WIN32)
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${libzip_BINARY_DIR}/lib/libzip.dll"
+            "$<TARGET_FILE_DIR:ZipFX>/"
+        COMMENT "Copying libzip.dll"
+    )
+endif()
+
 # ====================================================================
 # Copy assets and locale next to the executable
 # ====================================================================
