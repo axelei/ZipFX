@@ -4,7 +4,7 @@
 #include <cstdint>
 #include <QDebug>
 
-#ifdef __WXMSW__
+#ifdef _WIN32
 #include <ole2.h>
 #include <vector>
 #include <string>
@@ -84,5 +84,5 @@ private:
 // Helper: start a drag with VirtualFileDataObject (bypasses wxDropSource)
 bool StartVirtualDrag(VirtualFileDataObject* data, HWND hwnd);
 
-#endif // __WXMSW__
+#endif // _WIN32
 #endif

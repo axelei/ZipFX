@@ -1,4 +1,4 @@
-#ifdef __WXMSW__
+#ifdef _WIN32
 
 #include "VirtualFileDataObject.h"
 
@@ -7,6 +7,7 @@
 #include <shlobj.h>
 
 #include "engine/ArchiveEngine.h"
+#include "engine/Logging.h"
 
 // Registered clipboard formats
 static CLIPFORMAT GetFileDescriptorFormat()

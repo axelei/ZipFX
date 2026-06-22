@@ -22,6 +22,8 @@
 #include <QTemporaryDir>
 #include <QPushButton>
 #include <QHeaderView>
+#include <QDateTime>
+#include <QProgressDialog>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -29,7 +31,7 @@
 
 #include <algorithm>
 
-#ifdef Q_OS_WIN
+#ifdef _WIN32
 #include "dnd/VirtualFileDataObject.h"
 #endif
 
@@ -160,8 +162,9 @@ void MainWindow::setupUI()
 
     // File tree
     m_model = new FileListModel(this);
-    m_treeView = new QTreeView(this);
+    m_treeView = new ArchiveTreeView(this);
     m_treeView->setModel(m_model);
+    connect(m_treeView, &ArchiveTreeView::dragStarted, this, &MainWindow::onBeginDrag);
     m_treeView->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_treeView->setDragEnabled(true);
     m_treeView->setDragDropMode(QAbstractItemView::DragOnly);
@@ -532,11 +535,98 @@ void MainWindow::onContextMenu(const QPoint& pos)
 
 void MainWindow::onBeginDrag()
 {
-    // Handled by Qt's drag system via QTreeView::startDrag
-}
+    if (!m_engine) return;
 
-void MainWindow::onExtractFinished()
-{
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.isEmpty()) return;
+
+    auto paths = m_model->selectedEntryPaths(sel);
+    if (paths.isEmpty()) return;
+
+    // Expand directories recursively
+    auto allEntries = m_engine->ListContents();
+    QStringList filePaths;
+
+    for (const auto& p : paths)
+    {
+        std::string sp = p.toStdString();
+        bool isDir = false;
+        for (const auto& e : allEntries)
+            if (e.path == sp || e.path == sp + "/")
+                { isDir = e.isDirectory; break; }
+
+        if (isDir)
+        {
+            std::string prefix = sp + "/";
+            for (const auto& e : allEntries)
+                if (!e.isDirectory && e.path.compare(0, prefix.size(), prefix) == 0)
+                    filePaths << QString::fromUtf8(e.path.c_str());
+        }
+        else
+        {
+            filePaths << p;
+        }
+    }
+
+    if (filePaths.isEmpty()) return;
+
+#ifdef _WIN32
+    // Windows: VirtualFileDataObject — preserves structure
+    VirtualFileDataObject* vfdo = new VirtualFileDataObject();
+    for (const auto& fp : filePaths)
+    {
+        VirtualFileEntry ve;
+        std::string fullPath = fp.toStdString();
+        ve.name = QString::fromUtf8(fullPath.c_str()).toStdWString();
+        for (const auto& e : allEntries)
+            if (e.path == fullPath) { ve.size = e.size; break; }
+        ve.engine = m_engine.get();
+        ve.archivePath = fullPath;
+        vfdo->AddFile(ve);
+    }
+    if (vfdo->GetCount() > 0)
+    {
+        vfdo->AddRef();
+        StartVirtualDrag(vfdo, (HWND)winId());
+    }
+#else
+    // Extract to temp, then QDrag with file URLs
+    QString tmpRoot = QStandardPaths::writableLocation(
+        QStandardPaths::TempLocation) + "/ZipFX_Drag/"
+        + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
+    QDir().mkpath(tmpRoot);
+
+    QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
+        0, filePaths.size(), this);
+    prog.setWindowModality(Qt::WindowModal);
+    prog.show();
+
+    QList<QUrl> urls;
+    for (int i = 0; i < filePaths.size(); ++i)
+    {
+        if (prog.wasCanceled()) break;
+        prog.setValue(i);
+        prog.setLabelText(tr("Extracting: %1").arg(filePaths[i]));
+        QApplication::processEvents();
+
+        std::string fp = filePaths[i].toStdString();
+        QString destPath = tmpRoot + filePaths[i];
+        QDir().mkpath(QFileInfo(destPath).path());
+
+        if (m_engine->Extract(fp, destPath.toStdString()))
+            urls << QUrl::fromLocalFile(destPath);
+    }
+    prog.close();
+
+    if (!urls.isEmpty())
+    {
+        QMimeData* mime = new QMimeData();
+        mime->setUrls(urls);
+        QDrag* drag = new QDrag(this);
+        drag->setMimeData(mime);
+        drag->exec(Qt::CopyAction);
+    }
+#endif
 }
 
 // ── Drag & Drop ────────────────────────────────────────────────────────

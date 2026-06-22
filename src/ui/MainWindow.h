@@ -16,6 +16,24 @@ class ArchiveEngine;
 class FileListModel;
 struct ZipFXIcons;
 
+// Custom tree view that intercepts drag to use VirtualFileDataObject on Windows
+class ArchiveTreeView : public QTreeView
+{
+    Q_OBJECT
+public:
+    explicit ArchiveTreeView(QWidget* parent = nullptr) : QTreeView(parent) {}
+    ~ArchiveTreeView() override = default;
+
+signals:
+    void dragStarted();
+
+protected:
+    void startDrag(Qt::DropActions) override
+    {
+        emit dragStarted();
+    }
+};
+
 class MainWindow : public QMainWindow
 {
     Q_OBJECT
@@ -42,7 +60,6 @@ private slots:
     void onContextMenu(const QPoint& pos);
 
     void onBeginDrag();
-    void onExtractFinished();
 
 private:
     void setupMenus();
@@ -58,8 +75,8 @@ private:
     std::string m_currentPath;
 
     // UI
-    QTreeView*    m_treeView = nullptr;
-    FileListModel* m_model = nullptr;
+    ArchiveTreeView* m_treeView = nullptr;
+    FileListModel*    m_model = nullptr;
     QComboBox*    m_addrBox = nullptr;
     QToolBar*     m_toolbar = nullptr;
     ZipFXIcons*   m_icons = nullptr;
