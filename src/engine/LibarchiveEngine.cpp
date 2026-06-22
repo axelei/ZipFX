@@ -46,7 +46,6 @@ void LibarchiveEngine::Close()
     LOG_DBG("%s: closing %s", FormatName().data(), m_path.c_str());
     if (m_archive)
     {
-        archive_read_close(m_archive);
         archive_read_free(m_archive);
         m_archive = nullptr;
     }
@@ -75,6 +74,8 @@ bool LibarchiveEngine::LoadEntries()
         PostProcessEntry(ae);
 
         m_entries.push_back(std::move(ae));
+
+        archive_read_data_skip(m_archive);
     }
 
     return true;
@@ -89,8 +90,12 @@ std::vector<ArchiveEntry> LibarchiveEngine::ListContents()
 // ── Extraction ─────────────────────────────────────────────────────────
 bool LibarchiveEngine::ExtractAll(std::string_view destPath)
 {
-    // Single pass through the archive instead of open/close per entry
-    archive_read_close(m_archive);
+    if (!m_isOpen) return false;
+
+    // Re-open for a single sequential pass through the archive
+    archive_read_free(m_archive);
+    m_archive = archive_read_new();
+    RegisterFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
         LOG_ERR("%s: failed to open archive for ExtractAll", FormatName().data());
@@ -149,8 +154,10 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
         return {};
     }
 
-    // Re-open from the beginning and scan for the requested entry
-    archive_read_close(m_archive);
+    // Fresh archive to scan for the requested entry
+    archive_read_free(m_archive);
+    m_archive = archive_read_new();
+    RegisterFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
         LOG_ERR("%s: failed to re-open for ReadFile", FormatName().data());
@@ -219,7 +226,6 @@ bool LibarchiveEngine::TestIntegrity(
     {
         if (cancelFlag && cancelFlag())
         {
-            archive_read_close(a);
             archive_read_free(a);
             return false;
         }
@@ -227,14 +233,12 @@ bool LibarchiveEngine::TestIntegrity(
 
         if (archive_read_data_skip(a) != ARCHIVE_OK)
         {
-            archive_read_close(a);
             archive_read_free(a);
             return false;
         }
         current++;
     }
 
-    archive_read_close(a);
     archive_read_free(a);
     return true;
 }
