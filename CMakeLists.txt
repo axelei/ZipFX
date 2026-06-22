@@ -83,6 +83,20 @@ FetchContent_MakeAvailable(libarchive)
 target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 
 # ====================================================================
+# bit7z  –  additional archive formats via 7-Zip engine (ARJ, DEB, DMG,
+#            MSI, NSIS, RPM, VDI, VHD, VMDK, WIM, etc.)
+# ====================================================================
+set(BIT7Z_AUTO_FORMAT       ON  CACHE BOOL "" FORCE)
+set(BIT7Z_USE_NATIVE_STRING OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    bit7z
+    GIT_REPOSITORY https://github.com/rikyoz/bit7z.git
+    GIT_TAG        v4.0.1
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(bit7z)
+
+# ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
 # Common default installation paths per platform.
@@ -119,6 +133,7 @@ set(ZIPFX_SOURCES
     src/engine/XarEngine.cpp
     src/engine/CpioEngine.cpp
     src/engine/FileSignature.cpp
+    src/engine/Bit7zEngine.cpp
 )
 
 if(WIN32)
@@ -143,15 +158,17 @@ target_link_libraries(ZipFX PRIVATE
     zip
     archive_static
     zlibstatic
+    bit7z
     Qt${QT_VERSION_MAJOR}::Widgets
 )
 
 if(WIN32)
     target_link_libraries(ZipFX PRIVATE
-        winmm comctl32 uuid oleacc uxtheme
+        winmm comctl32 oleacc uxtheme
         rpcrt4 shlwapi version imm32
         ole32 oleaut32 powrprof
     )
+    target_link_options(ZipFX PRIVATE "-Wl,--allow-multiple-definition")
 endif()
 
 # ====================================================================

@@ -10,6 +10,7 @@
 #include "LhaEngine.h"
 #include "XarEngine.h"
 #include "CpioEngine.h"
+#include "Bit7zEngine.h"
 #include "FileSignature.h"
 
 #include <algorithm>
@@ -73,6 +74,13 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
         ToLowerInPlace(doubleExt);
         if (doubleExt == ".tar.gz")
             return std::make_unique<TarGzEngine>();
+    }
+
+    // Last resort: Bit7z auto-detection for formats not covered above
+    {
+        auto bit7zEngine = std::make_unique<Bit7zEngine>();
+        if (bit7zEngine->Open(path))
+            return bit7zEngine;
     }
 
     return nullptr;
