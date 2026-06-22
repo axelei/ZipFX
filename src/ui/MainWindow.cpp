@@ -3,6 +3,15 @@
 #include "CreateArchiveDialog.h"
 #include "icons.h"
 
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#include <windows.h>
+// shell32.dll SHChangeNotify for notifying Explorer of association changes
+#define SHCNE_ASSOCCHANGED 0x8000000L
+#define SHCNF_IDLIST 0
+typedef void (WINAPI *SHChangeNotify_t)(LONG, UINT, LPCVOID, LPCVOID);
+#endif
+
 #include <QApplication>
 #include <QMenuBar>
 #include <QMenu>
@@ -1332,6 +1341,15 @@ void MainWindow::registerFileAssociations()
     }
 
     s.setValue("assoc/registered", true);
-    SHChangeNotify(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
+    // Notify Explorer of association changes via dynamic load (avoids MinGW header issues)
+    auto shell32 = LoadLibraryA("shell32.dll");
+    if (shell32)
+    {
+        auto fn = reinterpret_cast<SHChangeNotify_t>(
+            GetProcAddress(shell32, "SHChangeNotify"));
+        if (fn)
+            fn(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
+        FreeLibrary(shell32);
+    }
 }
 #endif
