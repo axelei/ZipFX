@@ -16,7 +16,11 @@ enum class ArchiveType
     Iso,
     Lha,
     Xar,
-    Cpio
+    Cpio,
+    Ar,
+    Vhd,
+    Vmdk,
+    Qcow
 };
 
 struct FileSignature

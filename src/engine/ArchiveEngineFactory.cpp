@@ -80,6 +80,35 @@ static const FormatEntry kFormats[] = {
             std::vector<LibarchiveEngine::FormatRegistrar>{
                 archive_read_support_format_cpio },
             "CPIO"); },                                               false },
+    { "AR",     ".a,.deb",                           ArchiveType::Ar,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_ar },
+            "AR"); },                                                false },
+
+    // ── Disk images (via Bit7z) ───────────────────────
+    // These need 7z.dll; explicit entries give proper FormatName display.
+    { "VHD",    ".vhd,.vhdx",                        ArchiveType::Vhd,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            if (e->isLibraryLoaded()) return std::unique_ptr<ArchiveEngine>(std::move(e));
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
+                std::vector<LibarchiveEngine::FormatRegistrar>{}, "VHD"));
+        },                                                                false },
+    { "VMDK",   ".vmdk",                             ArchiveType::Vmdk,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            if (e->isLibraryLoaded()) return std::unique_ptr<ArchiveEngine>(std::move(e));
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
+                std::vector<LibarchiveEngine::FormatRegistrar>{}, "VMDK"));
+        },                                                                false },
+    { "QCOW",   ".qcow,.qcow2",                      ArchiveType::Qcow,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            if (e->isLibraryLoaded()) return std::unique_ptr<ArchiveEngine>(std::move(e));
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
+                std::vector<LibarchiveEngine::FormatRegistrar>{}, "QCOW"));
+        },                                                                false },
 
     // ── Bit7z fallback (last resort) ──────────────────
     { "Bit7z",  nullptr,                             ArchiveType::Unknown,
