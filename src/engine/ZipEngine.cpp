@@ -28,7 +28,7 @@ bool ZipEngine::Open(std::string_view path)
     m_path = path;
 
     int err = 0;
-    m_zip = zip_open(m_path.c_str(), ZIP_RDONLY, &err);
+    m_zip = zip_open(m_path.c_str(), 0, &err);
     if (!m_zip)
     {
         wxLogDebug("ZipEngine: failed to open %s (error %d)", m_path.c_str(), err);
@@ -309,9 +309,9 @@ bool ZipEngine::Save()
     }
     m_zip = nullptr;
 
-    // Re-open as reader
+    // Re-open for further operations
     int err = 0;
-    m_zip = zip_open(m_path.c_str(), ZIP_RDONLY, &err);
+    m_zip = zip_open(m_path.c_str(), 0, &err);
     if (!m_zip)
     {
         wxLogError("ZipEngine: failed to re-open after save");
