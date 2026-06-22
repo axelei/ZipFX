@@ -210,6 +210,56 @@ if(WIN32)
 endif()
 
 # ====================================================================
+# 7-Zip shared library  –  required by Bit7zEngine at runtime
+# ====================================================================
+if(WIN32)
+    # Common 7-Zip installation paths on Windows
+    set(_7ZIP_DLL_PATHS
+        "C:/Program Files/7-Zip/7z.dll"
+        "C:/Program Files (x86)/7-Zip/7z.dll"
+        "$ENV{ProgramFiles}/7-Zip/7z.dll"
+    )
+    find_file(7ZIP_DLL NAMES 7z.dll PATHS ${_7ZIP_DLL_PATHS} NO_DEFAULT_PATH)
+    if(7ZIP_DLL)
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${7ZIP_DLL}"
+                "$<TARGET_FILE_DIR:ZipFX>/"
+            COMMENT "Copying 7z.dll"
+        )
+        message(STATUS "Found 7z.dll at ${7ZIP_DLL}")
+    else()
+        message(WARNING "7z.dll not found in standard paths. "
+            "Bit7zEngine (DEB, DMG, MSI, VDI, VHD, VMDK, etc.) will be unavailable. "
+            "Install 7-Zip from https://www.7-zip.org/ or copy 7z.dll manually.")
+    endif()
+elseif(APPLE)
+    find_library(7ZIP_LIB NAMES lib7z.so 7z.so)
+    if(7ZIP_LIB)
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${7ZIP_LIB}"
+                "$<TARGET_FILE_DIR:ZipFX>/"
+            COMMENT "Copying lib7z.so"
+        )
+    else()
+        message(WARNING "lib7z.so not found. Install p7zip via 'brew install p7zip'.")
+    endif()
+else()
+    find_library(7ZIP_LIB NAMES lib7z.so 7z.so)
+    if(7ZIP_LIB)
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${7ZIP_LIB}"
+                "$<TARGET_FILE_DIR:ZipFX>/"
+            COMMENT "Copying lib7z.so"
+        )
+    else()
+        message(WARNING "lib7z.so not found. Install p7zip via your package manager.")
+    endif()
+endif()
+
+# ====================================================================
 # ====================================================================
 # CPack
 # ====================================================================
