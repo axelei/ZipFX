@@ -146,6 +146,23 @@ if(WIN32)
 endif()
 
 # ====================================================================
+# Translations  –  generate .qm from .ts at build time
+# ====================================================================
+find_program(QT_LRELEASE lrelease PATHS "${Qt6_DIR}/../../bin" "${Qt6_DIR}/../../../bin")
+if(QT_LRELEASE)
+    file(GLOB TS_FILES "${CMAKE_SOURCE_DIR}/translations/*.ts")
+    foreach(TS_FILE ${TS_FILES})
+        get_filename_component(QM_FILE ${TS_FILE} NAME_WE)
+        set(QM_OUT "${CMAKE_BINARY_DIR}/translations/${QM_FILE}.qm")
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${QT_LRELEASE} ${TS_FILE} -qm ${QM_OUT}
+            COMMENT "Generating ${QM_FILE}.qm"
+        )
+    endforeach()
+    file(COPY ${CMAKE_SOURCE_DIR}/translations DESTINATION ${CMAKE_BINARY_DIR})
+endif()
+
+# ====================================================================
 # Platform settings
 # ====================================================================
 if(WIN32 AND MSVC)

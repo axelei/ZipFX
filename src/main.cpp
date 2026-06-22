@@ -3,6 +3,7 @@
 #include <QStandardPaths>
 #include <QTranslator>
 #include <QLibraryInfo>
+#include <QLocale>
 
 #include "ui/MainWindow.h"
 
@@ -17,6 +18,14 @@ int main(int argc, char* argv[])
     if (qtTranslator.load("qt_" + QLocale::system().name(),
                           QLibraryInfo::path(QLibraryInfo::TranslationsPath)))
         app.installTranslator(&qtTranslator);
+
+    // Load application translations
+    QTranslator appTranslator;
+    QString locale = QLocale::system().name();
+    if (appTranslator.load(QString("zipfx_%1").arg(locale), "translations"))
+        app.installTranslator(&appTranslator);
+    else if (appTranslator.load(locale, "translations"))
+        app.installTranslator(&appTranslator);
 
     MainWindow w;
     w.show();

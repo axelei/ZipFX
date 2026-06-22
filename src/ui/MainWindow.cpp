@@ -24,6 +24,7 @@
 #include <QHeaderView>
 #include <QDateTime>
 #include <QProgressDialog>
+#include <QActionGroup>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -90,6 +91,44 @@ void MainWindow::setupMenus()
     flatAction->setCheckable(true);
     connect(flatAction, &QAction::toggled, this, [this](bool checked) {
         m_model->setFlatMode(checked);
+    });
+
+    optsMenu->addSeparator();
+    auto langMenu = optsMenu->addMenu(tr("&Language"));
+    QActionGroup* langGroup = new QActionGroup(this);
+    langGroup->setExclusive(true);
+
+    auto addLang = [&](const QString& name, const QString& locale) {
+        QAction* act = langMenu->addAction(name);
+        act->setData(locale);
+        act->setCheckable(true);
+        act->setChecked(locale == QLocale::system().name().left(2));
+        langGroup->addAction(act);
+    };
+    addLang(tr("English"), "en");
+    addLang(tr("Spanish"), "es");
+
+    connect(langGroup, &QActionGroup::triggered, this, [this](QAction* act) {
+        QString locale = act->data().toString();
+        // Load and install the selected translator
+        QTranslator* translator = new QTranslator(this);
+        if (translator->load(QString("zipfx_%1").arg(locale), "translations"))
+        {
+            if (m_currentTranslator)
+            {
+                qApp->removeTranslator(m_currentTranslator);
+                delete m_currentTranslator;
+            }
+            m_currentTranslator = translator;
+            qApp->installTranslator(translator);
+            QMessageBox::information(this, tr("Language"),
+                tr("Language changed to %1.\nRestart the application for the change to take full effect.")
+                    .arg(act->text()));
+        }
+        else
+        {
+            delete translator;
+        }
     });
 
     // Help

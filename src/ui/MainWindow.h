@@ -9,6 +9,7 @@
 #include <QToolBar>
 #include <QLabel>
 #include <QProgressDialog>
+#include <QTranslator>
 
 #include <memory>
 
@@ -80,6 +81,9 @@ private:
     QComboBox*    m_addrBox = nullptr;
     QToolBar*     m_toolbar = nullptr;
     ZipFXIcons*   m_icons = nullptr;
+
+    // Translation
+    QTranslator* m_currentTranslator = nullptr;
 
     // Extraction
     QProgressDialog* m_progressDlg = nullptr;
