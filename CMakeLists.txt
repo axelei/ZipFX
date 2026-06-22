@@ -203,52 +203,43 @@ endif()
 
 # ====================================================================
 # 7-Zip shared library  –  required by Bit7zEngine at runtime
+# Searches in this order:
+#   1. ${CMAKE_SOURCE_DIR}/lib/<name>    –  bundled with source
+#   2. System install paths               –  developer machine
+# If not found anywhere, Bit7zEngine won't load and those formats
+# will be unavailable.
 # ====================================================================
-if(WIN32)
-    # Common 7-Zip installation paths on Windows
-    set(_7ZIP_DLL_PATHS
-        "C:/Program Files/7-Zip/7z.dll"
-        "C:/Program Files (x86)/7-Zip/7z.dll"
-        "$ENV{ProgramFiles}/7-Zip/7z.dll"
+find_file(7ZIP_DLL
+    NAMES 7z.dll lib7z.so lib7z.dylib
+    PATHS "${CMAKE_SOURCE_DIR}/lib"
+    NO_DEFAULT_PATH
+)
+if(NOT 7ZIP_DLL AND WIN32)
+    find_file(7ZIP_DLL
+        NAMES 7z.dll
+        PATHS "C:/Program Files/7-Zip" "C:/Program Files (x86)/7-Zip"
+        NO_DEFAULT_PATH
     )
-    find_file(7ZIP_DLL NAMES 7z.dll PATHS ${_7ZIP_DLL_PATHS} NO_DEFAULT_PATH)
-    if(7ZIP_DLL)
-        add_custom_command(TARGET ZipFX POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${7ZIP_DLL}"
-                "$<TARGET_FILE_DIR:ZipFX>/"
-            COMMENT "Copying 7z.dll"
-        )
-        message(STATUS "Found 7z.dll at ${7ZIP_DLL}")
-    else()
-        message(WARNING "7z.dll not found in standard paths. "
-            "Bit7zEngine (DEB, DMG, MSI, VDI, VHD, VMDK, etc.) will be unavailable. "
-            "Install 7-Zip from https://www.7-zip.org/ or copy 7z.dll manually.")
-    endif()
-elseif(APPLE)
-    find_library(7ZIP_LIB NAMES lib7z.so 7z.so)
-    if(7ZIP_LIB)
-        add_custom_command(TARGET ZipFX POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${7ZIP_LIB}"
-                "$<TARGET_FILE_DIR:ZipFX>/"
-            COMMENT "Copying lib7z.so"
-        )
-    else()
-        message(WARNING "lib7z.so not found. Install p7zip via 'brew install p7zip'.")
-    endif()
+endif()
+if(NOT 7ZIP_DLL AND APPLE)
+    find_library(7ZIP_DLL NAMES lib7z.so 7z.so)
+endif()
+if(NOT 7ZIP_DLL AND UNIX)
+    find_library(7ZIP_DLL NAMES lib7z.so 7z.so)
+endif()
+
+if(7ZIP_DLL)
+    get_filename_component(_7ZIP_DLL_FILENAME "${7ZIP_DLL}" NAME)
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${7ZIP_DLL}"
+            "$<TARGET_FILE_DIR:ZipFX>/${_7ZIP_DLL_FILENAME}"
+        COMMENT "Copying ${_7ZIP_DLL_FILENAME}"
+    )
+    message(STATUS "Found 7z library at ${7ZIP_DLL}")
 else()
-    find_library(7ZIP_LIB NAMES lib7z.so 7z.so)
-    if(7ZIP_LIB)
-        add_custom_command(TARGET ZipFX POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${7ZIP_LIB}"
-                "$<TARGET_FILE_DIR:ZipFX>/"
-            COMMENT "Copying lib7z.so"
-        )
-    else()
-        message(WARNING "lib7z.so not found. Install p7zip via your package manager.")
-    endif()
+    message(WARNING "7z.dll/lib7z.so not found. Place it in ${CMAKE_SOURCE_DIR}/lib/ "
+        "or install 7-Zip. Bit7zEngine (DEB, DMG, MSI, VDI, etc.) will be unavailable.")
 endif()
 
 # ====================================================================
