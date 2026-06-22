@@ -68,6 +68,8 @@ bool Bit7zEngine::Open(std::string_view path)
             ArchiveEntry ae;
             ae.name = item.path();
             if (ae.name.empty()) continue;
+            for (auto& c : ae.name)
+                if (c == '\\') c = '/';
 
             ae.path = ae.name;
             ae.size = item.size();
@@ -250,6 +252,9 @@ bool Bit7zEngine::Save()
         {
             ArchiveEntry ae;
             ae.name = item.path();
+            // Normalize backslashes that 7z.dll may have inserted
+            for (auto& c : ae.name)
+                if (c == '\\') c = '/';
             ae.path = ae.name;
             ae.size = item.size();
             ae.packedSize = item.packSize();
