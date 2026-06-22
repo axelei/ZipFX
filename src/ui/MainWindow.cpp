@@ -281,6 +281,51 @@ void MainWindow::onNewArchive()
     }
 
     m_engine = std::move(engine);
+
+    // Auto-add source folder/files if provided
+    if (!result.sourcePath.isEmpty())
+    {
+        fs::path src(result.sourcePath.toStdWString());
+        if (fs::is_directory(src))
+        {
+            int total = 0;
+            for (const auto& de : fs::recursive_directory_iterator(src))
+                if (de.is_regular_file()) total++;
+
+            m_progressDlg = new QProgressDialog(tr("Adding files..."), nullptr,
+                0, total, this);
+            m_progressDlg->setWindowModality(Qt::ApplicationModal);
+            m_progressDlg->show();
+
+            int count = 0;
+            for (const auto& de : fs::recursive_directory_iterator(src))
+            {
+                if (de.is_regular_file())
+                {
+                    fs::path rel = de.path().lexically_relative(src);
+                    m_engine->AddFile(de.path().string(),
+                        rel.string());
+                    m_progressDlg->setValue(++count);
+                    QApplication::processEvents();
+                }
+            }
+            m_progressDlg->close();
+            delete m_progressDlg;
+            m_progressDlg = nullptr;
+        }
+        else if (fs::is_regular_file(src))
+        {
+            m_engine->AddFile(result.sourcePath.toStdString(),
+                src.filename().string());
+        }
+
+        if (!m_engine->Save())
+        {
+            QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+            return;
+        }
+    }
+
     m_currentPath = result.path.toStdString();
     m_addrBox->setEditText(result.path);
     m_treeView->setEnabled(true);
