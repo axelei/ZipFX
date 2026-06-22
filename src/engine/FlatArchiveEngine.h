@@ -1,21 +1,18 @@
-#ifndef ZIPFX_GAME_ARCHIVE_ENGINE_H
-#define ZIPFX_GAME_ARCHIVE_ENGINE_H
+#ifndef ZIPFX_FLAT_ARCHIVE_ENGINE_H
+#define ZIPFX_FLAT_ARCHIVE_ENGINE_H
 
 #include "ArchiveEngine.h"
 
 #include <cstdint>
+#include <functional>
 #include <string>
 #include <vector>
+#include <fstream>
 
-enum class GameFormat { Wad, Pak, Grp };
-
-class GameArchiveEngine : public ArchiveEngine
+class FlatArchiveEngine : public ArchiveEngine
 {
 public:
-    GameArchiveEngine(GameFormat fmt, const char* formatName);
-    ~GameArchiveEngine() override;
-
-    bool Open(std::string_view path) override;
+    ~FlatArchiveEngine() override;
     void Close() override;
 
     std::vector<ArchiveEntry> ListContents() override;
@@ -27,21 +24,25 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
-    std::string_view FormatName() const override { return m_formatName; }
     bool SupportsCreation() const override { return false; }
     bool IsOpen() const override { return m_isOpen; }
 
-private:
-    int findEntry(std::string_view name) const;
-    std::vector<uint8_t> readEntryData(uint32_t offset, uint32_t size) const;
+protected:
+    struct FileEntry { std::string name; uint32_t offset = 0; uint32_t size = 0; };
 
-    struct Entry { std::string name; uint32_t offset = 0; uint32_t size = 0; };
+    bool parse(std::string_view path, const char* formatName,
+               std::function<bool(std::ifstream& f, FileEntry& entry)> readEntry);
 
-    GameFormat m_format;
+    bool parse(std::string_view path, const char* formatName,
+               std::function<bool(std::ifstream& f, std::vector<FileEntry>& entries)> readHeader);
+
     std::string m_formatName;
     std::string m_path;
     bool m_isOpen = false;
-    std::vector<Entry> m_entries;
+    std::vector<FileEntry> m_entries;
+
+private:
+    int findEntry(std::string_view name) const;
 };
 
 #endif
