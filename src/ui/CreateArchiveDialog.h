@@ -6,17 +6,17 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QCheckBox>
-#include <QStackedWidget>
+#include <QStringList>
 
 struct CreateArchiveResult
 {
     QString path;
     QString format;
     int compressionLevel;
-    QString sourcePath;
+    QStringList sourcePaths;
     QString password;
     bool encryptFilenames = false;
-    int volumeSize = 0; // MB, 0 = none
+    int volumeSize = 0;
 };
 
 class CreateArchiveDialog : public QDialog
@@ -28,13 +28,17 @@ public:
 
 private slots:
     void onBrowseDest();
-    void onBrowseSource();
+    void onAddFiles();
+    void onAddFolder();
+    void onClearSources();
     void onFormatChanged(int index);
     void onAccept();
 
 private:
+    void updateSourceDisplay();
     void updateFormatOptions();
 
+    QStringList  m_sourcePaths;
     QLineEdit*   m_sourceEdit = nullptr;
     QLineEdit*   m_pathEdit = nullptr;
     QComboBox*   m_formatCombo = nullptr;

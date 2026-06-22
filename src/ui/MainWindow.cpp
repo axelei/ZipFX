@@ -282,42 +282,57 @@ void MainWindow::onNewArchive()
 
     m_engine = std::move(engine);
 
-    // Auto-add source folder/files if provided
-    if (!result.sourcePath.isEmpty())
+    // Auto-add source items if provided
+    if (!result.sourcePaths.isEmpty())
     {
-        fs::path src(result.sourcePath.toStdWString());
-        if (fs::is_directory(src))
+        int total = 0;
+        for (const auto& sp : result.sourcePaths)
         {
-            int total = 0;
-            for (const auto& de : fs::recursive_directory_iterator(src))
-                if (de.is_regular_file()) total++;
-
-            m_progressDlg = new QProgressDialog(tr("Adding files..."), nullptr,
-                0, total, this);
-            m_progressDlg->setWindowModality(Qt::ApplicationModal);
-            m_progressDlg->show();
-
-            int count = 0;
-            for (const auto& de : fs::recursive_directory_iterator(src))
+            fs::path src(sp.toStdWString());
+            if (fs::is_directory(src))
             {
-                if (de.is_regular_file())
+                for (const auto& de : fs::recursive_directory_iterator(src))
+                    if (de.is_regular_file()) total++;
+            }
+            else if (fs::is_regular_file(src))
+            {
+                total++;
+            }
+        }
+
+        m_progressDlg = new QProgressDialog(tr("Adding files..."), nullptr,
+            0, total, this);
+        m_progressDlg->setWindowModality(Qt::ApplicationModal);
+        m_progressDlg->show();
+
+        int count = 0;
+        for (const auto& sp : result.sourcePaths)
+        {
+            fs::path src(sp.toStdWString());
+            if (fs::is_directory(src))
+            {
+                for (const auto& de : fs::recursive_directory_iterator(src))
                 {
-                    fs::path rel = de.path().lexically_relative(src);
-                    m_engine->AddFile(de.path().string(),
-                        rel.string());
-                    m_progressDlg->setValue(++count);
-                    QApplication::processEvents();
+                    if (de.is_regular_file())
+                    {
+                        fs::path rel = de.path().lexically_relative(src);
+                        m_engine->AddFile(de.path().string(), rel.string());
+                        m_progressDlg->setValue(++count);
+                        QApplication::processEvents();
+                    }
                 }
             }
-            m_progressDlg->close();
-            delete m_progressDlg;
-            m_progressDlg = nullptr;
+            else if (fs::is_regular_file(src))
+            {
+                m_engine->AddFile(src.string(), src.filename().string());
+                m_progressDlg->setValue(++count);
+                QApplication::processEvents();
+            }
         }
-        else if (fs::is_regular_file(src))
-        {
-            m_engine->AddFile(result.sourcePath.toStdString(),
-                src.filename().string());
-        }
+
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
 
         if (!m_engine->Save())
         {

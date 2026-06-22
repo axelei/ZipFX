@@ -13,7 +13,7 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     : QDialog(parent)
 {
     setWindowTitle(tr("New Archive"));
-    resize(480, 380);
+    resize(500, 400);
 
     m_formats = {
         { "ZIP",     true,  false, false },
@@ -24,15 +24,27 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     auto mainLayout = new QVBoxLayout(this);
 
     // ── Source ─────────────────────────────────────────────
-    auto srcLayout = new QHBoxLayout();
-    srcLayout->addWidget(new QLabel(tr("Source:"), this));
+    auto* srcLabel = new QLabel(tr("Source files / folders to compress:"), this);
+    mainLayout->addWidget(srcLabel);
+
+    auto srcRow = new QHBoxLayout();
     m_sourceEdit = new QLineEdit(this);
-    m_sourceEdit->setPlaceholderText(tr("Folder or file to compress (optional)"));
-    srcLayout->addWidget(m_sourceEdit, 1);
-    auto srcBtn = new QPushButton(tr("Browse..."), this);
-    connect(srcBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onBrowseSource);
-    srcLayout->addWidget(srcBtn);
-    mainLayout->addLayout(srcLayout);
+    m_sourceEdit->setReadOnly(true);
+    m_sourceEdit->setPlaceholderText(tr("None selected"));
+    srcRow->addWidget(m_sourceEdit, 1);
+
+    auto* filesBtn = new QPushButton(tr("Add Files..."), this);
+    connect(filesBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onAddFiles);
+    srcRow->addWidget(filesBtn);
+
+    auto* folderBtn = new QPushButton(tr("Add Folder..."), this);
+    connect(folderBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onAddFolder);
+    srcRow->addWidget(folderBtn);
+
+    auto* clearBtn = new QPushButton(tr("Clear"), this);
+    connect(clearBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onClearSources);
+    srcRow->addWidget(clearBtn);
+    mainLayout->addLayout(srcRow);
 
     // ── Destination ────────────────────────────────────────
     auto dstLayout = new QHBoxLayout();
@@ -109,6 +121,59 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     updateFormatOptions();
 }
 
+// ── Source handling ────────────────────────────────────────
+void CreateArchiveDialog::onAddFiles()
+{
+    QStringList files = QFileDialog::getOpenFileNames(this, tr("Select files to compress"));
+    if (files.isEmpty()) return;
+
+    for (const auto& f : files)
+        if (!m_sourcePaths.contains(f))
+            m_sourcePaths.append(f);
+
+    updateSourceDisplay();
+}
+
+void CreateArchiveDialog::onAddFolder()
+{
+    QString dir = QFileDialog::getExistingDirectory(this, tr("Select folder to compress"));
+    if (dir.isEmpty()) return;
+
+    if (!m_sourcePaths.contains(dir))
+        m_sourcePaths.append(dir);
+
+    updateSourceDisplay();
+}
+
+void CreateArchiveDialog::onClearSources()
+{
+    m_sourcePaths.clear();
+    updateSourceDisplay();
+}
+
+void CreateArchiveDialog::updateSourceDisplay()
+{
+    if (m_sourcePaths.isEmpty())
+    {
+        m_sourceEdit->setText(QString());
+        m_sourceEdit->setPlaceholderText(tr("None selected"));
+        return;
+    }
+
+    int files = 0, dirs = 0;
+    for (const auto& p : m_sourcePaths)
+    {
+        QFileInfo fi(p);
+        if (fi.isDir()) dirs++; else files++;
+    }
+
+    QStringList parts;
+    if (files > 0) parts << tr("%1 file(s)").arg(files);
+    if (dirs > 0)  parts << tr("%1 folder(s)").arg(dirs);
+    m_sourceEdit->setText(parts.join(tr(", ")));
+}
+
+// ── Destination ────────────────────────────────────────────
 void CreateArchiveDialog::onBrowseDest()
 {
     int idx = m_formatCombo->currentIndex();
@@ -119,14 +184,7 @@ void CreateArchiveDialog::onBrowseDest()
         m_pathEdit->setText(path);
 }
 
-void CreateArchiveDialog::onBrowseSource()
-{
-    // Let user pick a file or folder
-    auto path = QFileDialog::getExistingDirectory(this, tr("Select folder to compress"));
-    if (!path.isEmpty())
-        m_sourceEdit->setText(path);
-}
-
+// ── Format switching ───────────────────────────────────────
 void CreateArchiveDialog::onFormatChanged(int)
 {
     updateFormatOptions();
@@ -144,6 +202,7 @@ void CreateArchiveDialog::updateFormatOptions()
     m_volumeSpin->setEnabled(fmt.supportsVolumes);
 }
 
+// ── Accept ─────────────────────────────────────────────────
 void CreateArchiveDialog::onAccept()
 {
     if (m_pathEdit->text().trimmed().isEmpty())
@@ -160,7 +219,7 @@ CreateArchiveResult CreateArchiveDialog::result() const
         m_pathEdit->text(),
         m_formats[m_formatCombo->currentIndex()].name,
         m_levelSpin->value(),
-        m_sourceEdit->text(),
+        m_sourcePaths,
         m_passwordEdit->text(),
         m_encryptNamesCheck->isChecked(),
         m_volumeSpin->value()
