@@ -31,6 +31,15 @@ static const SigEntry kSignatures[] =
         return d[0] == 0x1F && d[1] == 0x8B; }},
     { ArchiveType::Cab,      4, [](const uint8_t* d, size_t) {
         return d[0] == 'M' && d[1] == 'S' && d[2] == 'C' && d[3] == 'F'; }},
+    { ArchiveType::Xar,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'x' && d[1] == 'a' && d[2] == 'r' && d[3] == '!'; }},
+    { ArchiveType::Cpio,     6, [](const uint8_t* d, size_t) {
+        return (d[0] == '0' && d[1] == '7' && d[2] == '0' && d[3] == '7' &&
+                d[4] == '0' && d[5] == '7') ||
+               (d[0] == '0' && d[1] == '7' && d[2] == '0' && d[3] == '7' &&
+                d[4] == '0' && d[5] == '1'); }},
+    { ArchiveType::Lha,      7, [](const uint8_t* d, size_t) {
+        return d[2] == '-' && d[3] == 'l' && d[6] == '-'; }},
 };
 
 ArchiveType FileSignature::Detect(std::string_view path)

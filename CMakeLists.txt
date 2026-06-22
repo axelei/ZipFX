@@ -115,6 +115,9 @@ set(ZIPFX_SOURCES
     src/engine/Rar5Engine.cpp
     src/engine/IsoEngine.cpp
     src/engine/CabEngine.cpp
+    src/engine/LhaEngine.cpp
+    src/engine/XarEngine.cpp
+    src/engine/CpioEngine.cpp
     src/engine/FileSignature.cpp
 )
 

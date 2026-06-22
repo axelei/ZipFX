@@ -7,6 +7,9 @@
 #include "Rar5Engine.h"
 #include "IsoEngine.h"
 #include "CabEngine.h"
+#include "LhaEngine.h"
+#include "XarEngine.h"
+#include "CpioEngine.h"
 #include "FileSignature.h"
 
 #include <algorithm>
@@ -40,6 +43,9 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     case ArchiveType::Rar:      return std::make_unique<RarEngine>();
     case ArchiveType::Rar5:     return std::make_unique<Rar5Engine>();
     case ArchiveType::Cab:      return std::make_unique<CabEngine>();
+    case ArchiveType::Lha:      return std::make_unique<LhaEngine>();
+    case ArchiveType::Xar:      return std::make_unique<XarEngine>();
+    case ArchiveType::Cpio:     return std::make_unique<CpioEngine>();
     case ArchiveType::Gzip:
         return std::make_unique<TarGzEngine>();
     default: break;
@@ -54,6 +60,10 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     if (ext == ".rar")   return std::make_unique<RarEngine>();
     if (ext == ".iso")   return std::make_unique<IsoEngine>();
     if (ext == ".cab")   return std::make_unique<CabEngine>();
+    if (ext == ".lzh" || ext == ".lha")
+        return std::make_unique<LhaEngine>();
+    if (ext == ".xar")   return std::make_unique<XarEngine>();
+    if (ext == ".cpio")  return std::make_unique<CpioEngine>();
     if (ext == ".tar" || ext == ".tgz" || ext == ".gz")
         return std::make_unique<TarGzEngine>();
 
@@ -80,6 +90,10 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
     if (fmt == "rar5")  return std::make_unique<Rar5Engine>();
     if (fmt == "iso")   return std::make_unique<IsoEngine>();
     if (fmt == "cab")   return std::make_unique<CabEngine>();
+    if (fmt == "lha" || fmt == "lzh")
+        return std::make_unique<LhaEngine>();
+    if (fmt == "xar")   return std::make_unique<XarEngine>();
+    if (fmt == "cpio")  return std::make_unique<CpioEngine>();
     if (fmt == "tar" || fmt == "tgz" || fmt == "tar.gz")
         return std::make_unique<TarGzEngine>();
 
@@ -88,5 +102,6 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
 
 std::vector<std::string> ArchiveEngineFactory::SupportedExtensions()
 {
-    return {".zip", ".7z", ".rar", ".iso", ".cab", ".tar", ".tgz", ".tar.gz"};
+    return {".zip", ".7z", ".rar", ".iso", ".cab", ".lzh", ".lha",
+            ".xar", ".cpio", ".tar", ".tgz", ".tar.gz"};
 }
