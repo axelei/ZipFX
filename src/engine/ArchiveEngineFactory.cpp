@@ -2,114 +2,177 @@
 
 #include "ZipEngine.h"
 #include "TarGzEngine.h"
-#include "SevenZipEngine.h"
-#include "RarEngine.h"
-#include "Rar5Engine.h"
-#include "IsoEngine.h"
-#include "CabEngine.h"
-#include "LhaEngine.h"
-#include "XarEngine.h"
-#include "CpioEngine.h"
 #include "Bit7zEngine.h"
+#include "LibarchiveEngine.h"
 #include "FileSignature.h"
+
+#include <archive.h>
 
 #include <algorithm>
 #include <cctype>
+#include <cstring>
+#include <functional>
 #include <string_view>
+#include <vector>
 
-static void ToLowerInPlace(std::string& s)
+namespace {
+
+struct FormatEntry
+{
+    const char* name;
+    const char* extensions;        // comma-separated, e.g. ".lzh,.lha"
+    ArchiveType magicType;         // ArchiveType for magic detection, or Unknown
+    std::function<std::unique_ptr<ArchiveEngine>()> create;
+    bool supportsCreation;
+};
+
+// Helper: registry of all supported archive formats
+static const FormatEntry kFormats[] = {
+    // ── Native engines ─────────────────────────────────
+    { "ZIP",    ".zip",                              ArchiveType::Zip,
+        []() { return std::make_unique<ZipEngine>(); },              true  },
+    { "TAR.GZ", ".tar,.tgz,.gz,.tar.gz",             ArchiveType::Gzip,
+        []() { return std::make_unique<TarGzEngine>(); },            true  },
+
+    // ── Libarchive-based engines ──────────────────────
+    { "7z",     ".7z",                               ArchiveType::SevenZip,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_7zip },
+            "7z", true, "LZMA2"); },                                 true  },
+    { "RAR",    ".rar",                              ArchiveType::Rar,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_rar,
+                archive_read_support_format_rar5 },
+            "RAR"); },                                                false },
+    { "ISO",    ".iso",                              ArchiveType::Iso,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_iso9660 },
+            "ISO"); },                                                false },
+    { "CAB",    ".cab",                              ArchiveType::Cab,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_cab },
+            "CAB"); },                                                false },
+    { "LHA",    ".lzh,.lha",                         ArchiveType::Lha,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_lha },
+            "LHA"); },                                                false },
+    { "XAR",    ".xar",                              ArchiveType::Xar,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_xar },
+            "XAR"); },                                                false },
+    { "CPIO",   ".cpio",                             ArchiveType::Cpio,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_cpio },
+            "CPIO"); },                                               false },
+
+    // ── Bit7z fallback (last resort) ──────────────────
+    { "Bit7z",  nullptr,                             ArchiveType::Unknown,
+        []() { return std::make_unique<Bit7zEngine>(); },             false },
+};
+
+static void toLowerInPlace(std::string& s)
 {
     for (auto& c : s)
-    {
         c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
-    }
 }
 
-static std::string_view Extension(std::string_view path)
+static bool extMatch(const char* pattern, const std::string& ext)
 {
-    auto pos = path.rfind('.');
-    if (pos == std::string_view::npos) return {};
-    return path.substr(pos);
+    if (!pattern) return false;
+    const char* p = pattern;
+    while (*p)
+    {
+        const char* end = std::strchr(p, ',');
+        if (!end) end = p + std::strlen(p);
+        if (static_cast<size_t>(end - p) == ext.size() &&
+            std::equal(p, end, ext.begin(),
+                [](char a, char b) { return std::tolower(a) == std::tolower(b); }))
+            return true;
+        p = end + (*end ? 1 : 0);
+    }
+    return false;
 }
+
+} // anonymous namespace
 
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)
 {
-    // Detect by magic number first
+    // Magic-number detection
     ArchiveType sig = FileSignature::Detect(path);
-    switch (sig)
+    if (sig != ArchiveType::Unknown)
     {
-    case ArchiveType::Zip:      return std::make_unique<ZipEngine>();
-    case ArchiveType::SevenZip: return std::make_unique<SevenZipEngine>();
-    case ArchiveType::Rar:      return std::make_unique<RarEngine>();
-    case ArchiveType::Rar5:     return std::make_unique<Rar5Engine>();
-    case ArchiveType::Cab:      return std::make_unique<CabEngine>();
-    case ArchiveType::Lha:      return std::make_unique<LhaEngine>();
-    case ArchiveType::Xar:      return std::make_unique<XarEngine>();
-    case ArchiveType::Cpio:     return std::make_unique<CpioEngine>();
-    case ArchiveType::Gzip:
-        return std::make_unique<TarGzEngine>();
-    default: break;
+        for (const auto& fmt : kFormats)
+        {
+            if (fmt.magicType == sig)
+                return fmt.create();
+        }
     }
 
-    // Fall back to extension-based detection
-    std::string ext(Extension(path));
-    ToLowerInPlace(ext);
+    // Extension-based detection
+    auto dot = path.rfind('.');
+    if (dot == std::string_view::npos)
+        return kFormats[std::size(kFormats) - 1].create(); // try Bit7z
 
-    if (ext == ".zip")   return std::make_unique<ZipEngine>();
-    if (ext == ".7z")    return std::make_unique<SevenZipEngine>();
-    if (ext == ".rar")   return std::make_unique<RarEngine>();
-    if (ext == ".iso")   return std::make_unique<IsoEngine>();
-    if (ext == ".cab")   return std::make_unique<CabEngine>();
-    if (ext == ".lzh" || ext == ".lha")
-        return std::make_unique<LhaEngine>();
-    if (ext == ".xar")   return std::make_unique<XarEngine>();
-    if (ext == ".cpio")  return std::make_unique<CpioEngine>();
-    if (ext == ".tar" || ext == ".tgz" || ext == ".gz")
-        return std::make_unique<TarGzEngine>();
+    std::string ext(path.substr(dot));
+    toLowerInPlace(ext);
 
+    // Check double extension .tar.gz
     if (path.size() > 7)
     {
         std::string doubleExt(path.substr(path.size() - 7));
-        ToLowerInPlace(doubleExt);
+        toLowerInPlace(doubleExt);
         if (doubleExt == ".tar.gz")
-            return std::make_unique<TarGzEngine>();
+            return kFormats[1].create(); // TAR.GZ
     }
 
-    // Last resort: Bit7z auto-detection for formats not covered above
+    for (const auto& fmt : kFormats)
     {
-        auto bit7zEngine = std::make_unique<Bit7zEngine>();
-        if (bit7zEngine->Open(path))
-            return bit7zEngine;
+        if (extMatch(fmt.extensions, ext))
+            return fmt.create();
     }
 
-    return nullptr;
+    // Last resort: Bit7z
+    return kFormats[std::size(kFormats) - 1].create();
 }
 
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(
     std::string_view format)
 {
     std::string fmt(format);
-    ToLowerInPlace(fmt);
+    toLowerInPlace(fmt);
 
-    if (fmt == "zip")   return std::make_unique<ZipEngine>();
-    if (fmt == "7z")    return std::make_unique<SevenZipEngine>();
-    if (fmt == "rar")   return std::make_unique<RarEngine>();
-    if (fmt == "rar5")  return std::make_unique<Rar5Engine>();
-    if (fmt == "iso")   return std::make_unique<IsoEngine>();
-    if (fmt == "cab")   return std::make_unique<CabEngine>();
-    if (fmt == "lha" || fmt == "lzh")
-        return std::make_unique<LhaEngine>();
-    if (fmt == "xar")   return std::make_unique<XarEngine>();
-    if (fmt == "cpio")  return std::make_unique<CpioEngine>();
-    if (fmt == "tar" || fmt == "tgz" || fmt == "tar.gz")
-        return std::make_unique<TarGzEngine>();
-
+    for (const auto& entry : kFormats)
+    {
+        std::string name(entry.name);
+        toLowerInPlace(name);
+        if (name == fmt)
+            return entry.create();
+    }
     return nullptr;
 }
 
 std::vector<std::string> ArchiveEngineFactory::SupportedExtensions()
 {
-    return {".zip", ".7z", ".rar", ".iso", ".cab", ".lzh", ".lha",
-            ".xar", ".cpio", ".tar", ".tgz", ".tar.gz"};
+    std::vector<std::string> result;
+    for (const auto& fmt : kFormats)
+    {
+        if (!fmt.extensions) continue;
+        const char* p = fmt.extensions;
+        while (*p)
+        {
+            const char* end = std::strchr(p, ',');
+            if (!end) end = p + std::strlen(p);
+            result.emplace_back(p, end);
+            p = end + (*end ? 1 : 0);
+        }
+    }
+    return result;
 }

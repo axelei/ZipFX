@@ -361,11 +361,14 @@ void MainWindow::onNewArchive()
 
 void MainWindow::onOpenArchive()
 {
-    QString path = QFileDialog::getOpenFileName(this, tr("Open Archive"), "",
-        tr("Supported Archives (*.zip *.7z *.rar *.iso *.cab *.lzh *.lha *.xar *.cpio *.tar *.tgz *.tar.gz);;"
-           "ZIP (*.zip);;7z (*.7z);;RAR (*.rar);;ISO (*.iso);;CAB (*.cab);;"
-           "LHA (*.lzh *.lha);;XAR (*.xar);;CPIO (*.cpio);;"
-           "TAR (*.tar *.tgz *.tar.gz);;All (*.*)"));
+    auto extList = ArchiveEngineFactory::SupportedExtensions();
+    QString filter = "Supported Archives (";
+    for (const auto& e : extList)
+        filter += "*" + QString::fromStdString(e) + " ";
+    filter.chop(1);
+    filter += ");;All (*.*)";
+
+    QString path = QFileDialog::getOpenFileName(this, tr("Open Archive"), "", filter);
     if (path.isEmpty()) return;
 
     openArchive(path);

@@ -4,6 +4,7 @@
 #include "ArchiveEngine.h"
 
 #include <functional>
+#include <vector>
 
 struct archive;
 struct archive_entry;
@@ -11,9 +12,15 @@ struct archive_entry;
 class LibarchiveEngine : public ArchiveEngine
 {
 public:
+    using FormatRegistrar = int (*)(struct archive*);
+
+    LibarchiveEngine(std::vector<FormatRegistrar> registrars,
+                     const char* formatName,
+                     bool supportsCreation = false,
+                     const char* compressionMethod = nullptr);
     ~LibarchiveEngine() override;
 
-    // Inherited from ArchiveEngine — shared implementations
+    bool Open(std::string_view path) override;
     void Close() override;
     std::vector<ArchiveEntry> ListContents() override;
     bool ExtractAll(std::string_view destPath) override;
@@ -22,23 +29,23 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    std::string_view FormatName() const override { return m_formatName; }
+    bool SupportsCreation() const override { return m_supportsCreation; }
     bool IsOpen() const override { return m_isOpen; }
-    bool SupportsCreation() const override { return false; }
 
-protected:
+private:
+    bool openArchive(std::string_view path);
+    bool LoadEntries();
+    void registerFormat(struct archive* a);
+
     struct archive* m_archive = nullptr;
     std::string m_path;
+    std::string m_formatName;
+    std::string m_compressionMethod;
     bool m_isOpen = false;
+    bool m_supportsCreation = false;
+    std::vector<FormatRegistrar> m_registrars;
     std::vector<ArchiveEntry> m_entries;
-
-    bool OpenInternal(std::string_view path);
-    bool LoadEntries();
-
-    // Subclasses register their format here
-    virtual void RegisterFormat(struct archive* a) = 0;
-
-    // Hook for subclass-specific entry fields
-    virtual void PostProcessEntry(ArchiveEntry& entry) {}
 };
 
 #endif

@@ -12,12 +12,30 @@
 namespace fs = std::filesystem;
 
 // ── Lifecycle ──────────────────────────────────────────────────────────
-LibarchiveEngine::~LibarchiveEngine()
+LibarchiveEngine::LibarchiveEngine(
+    std::vector<FormatRegistrar> registrars,
+    const char* formatName,
+    bool supportsCreation,
+    const char* compressionMethod)
+    : m_formatName(formatName)
+    , m_compressionMethod(compressionMethod ? compressionMethod : "")
+    , m_supportsCreation(supportsCreation)
+    , m_registrars(std::move(registrars))
 {
-    LibarchiveEngine::Close();
 }
 
-bool LibarchiveEngine::OpenInternal(std::string_view path)
+LibarchiveEngine::~LibarchiveEngine()
+{
+    Close();
+}
+
+void LibarchiveEngine::registerFormat(struct archive* a)
+{
+    for (auto reg : m_registrars)
+        reg(a);
+}
+
+bool LibarchiveEngine::openArchive(std::string_view path)
 {
     if (m_isOpen)
     {
@@ -26,19 +44,24 @@ bool LibarchiveEngine::OpenInternal(std::string_view path)
     m_path = path;
 
     m_archive = archive_read_new();
-    RegisterFormat(m_archive);
+    registerFormat(m_archive);
 
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
-        LOG_ERR("%s: failed to open %s", FormatName().data(), m_path.c_str());
+        LOG_ERR("%s: failed to open %s", m_formatName.c_str(), m_path.c_str());
         archive_read_free(m_archive);
         m_archive = nullptr;
         return false;
     }
 
     m_isOpen = true;
-    LOG_DBG("%s: opened %s", FormatName().data(), m_path.c_str());
+    LOG_DBG("%s: opened %s", m_formatName.c_str(), m_path.c_str());
     return LoadEntries();
+}
+
+bool LibarchiveEngine::Open(std::string_view path)
+{
+    return openArchive(path);
 }
 
 void LibarchiveEngine::Close()
@@ -70,7 +93,7 @@ bool LibarchiveEngine::LoadEntries()
         time_t mtime = archive_entry_mtime(entry);
         ae.modified = std::chrono::system_clock::from_time_t(mtime);
 
-        PostProcessEntry(ae);
+        ae.compressionMethod = m_compressionMethod;
 
         m_entries.push_back(std::move(ae));
     }
@@ -92,10 +115,10 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
     // Re-open for a single sequential pass through the archive
     archive_read_free(m_archive);
     m_archive = archive_read_new();
-    RegisterFormat(m_archive);
+    registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
-        LOG_ERR("%s: failed to open archive for ExtractAll", FormatName().data());
+        LOG_ERR("%s: failed to open archive for ExtractAll", m_formatName.c_str());
         archive_read_free(m_archive);
         m_archive = nullptr;
         m_isOpen = false;
@@ -123,7 +146,7 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
         std::ofstream out(fullPath, std::ios::binary);
         if (!out)
         {
-            LOG_ERR("%s: cannot create %s", FormatName().data(), fullPath.string().c_str());
+            LOG_ERR("%s: cannot create %s", m_formatName.c_str(), fullPath.string().c_str());
             archive_read_free(m_archive);
             m_archive = nullptr;
             m_isOpen = false;
@@ -139,7 +162,7 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
 
         if (bytesRead < 0)
         {
-            LOG_WARN("%s: archive_read_data error for %s", FormatName().data(), name.c_str());
+            LOG_WARN("%s: archive_read_data error for %s", m_formatName.c_str(), name.c_str());
             archive_read_free(m_archive);
             m_archive = nullptr;
             m_isOpen = false;
@@ -157,13 +180,12 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
         return {};
     }
 
-    // Fresh archive to scan for the requested entry
     archive_read_free(m_archive);
     m_archive = archive_read_new();
-    RegisterFormat(m_archive);
+    registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
-        LOG_ERR("%s: failed to re-open for ReadFile", FormatName().data());
+        LOG_ERR("%s: failed to re-open for ReadFile", m_formatName.c_str());
         archive_read_free(m_archive);
         m_archive = nullptr;
         m_isOpen = false;
@@ -192,7 +214,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
             if (bytesRead < 0)
             {
                 LOG_WARN("%s: archive_read_data failed: %s",
-                         FormatName().data(), archive_error_string(m_archive));
+                         m_formatName.c_str(), archive_error_string(m_archive));
                 return {};
             }
 
@@ -203,7 +225,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
         archive_read_data_skip(m_archive);
     }
 
-    LOG_WARN("%s: entry '%s' not found", FormatName().data(), name.c_str());
+    LOG_WARN("%s: entry '%s' not found", m_formatName.c_str(), name.c_str());
     return {};
 }
 
@@ -213,7 +235,7 @@ bool LibarchiveEngine::TestIntegrity(
     std::function<bool()> cancelFlag)
 {
     struct archive* a = archive_read_new();
-    RegisterFormat(a);
+    registerFormat(a);
 
     if (archive_read_open_filename(a, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
