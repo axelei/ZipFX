@@ -89,6 +89,21 @@ FetchContent_MakeAvailable(libarchive)
 target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 
 # ====================================================================
+# adflib  –  Amiga Disk File format (.adf)
+# ====================================================================
+set(ADFLIB_WARNINGS OFF CACHE BOOL "" FORCE)
+set(ADFLIB_TESTS OFF CACHE BOOL "" FORCE)
+set(ADFLIB_EXAMPLES OFF CACHE BOOL "" FORCE)
+set(ADFLIB_DEV_NATIVE OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    adflib
+    GIT_REPOSITORY https://github.com/adflib/ADFlib.git
+    GIT_TAG        v0.10.7
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(adflib)
+
+# ====================================================================
 # bit7z  –  additional archive formats via 7-Zip engine (ARJ, DEB, DMG,
 #            MSI, NSIS, RPM, VDI, VHD, VMDK, WIM, etc.)
 # ====================================================================
@@ -153,6 +168,7 @@ set(ZIPFX_SOURCES
     src/engine/LibarchiveEngine.cpp
     src/engine/FileSignature.cpp
     src/engine/Bit7zEngine.cpp
+    src/engine/AdfEngine.cpp
     src/cli/CliHandler.cpp
 )
 
@@ -171,6 +187,7 @@ target_include_directories(ZipFX PRIVATE
     ${libzip_BINARY_DIR}/lib
     ${libarchive_SOURCE_DIR}/libarchive
     ${CLI11_SOURCE_DIR}/include
+    ${adflib_SOURCE_DIR}/src
 )
 
 target_compile_definitions(ZipFX PRIVATE
@@ -183,6 +200,7 @@ target_link_libraries(ZipFX PRIVATE
     archive_static
     zlibstatic
     bit7z
+    adf
     Qt${QT_VERSION_MAJOR}::Widgets
 )
 

@@ -3,6 +3,7 @@
 #include "ZipEngine.h"
 #include "TarGzEngine.h"
 #include "Bit7zEngine.h"
+#include "AdfEngine.h"
 #include "LibarchiveEngine.h"
 #include "FileSignature.h"
 
@@ -85,6 +86,8 @@ static const FormatEntry kFormats[] = {
             std::vector<LibarchiveEngine::FormatRegistrar>{
                 archive_read_support_format_ar },
             "AR"); },                                                false },
+    { "ADF",    ".adf,.adz",                         ArchiveType::Adf,
+        []() { return std::make_unique<AdfEngine>(); },              false },
 
     // ── Disk images (via Bit7z) ───────────────────────
     // These need 7z.dll; explicit entries give proper FormatName display.
