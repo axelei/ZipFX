@@ -27,20 +27,20 @@ bool SevenZipEngine::Open(std::string_view path)
 
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
-        wxLogError("SevenZipEngine: failed to open %s", m_path.c_str());
+        LOG_ERR("SevenZipEngine: failed to open %s", m_path.c_str());
         archive_read_free(m_archive);
         m_archive = nullptr;
         return false;
     }
 
     m_isOpen = true;
-    wxLogDebug("SevenZipEngine: opened %s", m_path.c_str());
+    LOG_DBG("SevenZipEngine: opened %s", m_path.c_str());
     return LoadEntries();
 }
 
 void SevenZipEngine::Close()
 {
-    wxLogDebug("SevenZipEngine: closing %s", m_path.c_str());
+    LOG_DBG("SevenZipEngine: closing %s", m_path.c_str());
     if (m_archive)
     {
         archive_read_close(m_archive);

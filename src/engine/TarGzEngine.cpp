@@ -145,7 +145,7 @@ bool TarGzEngine::Open(std::string_view path)
     m_modified = false;
     m_entries.clear();
 
-    wxLogDebug("TarGzEngine: reading entries from %s", m_path.c_str());
+    LOG_DBG("TarGzEngine: reading entries from %s", m_path.c_str());
 
     // Read all entries
     TarHeader hdr;
@@ -198,7 +198,7 @@ bool TarGzEngine::Open(std::string_view path)
         }
     }
 
-    wxLogDebug("TarGzEngine: loaded %zu entries", m_entries.size());
+    LOG_DBG("TarGzEngine: loaded %zu entries", m_entries.size());
     return true;
 }
 
@@ -359,12 +359,12 @@ bool TarGzEngine::Save()
         return true;
     }
 
-    wxLogDebug("TarGzEngine: saving %s (%zu queued files)", m_path.c_str(), m_entryQueue.size());
+    LOG_DBG("TarGzEngine: saving %s (%zu queued files)", m_path.c_str(), m_entryQueue.size());
 
     gzFile out = gzopen(m_path.c_str(), "wb");
     if (!out)
     {
-        wxLogError("TarGzEngine: cannot write %s", m_path.c_str());
+        LOG_ERR("TarGzEngine: cannot write %s", m_path.c_str());
         return false;
     }
 
@@ -392,19 +392,19 @@ bool TarGzEngine::Save()
         }
         if (name.size() >= TAR_NAME_SIZE)
         {
-            wxLogWarning("TarGzEngine: filename too long, truncated: %s", name.c_str());
+            LOG_WARN("TarGzEngine: filename too long, truncated: %s", name.c_str());
             name.resize(TAR_NAME_SIZE - 1);
         }
         if (prefix.size() >= TAR_PREFIX_SIZE)
         {
-            wxLogWarning("TarGzEngine: path too long, truncated: %s", prefix.c_str());
+            LOG_WARN("TarGzEngine: path too long, truncated: %s", prefix.c_str());
             prefix.resize(TAR_PREFIX_SIZE - 1);
         }
 
         std::ifstream in(qe.srcPath, std::ios::binary | std::ios::ate);
         if (!in)
         {
-            wxLogWarning("TarGzEngine: cannot read %s", qe.srcPath.c_str());
+            LOG_WARN("TarGzEngine: cannot read %s", qe.srcPath.c_str());
             continue;
         }
 
@@ -440,7 +440,7 @@ bool TarGzEngine::Save()
     gzwrite(out, endBlock.data(), static_cast<unsigned int>(endBlock.size()));
 
     gzclose(out);
-    wxLogDebug("TarGzEngine: saved successfully");
+    LOG_DBG("TarGzEngine: saved successfully");
     return true;
 }
 

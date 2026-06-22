@@ -31,14 +31,14 @@ bool ZipEngine::Open(std::string_view path)
     m_zip = zip_open(m_path.c_str(), 0, &err);
     if (!m_zip)
     {
-        wxLogDebug("ZipEngine: failed to open %s (error %d)", m_path.c_str(), err);
+        LOG_DBG("ZipEngine: failed to open %s (error %d)", m_path.c_str(), err);
         return false;
     }
 
     m_isNew = false;
     m_modified = false;
     LoadEntries();
-    wxLogDebug("ZipEngine: opened %s (%zu entries)", m_path.c_str(), m_entries.size());
+    LOG_DBG("ZipEngine: opened %s (%zu entries)", m_path.c_str(), m_entries.size());
     return true;
 }
 
@@ -51,14 +51,14 @@ bool ZipEngine::Create(std::string_view path)
     m_zip = zip_open(m_path.c_str(), ZIP_CREATE | ZIP_TRUNCATE, &err);
     if (!m_zip)
     {
-        wxLogError("ZipEngine: failed to create %s (error %d)", m_path.c_str(), err);
+        LOG_ERR("ZipEngine: failed to create %s (error %d)", m_path.c_str(), err);
         return false;
     }
 
     m_isNew = true;
     m_modified = false;
     m_entries.clear();
-    wxLogDebug("ZipEngine: created %s", m_path.c_str());
+    LOG_DBG("ZipEngine: created %s", m_path.c_str());
     return true;
 }
 
@@ -191,7 +191,7 @@ bool ZipEngine::ExtractAll(std::string_view destPath)
 
         if (!Extract(entry.name, std::string(destPath) + "/" + entry.name))
         {
-            wxLogWarning("ZipEngine: failed to extract %s", entry.name.c_str());
+            LOG_WARN("ZipEngine: failed to extract %s", entry.name.c_str());
         }
     }
     return true;
@@ -254,7 +254,7 @@ bool ZipEngine::RemoveEntry(std::string_view entryName)
 
     if (zip_delete(m_zip, idx) != 0)
     {
-        wxLogWarning("ZipEngine: failed to delete %s", name.c_str());
+        LOG_WARN("ZipEngine: failed to delete %s", name.c_str());
         return false;
     }
 
@@ -273,7 +273,7 @@ bool ZipEngine::Save()
             pa.srcPath.c_str(), 0, -1, nullptr);
         if (!src)
         {
-            wxLogWarning("ZipEngine: can't create source for %s", pa.srcPath.c_str());
+            LOG_WARN("ZipEngine: can't create source for %s", pa.srcPath.c_str());
             continue;
         }
 
@@ -284,7 +284,7 @@ bool ZipEngine::Save()
             // Replace existing entry
             if (zip_file_replace(m_zip, idx, src, GetCompressionLevel()) != 0)
             {
-                wxLogWarning("ZipEngine: can't replace %s", pa.archivePath.c_str());
+                LOG_WARN("ZipEngine: can't replace %s", pa.archivePath.c_str());
                 zip_source_free(src);
             }
         }
@@ -294,7 +294,7 @@ bool ZipEngine::Save()
             if (zip_file_add(m_zip, pa.archivePath.c_str(),
                              src, GetCompressionLevel()) < 0)
             {
-                wxLogWarning("ZipEngine: can't add %s", pa.archivePath.c_str());
+                LOG_WARN("ZipEngine: can't add %s", pa.archivePath.c_str());
                 zip_source_free(src);
             }
         }
@@ -304,7 +304,7 @@ bool ZipEngine::Save()
     // Commit changes to disk (libzip handles everything in-place)
     if (zip_close(m_zip) != 0)
     {
-        wxLogError("ZipEngine: failed to close/commit archive");
+        LOG_ERR("ZipEngine: failed to close/commit archive");
         return false;
     }
     m_zip = nullptr;
@@ -314,7 +314,7 @@ bool ZipEngine::Save()
     m_zip = zip_open(m_path.c_str(), 0, &err);
     if (!m_zip)
     {
-        wxLogError("ZipEngine: failed to re-open after save");
+        LOG_ERR("ZipEngine: failed to re-open after save");
         return false;
     }
 
@@ -331,7 +331,7 @@ bool ZipEngine::TestIntegrity()
     if (!m_zip) return false;
 
     zip_int64_t num = zip_get_num_entries(m_zip, 0);
-    wxLogDebug("ZipEngine: testing integrity (%lld entries)", (long long)num);
+    LOG_DBG("ZipEngine: testing integrity (%lld entries)", (long long)num);
 
     for (zip_int64_t i = 0; i < num; ++i)
     {
@@ -351,6 +351,6 @@ bool ZipEngine::TestIntegrity()
         zip_fclose(zf);
     }
 
-    wxLogDebug("ZipEngine: integrity check passed");
+    LOG_DBG("ZipEngine: integrity check passed");
     return true;
 }

@@ -6,8 +6,10 @@
 #include <cstdio>
 #include <cstdarg>
 
-// Compatibility shim: redirect wxWidgets log macros to Qt's debug output
-// so engine code doesn't need rewriting.
+// Printf-style logging macros using Qt's debug output.
+// Usage:  LOG_DBG("string %1 %2", arg1, arg2)
+//         LOG_WARN("warning %1", val)
+//         LOG_ERR("error %1", val)
 
 static inline QString _qt_printf(const char* fmt, ...)
 {
@@ -19,8 +21,8 @@ static inline QString _qt_printf(const char* fmt, ...)
     return QString::fromUtf8(buf);
 }
 
-#define wxLogDebug(...)   qDebug().noquote()  << _qt_printf(__VA_ARGS__)
-#define wxLogWarning(...) qWarning().noquote() << _qt_printf(__VA_ARGS__)
-#define wxLogError(...)   qCritical().noquote() << _qt_printf(__VA_ARGS__)
+#define LOG_DBG(...)   qDebug().noquote()  << _qt_printf(__VA_ARGS__)
+#define LOG_WARN(...)  qWarning().noquote() << _qt_printf(__VA_ARGS__)
+#define LOG_ERR(...)   qCritical().noquote() << _qt_printf(__VA_ARGS__)
 
 #endif
