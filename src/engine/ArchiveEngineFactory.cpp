@@ -29,7 +29,8 @@ struct FormatEntry
 // Helper: registry of all supported archive formats
 static const FormatEntry kFormats[] = {
     // ── Native engines ─────────────────────────────────
-    { "ZIP",    ".zip",                              ArchiveType::Zip,
+    { "ZIP",    ".zip,.jar,.apk,.docx,.xlsx,.pptx,.odt,.ods,.odp,.epub,.war,.ear",
+                                                    ArchiveType::Zip,
         []() { return std::make_unique<ZipEngine>(); },              true  },
     { "TAR.GZ", ".tar,.tgz,.gz,.tar.gz",             ArchiveType::Gzip,
         []() { return std::make_unique<TarGzEngine>(); },            true  },
