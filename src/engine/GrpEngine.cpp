@@ -17,21 +17,26 @@ bool GrpEngine::Open(std::string_view path)
 
         int count = static_cast<int>(read32(hdr + 12));
 
+        // Build engine computes offsets sequentially — the stored offset
+        // field is unreliable. Data starts right after the directory.
+        uint32_t dataOff = 16 + count * 20;
+
         for (int i = 0; i < count; ++i)
         {
             uint8_t de[20];
             f.read(reinterpret_cast<char*>(de), 20);
             if (!f) return false;
 
-            uint32_t off = read32(de);
-            uint32_t sz = read32(de + 4);
-            if (sz == 0) continue;
-
+            // GRP entry: name[12], size[4], offset[4](unused)
             char name[13] = {};
-            std::memcpy(name, de + 8, 12);
+            std::memcpy(name, de, 12);
             name[12] = '\0';
 
-            entries.push_back({name, off, sz});
+            uint32_t sz = read32(de + 12);
+            if (sz == 0) continue;
+
+            entries.push_back({name, dataOff, sz});
+            dataOff += sz;
         }
         return true;
     });

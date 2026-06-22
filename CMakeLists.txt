@@ -304,6 +304,12 @@ if(WIN32)
             "$<TARGET_FILE_DIR:ZipFX>/"
         COMMENT "Copying libzip.dll"
     )
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${adflib_BINARY_DIR}/src/libadf.dll"
+            "$<TARGET_FILE_DIR:ZipFX>/"
+        COMMENT "Copying libadf.dll"
+    )
 endif()
 
 # ====================================================================
