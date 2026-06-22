@@ -4,9 +4,11 @@
 
 #include <bit7z/bit7zlibrary.hpp>
 #include <bit7z/bitarchivereader.hpp>
+#include <bit7z/bitarchivewriter.hpp>
 #include <bit7z/bitfileextractor.hpp>
 #include <bit7z/bitformat.hpp>
 #include <bit7z/bittypes.hpp>
+#include <bit7z/bitcompressionlevel.hpp>
 
 #include <filesystem>
 #include <fstream>
@@ -86,11 +88,25 @@ bool Bit7zEngine::Open(std::string_view path)
     }
 }
 
+bool Bit7zEngine::Create(std::string_view path)
+{
+    if (!m_lib) return false;
+    Close();
+    m_path = path;
+    m_isNew = true;
+    m_isOpen = true;
+    m_pendingAdds.clear();
+    LOG_DBG("Bit7zEngine: created %s", m_path.c_str());
+    return true;
+}
+
 void Bit7zEngine::Close()
 {
     m_reader.reset();
     m_isOpen = false;
+    m_isNew = false;
     m_entries.clear();
+    m_pendingAdds.clear();
 }
 
 std::vector<ArchiveEntry> Bit7zEngine::ListContents()
@@ -175,6 +191,79 @@ std::vector<uint8_t> Bit7zEngine::ReadFile(std::string_view entryName)
     }
 }
 
+// ── Writing ────────────────────────────────────────────────────────────
+bool Bit7zEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
+{
+    m_pendingAdds[std::string(archivePath)] = std::string(srcPath);
+
+    ArchiveEntry placeholder;
+    placeholder.name = std::string(archivePath);
+    placeholder.path = placeholder.name;
+    placeholder.size = fs::file_size(std::string(srcPath));
+    m_entries.push_back(std::move(placeholder));
+
+    return true;
+}
+
+bool Bit7zEngine::RemoveEntry(std::string_view entryName)
+{
+    (void)entryName;
+    return false;
+}
+
+bool Bit7zEngine::Save()
+{
+    if (!m_isOpen || m_pendingAdds.empty()) return true;
+
+    try
+    {
+        bit7z::BitArchiveWriter writer(*m_lib, bit7z::BitFormat::SevenZip);
+
+        if (!m_password.empty())
+            writer.setPassword(m_password, m_encryptHeaders);
+
+        writer.setCompressionLevel(
+            static_cast<bit7z::BitCompressionLevel>(6));
+
+        if (m_volumeSize > 0)
+            writer.setVolumeSize(m_volumeSize);
+
+        for (const auto& [archivePath, srcPath] : m_pendingAdds)
+            writer.addFile(srcPath, archivePath);
+
+        writer.compressTo(m_path);
+
+        // Re-open in read mode
+        m_isNew = false;
+        m_pendingAdds.clear();
+        m_reader = std::make_unique<bit7z::BitArchiveReader>(*m_lib, m_path);
+        m_isOpen = true;
+        m_entries.clear();
+        auto items = m_reader->items();
+        m_entries.reserve(items.size());
+        for (const auto& item : items)
+        {
+            ArchiveEntry ae;
+            ae.name = item.path();
+            ae.path = ae.name;
+            ae.size = item.size();
+            ae.packedSize = item.packSize();
+            ae.isDirectory = item.isDir();
+            ae.crc = item.crc();
+            m_entries.push_back(std::move(ae));
+        }
+
+        LOG_DBG("Bit7zEngine: saved %s (%zu entries)", m_path.c_str(), m_entries.size());
+        return true;
+    }
+    catch (const std::exception& e)
+    {
+        LOG_ERR("Bit7zEngine: save failed: %s", e.what());
+        return false;
+    }
+}
+
+// ── Testing ────────────────────────────────────────────────────────────
 bool Bit7zEngine::TestIntegrity(
     std::function<void(int, int)> progressCallback,
     std::function<bool()> cancelFlag)

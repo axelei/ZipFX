@@ -36,6 +36,7 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
 #include "engine/ArchiveEntry.h"
+#include "engine/Bit7zEngine.h"
 
 #include "version.h"
 
@@ -319,6 +320,18 @@ void MainWindow::onNewArchive()
     {
         QMessageBox::warning(this, tr("Error"), tr("Format not supported."));
         return;
+    }
+
+    // Apply Bit7zEngine settings if applicable
+    auto* bit7z = dynamic_cast<Bit7zEngine*>(engine.get());
+    if (bit7z)
+    {
+        if (!result.password.isEmpty())
+            bit7z->setPassword(result.password.toStdString());
+        if (result.encryptFilenames)
+            bit7z->setEncryptHeaders(true);
+        if (result.volumeSize > 0)
+            bit7z->setVolumeSize(static_cast<uint64_t>(result.volumeSize) * 1024 * 1024);
     }
 
     if (!engine->Create(result.path.toStdString()))
