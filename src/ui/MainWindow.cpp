@@ -133,7 +133,7 @@ void MainWindow::setupMenus()
         if (m_searchBox->isVisible()) m_searchBox->setFocus();
         else m_model->setFilterString(QString());
     });
-    cmdMenu->addAction(tr("&Wizard...\tCtrl+W"));
+
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
 
     // Options
@@ -234,9 +234,6 @@ void MainWindow::setupToolbar()
     });
 
     m_toolbar->addSeparator();
-
-    auto wizardAct = m_toolbar->addAction(m_icons->wizard, tr("Wizard"));
-    Q_UNUSED(wizardAct);
 
     m_toolbar->addAction(m_icons->info, tr("Info"), this, &MainWindow::onInfo);
 }
