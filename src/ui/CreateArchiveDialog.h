@@ -1,33 +1,33 @@
 #ifndef ZIPFX_CREATE_ARCHIVE_DIALOG_H
 #define ZIPFX_CREATE_ARCHIVE_DIALOG_H
 
-#include <wx/wx.h>
-#include <wx/combobox.h>
-#include <wx/spinctrl.h>
+#include <QDialog>
+#include <QLineEdit>
+#include <QComboBox>
+#include <QSpinBox>
 
 struct CreateArchiveResult
 {
-    wxString path;
-    wxString format;
+    QString path;
+    QString format;
     int compressionLevel;
 };
 
-class CreateArchiveDialog : public wxDialog
+class CreateArchiveDialog : public QDialog
 {
+    Q_OBJECT
 public:
-    CreateArchiveDialog(wxWindow* parent);
+    explicit CreateArchiveDialog(QWidget* parent = nullptr);
+    CreateArchiveResult result() const;
 
-    CreateArchiveResult GetResult() const;
+private slots:
+    void onBrowse();
+    void onAccept();
 
 private:
-    void OnBrowse(wxCommandEvent&);
-    void OnOk(wxCommandEvent&);
-
-    wxTextCtrl*   m_pathCtrl = nullptr;
-    wxComboBox*   m_formatCombo = nullptr;
-    wxSpinCtrl*   m_levelSpin = nullptr;
-
-    wxString m_chosenPath;
+    QLineEdit* m_pathEdit = nullptr;
+    QComboBox* m_formatCombo = nullptr;
+    QSpinBox*  m_levelSpin = nullptr;
 };
 
 #endif

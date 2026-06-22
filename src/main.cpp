@@ -1,57 +1,28 @@
-#include <wx/wx.h>
-#include <wx/log.h>
-#include <wx/datetime.h>
-#include <fstream>
+#include <QApplication>
+#include <QDir>
+#include <QStandardPaths>
+#include <QTranslator>
+#include <QLibraryInfo>
 
-#include "ui/MainFrame.h"
+#include "ui/MainWindow.h"
 
-class ZipFXApp : public wxApp
+int main(int argc, char* argv[])
 {
-public:
-    bool OnInit() override
-    {
-        wxInitAllImageHandlers();
+    QApplication app(argc, argv);
+    app.setApplicationName("ZipFX");
+    app.setApplicationVersion("1.0.0");
 
-#ifdef _DEBUG
-        // 1. Console logging (stderr) — chained so error dialogs still appear
-        new wxLogChain(new wxLogStream(&std::clog));
+    // Load translations
+    QTranslator qtTranslator;
+    qtTranslator.load("qt_" + QLocale::system().name(),
+                      QLibraryInfo::path(QLibraryInfo::TranslationsPath));
+    app.installTranslator(&qtTranslator);
 
-        // 2. File logging  — chained on top, so messages reach both files and console
-        wxString logDir  = wxStandardPaths::Get().GetTempDir() + "/ZipFX/logs";
-        wxFileName::Mkdir(logDir, wxS_DIR_DEFAULT, wxPATH_MKDIR_FULL);
+    QTranslator appTranslator;
+    appTranslator.load(QLocale::system().name(), "locale");
+    app.installTranslator(&appTranslator);
 
-        wxString logPath = logDir + "/" +
-            wxDateTime::Now().Format("%Y-%m-%d_%H-%M-%S") + ".log";
-
-        std::ofstream* logFile = new std::ofstream(logPath.ToStdString());
-        if (logFile->is_open())
-        {
-            new wxLogChain(new wxLogStream(logFile));
-            wxLogMessage("Log file: %s", logPath);
-        }
-
-        wxLogMessage("ZipFX started (debug build)");
-#endif
-
-        m_locale.Init(wxLANGUAGE_DEFAULT);
-        m_locale.AddCatalogLookupPathPrefix("./locale");
-        m_locale.AddCatalogLookupPathPrefix(
-            wxFileName(wxStandardPaths::Get().GetExecutablePath()).GetPath() + "/locale");
-        m_locale.AddCatalog("ZipFX");
-
-        auto frame = new MainFrame();
-        frame->Show(true);
-        return true;
-    }
-
-    int OnExit() override
-    {
-        wxLogDebug("ZipFX shutting down");
-        return wxApp::OnExit();
-    }
-
-private:
-    wxLocale m_locale;
-};
-
-wxIMPLEMENT_APP(ZipFXApp);
+    MainWindow w;
+    w.show();
+    return app.exec();
+}

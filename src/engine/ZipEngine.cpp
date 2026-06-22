@@ -1,6 +1,6 @@
 #include "ZipEngine.h"
 
-#include <wx/log.h>
+#include "Logging.h"
 
 #include <filesystem>
 #include <fstream>

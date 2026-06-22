@@ -1,8 +1,8 @@
 #ifndef ZIPFX_VIRTUAL_FILE_DATA_OBJECT_H
 #define ZIPFX_VIRTUAL_FILE_DATA_OBJECT_H
 
-#include <wx/wx.h>
 #include <cstdint>
+#include <QDebug>
 
 #ifdef __WXMSW__
 #include <ole2.h>
@@ -61,8 +61,6 @@ private:
 
 public:
     HWND m_parentHwnd = nullptr;
-    wxDialog* m_progressDlg = nullptr;
-    wxGauge*  m_progressGauge = nullptr;
 
 private:
     HRESULT GetFileDescriptor(FORMATETC* pFE, STGMEDIUM* pSTM);

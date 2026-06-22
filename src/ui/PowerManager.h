@@ -1,8 +1,9 @@
 #ifndef ZIPFX_POWER_MANAGER_H
 #define ZIPFX_POWER_MANAGER_H
 
-#include <wx/wx.h>
-#include <wx/arrstr.h>
+#include <QStringList>
+#include <QString>
+#include <QObject>
 #ifdef _WIN32
 #include <powrprof.h>
 #endif
@@ -15,13 +16,13 @@ enum class AfterAction
     Shutdown
 };
 
-inline wxArrayString GetAfterActionLabels()
+inline QStringList GetAfterActionLabels()
 {
     return {
-        _("Do nothing"),
-        _("Sleep"),
-        _("Hibernate"),
-        _("Shut down")
+        QObject::tr("Do nothing"),
+        QObject::tr("Sleep"),
+        QObject::tr("Hibernate"),
+        QObject::tr("Shut down")
     };
 }
 

@@ -1,30 +1,23 @@
 #ifndef ZIPFX_EXTRACTION_WORKER_H
 #define ZIPFX_EXTRACTION_WORKER_H
 
-#include <wx/wx.h>
-#include <wx/event.h>
-#include <wx/thread.h>
+#include <QString>
+#include <vector>
+#include <thread>
 #include <atomic>
 #include <condition_variable>
-#include <memory>
 #include <mutex>
-#include <thread>
-#include <vector>
 
 class ArchiveEngine;
 struct ArchiveEntry;
 
-// Custom events for background extraction progress
-wxDECLARE_EVENT(wxEVT_EXTRACT_PROGRESS, wxThreadEvent);
-wxDECLARE_EVENT(wxEVT_EXTRACT_DONE,     wxThreadEvent);
-
-// Background thread that extracts files and posts progress to the main thread.
-class ExtractionWorker : public wxEvtHandler
+// Background thread that extracts files. Progress is polled via atomics.
+class ExtractionWorker
 {
 public:
-    ExtractionWorker(wxWindow* parent, ArchiveEngine* engine,
+    ExtractionWorker(ArchiveEngine* engine,
                      std::vector<ArchiveEntry> entries,
-                     const wxString& destPath, bool preserveStructure);
+                     const QString& destPath, bool preserveStructure);
     ~ExtractionWorker();
 
     void Start();
@@ -34,7 +27,7 @@ public:
     bool IsPaused() const { return m_paused; }
     bool IsRunning() const { return m_thread.joinable(); }
 
-    // Polled from main thread — atomic so no mutex needed
+    // Polled from main thread — atomic
     std::atomic<int>  m_progressCount{0};
     std::atomic<int>  m_progressTotal{0};
     std::atomic<bool> m_finished{false};
@@ -42,10 +35,9 @@ public:
 private:
     void Run();
 
-    wxWindow*                 m_parent;
     ArchiveEngine*            m_engine;
     std::vector<ArchiveEntry> m_entries;
-    wxString                  m_destPath;
+    QString                   m_destPath;
     bool                      m_preserveStructure;
 
     std::thread               m_thread;

@@ -1,84 +1,68 @@
 #ifndef ZIPFX_ICONS_H
 #define ZIPFX_ICONS_H
 
-#include <wx/wx.h>
-#include <wx/bitmap.h>
-#include <wx/filename.h>
-#include <wx/stdpaths.h>
+#include <QIcon>
+#include <QPixmap>
+#include <QPainter>
+#include <QString>
+#include <QDir>
+#include <QApplication>
+#include <QStyle>
+#include <QFileInfo>
 
 struct ZipFXIcons
 {
-    wxBitmap add;
-    wxBitmap extract;
-    wxBitmap test;
-    wxBitmap view;
-    wxBitmap del;
-    wxBitmap find;
-    wxBitmap wizard;
-    wxBitmap info;
-    wxBitmap app;
+    QIcon add;
+    QIcon extract;
+    QIcon test;
+    QIcon view;
+    QIcon del;
+    QIcon find;
+    QIcon wizard;
+    QIcon info;
+    QIcon app;
 };
 
-inline wxString GetAssetsDir()
+inline QString GetAssetsDir()
 {
-    wxString dir;
-
     // 1. Next to the executable (deployment)
-    wxFileName exePath(wxStandardPaths::Get().GetExecutablePath());
-    dir = exePath.GetPath() + "/assets";
-    if (wxDirExists(dir))
-    {
-        return dir;
-    }
+    QString dir = QApplication::applicationDirPath() + "/assets";
+    if (QDir(dir).exists()) return dir;
 
-    // 2. Relative to working directory (development)
-    dir = wxFileName::GetCwd() + "/assets";
-    if (wxDirExists(dir))
-    {
-        return dir;
-    }
+    // 2. Working directory (development)
+    dir = QDir::currentPath() + "/assets";
+    if (QDir(dir).exists()) return dir;
 
-    // 3. Source tree relative (CLion default working dir)
-    dir = wxFileName::GetCwd() + "/../src/assets";
-    {
-        wxFileName fn(dir);
-        fn.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
-        if (wxDirExists(fn.GetFullPath()))
-        {
-            return fn.GetFullPath();
-        }
-    }
+    // 3. Source tree (IDE)
+    dir = QDir::currentPath() + "/../src/assets";
+    if (QDir(dir).exists())
+        return QDir(dir).absolutePath();
 
-    // 4. Source tree relative to executable (IDE builds)
-    {
-        wxFileName exePath(wxStandardPaths::Get().GetExecutablePath());
-        dir = exePath.GetPath() + "/../src/assets";
-        wxFileName fn(dir);
-        fn.Normalize(wxPATH_NORM_DOTS | wxPATH_NORM_TILDE | wxPATH_NORM_ABSOLUTE);
-        if (wxDirExists(fn.GetFullPath()))
-        {
-            return fn.GetFullPath();
-        }
-    }
+    // 4. Relative to executable parent
+    dir = QApplication::applicationDirPath() + "/../src/assets";
+    if (QDir(dir).exists())
+        return QDir(dir).absolutePath();
 
     return {};
 }
 
-inline wxBitmap LoadIcon(const wxString& name)
+inline QIcon LoadIcon(const QString& name)
 {
-    wxString assetsDir = GetAssetsDir();
-    if (!assetsDir.empty())
+    QString assetsDir = GetAssetsDir();
+    if (!assetsDir.isEmpty())
     {
-        wxBitmap bmp;
-        wxString path = assetsDir + "/" + name + ".png";
-        if (bmp.LoadFile(path, wxBITMAP_TYPE_PNG))
+        QString path = assetsDir + "/" + name + ".png";
+        if (QFileInfo::exists(path))
         {
-            wxImage img = bmp.ConvertToImage();
-            if (!img.HasAlpha())
+            QPixmap pm(path);
+            if (!pm.isNull())
             {
-                img.InitAlpha();
+                // Ensure alpha channel
+                if (!pm.hasAlpha())
+                    pm = QPixmap::fromImage(pm.toImage().convertToFormat(
+                        QImage::Format_ARGB32_Premultiplied));
+                return QIcon(pm);
             }
-            return wxBitmap(img);
         }
     }
     return {};
@@ -88,7 +72,6 @@ inline ZipFXIcons CreatePlaceholderIcons()
 {
     ZipFXIcons icons;
 
-    // Try loading from PNG files first
     icons.add     = LoadIcon("add");
     icons.extract = LoadIcon("extract");
     icons.test    = LoadIcon("test");
@@ -99,34 +82,35 @@ inline ZipFXIcons CreatePlaceholderIcons()
     icons.info    = LoadIcon("info");
     icons.app     = LoadIcon("app");
 
-    // Fallback: programmatic generation for any missing icon
-    auto makeIcon = [](const wxColour& color, const wxString& letter) -> wxBitmap
+    // Fallback: generate colored icons programmatically
+    auto makeIcon = [](const QColor& color, const QString& letter) -> QIcon
     {
-        wxBitmap bmp(20, 20);
-        wxMemoryDC dc(bmp);
-        dc.SetBackground(wxBrush(wxSystemSettings::GetColour(wxSYS_COLOUR_MENU)));
-        dc.Clear();
-        dc.SetBrush(wxBrush(color));
-        dc.SetPen(*wxTRANSPARENT_PEN);
-        dc.DrawRoundedRectangle(1, 1, 18, 18, 4);
-        dc.SetTextForeground(*wxWHITE);
-        dc.SetFont(wxFontInfo(10).Bold());
-        wxCoord tw, th;
-        dc.GetTextExtent(letter, &tw, &th);
-        dc.DrawText(letter, (20 - tw) / 2, (20 - th) / 2);
-        dc.SelectObject(wxNullBitmap);
-        return bmp;
+        QPixmap pm(24, 24);
+        pm.fill(Qt::transparent);
+        QPainter p(&pm);
+        p.setRenderHint(QPainter::Antialiasing);
+        p.setBrush(color);
+        p.setPen(Qt::NoPen);
+        p.drawRoundedRect(2, 2, 20, 20, 4, 4);
+        p.setPen(Qt::white);
+        QFont f = p.font();
+        f.setPixelSize(14);
+        f.setBold(true);
+        p.setFont(f);
+        p.drawText(QRect(0, 0, 24, 24), Qt::AlignCenter, letter);
+        p.end();
+        return QIcon(pm);
     };
 
-    if (!icons.add.IsOk())     icons.add     = makeIcon(wxColour( 76, 175,  80), "+");
-    if (!icons.extract.IsOk()) icons.extract = makeIcon(wxColour( 33, 150, 243), "E");
-    if (!icons.test.IsOk())    icons.test    = makeIcon(wxColour(255, 193,   7), "T");
-    if (!icons.view.IsOk())    icons.view    = makeIcon(wxColour(  0, 150, 136), "V");
-    if (!icons.del.IsOk())     icons.del     = makeIcon(wxColour(244,  67,  54), "X");
-    if (!icons.find.IsOk())    icons.find    = makeIcon(wxColour(156,  39, 176), "F");
-    if (!icons.wizard.IsOk())  icons.wizard  = makeIcon(wxColour( 63,  81, 181), "W");
-    if (!icons.info.IsOk())    icons.info    = makeIcon(wxColour(  0, 188, 212), "i");
-    if (!icons.app.IsOk())     icons.app     = makeIcon(wxColour(255,  87,  34), "Z");
+    if (icons.add.isNull())     icons.add     = makeIcon(QColor( 76, 175,  80), "+");
+    if (icons.extract.isNull()) icons.extract = makeIcon(QColor( 33, 150, 243), "E");
+    if (icons.test.isNull())    icons.test    = makeIcon(QColor(255, 193,   7), "T");
+    if (icons.view.isNull())    icons.view    = makeIcon(QColor(  0, 150, 136), "V");
+    if (icons.del.isNull())     icons.del     = makeIcon(QColor(244,  67,  54), "X");
+    if (icons.find.isNull())    icons.find    = makeIcon(QColor(156,  39, 176), "F");
+    if (icons.wizard.isNull())  icons.wizard  = makeIcon(QColor( 63,  81, 181), "W");
+    if (icons.info.isNull())    icons.info    = makeIcon(QColor(  0, 188, 212), "i");
+    if (icons.app.isNull())     icons.app     = makeIcon(QColor(255,  87,  34), "Z");
 
     return icons;
 }

@@ -1,6 +1,6 @@
 #include "SevenZipEngine.h"
 
-#include <wx/log.h>
+#include "Logging.h"
 
 #include <archive.h>
 #include <archive_entry.h>
