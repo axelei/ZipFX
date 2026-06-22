@@ -13,5 +13,4 @@ bool RarEngine::Open(std::string_view path)
 void RarEngine::RegisterFormat(struct archive* a)
 {
     archive_read_support_format_rar(a);
-    archive_read_support_format_rar5(a);
 }

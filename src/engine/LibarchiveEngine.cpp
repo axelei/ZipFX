@@ -43,7 +43,6 @@ bool LibarchiveEngine::OpenInternal(std::string_view path)
 
 void LibarchiveEngine::Close()
 {
-    LOG_DBG("%s: closing %s", FormatName().data(), m_path.c_str());
     if (m_archive)
     {
         archive_read_free(m_archive);
@@ -74,8 +73,6 @@ bool LibarchiveEngine::LoadEntries()
         PostProcessEntry(ae);
 
         m_entries.push_back(std::move(ae));
-
-        archive_read_data_skip(m_archive);
     }
 
     return true;
@@ -127,6 +124,9 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
         if (!out)
         {
             LOG_ERR("%s: cannot create %s", FormatName().data(), fullPath.string().c_str());
+            archive_read_free(m_archive);
+            m_archive = nullptr;
+            m_isOpen = false;
             return false;
         }
 
@@ -140,6 +140,9 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
         if (bytesRead < 0)
         {
             LOG_WARN("%s: archive_read_data error for %s", FormatName().data(), name.c_str());
+            archive_read_free(m_archive);
+            m_archive = nullptr;
+            m_isOpen = false;
             return false;
         }
     }
