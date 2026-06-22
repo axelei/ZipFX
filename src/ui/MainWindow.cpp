@@ -37,6 +37,8 @@
 #include "engine/ArchiveEngineFactory.h"
 #include "engine/ArchiveEntry.h"
 
+#include "version.h"
+
 #include <filesystem>
 #include <algorithm>
 namespace fs = std::filesystem;
@@ -86,7 +88,7 @@ static QTranslator* loadTranslator(const QString& locale)
 MainWindow::MainWindow()
     : QMainWindow()
 {
-    setWindowTitle(tr("ZipFX"));
+    setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     resize(960, 640);
 
     m_icons = new ZipFXIcons(CreatePlaceholderIcons());
@@ -189,8 +191,9 @@ void MainWindow::setupMenus()
     auto helpMenu = menuBar()->addMenu(tr("&Help"));
     helpMenu->addAction(tr("&About ZipFX"), this, [this]() {
         QMessageBox::about(this, tr("About ZipFX"),
-            tr("ZipFX v1.0\n\nA cross-platform archive manager.\n"
-               "Supported: ZIP, 7z, RAR, TAR.GZ"));
+            tr("ZipFX v%1\n\nA cross-platform archive manager.\n"
+               "Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...")
+            .arg(ZIPFX_VERSION));
     });
 }
 

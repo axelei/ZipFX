@@ -112,6 +112,15 @@ find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
 
 # ====================================================================
+# Version header  –  generated from CMake project version
+# ====================================================================
+configure_file(
+    "${CMAKE_SOURCE_DIR}/src/version.h.in"
+    "${CMAKE_BINARY_DIR}/generated/version.h"
+    @ONLY
+)
+
+# ====================================================================
 # Our executable
 # ====================================================================
 set(ZIPFX_SOURCES
@@ -136,6 +145,7 @@ add_executable(ZipFX ${ZIPFX_SOURCES})
 
 target_include_directories(ZipFX PRIVATE
     src
+    ${CMAKE_BINARY_DIR}/generated
     ${libzip_SOURCE_DIR}/lib
     ${libzip_BINARY_DIR}/lib
     ${libarchive_SOURCE_DIR}/libarchive
