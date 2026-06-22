@@ -52,7 +52,7 @@
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="62" />
         <source>%1 (*%2)</source>
-        <translation type="unfinished" />
+        <translation>%1 (*%2)</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="71" />
@@ -232,7 +232,7 @@
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="98" />
         <source>About ZipFX</source>
-        <translation type="unfinished" />
+        <translation>Acerca de ZipFX</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="99" />
@@ -248,7 +248,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="106" />
         <source>Tools</source>
-        <translation type="unfinished" />
+        <translation>Herramientas</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="110" />
@@ -345,7 +345,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="246" />
         <source>Open Failed</source>
-        <translation type="unfinished" />
+        <translation>Error al abrir</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="247" />
@@ -375,7 +375,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="288" />
         <source>Adding files...</source>
-        <translation type="unfinished" />
+        <translation>Anadiendo archivos...</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="288" />
@@ -412,7 +412,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="345" />
         <source>Archive is empty.</source>
-        <translation type="unfinished" />
+        <translation>El archivo esta vacio.</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="370" />
@@ -435,7 +435,9 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
         <source>File exists:
 %1
 Overwrite?</source>
-        <translation type="unfinished" />
+        <translation>El archivo existe:
+%1
+Sobrescribir?</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="420" />
@@ -507,12 +509,12 @@ Tamano: %2 bytes</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="728" />
         <source>%1 files</source>
-        <translation type="unfinished" />
+        <translation>%1 archivos</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="729" />
         <source>ZipFX — %1</source>
-        <translation type="unfinished" />
+        <translation>ZipFX — %1</translation>
     </message>
 </context>
 <context>
