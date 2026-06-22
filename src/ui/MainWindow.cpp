@@ -16,6 +16,9 @@
 #include <QDrag>
 #include <QMimeData>
 #include <QDragEnterEvent>
+#ifdef Q_OS_MACOS
+#include "dnd/MacPromiseDrag.h"
+#endif
 #include <QDropEvent>
 #include <QUrl>
 #include <QStandardPaths>
@@ -1089,6 +1092,26 @@ void MainWindow::onBeginDrag()
         StartVirtualDrag(vfdo, (HWND)winId());
     }
 #else
+#ifdef Q_OS_MACOS
+    // macOS: native file promises (lazy extraction on drop)
+    // Return full relative path from fileNameForType: — macOS 15 may
+    // create the subdirectory structure at the drop destination.
+    {
+        QByteArray buf;
+        for (int i = 0; i < filePaths.size(); ++i) {
+            std::string archivePath = filePaths[i].toStdString();
+            QString dragName = filePaths[i];
+            if (!prefix.isEmpty() && dragName.startsWith(prefix))
+                dragName = dragName.mid(prefix.size());
+            // Keep subdirectory structure for macOS 15 to recreate
+            buf.append(archivePath.c_str(), archivePath.size() + 1);
+            QByteArray dn = dragName.toUtf8();
+            buf.append(dn.constData(), dn.size() + 1);
+        }
+        startMacFilePromiseDrag((void*)winId(), m_engine.get(),
+                                buf.constData(), filePaths.size());
+    }
+#else
     // Extract to temp, then QDrag with file URLs
     QString tmpRoot = QStandardPaths::writableLocation(
         QStandardPaths::TempLocation) + "/ZipFX_Drag/"
@@ -1109,7 +1132,8 @@ void MainWindow::onBeginDrag()
         QApplication::processEvents();
 
         std::string fp = filePaths[i].toStdString();
-        QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
+        QString fpQ = filePaths[i];
+        QString dragName = fpQ.startsWith(prefix) ? fpQ.mid(prefix.size()) : fpQ;
         QString destPath = tmpRoot + dragName;
         QDir().mkpath(QFileInfo(destPath).path());
 
@@ -1126,6 +1150,7 @@ void MainWindow::onBeginDrag()
         drag->setMimeData(mime);
         drag->exec(Qt::CopyAction);
     }
+#endif
 #endif
 }
 

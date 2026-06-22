@@ -1,9 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
-project(ZipFX VERSION 0.2.0 LANGUAGES C CXX)
+project(ZipFX VERSION 0.2.0 LANGUAGES C CXX OBJCXX)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 set(CMAKE_AUTOMOC ON)
 
 option(BUILD_TESTING "Build unit tests" ON)
@@ -107,7 +108,8 @@ FetchContent_MakeAvailable(bit7z)
 if(WIN32)
     list(APPEND CMAKE_PREFIX_PATH "C:/Qt/6.11.1/mingw_64")
 elseif(APPLE)
-    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt" "/opt/homebrew/opt/qt")
+    list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt" "/opt/homebrew/opt/qt"
+         "$ENV{HOME}/Qt/6.11.1/macos")
 endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
@@ -153,6 +155,8 @@ set(ZIPFX_SOURCES
 
 if(WIN32)
     list(APPEND ZIPFX_SOURCES src/dnd/VirtualFileDataObject.cpp)
+elseif(APPLE)
+    list(APPEND ZIPFX_SOURCES src/dnd/MacPromiseDrag.mm)
 endif()
 
 add_executable(ZipFX ${ZIPFX_SOURCES})
@@ -178,6 +182,10 @@ target_link_libraries(ZipFX PRIVATE
     bit7z
     Qt${QT_VERSION_MAJOR}::Widgets
 )
+
+if(APPLE)
+    target_link_libraries(ZipFX PRIVATE "-framework Cocoa")
+endif()
 
 if(WIN32)
     target_link_libraries(ZipFX PRIVATE
