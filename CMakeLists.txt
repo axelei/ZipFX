@@ -291,7 +291,7 @@ set(CPACK_PACKAGE_NAME             "ZipFX")
 set(CPACK_PACKAGE_VERSION          "${PROJECT_VERSION}")
 set(CPACK_PACKAGE_VENDOR           "ZipFX Team")
 set(CPACK_PACKAGE_HOMEPAGE_URL     "https://github.com/axelei/ZipFX")
-set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "ZipFX - Multiplatform archiver for power users")
+set(CPACK_PACKAGE_DESCRIPTION_SUMMARY "Multiplatform archiver for power users")
 set(CPACK_RESOURCE_FILE_LICENSE    "${CMAKE_SOURCE_DIR}/LICENSE")
 
 if(WIN32)
