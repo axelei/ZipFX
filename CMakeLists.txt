@@ -204,16 +204,49 @@ endif()
 # ====================================================================
 # 7-Zip shared library  –  required by Bit7zEngine at runtime
 # Searches in this order:
-#   1. ${CMAKE_SOURCE_DIR}/lib/<name>    –  bundled with source
-#   2. System install paths               –  developer machine
-# If not found anywhere, Bit7zEngine won't load and those formats
-# will be unavailable.
+#   1. lib/<system>/<arch>/<name>        –  bundled with source
+#   2. lib/<name>                        –  flat fallback
+#   3. System install paths               –  developer machine
 # ====================================================================
+if(WIN32)
+    set(_7ZIP_DLL_NAME "7z.dll")
+else()
+    set(_7ZIP_DLL_NAME "lib7z.so")
+endif()
+
+# Map CMake system/arch to our lib/ directory structure
+if(CMAKE_SYSTEM_NAME STREQUAL "Windows")
+    set(_7ZIP_PLATFORM "win")
+elseif(CMAKE_SYSTEM_NAME STREQUAL "Darwin")
+    set(_7ZIP_PLATFORM "macos")
+else()
+    set(_7ZIP_PLATFORM "linux")
+endif()
+
+string(TOLOWER "${CMAKE_SYSTEM_PROCESSOR}" _7ZIP_ARCH)
+if(_7ZIP_ARCH MATCHES "amd64|x86_64")
+    set(_7ZIP_ARCH "x64")
+elseif(_7ZIP_ARCH MATCHES "aarch64|arm64")
+    set(_7ZIP_ARCH "arm64")
+endif()
+
+# 1. Platform-specific bundle path
 find_file(7ZIP_DLL
-    NAMES 7z.dll lib7z.so 7z.so
-    PATHS "${CMAKE_SOURCE_DIR}/lib"
+    NAMES "${_7ZIP_DLL_NAME}"
+    PATHS "${CMAKE_SOURCE_DIR}/lib/${_7ZIP_PLATFORM}/${_7ZIP_ARCH}"
     NO_DEFAULT_PATH
 )
+
+# 2. Flat lib/ fallback
+if(NOT 7ZIP_DLL)
+    find_file(7ZIP_DLL
+        NAMES "${_7ZIP_DLL_NAME}"
+        PATHS "${CMAKE_SOURCE_DIR}/lib"
+        NO_DEFAULT_PATH
+    )
+endif()
+
+# 3. System install
 if(NOT 7ZIP_DLL AND WIN32)
     find_file(7ZIP_DLL
         NAMES 7z.dll
@@ -221,10 +254,7 @@ if(NOT 7ZIP_DLL AND WIN32)
         NO_DEFAULT_PATH
     )
 endif()
-if(NOT 7ZIP_DLL AND APPLE)
-    find_library(7ZIP_DLL NAMES lib7z.so 7z.so)
-endif()
-if(NOT 7ZIP_DLL AND UNIX)
+if(NOT 7ZIP_DLL AND (APPLE OR UNIX))
     find_library(7ZIP_DLL NAMES lib7z.so 7z.so)
 endif()
 
@@ -238,8 +268,9 @@ if(7ZIP_DLL)
     )
     message(STATUS "Found 7z library at ${7ZIP_DLL}")
 else()
-    message(WARNING "7z.dll/lib7z.so not found. Place it in ${CMAKE_SOURCE_DIR}/lib/ "
-        "or install 7-Zip. Bit7zEngine (DEB, DMG, MSI, VDI, etc.) will be unavailable.")
+    message(WARNING "7z.dll/lib7z.so not found. "
+        "Place it in ${CMAKE_SOURCE_DIR}/lib/${_7ZIP_PLATFORM}/${_7ZIP_ARCH}/ "
+        "or install 7-Zip. Bit7zEngine will be unavailable.")
 endif()
 
 # ====================================================================
