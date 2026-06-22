@@ -17,17 +17,16 @@ bool GrpEngine::Open(std::string_view path)
 
         int count = static_cast<int>(read32(hdr + 12));
 
-        // Build engine computes offsets sequentially — the stored offset
-        // field is unreliable. Data starts right after the directory.
-        uint32_t dataOff = 16 + count * 20;
+        // GRP entries are name[12] + size[4] = 16 bytes each.
+        // There is NO stored offset field — positions are computed.
+        uint32_t dataOff = 16 + count * 16;
 
         for (int i = 0; i < count; ++i)
         {
-            uint8_t de[20];
-            f.read(reinterpret_cast<char*>(de), 20);
+            uint8_t de[16];
+            f.read(reinterpret_cast<char*>(de), 16);
             if (!f) return false;
 
-            // GRP entry: name[12], size[4], offset[4](unused)
             char name[13] = {};
             std::memcpy(name, de, 12);
             name[12] = '\0';
@@ -38,6 +37,6 @@ bool GrpEngine::Open(std::string_view path)
             entries.push_back({name, dataOff, sz});
             dataOff += sz;
         }
-        return true;
+        return !entries.empty();
     });
 }
