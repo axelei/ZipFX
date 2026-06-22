@@ -253,7 +253,7 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     auto data = entry.info.engine->ReadFile(entry.info.archivePath);
     if (data.empty())
     {
-        wxLogWarning("VFDO: failed to extract %s", entry.info.archivePath);
+        wxLogWarning("VFDO: failed to extract %s", entry.info.archivePath.c_str());
         return E_FAIL;
     }
 
