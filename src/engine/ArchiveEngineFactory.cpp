@@ -32,31 +32,32 @@ static std::string_view Extension(std::string_view path)
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)
 {
-    // Try magic-signature detection first for formats with ambiguous extensions
+    // Detect by magic number first — opens any file regardless of extension
     ArchiveType sig = FileSignature::Detect(path);
-    if (sig == ArchiveType::Rar)  return std::make_unique<RarEngine>();
-    if (sig == ArchiveType::Rar5) return std::make_unique<Rar5Engine>();
+    switch (sig)
+    {
+    case ArchiveType::Zip:      return std::make_unique<ZipEngine>();
+    case ArchiveType::SevenZip: return std::make_unique<SevenZipEngine>();
+    case ArchiveType::Rar:      return std::make_unique<RarEngine>();
+    case ArchiveType::Rar5:     return std::make_unique<Rar5Engine>();
+    case ArchiveType::Gzip:
+    {
+        // Gzip magic alone could be .gz or .tar.gz — treat as TarGzEngine
+        return std::make_unique<TarGzEngine>();
+    }
+    default: break;
+    }
 
-    // Fall back to extension-based detection
+    // Fall back to extension-based detection for formats without unique magic
+    // (e.g. plain .tar files have no universal signature)
     std::string ext(Extension(path));
     ToLowerInPlace(ext);
 
-    if (ext == ".zip")
-    {
-        return std::make_unique<ZipEngine>();
-    }
-    if (ext == ".7z")
-    {
-        return std::make_unique<SevenZipEngine>();
-    }
-    if (ext == ".rar")
-    {
-        return std::make_unique<RarEngine>();
-    }
+    if (ext == ".zip")   return std::make_unique<ZipEngine>();
+    if (ext == ".7z")    return std::make_unique<SevenZipEngine>();
+    if (ext == ".rar")   return std::make_unique<RarEngine>();
     if (ext == ".tar" || ext == ".tgz" || ext == ".gz")
-    {
         return std::make_unique<TarGzEngine>();
-    }
 
     // Check for .tar.gz double extension
     if (path.size() > 7)
