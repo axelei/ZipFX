@@ -198,7 +198,12 @@ if(APPLE)
         MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
+        MACOSX_BUNDLE_ICON_FILE "AppIcon"
     )
+    # Copy icon into the bundle
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns"
+        PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    target_sources(ZipFX PRIVATE "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns")
 endif()
 
 if(WIN32)
