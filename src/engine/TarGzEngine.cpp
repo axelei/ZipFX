@@ -132,6 +132,16 @@ TarGzEngine::~TarGzEngine()
     TarGzEngine::Close();
 }
 
+bool TarGzEngine::Create(std::string_view path)
+{
+    Close();
+    m_path = path;
+    m_isOpen = true;
+    m_modified = false;
+    m_entries.clear();
+    return true;
+}
+
 bool TarGzEngine::Open(std::string_view path)
 {
     Close();
@@ -140,11 +150,7 @@ bool TarGzEngine::Open(std::string_view path)
     gzFile f = gzopen(m_path.c_str(), "rb");
     if (!f)
     {
-        // File doesn't exist yet — that's OK for new archives
-        m_isOpen = true;
-        m_modified = false;
-        m_entries.clear();
-        return true;
+        return false;
     }
 
     m_gzFile = f;
