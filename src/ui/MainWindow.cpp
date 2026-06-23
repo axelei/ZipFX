@@ -404,6 +404,8 @@ void MainWindow::onNewArchive()
         // Show dialog immediately so user sees feedback during pre-count
         m_progressDlg = new QProgressDialog(tr("Counting files..."), nullptr,
             0, 0, this);
+        m_progressDlg->setAutoClose(false);
+        m_progressDlg->setAutoReset(false);
         m_progressDlg->setWindowModality(Qt::ApplicationModal);
         m_progressDlg->show();
         QApplication::processEvents();
@@ -605,6 +607,8 @@ void MainWindow::doAddPaths(const QStringList& paths)
     // Show dialog immediately so user sees feedback during pre-count
     m_progressDlg = new QProgressDialog(tr("Counting files..."), tr("Cancel"),
         0, 0, this);
+    m_progressDlg->setAutoClose(false);
+    m_progressDlg->setAutoReset(false);
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
     QApplication::processEvents();
