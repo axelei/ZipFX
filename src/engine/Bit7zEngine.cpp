@@ -10,6 +10,8 @@
 #include <bit7z/bittypes.hpp>
 #include <bit7z/bitcompressionlevel.hpp>
 
+#include <QApplication>
+
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -132,23 +134,36 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
     int idx = findEntry(entryName);
     if (idx < 0) return false;
 
+    // Reset cancel flag at the start of extraction
+    m_extractCancelled = false;
+
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
+
+        // Progress callback keeps UI responsive and enables cancellation
+        extractor.setProgressCallback([this](uint64_t) -> bool {
+            QApplication::processEvents();
+            return !m_extractCancelled;
+        });
+
         fs::path dest(destPath);
         fs::create_directories(dest.parent_path());
 
-        // Extract to buffer then write to disk
-        std::vector<bit7z::byte_t> buf;
-        extractor.extract(m_path, buf, static_cast<uint32_t>(idx));
-
+        // Stream directly to file (avoids loading entire file into memory)
         std::ofstream out(dest, std::ios::binary);
         if (!out) return false;
-        out.write(reinterpret_cast<const char*>(buf.data()), buf.size());
+        extractor.extract(m_path, out, static_cast<uint32_t>(idx));
         return out.good();
     }
     catch (const std::exception& e)
     {
+        if (m_extractCancelled)
+        {
+            // Remove partial file on cancel
+            std::error_code ec;
+            fs::remove(std::string(destPath), ec);
+        }
         LOG_ERR("Bit7zEngine: extract failed: %s", e.what());
         return false;
     }

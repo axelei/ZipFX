@@ -36,6 +36,7 @@ public:
 
     void cancelSave() { m_saveCancelled = true; }
     bool isSaveCancelled() const { return m_saveCancelled; }
+    virtual void cancelExtract() {} // engines may override to abort extraction
 
     struct SaveProgressInfo {
         int currentFile = 0;

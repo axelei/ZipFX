@@ -884,6 +884,7 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         if (m_progressDlg->wasCanceled())
         {
             m_extractCancelled = true;
+            m_engine->cancelExtract();
             break;
         }
 

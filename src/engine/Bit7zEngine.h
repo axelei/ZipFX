@@ -47,6 +47,10 @@ public:
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }
 
+    // Cancellation
+    void cancelExtract() { m_extractCancelled = true; }
+    bool isExtractCancelled() const { return m_extractCancelled; }
+
 private:
     int findEntry(std::string_view name) const;
 
@@ -62,6 +66,9 @@ private:
     std::string m_password;
     bool m_encryptHeaders = false;
     uint64_t m_volumeSize = 0;
+
+    // Extraction cancellation
+    std::atomic<bool> m_extractCancelled{false};
 };
 
 #endif
