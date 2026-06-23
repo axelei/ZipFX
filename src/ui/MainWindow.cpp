@@ -464,6 +464,7 @@ void MainWindow::onNewArchive()
             }
         }
 
+        m_progressDlg->setRange(0, 0);
         m_progressDlg->setLabelText(tr("Saving..."));
         QApplication::processEvents();
 
@@ -476,6 +477,8 @@ void MainWindow::onNewArchive()
             return;
         }
 
+        m_progressDlg->setRange(0, 100);
+        m_progressDlg->setValue(100);
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = nullptr;
@@ -658,12 +661,15 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
+    m_progressDlg->setRange(0, 0);
     m_progressDlg->setLabelText(tr("Saving..."));
     QApplication::processEvents();
 
     if (!m_engine->Save())
         QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
 
+    m_progressDlg->setRange(0, 100);
+    m_progressDlg->setValue(100);
     m_progressDlg->close();
     delete m_progressDlg;
     m_progressDlg = nullptr;
