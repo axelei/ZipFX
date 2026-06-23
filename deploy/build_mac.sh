@@ -21,6 +21,7 @@ echo "=== Configuring ${BUILD_DIR} ==="
 "${CMAKE}" -S .. -B "${BUILD_DIR}" \
     -DCMAKE_PREFIX_PATH="${QT_DIR}" \
     -DCMAKE_BUILD_TYPE=Release \
+    -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
     -DBUILD_TESTING=OFF
 
 echo "=== Building ==="
@@ -28,10 +29,11 @@ echo "=== Building ==="
 
 echo "=== Running macdeployqt ==="
 if command -v macdeployqt &>/dev/null; then
-    macdeployqt "${BUILD_DIR}/ZipFX.app" -verbose=1
+    macdeployqt "${BUILD_DIR}/ZipFX.app" -verbose=1 || true
+elif [ -x "${QT_DIR}/bin/macdeployqt" ]; then
+    "${QT_DIR}/bin/macdeployqt" "${BUILD_DIR}/ZipFX.app" -verbose=1 || true
 else
-    echo "Warning: macdeployqt not found — searching in Qt_DIR"
-    "${QT_DIR}/bin/macdeployqt" "${BUILD_DIR}/ZipFX.app" -verbose=1
+    echo "macdeployqt not found — skipping (app should still work for development)"
 fi
 
 echo "=== Copying lib7z.so ==="
@@ -40,7 +42,9 @@ for path in ../lib/macos/arm64/lib7z.so ../lib/macos/lib7z.so; do
     if [ -f "$path" ]; then LIB7Z="$path"; break; fi
 done
 if [ -n "$LIB7Z" ]; then
-    cp "$LIB7Z" "${BUILD_DIR}/ZipFX.app/Contents/MacOS/"
+    mkdir -p "${BUILD_DIR}/ZipFX.app/Contents/MacOS"
+    cp -f "$LIB7Z" "${BUILD_DIR}/ZipFX.app/Contents/MacOS/"
+    chmod 644 "${BUILD_DIR}/ZipFX.app/Contents/MacOS/lib7z.so"
 fi
 
 echo "=== Creating DMG ==="
