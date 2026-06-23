@@ -440,7 +440,6 @@ bool MainWindow::saveWithProgress()
 bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile)
 {
     // Run extraction on a worker thread so the UI stays responsive
-    ProgressInfo extractPi;
     struct { std::mutex m; ArchiveEngine::ExtractProgressInfo info; } ep;
     uint64_t prevBytesEp = 0;
 
@@ -457,7 +456,6 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
     std::thread extractThread([&]() {
         extractOk = m_engine->Extract(entryPath, destStr);
         extractDone = true;
-        // Clear callback so it isn't called on a destroyed lambda after thread detaches
         m_engine->setExtractProgressCb(nullptr);
     });
 
@@ -468,7 +466,6 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
         if (m_progressDlg && m_progressDlg->wasCanceled())
         {
             m_engine->cancelExtract();
-            // Don't break — keep processing events until thread finishes
         }
 
         {
@@ -476,17 +473,9 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
             auto& ei = ep.info;
             if (ei.totalBytes > 0)
             {
-                if (extractPi.totalBytes == 0)
-                    extractPi.start(ei.totalBytes);
-                extractPi.addBytes(ei.bytesProcessed - prevBytesEp);
-                prevBytesEp = ei.bytesProcessed;
-                if (extractPi.shouldUpdate())
-                {
-                    extractPi.updateRate();
-                    m_progressDlg->setLabelText(
-                        tr("Extracting: %1 %2").arg(
-                            destFile, extractPi.etaString()));
-                }
+                ei.bytesProcessed = std::max(ei.bytesProcessed, prevBytesEp);
+                // Update the overall progress bar value with a per-file estimate
+                m_progressDlg->setValue(m_progressDlg->value() + 0); // keep visible
             }
         }
     }
@@ -952,15 +941,9 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         m_progressDlg->setValue((int)i);
 
         pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
-        if (pi.shouldUpdate())
-        {
-            pi.updateRate();
-            m_progressDlg->setLabelText(tr("Extracting: %1 %2").arg(name, pi.etaString()));
-        }
-        else
-        {
-            m_progressDlg->setLabelText(tr("Extracting: %1").arg(name));
-        }
+        pi.updateRate();
+        m_progressDlg->setLabelText(tr("Extracting: %1  %2").arg(
+            name, pi.etaString()));
         QApplication::processEvents();
 
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());

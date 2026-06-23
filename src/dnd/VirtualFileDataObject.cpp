@@ -5,6 +5,8 @@
 #include <QDebug>
 #include <QApplication>
 #include <algorithm>
+#include <atomic>
+#include <thread>
 #include "DragProgressDialog.h"
 #include <shlobj.h>
 
@@ -269,7 +271,25 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     m_progressDlg->updateProgress(idx + 1, entry.info.size,
         QString::fromUtf8(entry.info.archivePath.c_str()));
 
-    auto data = entry.info.engine->ReadFile(entry.info.archivePath);
+    // Run ReadFile on a worker thread so the UI stays responsive
+    std::atomic<bool> readDone{false};
+    std::vector<uint8_t> data;
+
+    std::thread readThread([&]() {
+        data = entry.info.engine->ReadFile(entry.info.archivePath);
+        readDone = true;
+    });
+
+    while (!readDone)
+    {
+        QApplication::processEvents();
+        if (m_progressDlg && m_progressDlg->wasCancelled())
+            break;
+    }
+
+    if (readThread.joinable())
+        readThread.join();
+
     if (data.empty())
     {
         LOG_WARN("VFDO: failed to extract %s", entry.info.archivePath.c_str());
@@ -279,7 +299,6 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     // Close on last file
     if (m_progressDlg && idx + 1 >= m_progressTotal)
     {
-        // If cancelled, execute after-action
         if (!m_progressDlg->wasCancelled())
         {
             AfterAction aa = m_progressDlg->afterAction();
