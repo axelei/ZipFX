@@ -11,7 +11,7 @@ public:
 
 private:
     bool doSave(std::ofstream& f) override;
-    std::string m_fmtName = "WAD";
+    std::string m_fmtName = "IWAD";
 };
 
 #endif

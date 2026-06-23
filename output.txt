@@ -1,0 +1,64 @@
+********* Start testing of tst_FlatArchiveEngines *********
+Config: Using QtTest library 6.11.1, Qt 6.11.1 (x86_64-little_endian-llp64 shared (dynamic) release build; by GCC 13.1.0), windows 11
+INFO   : tst_FlatArchiveEngines::initTestCase() entering
+PASS   : tst_FlatArchiveEngines::initTestCase()
+INFO   : tst_FlatArchiveEngines::testWadCreateAddExtract() entering
+FAIL!  : tst_FlatArchiveEngines::testWadCreateAddExtract() Compared values are not the same
+   Actual   (entries.size()): 4
+   Expected (size_t(2))     : 2
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(46) : failure location
+INFO   : tst_FlatArchiveEngines::testWadRemove() entering
+FAIL!  : tst_FlatArchiveEngines::testWadRemove() Compared values are not the same
+   Actual   (entries.size()): 2
+   Expected (size_t(1))     : 1
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(81) : failure location
+INFO   : tst_FlatArchiveEngines::testPakCreateAddExtract() entering
+FAIL!  : tst_FlatArchiveEngines::testPakCreateAddExtract() Compared values are not the same
+   Actual   (entries.size()): 4
+   Expected (size_t(2))     : 2
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(101) : failure location
+INFO   : tst_FlatArchiveEngines::testPakRemove() entering
+FAIL!  : tst_FlatArchiveEngines::testPakRemove() Compared values are not the same
+   Actual   (entries.size()): 2
+   Expected (size_t(1))     : 1
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(128) : failure location
+INFO   : tst_FlatArchiveEngines::testGrpCreateAddExtract() entering
+FAIL!  : tst_FlatArchiveEngines::testGrpCreateAddExtract() Compared values are not the same
+   Actual   (entries.size()): 4
+   Expected (size_t(2))     : 2
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(147) : failure location
+INFO   : tst_FlatArchiveEngines::testGrpRemove() entering
+FAIL!  : tst_FlatArchiveEngines::testGrpRemove() Compared values are not the same
+   Actual   (entries.size()): 2
+   Expected (size_t(1))     : 1
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(171) : failure location
+INFO   : tst_FlatArchiveEngines::testHogCreateAddExtract() entering
+FAIL!  : tst_FlatArchiveEngines::testHogCreateAddExtract() Compared values are not the same
+   Actual   (entries.size()): 5
+   Expected (size_t(2))     : 2
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(190) : failure location
+INFO   : tst_FlatArchiveEngines::testHogRemove() entering
+FAIL!  : tst_FlatArchiveEngines::testHogRemove() 'eng.Save()' returned FALSE. ()
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(210) : failure location
+INFO   : tst_FlatArchiveEngines::testVpkCreateAddExtract() entering
+FAIL!  : tst_FlatArchiveEngines::testVpkCreateAddExtract() Compared values are not the same
+   Actual   (entries.size()): 4
+   Expected (size_t(2))     : 2
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(233) : failure location
+INFO   : tst_FlatArchiveEngines::testVpkRemove() entering
+FAIL!  : tst_FlatArchiveEngines::testVpkRemove() Compared values are not the same
+   Actual   (entries.size()): 2
+   Expected (size_t(1))     : 1
+C:\dev\repos\ZipFX\tests\tst_FlatArchiveEngines.cpp(257) : failure location
+INFO   : tst_FlatArchiveEngines::testEmptyArchive() entering
+PASS   : tst_FlatArchiveEngines::testEmptyArchive()
+INFO   : tst_FlatArchiveEngines::testReadNonExistent() entering
+PASS   : tst_FlatArchiveEngines::testReadNonExistent()
+INFO   : tst_FlatArchiveEngines::testOpenNonExistent() entering
+PASS   : tst_FlatArchiveEngines::testOpenNonExistent()
+INFO   : tst_FlatArchiveEngines::testWrongMagic() entering
+PASS   : tst_FlatArchiveEngines::testWrongMagic()
+INFO   : tst_FlatArchiveEngines::cleanupTestCase() entering
+PASS   : tst_FlatArchiveEngines::cleanupTestCase()
+Totals: 6 passed, 10 failed, 0 skipped, 0 blacklisted, 442ms
+********* Finished testing of tst_FlatArchiveEngines *********

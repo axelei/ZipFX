@@ -17,6 +17,7 @@ static void write32LE(std::ofstream& f, uint32_t v) {
 bool PakEngine::Open(std::string_view path)
 {
     return parse(path, "PAK", [](std::ifstream& f, std::vector<FileEntry>& entries) {
+        entries.clear();
         uint8_t hdr[12];
         f.read(reinterpret_cast<char*>(hdr), 12);
         if (!f) return false;

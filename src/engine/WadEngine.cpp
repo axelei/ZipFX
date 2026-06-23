@@ -38,6 +38,7 @@ bool WadEngine::Open(std::string_view path)
     m_fmtName = fmt;
 
     return parse(path, m_fmtName.c_str(), [](std::ifstream& f, std::vector<FileEntry>& entries) {
+        entries.clear();
         uint8_t hdr[12];
         f.read(reinterpret_cast<char*>(hdr), 12);
         if (!f) return false;

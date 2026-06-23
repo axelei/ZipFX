@@ -17,6 +17,7 @@ static void write32LE(std::ofstream& f, uint32_t v) {
 bool HogEngine::Open(std::string_view path)
 {
     return parse(path, "HOG", [](std::ifstream& f, std::vector<FileEntry>& entries) {
+        entries.clear();
         uint8_t magic[4];
         f.read(reinterpret_cast<char*>(magic), 4);
         if (std::memcmp(magic, "HOG\xF0", 4) != 0) return false;

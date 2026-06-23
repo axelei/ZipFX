@@ -9,6 +9,13 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/TarGzEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/LibarchiveEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/Bit7zEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/FlatArchiveEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/WadEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/PakEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/GrpEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/HogEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/VpkEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
 )
 
@@ -18,6 +25,7 @@ set(TEST_LIBS
     zip
     archive_static
     zlibstatic
+    adf
     bit7z
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Test
@@ -48,12 +56,14 @@ macro(add_zipfx_test TEST_NAME)
         TestUtils.cpp
         ${ENGINE_SOURCES}
     )
+    set_target_properties(${TEST_NAME} PROPERTIES WIN32_EXECUTABLE FALSE)
     target_include_directories(${TEST_NAME} PRIVATE
         ${CMAKE_SOURCE_DIR}/src
         ${CMAKE_BINARY_DIR}/generated
         ${libzip_SOURCE_DIR}/lib
         ${libzip_BINARY_DIR}/lib
         ${libarchive_SOURCE_DIR}/libarchive
+        ${adflib_SOURCE_DIR}
         ${CLI11_SOURCE_DIR}/include
     )
     target_compile_definitions(${TEST_NAME} PRIVATE
@@ -90,3 +100,4 @@ add_zipfx_test(tst_TarGzEngine)
 add_zipfx_test(tst_LibarchiveEngine)
 add_zipfx_test(tst_FileListModel)
 add_zipfx_test(tst_CliHandler)
+add_zipfx_test(tst_FlatArchiveEngines)

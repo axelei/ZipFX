@@ -68,6 +68,7 @@ bool VpkEngine::Open(std::string_view path)
     }
 
     f.seekg(headerSize);
+    m_entries.clear();
 
     while (f)
     {

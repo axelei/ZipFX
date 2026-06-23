@@ -17,6 +17,7 @@ static void write32LE(std::ofstream& f, uint32_t v) {
 bool GrpEngine::Open(std::string_view path)
 {
     return parse(path, "GRP", [](std::ifstream& f, std::vector<FileEntry>& entries) {
+        entries.clear();
         uint8_t hdr[16];
         f.read(reinterpret_cast<char*>(hdr), 16);
         if (!f) return false;
