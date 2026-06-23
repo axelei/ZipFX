@@ -349,12 +349,21 @@ bool ZipEngine::Save()
         }
         else
         {
-            if (zip_file_add(m_zip, pa.archivePath.c_str(),
-                             src, GetCompressionLevel()) < 0)
+            idx = zip_file_add(m_zip, pa.archivePath.c_str(),
+                               src, GetCompressionLevel());
+            if (idx < 0)
             {
                 LOG_WARN("ZipEngine: can't add %s", pa.archivePath.c_str());
                 zip_source_free(src);
             }
+        }
+
+        // Preserve Unix permissions from the source file
+        if (idx >= 0)
+        {
+            fs::perms perms = fs::status(pa.srcPath).permissions();
+            zip_uint32_t attrs = (static_cast<zip_uint32_t>(perms) & 0xFFF) << 16;
+            zip_file_set_external_attributes(m_zip, idx, 0, 3, attrs);
         }
         fileIdx++;
     }

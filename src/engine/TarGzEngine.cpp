@@ -424,7 +424,14 @@ bool TarGzEngine::Save()
         TarHeader hdr = {};
         std::memcpy(hdr.name, name.c_str(), name.size());
         std::memcpy(hdr.prefix, prefix.c_str(), prefix.size());
-        FormatOctal(hdr.mode, 8, 0644);
+        {
+            // Preserve source file permissions (default to 644)
+            std::error_code ec;
+            auto srcPerms = fs::status(qe.srcPath, ec).permissions();
+            mode_t mode = (ec || srcPerms == fs::perms::unknown)
+                ? 0644 : static_cast<mode_t>(srcPerms) & 0777;
+            FormatOctal(hdr.mode, 8, mode);
+        }
         FormatOctal(hdr.size, 12, fileSize);
 
         auto now = std::chrono::system_clock::to_time_t(
