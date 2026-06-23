@@ -137,12 +137,25 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
     // Reset cancel flag at the start of extraction
     m_extractCancelled = false;
 
+    // Determine total bytes for progress reporting
+    uint64_t totalBytes = 0;
+    if (idx >= 0 && idx < static_cast<int>(m_entries.size()))
+        totalBytes = m_entries[idx].packedSize > 0 ? m_entries[idx].packedSize : m_entries[idx].size;
+
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
 
-        // Progress callback keeps UI responsive and enables cancellation
-        extractor.setProgressCallback([this](uint64_t) -> bool {
+        // Progress callback keeps UI responsive, reports ETA, enables cancellation
+        extractor.setProgressCallback([this, entryName, totalBytes](uint64_t processed) -> bool {
+            if (m_extractProgressCb)
+            {
+                ExtractProgressInfo info;
+                info.bytesProcessed = processed;
+                info.totalBytes = totalBytes;
+                info.fileName = entryName;
+                m_extractProgressCb(info);
+            }
             QApplication::processEvents();
             return !m_extractCancelled;
         });
@@ -160,7 +173,6 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
     {
         if (m_extractCancelled)
         {
-            // Remove partial file on cancel
             std::error_code ec;
             fs::remove(std::string(destPath), ec);
         }

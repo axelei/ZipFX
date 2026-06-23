@@ -877,6 +877,27 @@ void MainWindow::doExtract(const QString& destPath, bool all)
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
 
+    // Per-file extract progress updates the dialog with real-time ETA
+    ProgressInfo extractFilePi;
+    uint64_t prevExtractBytes = 0;
+    m_engine->setExtractProgressCb([&](const ArchiveEngine::ExtractProgressInfo& info) {
+        if (info.totalBytes > 0)
+        {
+            if (extractFilePi.totalBytes == 0)
+                extractFilePi.start(info.totalBytes);
+            extractFilePi.addBytes(info.bytesProcessed - prevExtractBytes);
+            prevExtractBytes = info.bytesProcessed;
+
+            if (extractFilePi.shouldUpdate())
+            {
+                extractFilePi.updateRate();
+                m_progressDlg->setLabelText(
+                    tr("Extracting: %1 %2").arg(
+                        QString::fromStdString(info.fileName), extractFilePi.etaString()));
+            }
+        }
+    });
+
     bool applyToAll = false;
 
     for (size_t i = 0; i < toExtract.size(); ++i)
@@ -903,6 +924,10 @@ void MainWindow::doExtract(const QString& destPath, bool all)
             m_progressDlg->setLabelText(tr("Extracting: %1").arg(name));
         }
         QApplication::processEvents();
+
+        // Reset per-file progress tracker for the new file
+        extractFilePi = ProgressInfo{};
+        prevExtractBytes = 0;
 
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
 

@@ -38,6 +38,14 @@ public:
     bool isSaveCancelled() const { return m_saveCancelled; }
     virtual void cancelExtract() {} // engines may override to abort extraction
 
+    struct ExtractProgressInfo {
+        uint64_t bytesProcessed = 0;
+        uint64_t totalBytes = 0;
+        std::string fileName;
+    };
+    using ExtractProgressCb = std::function<void(const ExtractProgressInfo&)>;
+    void setExtractProgressCb(ExtractProgressCb cb) { m_extractProgressCb = std::move(cb); }
+
     struct SaveProgressInfo {
         int currentFile = 0;
         int totalFiles = 0;
@@ -55,6 +63,7 @@ public:
 protected:
     std::atomic<bool> m_saveCancelled{false};
     SaveProgressCb m_saveProgressCb;
+    ExtractProgressCb m_extractProgressCb;
 };
 
 #endif
