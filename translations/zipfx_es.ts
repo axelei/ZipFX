@@ -22,12 +22,12 @@
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="36"/>
         <source>Add Files...</source>
-        <translation>A�adir archivos...</translation>
+        <translation>Añadir archivos...</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="40"/>
         <source>Add Folder...</source>
-        <translation>A�adir carpeta...</translation>
+        <translation>Añadir carpeta...</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="44"/>
@@ -67,12 +67,12 @@
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="87"/>
         <source>No password</source>
-        <translation>Sin contrase�a</translation>
+        <translation>Sin contraseña</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="88"/>
         <source>Password:</source>
-        <translation>Contrase�a:</translation>
+        <translation>Contraseña:</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="90"/>
@@ -87,12 +87,12 @@
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="97"/>
         <source>Volumes (split)</source>
-        <translation>Vol�menes (dividir)</translation>
+        <translation>Volúmenes (dividir)</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="99"/>
         <source>Volume size:</source>
-        <translation>Tama�o de volumen:</translation>
+        <translation>Tamaño de volumen:</translation>
     </message>
     <message>
         <location filename="../src/ui/CreateArchiveDialog.cpp" line="103"/>
@@ -536,7 +536,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="202"/>
         <source>Spanish</source>
-        <translation>Espa�ol</translation>
+        <translation>Español</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="223"/>
@@ -565,7 +565,7 @@ Compatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
         <location filename="../src/ui/MainWindow.cpp" line="249"/>
         <location filename="../src/ui/MainWindow.cpp" line="527"/>
         <source>Add Folder</source>
-        <translation>A�adir carpeta</translation>
+        <translation>Añadir carpeta</translation>
     </message>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="297"/>
@@ -757,7 +757,7 @@ No se puede previsualizar este formato.</translation>
     <message>
         <location filename="../src/ui/MainWindow.cpp" line="957"/>
         <source>Archive Information</source>
-        <translation>Informaci�n del archivo</translation>
+        <translation>Información del archivo</translation>
     </message>
     <message>
         <source>File Info</source>
@@ -854,6 +854,7 @@ Tamano: %2 bytes</translation>
     </message>
 </context>
 </TS>
+
 
 
 
