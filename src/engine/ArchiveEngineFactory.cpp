@@ -47,11 +47,7 @@ static const FormatEntry kFormats[] = {
     // ── Libarchive-based engines ──────────────────────
     { "7z",     ".7z,.001,.002,.003,.004,.005,.006,.007,.008,.009",  ArchiveType::SevenZip,
         []() {
-            // Prefer Bit7zEngine if 7z.dll is available (full write support)
-            auto bit7z = std::make_unique<Bit7zEngine>();
-            if (bit7z->isLibraryLoaded())
-                return std::unique_ptr<ArchiveEngine>(std::move(bit7z));
-            // Fallback to libarchive (read-only)
+            // Libarchive handles 7z natively (bit7z/p7zip is optional for other formats)
             return std::unique_ptr<ArchiveEngine>(
                 std::make_unique<LibarchiveEngine>(
                     std::vector<LibarchiveEngine::FormatRegistrar>{
