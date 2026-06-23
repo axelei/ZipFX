@@ -78,19 +78,18 @@ if not "!NSIS_DIR!"=="" (
 
 rem If NSIS not found, try installing it
 echo NSIS not found. Downloading and installing...
-powershell -Command "$url = ((Invoke-RestMethod 'https://api.github.com/repos/kichik/nsis/releases/latest').assets | Where-Object { $_.name -like '*-setup.exe' } | Select-Object -First 1).browser_download_url; if ($url) { Invoke-WebRequest -Uri $url -OutFile '%TEMP%\nsis-setup.exe' -UseBasicParsing; Start-Process -Wait '%TEMP%\nsis-setup.exe' -ArgumentList '/S' } else { Write-Error 'NSIS release not found' }"
+powershell -Command "try { Invoke-WebRequest -Uri 'https://sourceforge.net/projects/nsis/files/NSIS%203/3.09/nsis-3.09-setup.exe/download' -OutFile '%TEMP%\nsis-setup.exe' -UseBasicParsing } catch { Write-Host 'Download failed' } ; if (Test-Path '%TEMP%\nsis-setup.exe') { Start-Process -Wait '%TEMP%\nsis-setup.exe' -ArgumentList '/S' } else { Write-Host 'NSIS installer not found' }"
 if errorlevel 1 (
     echo Warning: Failed to install NSIS, creating zip package instead
     goto :makezip
 )
-if exist "%ProgramFiles%\NSIS\makensis.exe" (
-    "%ProgramFiles%\NSIS\makensis.exe" installer.nsi
-) else if exist "%ProgramFiles(x86)%\NSIS\makensis.exe" (
-    "%ProgramFiles(x86)%\NSIS\makensis.exe" installer.nsi
-) else (
+rem Refresh PATH to find newly installed makensis
+set "PATH=%PATH%;%ProgramFiles%\NSIS;%ProgramFiles(x86)%\NSIS"
+where makensis >nul 2>nul || (
     echo Warning: NSIS installed but makensis.exe not found
     goto :makezip
 )
+makensis installer.nsi
 if errorlevel 1 (
     echo Warning: NSIS installer failed
     goto :makezip
