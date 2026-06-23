@@ -1,17 +1,15 @@
 #include "MainWindow.h"
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
-#include "ProgressInfo.h"
 #include "icons.h"
 
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
-// shell32.dll SHChangeNotify for notifying Explorer of association changes
-#define SHCNE_ASSOCCHANGED 0x8000000L
-#define SHCNF_IDLIST 0
-typedef void (WINAPI *SHChangeNotify_t)(LONG, UINT, LPCVOID, LPCVOID);
 #endif
+
+#include "ProgressInfo.h"
+#include "PowerManager.h"
 
 #include <QApplication>
 #include <QMenuBar>
@@ -482,8 +480,15 @@ void MainWindow::onNewArchive()
             }
         }
 
-        // Run save on a worker thread so the UI stays responsive
-        m_progressDlg->setLabelText(tr("Saving..."));
+        // Fresh dialog for save phase (with cancel button)
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = new QProgressDialog(tr("Saving..."), tr("Cancel"),
+            0, 0, this);
+        m_progressDlg->setAutoClose(false);
+        m_progressDlg->setAutoReset(false);
+        m_progressDlg->setWindowModality(Qt::ApplicationModal);
+        m_progressDlg->show();
         QApplication::processEvents();
 
         std::atomic<bool> saveDone{false};
@@ -494,10 +499,15 @@ void MainWindow::onNewArchive()
             saveDone = true;
         });
 
-        // Process only paint/timer events (not user input) so the
-        // dialog stays responsive while modality blocks the main window.
+        // Qt enforces modality inside processEvents — events destined
+        // for the main window are discarded; the dialog's cancel button
+        // still works because it's in the modal widget hierarchy.
         while (!saveDone)
-            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+        {
+            QApplication::processEvents();
+            if (m_progressDlg->wasCanceled())
+                break;
+        }
 
         if (saveThread.joinable())
             saveThread.join();
@@ -510,6 +520,30 @@ void MainWindow::onNewArchive()
         {
             QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
             return;
+        }
+
+        // After-action selector
+        QDialog afterDlg(this);
+        afterDlg.setWindowTitle(tr("Save Complete"));
+        auto* afterLayout = new QVBoxLayout(&afterDlg);
+        afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
+        auto* afterRow = new QHBoxLayout();
+        afterRow->addWidget(new QLabel(tr("After:")));
+        auto* afterCombo = new QComboBox();
+        afterCombo->addItems(GetAfterActionLabels());
+        afterRow->addWidget(afterCombo);
+        afterLayout->addLayout(afterRow);
+        auto* afterBtn = new QPushButton(tr("OK"));
+        connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
+        auto* afterBtnRow = new QHBoxLayout();
+        afterBtnRow->addStretch();
+        afterBtnRow->addWidget(afterBtn);
+        afterLayout->addLayout(afterBtnRow);
+        if (afterDlg.exec() == QDialog::Accepted)
+        {
+            auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
+            if (aa != AfterAction::Nothing)
+                ExecuteAfterAction(aa);
         }
     }
 
@@ -715,10 +749,15 @@ void MainWindow::doAddPaths(const QStringList& paths)
         saveDone = true;
     });
 
-    // Process only paint/timer events (not user input) so the
-    // dialog stays responsive while modality blocks the main window.
+    // Qt enforces modality inside processEvents — events destined
+    // for the main window are discarded; the dialog's cancel button
+    // still works because it's in the modal widget hierarchy.
     while (!saveDone)
-        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
+    {
+        QApplication::processEvents();
+        if (m_progressDlg->wasCanceled())
+            break;
+    }
 
     if (saveThread.joinable())
         saveThread.join();
@@ -728,7 +767,35 @@ void MainWindow::doAddPaths(const QStringList& paths)
     m_progressDlg = nullptr;
 
     if (!saveOk)
+    {
         QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+        refreshFileList();
+        return;
+    }
+
+    // After-action selector
+    QDialog afterDlg(this);
+    afterDlg.setWindowTitle(tr("Save Complete"));
+    auto* afterLayout = new QVBoxLayout(&afterDlg);
+    afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
+    auto* afterRow = new QHBoxLayout();
+    afterRow->addWidget(new QLabel(tr("After:")));
+    auto* afterCombo = new QComboBox();
+    afterCombo->addItems(GetAfterActionLabels());
+    afterRow->addWidget(afterCombo);
+    afterLayout->addLayout(afterRow);
+    auto* afterBtn = new QPushButton(tr("OK"));
+    connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
+    auto* afterBtnRow = new QHBoxLayout();
+    afterBtnRow->addStretch();
+    afterBtnRow->addWidget(afterBtn);
+    afterLayout->addLayout(afterBtnRow);
+    if (afterDlg.exec() == QDialog::Accepted)
+    {
+        auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
+        if (aa != AfterAction::Nothing)
+            ExecuteAfterAction(aa);
+    }
 
     refreshFileList();
 }
@@ -1526,6 +1593,9 @@ void MainWindow::registerFileAssociations()
 
     s.setValue("assoc/registered", true);
     // Notify Explorer of association changes via dynamic load (avoids MinGW header issues)
+#define SHCNE_ASSOCCHANGED 0x8000000L
+#define SHCNF_IDLIST 0
+    typedef void (WINAPI *SHChangeNotify_t)(LONG, UINT, LPCVOID, LPCVOID);
     auto shell32 = LoadLibraryA("shell32.dll");
     if (shell32)
     {
