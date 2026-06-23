@@ -7,12 +7,12 @@
 
 set -euo pipefail
 
-QT_DIR="${1:-/Users/krusher/Qt/6.11.1/macos}"
+QT_DIR="${1:-${HOME}/Qt/6.11.1/macos}"
 BUILD_DIR="build_mac"
 
 # Find cmake (CLion bundles it)
 CMAKE=""
-for cmd in cmake /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake; do
+for cmd in cmake /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake /usr/local/bin/cmake /opt/homebrew/bin/cmake; do
     if command -v "$cmd" &>/dev/null; then CMAKE="$cmd"; break; fi
 done
 if [ -z "$CMAKE" ]; then echo "cmake not found"; exit 1; fi
