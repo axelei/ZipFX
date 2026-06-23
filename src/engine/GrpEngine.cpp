@@ -1,10 +1,17 @@
 #include "GrpEngine.h"
 
+#include <algorithm>
 #include <cstring>
 
 static uint32_t read32(const uint8_t* d) {
     return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
          | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
+}
+
+static void write32LE(std::ofstream& f, uint32_t v) {
+    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
+                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
+    f.write(reinterpret_cast<const char*>(b), 4);
 }
 
 bool GrpEngine::Open(std::string_view path)
@@ -17,8 +24,6 @@ bool GrpEngine::Open(std::string_view path)
 
         int count = static_cast<int>(read32(hdr + 12));
 
-        // GRP entries are name[12] + size[4] = 16 bytes each.
-        // There is NO stored offset field — positions are computed.
         uint32_t dataOff = 16 + count * 16;
 
         for (int i = 0; i < count; ++i)
@@ -39,4 +44,44 @@ bool GrpEngine::Open(std::string_view path)
         }
         return !entries.empty();
     });
+}
+
+bool GrpEngine::doSave(std::ofstream& f)
+{
+    // GRP: header[16] + entries[count*16] + data
+    size_t count = m_entries.size();
+
+    // Write header
+    f.write("KenSilverman", 12);
+    write32LE(f, static_cast<uint32_t>(count));
+
+    // Compute sizes and data offsets
+    std::vector<uint32_t> sizes;
+    sizes.reserve(count);
+    uint32_t dataOff = 16 + static_cast<uint32_t>(count) * 16;
+
+    for (const auto& e : m_entries)
+    {
+        uint32_t sz = (e.size > 0) ? e.size : 0;
+        sizes.push_back(sz);
+    }
+
+    // Write directory entries (name[12] + size[4], no offset field)
+    for (size_t i = 0; i < count; ++i)
+    {
+        char name[12] = {};
+        std::memcpy(name, m_entries[i].name.c_str(),
+                    (std::min)(m_entries[i].name.size(), size_t{12}));
+        f.write(name, 12);
+        write32LE(f, sizes[i]);
+    }
+
+    // Write data sequentially
+    for (size_t i = 0; i < count; ++i)
+    {
+        if (sizes[i] == 0) continue;
+        f.write(reinterpret_cast<const char*>(m_entries[i].data.data()), sizes[i]);
+    }
+
+    return f.good();
 }

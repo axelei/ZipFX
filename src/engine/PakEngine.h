@@ -8,6 +8,9 @@ class PakEngine : public FlatArchiveEngine
 public:
     bool Open(std::string_view path) override;
     std::string_view FormatName() const override { return "PAK"; }
+
+private:
+    bool doSave(std::ofstream& f) override;
 };
 
 #endif

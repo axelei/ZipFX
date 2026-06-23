@@ -10,6 +10,7 @@ public:
     std::string_view FormatName() const override { return m_fmtName; }
 
 private:
+    bool doSave(std::ofstream& f) override;
     std::string m_fmtName = "WAD";
 };
 

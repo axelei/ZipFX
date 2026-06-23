@@ -1,11 +1,18 @@
 #include "WadEngine.h"
 
+#include <algorithm>
 #include <cstring>
 #include <string>
 
 static uint32_t read32(const uint8_t* d) {
     return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
          | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
+}
+
+static void write32LE(std::ofstream& f, uint32_t v) {
+    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
+                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
+    f.write(reinterpret_cast<const char*>(b), 4);
 }
 
 bool WadEngine::Open(std::string_view path)
@@ -57,4 +64,45 @@ bool WadEngine::Open(std::string_view path)
         }
         return true;
     });
+}
+
+bool WadEngine::doSave(std::ofstream& f)
+{
+    // WAD: header[12] + data[varies] + directory[count*16]
+    auto fmt = FormatName();
+
+    // Write header (placeholder dirOff)
+    f.write(fmt.data(), 4);
+    write32LE(f, static_cast<uint32_t>(m_entries.size()));
+    write32LE(f, 0);
+
+    // Data offsets start at 12 (after header)
+    std::vector<uint32_t> offsets;
+    uint32_t curOff = 12;
+
+    for (const auto& e : m_entries)
+    {
+        if (e.size == 0) { offsets.push_back(0); continue; }
+        offsets.push_back(curOff);
+        f.write(reinterpret_cast<const char*>(e.data.data()), e.size);
+        curOff += e.size;
+    }
+
+    // Write directory
+    uint32_t dirOff = curOff;
+    for (size_t i = 0; i < m_entries.size(); ++i)
+    {
+        if (m_entries[i].size == 0) continue;
+        write32LE(f, offsets[i]);
+        write32LE(f, m_entries[i].size);
+        char name[8] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
+        std::memcpy(name, m_entries[i].name.c_str(),
+                    (std::min)(m_entries[i].name.size(), size_t{8}));
+        f.write(name, 8);
+    }
+
+    // Fix dirOff in header
+    f.seekp(8);
+    write32LE(f, dirOff);
+    return f.good();
 }

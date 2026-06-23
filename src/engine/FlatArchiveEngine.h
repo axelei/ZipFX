@@ -24,17 +24,25 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
-    bool SupportsCreation() const override { return false; }
+    bool SupportsCreation() const override { return true; }
     bool IsOpen() const override { return m_isOpen; }
 
+    bool Create(std::string_view path) override;
+    bool AddFile(std::string_view srcPath, std::string_view archivePath) override;
+    bool RemoveEntry(std::string_view entryName) override;
+    bool Save() override;
+
 protected:
-    struct FileEntry { std::string name; uint32_t offset = 0; uint32_t size = 0; };
+    struct FileEntry { std::string name; uint32_t offset = 0; uint32_t size = 0; std::vector<uint8_t> data; };
 
     bool parse(std::string_view path, const char* formatName,
                std::function<bool(std::ifstream& f, FileEntry& entry)> readEntry);
 
     bool parse(std::string_view path, const char* formatName,
                std::function<bool(std::ifstream& f, std::vector<FileEntry>& entries)> readHeader);
+
+    // Subclasses override to write their format on Save()
+    virtual bool doSave(std::ofstream& f) = 0;
 
     std::string m_formatName;
     std::string m_path;
