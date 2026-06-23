@@ -4,6 +4,8 @@
 
 #include <zlib.h>
 
+#include <QApplication>
+
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -407,6 +409,8 @@ bool TarGzEngine::Save()
 
         writeBlock(&hdr, sizeof(hdr));
         writeBlock(fileData.data(), fileData.size());
+
+        QApplication::processEvents();
     }
 
     // End-of-archive: two zero blocks

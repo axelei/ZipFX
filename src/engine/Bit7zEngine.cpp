@@ -10,6 +10,8 @@
 #include <bit7z/bittypes.hpp>
 #include <bit7z/bitcompressionlevel.hpp>
 
+#include <QApplication>
+
 #include <filesystem>
 #include <fstream>
 #include <functional>
@@ -246,6 +248,12 @@ bool Bit7zEngine::Save()
 
         for (const auto& [archivePath, srcPath] : m_pendingAdds)
             writer->addFile(srcPath, archivePath);
+
+        // Progress callback keeps the UI responsive during compression
+        writer->setProgressCallback([&](uint64_t) -> bool {
+            QApplication::processEvents();
+            return true;
+        });
 
         writer->compressTo(m_path);
 
