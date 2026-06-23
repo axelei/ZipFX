@@ -359,6 +359,110 @@ void MainWindow::setupUI()
     setCentralWidget(m_centralWidget);
 }
 
+// ── Save helpers ───────────────────────────────────────────────────────
+bool MainWindow::saveWithProgress()
+{
+    m_progressDlg->setLabelText(tr("Saving..."));
+    m_progressDlg->setRange(0, 0);
+    QApplication::processEvents();
+
+    std::atomic<bool> saveDone{false};
+    std::atomic<bool> saveOk{false};
+    std::mutex spMutex;
+    ArchiveEngine::SaveProgressInfo spInfo;
+    uint64_t prevBytes = 0;
+    ProgressInfo savePi;
+
+    m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
+        std::lock_guard<std::mutex> lock(spMutex);
+        spInfo = info;
+    });
+
+    std::thread saveThread([this, &saveDone, &saveOk]() {
+        saveOk = m_engine->Save();
+        saveDone = true;
+    });
+
+    bool userCancelled = false;
+
+    while (!saveDone)
+    {
+        QApplication::processEvents();
+
+        if (!userCancelled && m_progressDlg->wasCanceled())
+        {
+            m_engine->cancelSave();
+            userCancelled = true;
+            m_progressDlg->setLabelText(tr("Cancelling..."));
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(spMutex);
+            if (spInfo.totalBytes > 0)
+            {
+                if (savePi.totalBytes == 0)
+                    savePi.start(spInfo.totalBytes);
+                savePi.addBytes(spInfo.bytesProcessed - prevBytes);
+                prevBytes = spInfo.bytesProcessed;
+                if (savePi.shouldUpdate() && !userCancelled)
+                {
+                    savePi.updateRate();
+                    m_progressDlg->setLabelText(
+                        tr("Saving: %1 %2").arg(
+                            QString::fromStdString(spInfo.fileName), savePi.etaString()));
+                }
+            }
+        }
+    }
+
+    if (saveThread.joinable())
+        saveThread.join();
+
+    m_progressDlg->close();
+    delete m_progressDlg;
+    m_progressDlg = nullptr;
+
+    if (m_engine->isSaveCancelled())
+    {
+        statusBar()->showMessage(tr("Save cancelled."), 3000);
+        return false;
+    }
+
+    if (!saveOk)
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+        return false;
+    }
+
+    return true;
+}
+
+void MainWindow::afterActionDialog()
+{
+    QDialog afterDlg(this);
+    afterDlg.setWindowTitle(tr("Save Complete"));
+    auto* afterLayout = new QVBoxLayout(&afterDlg);
+    afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
+    auto* afterRow = new QHBoxLayout();
+    afterRow->addWidget(new QLabel(tr("After:")));
+    auto* afterCombo = new QComboBox();
+    afterCombo->addItems(GetAfterActionLabels());
+    afterRow->addWidget(afterCombo);
+    afterLayout->addLayout(afterRow);
+    auto* afterBtn = new QPushButton(tr("OK"));
+    connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
+    auto* afterBtnRow = new QHBoxLayout();
+    afterBtnRow->addStretch();
+    afterBtnRow->addWidget(afterBtn);
+    afterLayout->addLayout(afterBtnRow);
+    if (afterDlg.exec() == QDialog::Accepted)
+    {
+        auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
+        if (aa != AfterAction::Nothing)
+            ExecuteAfterAction(aa);
+    }
+}
+
 // ── Archive actions ────────────────────────────────────────────────────
 void MainWindow::onNewArchive()
 {
@@ -488,7 +592,6 @@ void MainWindow::onNewArchive()
             }
         }
 
-        // Fresh dialog for save phase (with cancel button)
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = new QProgressDialog(tr("Saving..."), tr("Cancel"),
@@ -497,99 +600,14 @@ void MainWindow::onNewArchive()
         m_progressDlg->setAutoReset(false);
         m_progressDlg->setWindowModality(Qt::ApplicationModal);
         m_progressDlg->show();
-        QApplication::processEvents();
 
-        std::atomic<bool> saveDone{false};
-        std::atomic<bool> saveOk{false};
-        std::mutex spMutex;
-        ArchiveEngine::SaveProgressInfo spInfo;
-        uint64_t prevBytes = 0;
-        ProgressInfo savePi;
-
-        m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
-            std::lock_guard<std::mutex> lock(spMutex);
-            spInfo = info;
-        });
-
-        std::thread saveThread([this, &saveDone, &saveOk]() {
-            saveOk = m_engine->Save();
-            saveDone = true;
-        });
-
-        bool userCancelled = false;
-
-        while (!saveDone)
+        if (!saveWithProgress())
         {
-            QApplication::processEvents();
-
-            if (!userCancelled && m_progressDlg->wasCanceled())
-            {
-                m_engine->cancelSave();
-                userCancelled = true;
-                m_progressDlg->setLabelText(tr("Cancelling..."));
-            }
-
-            {
-                std::lock_guard<std::mutex> lock(spMutex);
-                if (spInfo.totalBytes > 0)
-                {
-                    if (savePi.totalBytes == 0)
-                        savePi.start(spInfo.totalBytes);
-                    savePi.addBytes(spInfo.bytesProcessed - prevBytes);
-                    prevBytes = spInfo.bytesProcessed;
-                    if (savePi.shouldUpdate() && !userCancelled)
-                    {
-                        savePi.updateRate();
-                        m_progressDlg->setLabelText(
-                            tr("Saving: %1 %2").arg(
-                                QString::fromStdString(spInfo.fileName), savePi.etaString()));
-                    }
-                }
-            }
-        }
-
-        if (saveThread.joinable())
-            saveThread.join();
-
-        m_progressDlg->close();
-        delete m_progressDlg;
-        m_progressDlg = nullptr;
-
-        if (m_engine->isSaveCancelled())
-        {
-            statusBar()->showMessage(tr("Save cancelled."), 3000);
+            m_progressDlg = nullptr;
             return;
         }
 
-        if (!saveOk)
-        {
-            QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-            return;
-        }
-
-        // After-action selector
-        QDialog afterDlg(this);
-        afterDlg.setWindowTitle(tr("Save Complete"));
-        auto* afterLayout = new QVBoxLayout(&afterDlg);
-        afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
-        auto* afterRow = new QHBoxLayout();
-        afterRow->addWidget(new QLabel(tr("After:")));
-        auto* afterCombo = new QComboBox();
-        afterCombo->addItems(GetAfterActionLabels());
-        afterRow->addWidget(afterCombo);
-        afterLayout->addLayout(afterRow);
-        auto* afterBtn = new QPushButton(tr("OK"));
-        connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
-        auto* afterBtnRow = new QHBoxLayout();
-        afterBtnRow->addStretch();
-        afterBtnRow->addWidget(afterBtn);
-        afterLayout->addLayout(afterBtnRow);
-        if (afterDlg.exec() == QDialog::Accepted)
-        {
-            auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
-            if (aa != AfterAction::Nothing)
-                ExecuteAfterAction(aa);
-        }
+        afterActionDialog();
     }
 
     m_currentPath = result.path.toStdString();
@@ -784,104 +802,13 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
-    // Run save on a worker thread so the UI stays responsive
-    m_progressDlg->setLabelText(tr("Saving..."));
-    QApplication::processEvents();
-
-    std::atomic<bool> saveDone{false};
-    std::atomic<bool> saveOk{false};
-    std::mutex spMutex2;
-    ArchiveEngine::SaveProgressInfo spInfo2;
-    uint64_t prevBytes2 = 0;
-    ProgressInfo savePi2;
-
-    m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
-        std::lock_guard<std::mutex> lock(spMutex2);
-        spInfo2 = info;
-    });
-
-    std::thread saveThread([this, &saveDone, &saveOk]() {
-        saveOk = m_engine->Save();
-        saveDone = true;
-    });
-
-    bool userCancelled2 = false;
-
-    while (!saveDone)
+    if (!saveWithProgress())
     {
-        QApplication::processEvents();
-
-        if (!userCancelled2 && m_progressDlg->wasCanceled())
-        {
-            m_engine->cancelSave();
-            userCancelled2 = true;
-            m_progressDlg->setLabelText(tr("Cancelling..."));
-        }
-
-        {
-            std::lock_guard<std::mutex> lock(spMutex2);
-            if (spInfo2.totalBytes > 0)
-            {
-                if (savePi2.totalBytes == 0)
-                    savePi2.start(spInfo2.totalBytes);
-                savePi2.addBytes(spInfo2.bytesProcessed - prevBytes2);
-                prevBytes2 = spInfo2.bytesProcessed;
-                if (savePi2.shouldUpdate() && !userCancelled2)
-                {
-                    savePi2.updateRate();
-                    m_progressDlg->setLabelText(
-                        tr("Saving: %1 %2").arg(
-                            QString::fromStdString(spInfo2.fileName), savePi2.etaString()));
-                }
-            }
-        }
-    }
-
-    if (saveThread.joinable())
-        saveThread.join();
-
-    m_progressDlg->close();
-    delete m_progressDlg;
-    m_progressDlg = nullptr;
-
-    if (m_engine->isSaveCancelled())
-    {
-        statusBar()->showMessage(tr("Save cancelled."), 3000);
         refreshFileList();
         return;
     }
 
-    if (!saveOk)
-    {
-        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-        refreshFileList();
-        return;
-    }
-
-    // After-action selector
-    QDialog afterDlg(this);
-    afterDlg.setWindowTitle(tr("Save Complete"));
-    auto* afterLayout = new QVBoxLayout(&afterDlg);
-    afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
-    auto* afterRow = new QHBoxLayout();
-    afterRow->addWidget(new QLabel(tr("After:")));
-    auto* afterCombo = new QComboBox();
-    afterCombo->addItems(GetAfterActionLabels());
-    afterRow->addWidget(afterCombo);
-    afterLayout->addLayout(afterRow);
-    auto* afterBtn = new QPushButton(tr("OK"));
-    connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
-    auto* afterBtnRow = new QHBoxLayout();
-    afterBtnRow->addStretch();
-    afterBtnRow->addWidget(afterBtn);
-    afterLayout->addLayout(afterBtnRow);
-    if (afterDlg.exec() == QDialog::Accepted)
-    {
-        auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
-        if (aa != AfterAction::Nothing)
-            ExecuteAfterAction(aa);
-    }
-
+    afterActionDialog();
     refreshFileList();
 }
 

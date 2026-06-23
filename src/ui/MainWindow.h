@@ -81,6 +81,8 @@ private:
     void doExtract(const QString& destPath, bool all);
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
+    bool saveWithProgress();
+    void afterActionDialog();
 
     std::unique_ptr<ArchiveEngine> m_engine;
     std::string m_currentPath;
