@@ -1,12 +1,4 @@
 cmake_minimum_required(VERSION 3.20)
-
-# Force Qt MinGW compilers to avoid CLion finding Gow's make.exe
-if(WIN32 AND EXISTS "C:/Qt/Tools/mingw1310_64/bin/gcc.exe")
-    set(CMAKE_C_COMPILER   "C:/Qt/Tools/mingw1310_64/bin/gcc.exe"   CACHE FILEPATH "MinGW C compiler" FORCE)
-    set(CMAKE_CXX_COMPILER "C:/Qt/Tools/mingw1310_64/bin/c++.exe" CACHE FILEPATH "MinGW C++ compiler" FORCE)
-    set(CMAKE_MAKE_PROGRAM "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe" CACHE FILEPATH "MinGW make" FORCE)
-endif()
-
 project(ZipFX VERSION 0.2.0 LANGUAGES C CXX)
 if(APPLE)
     enable_language(OBJCXX)
