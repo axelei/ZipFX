@@ -2,6 +2,8 @@
 
 #include "Logging.h"
 
+#include <QApplication>
+
 #include <filesystem>
 #include <fstream>
 #include <cstring>
@@ -295,22 +297,61 @@ bool ZipEngine::Save()
 {
     if (!m_zip || !m_modified) return true;
 
-    // Flush pending additions
+    // Read pending files into memory so file I/O happens in our loop
+    // (with event processing) rather than inside zip_close
+    struct MemBuf { std::vector<uint8_t> data; zip_source_t* src = nullptr; };
+    std::vector<MemBuf> buffers;
+    buffers.reserve(m_pendingAdds.size());
+
     for (const auto& pa : m_pendingAdds)
     {
-        zip_source_t* src = zip_source_file_create(
-            pa.srcPath.c_str(), 0, -1, nullptr);
-        if (!src)
+        // Read the source file
+        std::ifstream in(pa.srcPath, std::ios::binary | std::ios::ate);
+        if (!in)
         {
-            LOG_WARN("ZipEngine: can't create source for %s", pa.srcPath.c_str());
+            LOG_WARN("ZipEngine: can't read %s", pa.srcPath.c_str());
             continue;
         }
+        auto sz = in.tellg();
+        if (sz < 0) continue;
+        in.seekg(0);
+
+        auto& buf = buffers.emplace_back();
+        buf.data.resize(static_cast<size_t>(sz));
+        in.read(reinterpret_cast<char*>(buf.data.data()), buf.data.size());
+        if (!in)
+        {
+            LOG_WARN("ZipEngine: failed to read %s", pa.srcPath.c_str());
+            buffers.pop_back();
+            continue;
+        }
+
+        QApplication::processEvents();
+    }
+
+    // Add entries using in-memory buffers
+    size_t bufIdx = 0;
+    for (const auto& pa : m_pendingAdds)
+    {
+        if (bufIdx >= buffers.size()) break;
+
+        auto& buf = buffers[bufIdx];
+        if (buf.data.empty()) { bufIdx++; continue; }
+
+        zip_source_t* src = zip_source_buffer(
+            m_zip, buf.data.data(), buf.data.size(), 0);
+        if (!src)
+        {
+            LOG_WARN("ZipEngine: can't create buffer source for %s", pa.srcPath.c_str());
+            bufIdx++;
+            continue;
+        }
+        buf.src = src;
 
         zip_int64_t idx = zip_name_locate(
             m_zip, pa.archivePath.c_str(), 0);
         if (idx >= 0)
         {
-            // Replace existing entry
             if (zip_file_replace(m_zip, idx, src, GetCompressionLevel()) != 0)
             {
                 LOG_WARN("ZipEngine: can't replace %s", pa.archivePath.c_str());
@@ -319,7 +360,6 @@ bool ZipEngine::Save()
         }
         else
         {
-            // Add new entry
             if (zip_file_add(m_zip, pa.archivePath.c_str(),
                              src, GetCompressionLevel()) < 0)
             {
@@ -327,10 +367,11 @@ bool ZipEngine::Save()
                 zip_source_free(src);
             }
         }
+        bufIdx++;
     }
     m_pendingAdds.clear();
 
-    // Commit changes to disk (libzip handles everything in-place)
+    // Commit changes to disk
     if (zip_close(m_zip) != 0)
     {
         LOG_ERR("ZipEngine: failed to close/commit archive");
