@@ -1,4 +1,10 @@
 cmake_minimum_required(VERSION 3.20)
+
+# Force MinGW make before compiler detection (CLion picks Gow's make.exe otherwise)
+if(WIN32 AND EXISTS "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe")
+    set(CMAKE_MAKE_PROGRAM "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe" CACHE FILEPATH "MinGW make" FORCE)
+endif()
+
 project(ZipFX VERSION 0.2.0 LANGUAGES C CXX)
 if(APPLE)
     enable_language(OBJCXX)
@@ -7,8 +13,12 @@ endif()
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
-set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 set(CMAKE_AUTOMOC ON)
+
+# Force the correct MinGW make program (CLion sometimes picks Gow's make.exe)
+if(WIN32 AND EXISTS "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe")
+    set(CMAKE_MAKE_PROGRAM "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe" CACHE FILEPATH "MinGW make" FORCE)
+endif()
 
 option(BUILD_TESTING "Build unit tests" ON)
 
