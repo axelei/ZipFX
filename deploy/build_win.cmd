@@ -37,20 +37,35 @@ where windeployqt >nul 2>nul && set "WINDEPLOYQT=windeployqt"
 if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
 if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
 if not "!WINDEPLOYQT!"=="" (
+    echo Running windeployqt...
     "!WINDEPLOYQT!" --no-translations --no-compiler-runtime "%BUILD_DIR%/ZipFX.exe"
 ) else (
     echo windeployqt not found. Copying Qt DLLs manually...
-    copy /y "%QT_DIR%\bin\Qt6Core.dll"    "%BUILD_DIR%\" >nul
-    copy /y "%QT_DIR%\bin\Qt6Gui.dll"     "%BUILD_DIR%\" >nul
-    copy /y "%QT_DIR%\bin\Qt6Widgets.dll" "%BUILD_DIR%\" >nul
-    copy /y "%QT_DIR%\bin\Qt6Network.dll" "%BUILD_DIR%\" >nul 2>nul
-    copy /y "%QT_DIR%\bin\Qt6Svg.dll"     "%BUILD_DIR%\" >nul 2>nul
-    mkdir "%BUILD_DIR%\platforms" 2>nul
-    copy /y "%QT_DIR%\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
-    mkdir "%BUILD_DIR%\styles" 2>nul
-    if exist "%QT_DIR%\plugins\styles\qmodernwindowsstyle.dll" (
-        copy /y "%QT_DIR%\plugins\styles\qmodernwindowsstyle.dll" "%BUILD_DIR%\styles\" >nul
+    for %%f in (Qt6Core.dll Qt6Gui.dll Qt6Widgets.dll Qt6Network.dll Qt6Svg.dll) do (
+        if exist "%QT_DIR%\bin\%%f" (
+            copy /y "%QT_DIR%\bin\%%f" "%BUILD_DIR%\" >nul && echo   %%f copied
+        ) else (
+            echo   Warning: %%f not found
+        )
     )
+    mkdir "%BUILD_DIR%\platforms" 2>nul
+    if exist "%QT_DIR%\plugins\platforms\qwindows.dll" (
+        copy /y "%QT_DIR%\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
+        echo   qwindows.dll copied
+    ) else (
+        echo   Warning: qwindows.dll not found at %QT_DIR%\plugins\platforms\qwindows.dll
+        rem Try alternative plugin locations
+        if exist "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" (
+            copy /y "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
+            echo   qwindows.dll copied (alternative path)
+        )
+    )
+)
+
+rem Verify platform plugin exists
+if not exist "%BUILD_DIR%\platforms\qwindows.dll" (
+    echo ERROR: Qt platform plugin (qwindows.dll) missing. Installer will produce non-functional build.
+    echo Copy qwindows.dll manually to %BUILD_DIR%\platforms\ or install windeployqt.
 )
 
 echo === Copying 7z.dll ===
@@ -60,6 +75,12 @@ if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
 ) else (
     echo Warning: 7z.dll not found at %REPO_DIR%\lib\win\x64\7z.dll
 )
+
+echo === Verifying build output ===
+if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe missing!
+if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll missing!
+if not exist "%BUILD_DIR%\Qt6Core.dll" echo WARNING: Qt6Core.dll missing!
+if not exist "%BUILD_DIR%\libzip.dll" echo WARNING: libzip.dll missing!
 
 echo === Checking NSIS ===
 set "NSIS_DIR="
