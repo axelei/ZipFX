@@ -243,6 +243,8 @@ if(WIN32)
         ole32 oleaut32 powrprof
     )
     target_link_options(ZipFX PRIVATE "-Wl,--allow-multiple-definition")
+    target_sources(ZipFX PRIVATE "${CMAKE_SOURCE_DIR}/src/resources/app.rc")
+    set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
 endif()
 
 # ====================================================================
