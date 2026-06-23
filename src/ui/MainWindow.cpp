@@ -516,9 +516,18 @@ void MainWindow::onNewArchive()
             saveDone = true;
         });
 
+        bool userCancelled = false;
+
         while (!saveDone)
         {
             QApplication::processEvents();
+
+            if (!userCancelled && m_progressDlg->wasCanceled())
+            {
+                m_engine->cancelSave();
+                userCancelled = true;
+                m_progressDlg->setLabelText(tr("Cancelling..."));
+            }
 
             {
                 std::lock_guard<std::mutex> lock(spMutex);
@@ -528,25 +537,14 @@ void MainWindow::onNewArchive()
                         savePi.start(spInfo.totalBytes);
                     savePi.addBytes(spInfo.bytesProcessed - prevBytes);
                     prevBytes = spInfo.bytesProcessed;
-                    if (savePi.shouldUpdate())
+                    if (savePi.shouldUpdate() && !userCancelled)
                     {
                         savePi.updateRate();
-                        QString label = tr("Saving: %1 %2").arg(
-                            QString::fromStdString(spInfo.fileName), savePi.etaString());
-                        m_progressDlg->setLabelText(label);
-                    }
-                    else if (!spInfo.fileName.empty())
-                    {
                         m_progressDlg->setLabelText(
-                            tr("Saving: %1").arg(QString::fromStdString(spInfo.fileName)));
+                            tr("Saving: %1 %2").arg(
+                                QString::fromStdString(spInfo.fileName), savePi.etaString()));
                     }
                 }
-            }
-
-            if (m_progressDlg->wasCanceled())
-            {
-                m_engine->cancelSave();
-                break;
             }
         }
 
@@ -805,9 +803,18 @@ void MainWindow::doAddPaths(const QStringList& paths)
         saveDone = true;
     });
 
+    bool userCancelled2 = false;
+
     while (!saveDone)
     {
         QApplication::processEvents();
+
+        if (!userCancelled2 && m_progressDlg->wasCanceled())
+        {
+            m_engine->cancelSave();
+            userCancelled2 = true;
+            m_progressDlg->setLabelText(tr("Cancelling..."));
+        }
 
         {
             std::lock_guard<std::mutex> lock(spMutex2);
@@ -817,25 +824,14 @@ void MainWindow::doAddPaths(const QStringList& paths)
                     savePi2.start(spInfo2.totalBytes);
                 savePi2.addBytes(spInfo2.bytesProcessed - prevBytes2);
                 prevBytes2 = spInfo2.bytesProcessed;
-                if (savePi2.shouldUpdate())
+                if (savePi2.shouldUpdate() && !userCancelled2)
                 {
                     savePi2.updateRate();
                     m_progressDlg->setLabelText(
                         tr("Saving: %1 %2").arg(
                             QString::fromStdString(spInfo2.fileName), savePi2.etaString()));
                 }
-                else if (!spInfo2.fileName.empty())
-                {
-                    m_progressDlg->setLabelText(
-                        tr("Saving: %1").arg(QString::fromStdString(spInfo2.fileName)));
-                }
             }
-        }
-
-        if (m_progressDlg->wasCanceled())
-        {
-            m_engine->cancelSave();
-            break;
         }
     }
 
