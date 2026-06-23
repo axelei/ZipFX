@@ -6,7 +6,7 @@ REM
 REM Usage:  build_win.cmd [Qt_DIR]
 REM         default Qt_DIR = C:\Qt\6.8.3\mingw_64
 
-setlocal
+setlocal EnableDelayedExpansion
 
 set QT_DIR=%~1
 if "%QT_DIR%"=="" set QT_DIR=C:\Qt\6.8.3\mingw_64
@@ -15,9 +15,10 @@ set MINGW_DIR=%QT_DIR%\..\..\Tools\mingw1310_64\bin
 set PATH=%QT_DIR%\bin;%MINGW_DIR%;%PATH%
 
 set BUILD_DIR=build_win
+set REPO_DIR=..
 
 echo === Configuring %BUILD_DIR% ===
-cmake -S .. -B %BUILD_DIR% -G "MinGW Makefiles" ^
+cmake -S %REPO_DIR% -B %BUILD_DIR% -G "MinGW Makefiles" ^
     -DCMAKE_PREFIX_PATH=%QT_DIR% ^
     -DCMAKE_C_COMPILER=gcc ^
     -DCMAKE_CXX_COMPILER=g++ ^
@@ -31,27 +32,65 @@ cmake --build %BUILD_DIR% --target ZipFX -j8
 if errorlevel 1 exit /b 1
 
 echo === Running windeployqt ===
-windeployqt --no-translations --no-compiler-runtime %BUILD_DIR%/ZipFX.exe
-if errorlevel 1 echo Warning: windeployqt had issues
-
-echo === Copying 7z.dll ===
-xcopy /y /d ..\lib\win\x64\7z.dll %BUILD_DIR%\ 2>nul
-
-echo === Checking NSIS ===
-where makensis >nul 2>nul
+where windeployqt >nul 2>nul
 if errorlevel 1 (
-    echo NSIS not found. Downloading and installing...
-    powershell -Command "$url = ((Invoke-RestMethod 'https://api.github.com/repos/kichik/nsis/releases/latest').assets | Where-Object { $_.name -like '*-setup.exe' } | Select-Object -First 1).browser_download_url; if ($url) { Invoke-WebRequest -Uri $url -OutFile '%TEMP%\nsis-setup.exe' -UseBasicParsing; Start-Process -Wait '%TEMP%\nsis-setup.exe' -ArgumentList '/S' } else { Write-Error 'NSIS release not found' }"
-    if errorlevel 1 (
-        echo Warning: Failed to install NSIS, creating zip package instead
-        goto :makezip
-    )
-    rem Refresh PATH so makensis is found
-    set PATH=%PATH%;%ProgramFiles(x86)%\NSIS;%ProgramFiles%\NSIS
+    rem Try to find windeployqt near the Qt6_DIR that cmake used
+    for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
+    if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
+    if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('where windeployqt 2^>nul') do set "WINDEPLOYQT=%%a"
+) else (
+    set "WINDEPLOYQT=windeployqt"
+)
+if not "!WINDEPLOYQT!"=="" (
+    "!WINDEPLOYQT!" --no-translations --no-compiler-runtime "%BUILD_DIR%/ZipFX.exe"
+) else (
+    echo Warning: windeployqt not found. Copy Qt DLLs manually.
 )
 
-echo === Building NSIS installer ===
-makensis installer.nsi
+echo === Copying 7z.dll ===
+if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
+    copy /y "%REPO_DIR%\lib\win\x64\7z.dll" "%BUILD_DIR%\" >nul
+    echo 7z.dll copied
+) else (
+    echo Warning: 7z.dll not found at %REPO_DIR%\lib\win\x64\7z.dll
+)
+
+echo === Checking NSIS ===
+set "NSIS_DIR="
+where makensis >nul 2>nul
+if not errorlevel 1 (
+    set "NSIS_DIR=makensis"
+) else (
+    if exist "%ProgramFiles%\NSIS\makensis.exe" set "NSIS_DIR=%ProgramFiles%\NSIS\makensis.exe"
+    if exist "%ProgramFiles(x86)%\NSIS\makensis.exe" set "NSIS_DIR=%ProgramFiles(x86)%\NSIS\makensis.exe"
+)
+
+if not "!NSIS_DIR!"=="" (
+    echo === Building NSIS installer ===
+    "!NSIS_DIR!" installer.nsi
+    if errorlevel 1 (
+        echo Warning: NSIS installer failed
+        goto :makezip
+    )
+    echo === Done: ZipFX-Setup.exe ===
+    goto :eof
+)
+
+rem If NSIS not found, try installing it
+echo NSIS not found. Downloading and installing...
+powershell -Command "$url = ((Invoke-RestMethod 'https://api.github.com/repos/kichik/nsis/releases/latest').assets | Where-Object { $_.name -like '*-setup.exe' } | Select-Object -First 1).browser_download_url; if ($url) { Invoke-WebRequest -Uri $url -OutFile '%TEMP%\nsis-setup.exe' -UseBasicParsing; Start-Process -Wait '%TEMP%\nsis-setup.exe' -ArgumentList '/S' } else { Write-Error 'NSIS release not found' }"
+if errorlevel 1 (
+    echo Warning: Failed to install NSIS, creating zip package instead
+    goto :makezip
+)
+if exist "%ProgramFiles%\NSIS\makensis.exe" (
+    "%ProgramFiles%\NSIS\makensis.exe" installer.nsi
+) else if exist "%ProgramFiles(x86)%\NSIS\makensis.exe" (
+    "%ProgramFiles(x86)%\NSIS\makensis.exe" installer.nsi
+) else (
+    echo Warning: NSIS installed but makensis.exe not found
+    goto :makezip
+)
 if errorlevel 1 (
     echo Warning: NSIS installer failed
     goto :makezip

@@ -1,0 +1,776 @@
+[
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_add.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_add.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_add.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_add.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_add_dir.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_add_dir.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_add_dir.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_add_dir.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_add_entry.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_add_entry.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_add_entry.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_add_entry.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_algorithm_deflate.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_algorithm_deflate.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_algorithm_deflate.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_algorithm_deflate.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_buffer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_buffer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_buffer.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_buffer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_close.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_close.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_close.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_close.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_delete.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_delete.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_delete.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_delete.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_dir_add.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_dir_add.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_dir_add.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_dir_add.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_dirent.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_dirent.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_dirent.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_dirent.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_discard.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_discard.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_discard.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_discard.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_entry.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_entry.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_entry.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_entry.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error_clear.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error_clear.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error_clear.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error_clear.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error_get.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error_get.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error_get.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error_get.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error_get_sys_type.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error_get_sys_type.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error_get_sys_type.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error_get_sys_type.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error_strerror.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error_strerror.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error_strerror.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error_strerror.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_error_to_str.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_error_to_str.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_error_to_str.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_error_to_str.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_extra_field.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_extra_field.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_extra_field.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_extra_field.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_extra_field_api.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_extra_field_api.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_extra_field_api.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_extra_field_api.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fclose.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fclose.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fclose.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fclose.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fdopen.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fdopen.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fdopen.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fdopen.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_add.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_add.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_add.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_add.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_error_clear.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_error_clear.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_error_clear.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_error_clear.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_error_get.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_error_get.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_error_get.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_error_get.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_get_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_get_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_get_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_get_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_get_external_attributes.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_get_external_attributes.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_get_external_attributes.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_get_external_attributes.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_get_offset.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_get_offset.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_get_offset.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_get_offset.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_rename.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_rename.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_rename.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_rename.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_replace.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_replace.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_replace.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_replace.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_set_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_set_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_set_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_set_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_set_encryption.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_set_encryption.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_set_encryption.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_set_encryption.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_set_external_attributes.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_set_external_attributes.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_set_external_attributes.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_set_external_attributes.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_set_mtime.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_set_mtime.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_set_mtime.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_set_mtime.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_file_strerror.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_file_strerror.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_file_strerror.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_file_strerror.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fopen.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fopen.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fopen.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fopen.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fopen_encrypted.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fopen_encrypted.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fopen_encrypted.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fopen_encrypted.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fopen_index.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fopen_index.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fopen_index.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fopen_index.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fopen_index_encrypted.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fopen_index_encrypted.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fopen_index_encrypted.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fopen_index_encrypted.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fread.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fread.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fread.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fread.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_fseek.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_fseek.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_fseek.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_fseek.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_ftell.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_ftell.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_ftell.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_ftell.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_archive_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_archive_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_archive_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_archive_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_archive_flag.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_archive_flag.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_archive_flag.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_archive_flag.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_encryption_implementation.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_encryption_implementation.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_encryption_implementation.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_encryption_implementation.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_file_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_file_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_file_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_file_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_name.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_name.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_name.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_name.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_num_entries.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_num_entries.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_num_entries.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_num_entries.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_get_num_files.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_get_num_files.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_get_num_files.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_get_num_files.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_hash.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_hash.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_hash.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_hash.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_io_util.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_io_util.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_io_util.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_io_util.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_libzip_version.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_libzip_version.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_libzip_version.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_libzip_version.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_memdup.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_memdup.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_memdup.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_memdup.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_name_locate.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_name_locate.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_name_locate.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_name_locate.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_new.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_new.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_new.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_new.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_open.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_open.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_open.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_open.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_pkware.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_pkware.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_pkware.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_pkware.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_progress.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_progress.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_progress.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_progress.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_rename.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_rename.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_rename.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_rename.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_replace.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_replace.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_replace.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_replace.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_archive_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_archive_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_archive_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_archive_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_archive_flag.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_archive_flag.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_archive_flag.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_archive_flag.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_default_password.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_default_password.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_default_password.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_default_password.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_file_comment.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_file_comment.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_file_comment.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_file_comment.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_file_compression.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_file_compression.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_file_compression.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_file_compression.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_set_name.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_set_name.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_set_name.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_set_name.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_accept_empty.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_accept_empty.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_accept_empty.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_accept_empty.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_begin_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_begin_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_begin_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_begin_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_begin_write_cloning.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_begin_write_cloning.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_begin_write_cloning.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_begin_write_cloning.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_buffer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_buffer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_buffer.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_buffer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_call.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_call.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_call.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_call.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_close.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_close.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_close.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_close.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_commit_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_commit_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_commit_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_commit_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_compress.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_compress.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_compress.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_compress.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_crc.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_crc.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_crc.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_crc.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_error.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_error.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_error.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_error.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_common.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_common.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_common.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_common.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_stdio.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_stdio.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_stdio.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_stdio.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_free.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_free.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_free.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_free.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_function.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_function.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_function.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_function.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_get_dostime.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_get_dostime.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_get_dostime.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_get_dostime.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_get_file_attributes.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_get_file_attributes.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_get_file_attributes.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_get_file_attributes.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_is_deleted.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_is_deleted.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_is_deleted.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_is_deleted.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_layered.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_layered.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_layered.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_layered.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_open.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_open.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_open.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_open.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_pass_to_lower_layer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_pass_to_lower_layer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_pass_to_lower_layer.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_pass_to_lower_layer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_pkware_decode.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_pkware_decode.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_pkware_decode.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_pkware_decode.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_pkware_encode.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_pkware_encode.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_pkware_encode.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_pkware_encode.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_read.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_read.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_read.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_read.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_remove.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_remove.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_remove.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_remove.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_rollback_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_rollback_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_rollback_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_rollback_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_seek.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_seek.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_seek.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_seek.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_seek_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_seek_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_seek_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_seek_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_stat.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_stat.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_stat.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_stat.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_supports.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_supports.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_supports.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_supports.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_tell.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_tell.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_tell.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_tell.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_tell_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_tell_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_tell_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_tell_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_window.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_window.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_window.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_window.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_write.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_write.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_write.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_write.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_zip.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_zip.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_zip.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_zip.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_zip_new.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_zip_new.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_zip_new.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_zip_new.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_stat.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_stat.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_stat.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_stat.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_stat_index.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_stat_index.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_stat_index.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_stat_index.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_stat_init.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_stat_init.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_stat_init.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_stat_init.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_strerror.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_strerror.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_strerror.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_strerror.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_string.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_string.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_string.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_string.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_unchange.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_unchange.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_unchange.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_unchange.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_unchange_all.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_unchange_all.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_unchange_all.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_unchange_all.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_unchange_archive.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_unchange_archive.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_unchange_archive.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_unchange_archive.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_unchange_data.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_unchange_data.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_unchange_data.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_unchange_data.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_utf-8.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_utf-8.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_utf-8.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_utf-8.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_err_str.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-build\\lib\\zip_err_str.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib/zip_err_str.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_err_str.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_win32.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_win32.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_win32.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_win32.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_win32_named.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_win32_named.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_win32_named.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_win32_named.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_win32_utf16.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_win32_utf16.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_win32_utf16.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_win32_utf16.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_win32_utf8.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_win32_utf8.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_win32_utf8.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_win32_utf8.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_file_win32_ansi.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_file_win32_ansi.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_file_win32_ansi.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_file_win32_ansi.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_random_win32.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_random_win32.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_random_win32.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_random_win32.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_crypto_win.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_crypto_win.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_crypto_win.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_crypto_win.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_winzip_aes.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_winzip_aes.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_winzip_aes.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_winzip_aes.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_winzip_aes_decode.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_winzip_aes_decode.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_winzip_aes_decode.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_winzip_aes_decode.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/lib",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe -DWIN32_LEAN_AND_MEAN -Dzip_EXPORTS @CMakeFiles/zip.dir/includes_C.rsp -O3 -DNDEBUG -fvisibility=hidden -o CMakeFiles\\zip.dir\\zip_source_winzip_aes_encode.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\lib\\zip_source_winzip_aes_encode.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/lib/zip_source_winzip_aes_encode.c",
+  "output": "_deps/libzip-build/lib/CMakeFiles/zip.dir/zip_source_winzip_aes_encode.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_read_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_read_file_fuzzer.dir\\zip_read_file_fuzzer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\zip_read_file_fuzzer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/zip_read_file_fuzzer.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_read_file_fuzzer.dir/zip_read_file_fuzzer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_read_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_read_file_fuzzer.dir\\fuzz_main.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\fuzz_main.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/fuzz_main.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_read_file_fuzzer.dir/fuzz_main.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_read_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_read_fuzzer.dir\\zip_read_fuzzer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\zip_read_fuzzer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/zip_read_fuzzer.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_read_fuzzer.dir/zip_read_fuzzer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_read_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_read_fuzzer.dir\\fuzz_main.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\fuzz_main.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/fuzz_main.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_read_fuzzer.dir/fuzz_main.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_write_encrypt_aes256_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_write_encrypt_aes256_file_fuzzer.dir\\zip_write_encrypt_aes256_file_fuzzer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\zip_write_encrypt_aes256_file_fuzzer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/zip_write_encrypt_aes256_file_fuzzer.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_write_encrypt_aes256_file_fuzzer.dir/zip_write_encrypt_aes256_file_fuzzer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_write_encrypt_aes256_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_write_encrypt_aes256_file_fuzzer.dir\\fuzz_main.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\fuzz_main.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/fuzz_main.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_write_encrypt_aes256_file_fuzzer.dir/fuzz_main.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_write_encrypt_pkware_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_write_encrypt_pkware_file_fuzzer.dir\\zip_write_encrypt_pkware_file_fuzzer.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\zip_write_encrypt_pkware_file_fuzzer.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/zip_write_encrypt_pkware_file_fuzzer.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_write_encrypt_pkware_file_fuzzer.dir/zip_write_encrypt_pkware_file_fuzzer.c.obj"
+},
+{
+  "directory": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-build/ossfuzz",
+  "command": "C:\\Qt\\Tools\\mingw1310_64\\bin\\gcc.exe  @CMakeFiles/zip_write_encrypt_pkware_file_fuzzer.dir/includes_C.rsp -O3 -DNDEBUG -o CMakeFiles\\zip_write_encrypt_pkware_file_fuzzer.dir\\fuzz_main.c.obj -c C:\\dev\\repos\\ZipFX\\deploy\\build_win\\_deps\\libzip-src\\ossfuzz\\fuzz_main.c",
+  "file": "C:/dev/repos/ZipFX/deploy/build_win/_deps/libzip-src/ossfuzz/fuzz_main.c",
+  "output": "_deps/libzip-build/ossfuzz/CMakeFiles/zip_write_encrypt_pkware_file_fuzzer.dir/fuzz_main.c.obj"
+}
+]
