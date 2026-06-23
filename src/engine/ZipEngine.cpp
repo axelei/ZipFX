@@ -299,13 +299,12 @@ bool ZipEngine::Save()
 
     // Read pending files into memory so file I/O happens in our loop
     // (with event processing) rather than inside zip_close
-    struct MemBuf { std::vector<uint8_t> data; zip_source_t* src = nullptr; };
+    struct MemBuf { std::vector<uint8_t> data; };
     std::vector<MemBuf> buffers;
     buffers.reserve(m_pendingAdds.size());
 
     for (const auto& pa : m_pendingAdds)
     {
-        // Read the source file
         std::ifstream in(pa.srcPath, std::ios::binary | std::ios::ate);
         if (!in)
         {
@@ -342,11 +341,11 @@ bool ZipEngine::Save()
             m_zip, buf.data.data(), buf.data.size(), 0);
         if (!src)
         {
-            LOG_WARN("ZipEngine: can't create buffer source for %s", pa.srcPath.c_str());
+            LOG_WARN("ZipEngine: can't create buffer source for %s (err=%s)",
+                     pa.srcPath.c_str(), zip_strerror(m_zip));
             bufIdx++;
             continue;
         }
-        buf.src = src;
 
         zip_int64_t idx = zip_name_locate(
             m_zip, pa.archivePath.c_str(), 0);
@@ -374,7 +373,7 @@ bool ZipEngine::Save()
     // Commit changes to disk
     if (zip_close(m_zip) != 0)
     {
-        LOG_ERR("ZipEngine: failed to close/commit archive");
+        LOG_ERR("ZipEngine: failed to close/commit archive: %s", zip_strerror(m_zip));
         return false;
     }
     m_zip = nullptr;
