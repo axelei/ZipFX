@@ -59,11 +59,16 @@ static const FormatEntry kFormats[] = {
                     "7z", true, "LZMA2"));
         },                                                           true  },
     { "RAR",    ".rar",                              ArchiveType::Rar,
-        []() { return std::make_unique<LibarchiveEngine>(
-            std::vector<LibarchiveEngine::FormatRegistrar>{
-                archive_read_support_format_rar,
-                archive_read_support_format_rar5 },
-            "RAR"); },                                                false },
+        []() {
+            auto bit7z = std::make_unique<Bit7zEngine>();
+            if (bit7z->isLibraryLoaded())
+                return std::unique_ptr<ArchiveEngine>(std::move(bit7z));
+            return std::unique_ptr<ArchiveEngine>(
+                std::make_unique<LibarchiveEngine>(
+                    std::vector<LibarchiveEngine::FormatRegistrar>{
+                        archive_read_support_format_rar,
+                        archive_read_support_format_rar5 },
+                    "RAR")); },                                           false },
     { "ISO",    ".iso",                              ArchiveType::Iso,
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{
