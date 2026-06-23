@@ -201,11 +201,10 @@ void MainWindow::setupMenus()
         langGroup->addAction(act);
     };
     addLang(QString::fromUtf8("\xF0\x9F\x87\xAC\xF0\x9F\x87\xA7"), "English", "en");     // 🇬🇧
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xAA\xF0\x9F\x87\xB8"), "Espa\xC3\xB1ol", "es"); // 🇪🇸
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xAB\xF0\x9F\x87\xB7"), "Fran\xC3\xA7ais", "fr"); // 🇫🇷
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xA9\xF0\x9F\x87\xAA"), "Deutsch", "de");      // 🇩🇪
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAA\xF0\x9F\x87\xB8"), "Espa\u00F1ol", "es"); // 🇪🇸
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAB\xF0\x9F\x87\xB7"), "Fran\u00E7ais", "fr"); // 🇫🇷
     addLang(QString::fromUtf8("\xF0\x9F\x87\xAE\xF0\x9F\x87\xB9"), "Italiano", "it");     // 🇮🇹
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xB5\xF0\x9F\x87\xB9"), "Portugu\xC3\xAAs", "pt"); // 🇵🇹
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB5\xF0\x9F\x87\xB9"), "Portugu\u00EAs", "pt"); // 🇵🇹
     addLang(QString::fromUtf8("\xF0\x9F\x87\xB3\xF0\x9F\x87\xB1"), "Nederlands", "nl");  // 🇳🇱
     addLang(QString::fromUtf8("\xF0\x9F\x87\xB8\xF0\x9F\x87\xAA"), "Svenska", "sv");     // 🇸🇪
     addLang(QString::fromUtf8("\xF0\x9F\x87\xB3\xF0\x9F\x87\xB4"), "Norsk", "no");       // 🇳🇴
@@ -368,6 +367,15 @@ void MainWindow::onNewArchive()
 
     auto result = dlg.result();
     onCloseArchive();
+
+    // Warn before overwriting an existing file
+    if (QFileInfo::exists(result.path))
+    {
+        auto ret = QMessageBox::question(this, tr("Overwrite?"),
+            tr("The file already exists:\n%1\n\nOverwrite?").arg(result.path),
+            QMessageBox::Yes | QMessageBox::No);
+        if (ret != QMessageBox::Yes) return;
+    }
 
     auto engine = ArchiveEngineFactory::CreateForFormat(result.format.toStdString());
     if (!engine || !engine->SupportsCreation())
