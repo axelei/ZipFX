@@ -53,24 +53,31 @@ Section "Install"
     File "build_win\libadf.dll"
     File "build_win\7z.dll"
 
-    ; Qt platform plugin
-    CreateDirectory "$INSTDIR\platforms"
+    ; Qt plugins
+    SetOutPath "$INSTDIR\platforms"
     File "build_win\platforms\qwindows.dll"
 
-    ; Qt styles
-    CreateDirectory "$INSTDIR\styles"
+    SetOutPath "$INSTDIR\styles"
     File "build_win\styles\qmodernwindowsstyle.dll"
 
-    ; Additional Qt plugins
-    CreateDirectory "$INSTDIR\imageformats"
-    CreateDirectory "$INSTDIR\iconengines"
-    CreateDirectory "$INSTDIR\tls"
-    CreateDirectory "$INSTDIR\networkinformation"
-    CreateDirectory "$INSTDIR\generic"
+    SetOutPath "$INSTDIR\imageformats"
+    File /nonfatal "build_win\imageformats\*.dll"
+    SetOutPath "$INSTDIR\iconengines"
+    File /nonfatal "build_win\iconengines\*.dll"
+    SetOutPath "$INSTDIR\tls"
+    File /nonfatal "build_win\tls\*.dll"
+    SetOutPath "$INSTDIR\networkinformation"
+    File /nonfatal "build_win\networkinformation\*.dll"
+    SetOutPath "$INSTDIR\generic"
+    File /nonfatal "build_win\generic\*.dll"
+    SetOutPath "$INSTDIR"
+    File /nonfatal "build_win\opengl32sw.dll"
+    File /nonfatal "build_win\D3Dcompiler_47.dll"
 
     ; Translations
-    CreateDirectory "$INSTDIR\translations"
+    SetOutPath "$INSTDIR\translations"
     File /r "build_win\translations\*.qm"
+    SetOutPath "$INSTDIR"
 
     ; App icon for shortcuts
     File "..\src\resources\AppIcon.ico"
