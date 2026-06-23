@@ -59,7 +59,8 @@ public:
 
     void updateProgress(int value, uint64_t fileBytes, const QString& currentFile)
     {
-        m_bar->setValue(value);
+        m_bar->setMaximum(0);
+        m_bar->setMinimum(0);
         m_fileLabel->setText(currentFile);
 
         m_pi.addBytes(fileBytes);
@@ -69,6 +70,15 @@ public:
             m_etaLabel->setText(m_pi.etaString());
         }
 
+        QApplication::processEvents();
+    }
+
+    void finishProgress(const QString& currentFile)
+    {
+        m_bar->setRange(0, 100);
+        m_bar->setValue(100);
+        m_fileLabel->setText(currentFile);
+        m_etaLabel->setText(m_pi.etaString());
         QApplication::processEvents();
     }
 

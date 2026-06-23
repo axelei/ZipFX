@@ -271,8 +271,8 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (m_progressDlg->wasCancelled())
         return E_FAIL;
 
-    // Show current file with indeterminate status (bytes counted AFTER extraction)
-    m_progressDlg->updateProgress(idx, 0,
+    // Indeterminate bar during extraction (file counted AFTER extraction)
+    m_progressDlg->updateProgress(0, 0,
         QString::fromUtf8(entry.info.archivePath.c_str()));
 
     // Extract to a temp file using Extract (streams to disk, no memory buffer),
@@ -292,7 +292,11 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     });
 
     while (!extractDone)
+    {
         QApplication::processEvents();
+        if (m_progressDlg && m_progressDlg->wasCancelled())
+            break;
+    }
 
     if (extractThread.joinable())
         extractThread.join();
@@ -323,8 +327,7 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     GetFileSizeEx(hFile, &fileSize);
 
     // Update progress AFTER successful extraction
-    m_progressDlg->updateProgress(idx + 1,
-        static_cast<uint64_t>(fileSize.QuadPart),
+    m_progressDlg->finishProgress(
         QString::fromUtf8(entry.info.archivePath.c_str()));
 
     // Close on last file
