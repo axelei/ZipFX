@@ -3,6 +3,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QIcon>
 #include <QStandardPaths>
 #include <QTranslator>
 #include <QLibraryInfo>
@@ -62,6 +63,7 @@ int main(int argc, char* argv[])
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
     app.setApplicationVersion(ZIPFX_VERSION);
+    app.setWindowIcon(QIcon(app.applicationDirPath() + "/AppIcon.png"));
 
     // Load Qt's built-in translations
     {

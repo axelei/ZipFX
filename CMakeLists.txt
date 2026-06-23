@@ -121,6 +121,11 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(bit7z)
 
+# bit7z uses -Werror; newer GCC flags false-positive array-bounds in std::vector
+if(TARGET bit7z64 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
+    target_compile_options(bit7z64 PRIVATE -Wno-error=array-bounds)
+endif()
+
 # ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
@@ -276,6 +281,18 @@ if(QT_LRELEASE)
         FILES_MATCHING PATTERN "*.qm")
 endif()
 
+# Copy app icon to build output (for development)
+add_custom_command(TARGET ZipFX POST_BUILD
+    COMMAND ${CMAKE_COMMAND} -E copy_if_different
+        "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        "$<TARGET_FILE_DIR:ZipFX>/AppIcon.png"
+    COMMENT "Copying AppIcon.png to output directory"
+)
+
+# Install app icon next to the executable (Windows/macOS)
+install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+    DESTINATION ".")
+
 # ====================================================================
 # Platform settings
 # ====================================================================
@@ -418,12 +435,18 @@ endif()
 
 include(CPack)
 
-# ── Linux: desktop & MIME registration ─────────────────────────────
+# ── Linux: desktop, MIME & icon registration ──────────────────────
 if(UNIX AND NOT APPLE)
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx.desktop"
         DESTINATION "share/applications")
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx-mime.xml"
         DESTINATION "share/mime/packages")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/256x256/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/48x48/apps"
+        RENAME "zipfx.png")
 
     # Post-install: update XDG databases
     include(CMakePackageConfigHelpers)
