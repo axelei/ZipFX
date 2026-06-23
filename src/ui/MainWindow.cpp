@@ -456,7 +456,6 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
     std::thread extractThread([&]() {
         extractOk = m_engine->Extract(entryPath, destStr);
         extractDone = true;
-        m_engine->setExtractProgressCb(nullptr);
     });
 
     while (!extractDone)
@@ -467,21 +466,13 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
         {
             m_engine->cancelExtract();
         }
-
-        {
-            std::lock_guard<std::mutex> lock(ep.m);
-            auto& ei = ep.info;
-            if (ei.totalBytes > 0)
-            {
-                ei.bytesProcessed = std::max(ei.bytesProcessed, prevBytesEp);
-                // Update the overall progress bar value with a per-file estimate
-                m_progressDlg->setValue(m_progressDlg->value() + 0); // keep visible
-            }
-        }
     }
 
     if (extractThread.joinable())
         extractThread.join();
+
+    // Clear callback on the main thread (not the worker thread) for thread safety
+    m_engine->setExtractProgressCb(nullptr);
 
     return extractOk;
 }
@@ -940,12 +931,6 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         QString name = QString::fromUtf8(entry.name.c_str());
         m_progressDlg->setValue((int)i);
 
-        pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
-        pi.updateRate();
-        m_progressDlg->setLabelText(tr("Extracting: %1  %2").arg(
-            name, pi.etaString()));
-        QApplication::processEvents();
-
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
 
         // Overwrite check
@@ -966,7 +951,17 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
         QDir().mkpath(QFileInfo(destFile).path());
 
-        if (!extractFileWithProgress(entry, destFile))
+        bool extractOk = extractFileWithProgress(entry, destFile);
+
+        // Update overall progress AFTER extraction completes
+        pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
+        pi.updateRate();
+        m_progressDlg->setValue((int)i + 1);
+        m_progressDlg->setLabelText(tr("Extracting: %1  %2").arg(
+            name, pi.etaString()));
+        QApplication::processEvents();
+
+        if (!extractOk)
         {
             if (m_extractCancelled)
             {
