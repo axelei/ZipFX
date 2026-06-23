@@ -7,17 +7,24 @@
 
 set -euo pipefail
 
-QT_DIR="${1:-/usr/local/opt/qt}"
+QT_DIR="${1:-/Users/krusher/Qt/6.11.1/macos}"
 BUILD_DIR="build_mac"
 
+# Find cmake (CLion bundles it)
+CMAKE=""
+for cmd in cmake /Applications/CLion.app/Contents/bin/cmake/mac/aarch64/bin/cmake; do
+    if command -v "$cmd" &>/dev/null; then CMAKE="$cmd"; break; fi
+done
+if [ -z "$CMAKE" ]; then echo "cmake not found"; exit 1; fi
+
 echo "=== Configuring ${BUILD_DIR} ==="
-cmake -S .. -B "${BUILD_DIR}" \
+"${CMAKE}" -S .. -B "${BUILD_DIR}" \
     -DCMAKE_PREFIX_PATH="${QT_DIR}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_TESTING=OFF
 
 echo "=== Building ==="
-cmake --build "${BUILD_DIR}" --target ZipFX -j"$(sysctl -n hw.logicalcpu)"
+"${CMAKE}" --build "${BUILD_DIR}" --target ZipFX -j"$(sysctl -n hw.logicalcpu)"
 
 echo "=== Running macdeployqt ==="
 if command -v macdeployqt &>/dev/null; then
@@ -29,7 +36,7 @@ fi
 
 echo "=== Copying lib7z.so ==="
 LIB7Z=""
-for path in ../lib/macos/x64/lib7z.so ../lib/macos/lib7z.so; do
+for path in ../lib/macos/arm64/lib7z.so ../lib/macos/lib7z.so; do
     if [ -f "$path" ]; then LIB7Z="$path"; break; fi
 done
 if [ -n "$LIB7Z" ]; then
