@@ -21,3 +21,5 @@ deploy/build_win/
 deploy/*.zip
 deploy/*.exe
 deploy/*.dmg
+
+deploy/test_install/
