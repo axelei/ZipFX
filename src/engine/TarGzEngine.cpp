@@ -7,6 +7,9 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#include <sys/stat.h>
+#include <pwd.h>
+#include <grp.h>
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -431,6 +434,19 @@ bool TarGzEngine::Save()
             mode_t mode = (ec || srcPerms == fs::perms::unknown)
                 ? 0644 : static_cast<mode_t>(srcPerms) & 0777;
             FormatOctal(hdr.mode, 8, mode);
+        }
+        // Preserve uid/gid and user/group names
+        {
+            struct stat st;
+            if (stat(qe.srcPath.c_str(), &st) == 0)
+            {
+                FormatOctal(hdr.uid, 8, st.st_uid);
+                FormatOctal(hdr.gid, 8, st.st_gid);
+                struct passwd* pw = getpwuid(st.st_uid);
+                if (pw) std::strncpy(hdr.uname, pw->pw_name, sizeof(hdr.uname) - 1);
+                struct group* gr = getgrgid(st.st_gid);
+                if (gr) std::strncpy(hdr.gname, gr->gr_name, sizeof(hdr.gname) - 1);
+            }
         }
         FormatOctal(hdr.size, 12, fileSize);
 
