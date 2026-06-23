@@ -151,6 +151,8 @@ static const FormatEntry kFormats[] = {
             return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
                 std::vector<LibarchiveEngine::FormatRegistrar>{}, "BIN/CUE"));
         },                                                                false },
+    { "Disk",   ".ima,.img,.flp,.dsk",                 ArchiveType::Unknown,
+        []() { return std::make_unique<Bit7zEngine>(); },                   false },
 
     // ── Bit7z fallback (last resort) ──────────────────
     { "Bit7z",  nullptr,                             ArchiveType::Unknown,
