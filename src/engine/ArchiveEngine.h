@@ -37,12 +37,23 @@ public:
     void cancelSave() { m_saveCancelled = true; }
     bool isSaveCancelled() const { return m_saveCancelled; }
 
+    struct SaveProgressInfo {
+        int currentFile = 0;
+        int totalFiles = 0;
+        uint64_t bytesProcessed = 0;
+        uint64_t totalBytes = 0;
+        std::string fileName;
+    };
+    using SaveProgressCb = std::function<void(const SaveProgressInfo&)>;
+    void setSaveProgressCb(SaveProgressCb cb) { m_saveProgressCb = std::move(cb); }
+
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;
     virtual bool IsOpen() const = 0;
 
 protected:
     std::atomic<bool> m_saveCancelled{false};
+    SaveProgressCb m_saveProgressCb;
 };
 
 #endif

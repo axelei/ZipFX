@@ -244,11 +244,26 @@ bool Bit7zEngine::Save()
         if (!m_isNew)
             writer->setUpdateMode(bit7z::UpdateMode::Append);
 
+        // Compute total bytes
+        uint64_t totalBytes7z = 0;
+        for (const auto& [archivePath, srcPath] : m_pendingAdds)
+        {
+            std::error_code ec;
+            totalBytes7z += fs::file_size(srcPath, ec);
+        }
+
         for (const auto& [archivePath, srcPath] : m_pendingAdds)
             writer->addFile(srcPath, archivePath);
 
-        // Progress callback enables cancellation
-        writer->setProgressCallback([this](uint64_t) -> bool {
+        // Progress callback enables cancellation and reports progress
+        writer->setProgressCallback([this, totalBytes7z](uint64_t processed) -> bool {
+            if (m_saveProgressCb)
+            {
+                SaveProgressInfo info;
+                info.bytesProcessed = processed;
+                info.totalBytes = totalBytes7z;
+                m_saveProgressCb(info);
+            }
             return !m_saveCancelled;
         });
 

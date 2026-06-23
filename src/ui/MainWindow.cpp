@@ -501,6 +501,15 @@ void MainWindow::onNewArchive()
 
         std::atomic<bool> saveDone{false};
         std::atomic<bool> saveOk{false};
+        std::mutex spMutex;
+        ArchiveEngine::SaveProgressInfo spInfo;
+        uint64_t prevBytes = 0;
+        ProgressInfo savePi;
+
+        m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
+            std::lock_guard<std::mutex> lock(spMutex);
+            spInfo = info;
+        });
 
         std::thread saveThread([this, &saveDone, &saveOk]() {
             saveOk = m_engine->Save();
@@ -510,6 +519,30 @@ void MainWindow::onNewArchive()
         while (!saveDone)
         {
             QApplication::processEvents();
+
+            {
+                std::lock_guard<std::mutex> lock(spMutex);
+                if (spInfo.totalBytes > 0)
+                {
+                    if (savePi.totalBytes == 0)
+                        savePi.start(spInfo.totalBytes);
+                    savePi.addBytes(spInfo.bytesProcessed - prevBytes);
+                    prevBytes = spInfo.bytesProcessed;
+                    if (savePi.shouldUpdate())
+                    {
+                        savePi.updateRate();
+                        QString label = tr("Saving: %1 %2").arg(
+                            QString::fromStdString(spInfo.fileName), savePi.etaString());
+                        m_progressDlg->setLabelText(label);
+                    }
+                    else if (!spInfo.fileName.empty())
+                    {
+                        m_progressDlg->setLabelText(
+                            tr("Saving: %1").arg(QString::fromStdString(spInfo.fileName)));
+                    }
+                }
+            }
+
             if (m_progressDlg->wasCanceled())
             {
                 m_engine->cancelSave();
@@ -757,6 +790,15 @@ void MainWindow::doAddPaths(const QStringList& paths)
 
     std::atomic<bool> saveDone{false};
     std::atomic<bool> saveOk{false};
+    std::mutex spMutex2;
+    ArchiveEngine::SaveProgressInfo spInfo2;
+    uint64_t prevBytes2 = 0;
+    ProgressInfo savePi2;
+
+    m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
+        std::lock_guard<std::mutex> lock(spMutex2);
+        spInfo2 = info;
+    });
 
     std::thread saveThread([this, &saveDone, &saveOk]() {
         saveOk = m_engine->Save();
@@ -766,6 +808,30 @@ void MainWindow::doAddPaths(const QStringList& paths)
     while (!saveDone)
     {
         QApplication::processEvents();
+
+        {
+            std::lock_guard<std::mutex> lock(spMutex2);
+            if (spInfo2.totalBytes > 0)
+            {
+                if (savePi2.totalBytes == 0)
+                    savePi2.start(spInfo2.totalBytes);
+                savePi2.addBytes(spInfo2.bytesProcessed - prevBytes2);
+                prevBytes2 = spInfo2.bytesProcessed;
+                if (savePi2.shouldUpdate())
+                {
+                    savePi2.updateRate();
+                    m_progressDlg->setLabelText(
+                        tr("Saving: %1 %2").arg(
+                            QString::fromStdString(spInfo2.fileName), savePi2.etaString()));
+                }
+                else if (!spInfo2.fileName.empty())
+                {
+                    m_progressDlg->setLabelText(
+                        tr("Saving: %1").arg(QString::fromStdString(spInfo2.fileName)));
+                }
+            }
+        }
+
         if (m_progressDlg->wasCanceled())
         {
             m_engine->cancelSave();

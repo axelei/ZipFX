@@ -354,6 +354,20 @@ bool TarGzEngine::Save()
         }
     };
 
+    // Compute total bytes for progress
+    uint64_t totalTarBytes = 0;
+    int totalTarFiles = 0;
+    for (const auto& qe : m_entryQueue)
+    {
+        std::error_code ec;
+        auto sz = fs::file_size(qe.srcPath, ec);
+        if (!ec) totalTarBytes += sz;
+        totalTarFiles++;
+    }
+
+    int fileIdx = 0;
+    uint64_t bytesDone = 0;
+
     for (const auto& qe : m_entryQueue)
     {
         if (m_saveCancelled)
@@ -362,6 +376,17 @@ bool TarGzEngine::Save()
             fs::remove(m_path);
             LOG_DBG("TarGzEngine: save cancelled");
             return false;
+        }
+
+        if (m_saveProgressCb)
+        {
+            SaveProgressInfo info;
+            info.currentFile = fileIdx;
+            info.totalFiles = totalTarFiles;
+            info.bytesProcessed = bytesDone;
+            info.totalBytes = totalTarBytes;
+            info.fileName = qe.archivePath;
+            m_saveProgressCb(info);
         }
 
         std::string name = qe.archivePath;
@@ -415,6 +440,9 @@ bool TarGzEngine::Save()
 
         writeBlock(&hdr, sizeof(hdr));
         writeBlock(fileData.data(), fileData.size());
+
+        bytesDone += fileSize;
+        fileIdx++;
     }
 
     // End-of-archive: two zero blocks

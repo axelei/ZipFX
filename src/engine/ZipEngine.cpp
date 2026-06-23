@@ -295,22 +295,50 @@ bool ZipEngine::Save()
 {
     if (!m_zip || !m_modified) return true;
 
-    // Flush pending additions
+    // Compute total bytes for progress reporting
+    uint64_t totalBytes = 0;
     for (const auto& pa : m_pendingAdds)
     {
+        std::error_code ec;
+        auto sz = fs::file_size(pa.srcPath, ec);
+        if (ec) sz = 0;
+        totalBytes += sz;
+    }
+
+    // Flush pending additions
+    size_t fileIdx = 0;
+    uint64_t bytesDone = 0;
+    for (const auto& pa : m_pendingAdds)
+    {
+        if (m_saveCancelled) break;
+
+        if (m_saveProgressCb)
+        {
+            SaveProgressInfo info;
+            info.currentFile = static_cast<int>(fileIdx);
+            info.totalFiles = static_cast<int>(m_pendingAdds.size());
+            info.bytesProcessed = bytesDone;
+            info.totalBytes = totalBytes;
+            info.fileName = pa.archivePath;
+            m_saveProgressCb(info);
+        }
+
         zip_source_t* src = zip_source_file_create(
             pa.srcPath.c_str(), 0, -1, nullptr);
         if (!src)
         {
             LOG_WARN("ZipEngine: can't create source for %s", pa.srcPath.c_str());
+            fileIdx++;
             continue;
         }
+
+        std::error_code ec;
+        bytesDone += fs::file_size(pa.srcPath, ec);
 
         zip_int64_t idx = zip_name_locate(
             m_zip, pa.archivePath.c_str(), 0);
         if (idx >= 0)
         {
-            // Replace existing entry
             if (zip_file_replace(m_zip, idx, src, GetCompressionLevel()) != 0)
             {
                 LOG_WARN("ZipEngine: can't replace %s", pa.archivePath.c_str());
@@ -319,7 +347,6 @@ bool ZipEngine::Save()
         }
         else
         {
-            // Add new entry
             if (zip_file_add(m_zip, pa.archivePath.c_str(),
                              src, GetCompressionLevel()) < 0)
             {
@@ -327,6 +354,7 @@ bool ZipEngine::Save()
                 zip_source_free(src);
             }
         }
+        fileIdx++;
     }
     m_pendingAdds.clear();
 
