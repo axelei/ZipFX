@@ -8,6 +8,7 @@
 #include "PakEngine.h"
 #include "GrpEngine.h"
 #include "HogEngine.h"
+#include "VpkEngine.h"
 #include "LibarchiveEngine.h"
 #include "FileSignature.h"
 
@@ -102,6 +103,8 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<GrpEngine>(); },               false },
     { "HOG",    ".hog",                              ArchiveType::Hog,
         []() { return std::make_unique<HogEngine>(); },               false },
+    { "VPK",    ".vpk",                              ArchiveType::Vpk,
+        []() { return std::make_unique<VpkEngine>(); },                 false },
 
     // ── Disk images (via Bit7z) ───────────────────────
     // These need 7z.dll; explicit entries give proper FormatName display.

@@ -183,6 +183,7 @@ set(ZIPFX_SOURCES
     src/engine/PakEngine.cpp
     src/engine/HogEngine.cpp
     src/engine/GrpEngine.cpp
+    src/engine/VpkEngine.cpp
     src/cli/CliHandler.cpp
 )
 
