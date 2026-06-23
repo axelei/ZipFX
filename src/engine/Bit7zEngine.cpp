@@ -247,6 +247,11 @@ bool Bit7zEngine::Save()
         for (const auto& [archivePath, srcPath] : m_pendingAdds)
             writer->addFile(srcPath, archivePath);
 
+        // Progress callback enables cancellation
+        writer->setProgressCallback([this](uint64_t) -> bool {
+            return !m_saveCancelled;
+        });
+
         writer->compressTo(m_path);
 
         // Re-open in read mode

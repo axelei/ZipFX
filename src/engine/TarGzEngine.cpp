@@ -356,6 +356,14 @@ bool TarGzEngine::Save()
 
     for (const auto& qe : m_entryQueue)
     {
+        if (m_saveCancelled)
+        {
+            gzclose(out);
+            fs::remove(m_path);
+            LOG_DBG("TarGzEngine: save cancelled");
+            return false;
+        }
+
         std::string name = qe.archivePath;
         std::string prefix;
         size_t slash = name.rfind('/');

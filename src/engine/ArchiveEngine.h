@@ -1,6 +1,7 @@
 #ifndef ZIPFX_ARCHIVE_ENGINE_H
 #define ZIPFX_ARCHIVE_ENGINE_H
 
+#include <atomic>
 #include <cstdint>
 #include <functional>
 #include <memory>
@@ -33,9 +34,15 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) = 0;
 
+    void cancelSave() { m_saveCancelled = true; }
+    bool isSaveCancelled() const { return m_saveCancelled; }
+
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;
     virtual bool IsOpen() const = 0;
+
+protected:
+    std::atomic<bool> m_saveCancelled{false};
 };
 
 #endif

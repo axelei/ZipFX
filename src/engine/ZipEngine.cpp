@@ -330,6 +330,14 @@ bool ZipEngine::Save()
     }
     m_pendingAdds.clear();
 
+    if (m_saveCancelled)
+    {
+        zip_discard(m_zip);
+        m_zip = nullptr;
+        LOG_DBG("ZipEngine: save cancelled, discarding changes");
+        return false;
+    }
+
     // Commit changes to disk (libzip handles everything in-place)
     if (zip_close(m_zip) != 0)
     {

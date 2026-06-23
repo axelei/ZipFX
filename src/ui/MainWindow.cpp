@@ -507,14 +507,14 @@ void MainWindow::onNewArchive()
             saveDone = true;
         });
 
-        // Qt enforces modality inside processEvents — events destined
-        // for the main window are discarded; the dialog's cancel button
-        // still works because it's in the modal widget hierarchy.
         while (!saveDone)
         {
             QApplication::processEvents();
             if (m_progressDlg->wasCanceled())
+            {
+                m_engine->cancelSave();
                 break;
+            }
         }
 
         if (saveThread.joinable())
@@ -523,6 +523,12 @@ void MainWindow::onNewArchive()
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = nullptr;
+
+        if (m_engine->isSaveCancelled())
+        {
+            statusBar()->showMessage(tr("Save cancelled."), 3000);
+            return;
+        }
 
         if (!saveOk)
         {
@@ -757,14 +763,14 @@ void MainWindow::doAddPaths(const QStringList& paths)
         saveDone = true;
     });
 
-    // Qt enforces modality inside processEvents — events destined
-    // for the main window are discarded; the dialog's cancel button
-    // still works because it's in the modal widget hierarchy.
     while (!saveDone)
     {
         QApplication::processEvents();
         if (m_progressDlg->wasCanceled())
+        {
+            m_engine->cancelSave();
             break;
+        }
     }
 
     if (saveThread.joinable())
@@ -773,6 +779,13 @@ void MainWindow::doAddPaths(const QStringList& paths)
     m_progressDlg->close();
     delete m_progressDlg;
     m_progressDlg = nullptr;
+
+    if (m_engine->isSaveCancelled())
+    {
+        statusBar()->showMessage(tr("Save cancelled."), 3000);
+        refreshFileList();
+        return;
+    }
 
     if (!saveOk)
     {
