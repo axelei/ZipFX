@@ -47,6 +47,15 @@ if [ -n "$LIB7Z" ]; then
     chmod 644 "${BUILD_DIR}/ZipFX.app/Contents/MacOS/lib7z.so"
 fi
 
+# Fix misplaced AppIcon.png (sometimes lands in MacOS/ instead of Resources/)
+if [ -f "${BUILD_DIR}/ZipFX.app/Contents/MacOS/AppIcon.png" ]; then
+    mv "${BUILD_DIR}/ZipFX.app/Contents/MacOS/AppIcon.png" \
+       "${BUILD_DIR}/ZipFX.app/Contents/Resources/AppIcon.png"
+fi
+
+echo "=== Ad-hoc signing ==="
+codesign --force --deep --sign - "${BUILD_DIR}/ZipFX.app"
+
 echo "=== Creating DMG ==="
 PKG_NAME="ZipFX-macOS.dmg"
 if command -v create-dmg &>/dev/null; then

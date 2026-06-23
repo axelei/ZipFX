@@ -23,3 +23,5 @@ deploy/*.exe
 deploy/*.dmg
 
 deploy/test_install/
+deploy/build_mac/
+deploy/ZipFX-macOS.dmg

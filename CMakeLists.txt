@@ -289,13 +289,15 @@ if(QT_LRELEASE)
         FILES_MATCHING PATTERN "*.qm")
 endif()
 
-# Copy app icon to build output (for development)
-add_custom_command(TARGET ZipFX POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-        "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
-        "$<TARGET_FILE_DIR:ZipFX>/AppIcon.png"
-    COMMENT "Copying AppIcon.png to output directory"
-)
+# Copy app icon to build output (for development — not on macOS bundles)
+if(NOT APPLE)
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+            "$<TARGET_FILE_DIR:ZipFX>/AppIcon.png"
+        COMMENT "Copying AppIcon.png to output directory"
+    )
+endif()
 
 # Install app icon next to the executable (Windows/macOS)
 install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
