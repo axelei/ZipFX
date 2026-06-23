@@ -479,28 +479,27 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
 
 void MainWindow::afterActionDialog()
 {
-    QDialog afterDlg(this);
-    afterDlg.setWindowTitle(tr("Save Complete"));
-    auto* afterLayout = new QVBoxLayout(&afterDlg);
-    afterLayout->addWidget(new QLabel(tr("Archive saved successfully.")));
-    auto* afterRow = new QHBoxLayout();
-    afterRow->addWidget(new QLabel(tr("After:")));
-    auto* afterCombo = new QComboBox();
-    afterCombo->addItems(GetAfterActionLabels());
-    afterRow->addWidget(afterCombo);
-    afterLayout->addLayout(afterRow);
-    auto* afterBtn = new QPushButton(tr("OK"));
-    connect(afterBtn, &QPushButton::clicked, &afterDlg, &QDialog::accept);
-    auto* afterBtnRow = new QHBoxLayout();
-    afterBtnRow->addStretch();
-    afterBtnRow->addWidget(afterBtn);
-    afterLayout->addLayout(afterBtnRow);
-    if (afterDlg.exec() == QDialog::Accepted)
-    {
-        auto aa = static_cast<AfterAction>(afterCombo->currentIndex());
-        if (aa != AfterAction::Nothing)
-            ExecuteAfterAction(aa);
-    }
+}
+
+// Show the "After" dialog before a long job starts, return the chosen action.
+static AfterAction AskAfterAction(QWidget* parent, const QString& title)
+{
+    QDialog dlg(parent);
+    dlg.setWindowTitle(title);
+    auto* layout = new QVBoxLayout(&dlg);
+    layout->addWidget(new QLabel(QObject::tr("After the operation completes:")));
+    auto* combo = new QComboBox();
+    combo->addItems(GetAfterActionLabels());
+    layout->addWidget(combo);
+    auto* btn = new QPushButton(QObject::tr("Start"));
+    QObject::connect(btn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    auto* btnRow = new QHBoxLayout();
+    btnRow->addStretch();
+    btnRow->addWidget(btn);
+    layout->addLayout(btnRow);
+    if (dlg.exec() == QDialog::Accepted)
+        return static_cast<AfterAction>(combo->currentIndex());
+    return AfterAction::Nothing;
 }
 
 // ── Archive actions ────────────────────────────────────────────────────
@@ -632,6 +631,12 @@ void MainWindow::onNewArchive()
             }
         }
 
+        AfterAction afterAction = AskAfterAction(this, tr("Save Archive"));
+        if (afterAction == AfterAction::Nothing)
+        {
+            // User may have cancelled — we still save, just no after-action
+        }
+
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = new QProgressDialog(tr("Saving..."), tr("Cancel"),
@@ -647,7 +652,8 @@ void MainWindow::onNewArchive()
             return;
         }
 
-        afterActionDialog();
+        if (afterAction != AfterAction::Nothing)
+            ExecuteAfterAction(afterAction);
     }
 
     m_currentPath = result.path.toStdString();
@@ -842,13 +848,20 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
+    AfterAction afterAction = AskAfterAction(this, tr("Save Changes"));
+    if (afterAction == AfterAction::Nothing)
+    {
+        // save anyway even if they clicked cancel — just no action
+    }
+
     if (!saveWithProgress())
     {
         refreshFileList();
         return;
     }
 
-    afterActionDialog();
+    if (afterAction != AfterAction::Nothing)
+        ExecuteAfterAction(afterAction);
     refreshFileList();
 }
 
