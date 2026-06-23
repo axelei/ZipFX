@@ -51,11 +51,7 @@ if not "!WINDEPLOYQT!"=="" (
     if exist "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" copy /y "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
 )
 
-rem Verify platform plugin exists
-if not exist "%BUILD_DIR%\platforms\qwindows.dll" (
-    echo ERROR: Qt platform plugin (qwindows.dll) missing. Installer will produce non-functional build.
-    echo Copy qwindows.dll manually to %BUILD_DIR%\platforms\ or install windeployqt.
-)
+if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo ERROR: Qt platform plugin (qwindows.dll) missing
 
 echo === Copying 7z.dll ===
 if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
@@ -65,11 +61,10 @@ if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
     echo Warning: 7z.dll not found at %REPO_DIR%\lib\win\x64\7z.dll
 )
 
-echo === Verifying build output ===
-if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe missing!
-if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll missing!
-if not exist "%BUILD_DIR%\Qt6Core.dll" echo WARNING: Qt6Core.dll missing!
-if not exist "%BUILD_DIR%\libzip.dll" echo WARNING: libzip.dll missing!
+if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe not found
+if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll not found
+if not exist "%BUILD_DIR%\Qt6Core.dll" echo WARNING: Qt6Core.dll not found
+if not exist "%BUILD_DIR%\libzip.dll" echo WARNING: libzip.dll not found
 
 echo === Checking NSIS ===
 set "NSIS_DIR="
