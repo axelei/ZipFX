@@ -22,8 +22,6 @@ RequestExecutionLevel admin
 !define MUI_ABORTWARNING
 !define MUI_ICON "..\src\resources\AppIcon.ico"
 !define MUI_UNICON "..\src\resources\AppIcon.ico"
-!define MUI_WELCOMEFINISHPAGE_BITMAP ""
-!define MUI_HEADERIMAGE ""
 
 ; Pages (wizard order)
 !insertmacro MUI_PAGE_WELCOME
