@@ -41,25 +41,14 @@ if not "!WINDEPLOYQT!"=="" (
     "!WINDEPLOYQT!" --no-translations --no-compiler-runtime "%BUILD_DIR%/ZipFX.exe"
 ) else (
     echo windeployqt not found. Copying Qt DLLs manually...
-    for %%f in (Qt6Core.dll Qt6Gui.dll Qt6Widgets.dll Qt6Network.dll Qt6Svg.dll) do (
-        if exist "%QT_DIR%\bin\%%f" (
-            copy /y "%QT_DIR%\bin\%%f" "%BUILD_DIR%\" >nul && echo   %%f copied
-        ) else (
-            echo   Warning: %%f not found
-        )
-    )
+    if exist "%QT_DIR%\bin\Qt6Core.dll" copy /y "%QT_DIR%\bin\Qt6Core.dll" "%BUILD_DIR%\" >nul
+    if exist "%QT_DIR%\bin\Qt6Gui.dll" copy /y "%QT_DIR%\bin\Qt6Gui.dll" "%BUILD_DIR%\" >nul
+    if exist "%QT_DIR%\bin\Qt6Widgets.dll" copy /y "%QT_DIR%\bin\Qt6Widgets.dll" "%BUILD_DIR%\" >nul
+    if exist "%QT_DIR%\bin\Qt6Network.dll" copy /y "%QT_DIR%\bin\Qt6Network.dll" "%BUILD_DIR%\" >nul
+    if exist "%QT_DIR%\bin\Qt6Svg.dll" copy /y "%QT_DIR%\bin\Qt6Svg.dll" "%BUILD_DIR%\" >nul
     mkdir "%BUILD_DIR%\platforms" 2>nul
-    if exist "%QT_DIR%\plugins\platforms\qwindows.dll" (
-        copy /y "%QT_DIR%\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
-        echo   qwindows.dll copied
-    ) else (
-        echo   Warning: qwindows.dll not found at %QT_DIR%\plugins\platforms\qwindows.dll
-        rem Try alternative plugin locations
-        if exist "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" (
-            copy /y "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
-            echo   qwindows.dll copied (alternative path)
-        )
-    )
+    if exist "%QT_DIR%\plugins\platforms\qwindows.dll" copy /y "%QT_DIR%\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
+    if exist "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" copy /y "%QT_DIR%\..\..\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
 )
 
 rem Verify platform plugin exists
