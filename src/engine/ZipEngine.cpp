@@ -106,6 +106,8 @@ void ZipEngine::LoadEntries()
             zip_uint32_t attrs;
             if (zip_file_get_external_attributes(m_zip, i, 0, &opsys, &attrs) == 0 && opsys == 3) // Unix
                 entry.permissions = (attrs >> 16) & 0xFFF;
+            else
+                entry.permissions = entry.isDirectory ? 0755 : 0644;
         }
 
         if (st.mtime > 0)

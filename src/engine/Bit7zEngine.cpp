@@ -125,6 +125,8 @@ bool Bit7zEngine::Open(std::string_view path)
             ae.packedSize = item.packSize();
             ae.isDirectory = item.isDir();
             ae.permissions = item.attributes() & 0xFFF;
+            if (ae.permissions == 0)
+                ae.permissions = ae.isDirectory ? 0755 : 0644;
             ae.crc = item.crc();
             m_entries.push_back(std::move(ae));
         }
@@ -386,6 +388,8 @@ bool Bit7zEngine::Save()
             ae.packedSize = item.packSize();
             ae.isDirectory = item.isDir();
             ae.permissions = item.attributes() & 0xFFF;
+            if (ae.permissions == 0)
+                ae.permissions = ae.isDirectory ? 0755 : 0644;
             ae.crc = item.crc();
             m_entries.push_back(std::move(ae));
         }
