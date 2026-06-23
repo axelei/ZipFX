@@ -477,24 +477,23 @@ void MainWindow::onNewArchive()
             }
         }
 
-        m_progressDlg->setRange(0, 0);
-        m_progressDlg->setLabelText(tr("Saving..."));
-        QApplication::processEvents();
-
-        if (!m_engine->Save())
-        {
-            m_progressDlg->close();
-            delete m_progressDlg;
-            m_progressDlg = nullptr;
-            QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-            return;
-        }
-
-        m_progressDlg->setRange(0, 100);
-        m_progressDlg->setValue(100);
+        // Close progress dialog before Save — the dialog would ghost
+        // during the blocking save operation (single-threaded).
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = nullptr;
+
+        statusBar()->showMessage(tr("Saving..."));
+        QApplication::processEvents();
+
+        bool saved = m_engine->Save();
+
+        if (!saved)
+        {
+            statusBar()->showMessage(tr("Failed to save archive."));
+            QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+            return;
+        }
     }
 
     m_currentPath = result.path.toStdString();
@@ -685,18 +684,20 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
-    m_progressDlg->setRange(0, 0);
-    m_progressDlg->setLabelText(tr("Saving..."));
-    QApplication::processEvents();
-
-    if (!m_engine->Save())
-        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-
-    m_progressDlg->setRange(0, 100);
-    m_progressDlg->setValue(100);
+    // Close progress dialog before Save — the dialog would ghost
+    // during the blocking save operation (single-threaded).
     m_progressDlg->close();
     delete m_progressDlg;
     m_progressDlg = nullptr;
+
+    statusBar()->showMessage(tr("Saving..."));
+    QApplication::processEvents();
+
+    if (!m_engine->Save())
+    {
+        statusBar()->showMessage(tr("Failed to save archive."));
+        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+    }
 
     refreshFileList();
 }
