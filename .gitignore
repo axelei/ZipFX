@@ -17,3 +17,7 @@ _deps/
 test_build/
 
 deploy/build_win/
+
+deploy/*.zip
+deploy/*.exe
+deploy/*.dmg
