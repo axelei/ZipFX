@@ -88,7 +88,7 @@ if not exist "%TEMP%\nsis-setup.exe" (
     goto :makezip
 )
 echo Running NSIS installer...
-start /wait "%TEMP%\nsis-setup.exe" /S
+"%TEMP%\nsis-setup.exe" /S
 if not exist "%ProgramFiles%\NSIS\makensis.exe" if not exist "%ProgramFiles(x86)%\NSIS\makensis.exe" (
     echo Warning: NSIS installer ran but makensis.exe not found
     goto :makezip
