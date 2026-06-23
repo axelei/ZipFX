@@ -37,26 +37,37 @@ if errorlevel 1 echo Warning: windeployqt had issues
 echo === Copying 7z.dll ===
 xcopy /y /d ..\lib\win\x64\7z.dll %BUILD_DIR%\ 2>nul
 
-echo === Building NSIS installer ===
+echo === Checking NSIS ===
 where makensis >nul 2>nul
-if not errorlevel 1 (
-    makensis installer.nsi
+if errorlevel 1 (
+    echo NSIS not found. Downloading and installing...
+    powershell -Command "$url = ((Invoke-RestMethod 'https://api.github.com/repos/kichik/nsis/releases/latest').assets | Where-Object { $_.name -like '*-setup.exe' } | Select-Object -First 1).browser_download_url; if ($url) { Invoke-WebRequest -Uri $url -OutFile '%TEMP%\nsis-setup.exe' -UseBasicParsing; Start-Process -Wait '%TEMP%\nsis-setup.exe' -ArgumentList '/S' } else { Write-Error 'NSIS release not found' }"
     if errorlevel 1 (
-        echo Warning: NSIS installer failed
-    ) else (
-        echo === Done: ZipFX-Setup.exe ===
+        echo Warning: Failed to install NSIS, creating zip package instead
+        goto :makezip
     )
-) else (
-    echo === NSIS not found, creating zip package instead ===
-    set PKG_NAME=ZipFX-win64.zip
-    powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
-        "%BUILD_DIR%\Qt6*.dll",^
-        "%BUILD_DIR%\libzip.dll",^
-        "%BUILD_DIR%\libadf.dll",^
-        "%BUILD_DIR%\7z.dll",^
-        "%BUILD_DIR%\platforms",^
-        "%BUILD_DIR%\styles",^
-        "%BUILD_DIR%\translations" ^
-        -DestinationPath "%PKG_NAME%" -Force
-    echo === Done: %PKG_NAME% ===
+    rem Refresh PATH so makensis is found
+    set PATH=%PATH%;%ProgramFiles(x86)%\NSIS;%ProgramFiles%\NSIS
 )
+
+echo === Building NSIS installer ===
+makensis installer.nsi
+if errorlevel 1 (
+    echo Warning: NSIS installer failed
+    goto :makezip
+)
+echo === Done: ZipFX-Setup.exe ===
+goto :eof
+
+:makezip
+set PKG_NAME=ZipFX-win64.zip
+powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
+    "%BUILD_DIR%\Qt6*.dll",^
+    "%BUILD_DIR%\libzip.dll",^
+    "%BUILD_DIR%\libadf.dll",^
+    "%BUILD_DIR%\7z.dll",^
+    "%BUILD_DIR%\platforms",^
+    "%BUILD_DIR%\styles",^
+    "%BUILD_DIR%\translations" ^
+    -DestinationPath "%PKG_NAME%" -Force
+echo === Done: %PKG_NAME% ===
