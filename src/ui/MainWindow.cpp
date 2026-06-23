@@ -631,12 +631,6 @@ void MainWindow::onNewArchive()
             }
         }
 
-        AfterAction afterAction = AskAfterAction(this, tr("Save Archive"));
-        if (afterAction == AfterAction::Nothing)
-        {
-            // User may have cancelled — we still save, just no after-action
-        }
-
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = new QProgressDialog(tr("Saving..."), tr("Cancel"),
@@ -644,6 +638,16 @@ void MainWindow::onNewArchive()
         m_progressDlg->setAutoClose(false);
         m_progressDlg->setAutoReset(false);
         m_progressDlg->setWindowModality(Qt::ApplicationModal);
+
+        // Embed "After" combo directly in the progress dialog
+        auto* afterRow = new QHBoxLayout();
+        afterRow->addWidget(new QLabel(tr("After:")));
+        auto* afterCombo = new QComboBox();
+        afterCombo->addItems(GetAfterActionLabels());
+        afterRow->addWidget(afterCombo);
+        auto* dl = m_progressDlg->layout();
+        if (dl) dl->addItem(afterRow);
+
         m_progressDlg->show();
 
         if (!saveWithProgress())
@@ -652,6 +656,7 @@ void MainWindow::onNewArchive()
             return;
         }
 
+        AfterAction afterAction = static_cast<AfterAction>(afterCombo->currentIndex());
         if (afterAction != AfterAction::Nothing)
             ExecuteAfterAction(afterAction);
     }
@@ -848,11 +853,19 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
-    AfterAction afterAction = AskAfterAction(this, tr("Save Changes"));
-    if (afterAction == AfterAction::Nothing)
-    {
-        // save anyway even if they clicked cancel — just no action
-    }
+    // Embed "After" combo directly in the progress dialog (same
+    // dialog used by the counting/adding phase).
+    auto* afterRow = new QHBoxLayout();
+    afterRow->addWidget(new QLabel(tr("After:")));
+    auto* afterCombo = new QComboBox();
+    afterCombo->addItems(GetAfterActionLabels());
+    afterRow->addWidget(afterCombo);
+    auto* dl = m_progressDlg->layout();
+    if (dl) dl->addItem(afterRow);
+
+    // Switch the dialog from "Adding files..." to "Saving..." (but keep the dialog open)
+    m_progressDlg->setRange(0, 0);
+    m_progressDlg->setLabelText(tr("Saving..."));
 
     if (!saveWithProgress())
     {
@@ -860,6 +873,7 @@ void MainWindow::doAddPaths(const QStringList& paths)
         return;
     }
 
+    AfterAction afterAction = static_cast<AfterAction>(afterCombo->currentIndex());
     if (afterAction != AfterAction::Nothing)
         ExecuteAfterAction(afterAction);
     refreshFileList();
