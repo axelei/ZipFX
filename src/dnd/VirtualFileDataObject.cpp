@@ -6,9 +6,12 @@
 #include <QApplication>
 #include <algorithm>
 #include <atomic>
+#include <filesystem>
 #include <thread>
 #include "DragProgressDialog.h"
 #include <shlobj.h>
+
+namespace fs = std::filesystem;
 
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
@@ -26,20 +29,24 @@ static CLIPFORMAT GetFileContentsFormat()
     return cf;
 }
 
-// Simple IStream that wraps a buffer (takes ownership of the data)
-class MemStream : public IStream
+// IStream that reads from a temp file (no large memory buffer).
+// The temp file is deleted when the stream is released.
+class FileStream : public IStream
 {
-    std::vector<uint8_t> m_owned;
-    const uint8_t* m_data = nullptr;
-    size_t m_size = 0;
-    size_t m_pos = 0;
+    HANDLE m_hFile;
+    std::wstring m_path;
     ULONG m_ref = 1;
 
 public:
-    MemStream(std::vector<uint8_t>&& data)
-        : m_owned(std::move(data)), m_data(m_owned.data()), m_size(m_owned.size()) {}
+    FileStream(const std::wstring& path, HANDLE hFile)
+        : m_path(path), m_hFile(hFile) {}
 
-    // IUnknown
+    ~FileStream()
+    {
+        if (m_hFile) CloseHandle(m_hFile);
+        DeleteFileW(m_path.c_str());
+    }
+
     STDMETHODIMP QueryInterface(REFIID riid, void** ppv) override
     {
         if (riid == IID_IUnknown || riid == IID_IStream)
@@ -59,26 +66,22 @@ public:
         return r;
     }
 
-    // IStream
     STDMETHODIMP Read(void* pv, ULONG cb, ULONG* pcbRead) override
     {
-        ULONG avail = static_cast<ULONG>(m_size - m_pos);
-        ULONG toRead = std::min(cb, avail);
-        memcpy(pv, m_data + m_pos, toRead);
-        m_pos += toRead;
-        if (pcbRead) *pcbRead = toRead;
-        return toRead == cb ? S_OK : S_FALSE;
+        DWORD read = 0;
+        if (!ReadFile(m_hFile, pv, cb, &read, nullptr))
+            return E_FAIL;
+        if (pcbRead) *pcbRead = read;
+        return read > 0 ? S_OK : S_FALSE;
     }
-    STDMETHODIMP Seek(LARGE_INTEGER dlibMove, DWORD dwOrigin, ULARGE_INTEGER* plibNewPos) override
+    STDMETHODIMP Seek(LARGE_INTEGER move, DWORD origin, ULARGE_INTEGER* newPos) override
     {
-        switch (dwOrigin)
-        {
-        case STREAM_SEEK_SET: m_pos = static_cast<size_t>(dlibMove.QuadPart); break;
-        case STREAM_SEEK_CUR: m_pos += static_cast<size_t>(dlibMove.QuadPart); break;
-        case STREAM_SEEK_END: m_pos = m_size + static_cast<size_t>(dlibMove.QuadPart); break;
-        }
-        if (m_pos > m_size) m_pos = m_size;
-        if (plibNewPos) plibNewPos->QuadPart = m_pos;
+        LARGE_INTEGER pos = {};
+        DWORD method = (origin == STREAM_SEEK_CUR) ? FILE_CURRENT
+                    : (origin == STREAM_SEEK_END) ? FILE_END : FILE_BEGIN;
+        if (!SetFilePointerEx(m_hFile, move, &pos, method))
+            return STG_E_INVALIDFUNCTION;
+        if (newPos) *newPos = *reinterpret_cast<ULARGE_INTEGER*>(&pos);
         return S_OK;
     }
     STDMETHODIMP Write(const void*, ULONG, ULONG*) override { return STG_E_ACCESSDENIED; }
@@ -88,17 +91,17 @@ public:
     STDMETHODIMP Revert() override { return STG_E_REVERTED; }
     STDMETHODIMP LockRegion(ULARGE_INTEGER, ULARGE_INTEGER, DWORD) override { return STG_E_ACCESSDENIED; }
     STDMETHODIMP UnlockRegion(ULARGE_INTEGER, ULARGE_INTEGER, DWORD) override { return STG_E_ACCESSDENIED; }
-    STDMETHODIMP Stat(STATSTG* pStat, DWORD) override
+    STDMETHODIMP Stat(STATSTG* stat, DWORD) override
     {
-        memset(pStat, 0, sizeof(*pStat));
-        pStat->cbSize.QuadPart = m_size;
-        pStat->type = STGTY_STREAM;
+        memset(stat, 0, sizeof(*stat));
+        LARGE_INTEGER size = {};
+        if (GetFileSizeEx(m_hFile, &size) && size.QuadPart >= 0)
+            stat->cbSize.QuadPart = size.QuadPart;
+        stat->type = STGTY_STREAM;
+        stat->grfMode = STGM_READ;
         return S_OK;
     }
     STDMETHODIMP Clone(IStream**) override { return E_NOTIMPL; }
-
-private:
-    ~MemStream() = default;
 };
 
 // ── VirtualFileDataObject ─────────────────────────────────────────────
@@ -268,33 +271,61 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     if (m_progressDlg->wasCancelled())
         return E_FAIL;
 
-    m_progressDlg->updateProgress(idx + 1, entry.info.size,
+    // Show current file with indeterminate status (bytes counted AFTER extraction)
+    m_progressDlg->updateProgress(idx, 0,
         QString::fromUtf8(entry.info.archivePath.c_str()));
 
-    // Run ReadFile on a worker thread so the UI stays responsive
-    std::atomic<bool> readDone{false};
-    std::vector<uint8_t> data;
+    // Extract to a temp file using Extract (streams to disk, no memory buffer),
+    // then let the shell read from the temp file via FileStream.
+    wchar_t tmpDir[MAX_PATH + 1] = {};
+    GetTempPathW(MAX_PATH, tmpDir);
+    wchar_t tmpFile[MAX_PATH + 1] = {};
+    GetTempFileNameW(tmpDir, L"zfx", 0, tmpFile);
+    std::string tmpPath = fs::path(tmpFile).string();
 
-    std::thread readThread([&]() {
-        data = entry.info.engine->ReadFile(entry.info.archivePath);
-        readDone = true;
+    std::atomic<bool> extractDone{false};
+    std::atomic<bool> extractOk{false};
+
+    std::thread extractThread([&]() {
+        extractOk = entry.info.engine->Extract(entry.info.archivePath, tmpPath);
+        extractDone = true;
     });
 
-    while (!readDone)
-    {
+    while (!extractDone)
         QApplication::processEvents();
-        if (m_progressDlg && m_progressDlg->wasCancelled())
-            break;
-    }
 
-    if (readThread.joinable())
-        readThread.join();
+    if (extractThread.joinable())
+        extractThread.join();
 
-    if (data.empty())
+    if (m_progressDlg && m_progressDlg->wasCancelled())
     {
-        LOG_WARN("VFDO: failed to extract %s", entry.info.archivePath.c_str());
+        fs::remove(tmpPath);
         return E_FAIL;
     }
+
+    if (!extractOk)
+    {
+        LOG_ERR("VFDO: Extract failed for %s", entry.info.archivePath.c_str());
+        fs::remove(tmpPath);
+        return E_FAIL;
+    }
+
+    // Open the temp file for the shell to read
+    HANDLE hFile = CreateFileW(tmpFile, GENERIC_READ, FILE_SHARE_READ, nullptr,
+                               OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
+    if (hFile == INVALID_HANDLE_VALUE)
+    {
+        fs::remove(tmpPath);
+        return E_FAIL;
+    }
+
+    LARGE_INTEGER fileSize = {};
+    GetFileSizeEx(hFile, &fileSize);
+
+    // Update progress AFTER successful extraction
+    m_progressDlg->updateProgress(idx + 1,
+        static_cast<uint64_t>(fileSize.QuadPart),
+        QString::fromUtf8(entry.info.archivePath.c_str()));
 
     // Close on last file
     if (m_progressDlg && idx + 1 >= m_progressTotal)
@@ -310,7 +341,7 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         m_progressDlg = nullptr;
     }
 
-    auto* stream = new MemStream(std::move(data));
+    auto* stream = new FileStream(tmpFile, hFile);
     pSTM->tymed          = TYMED_ISTREAM;
     pSTM->pstm           = stream;
     pSTM->pUnkForRelease = nullptr;
