@@ -691,8 +691,8 @@ bool MainWindow::openArchive(const QString& path)
     m_currentPath = firstVolPath;
     m_addrBox->setEditText(QString::fromStdString(firstVolPath));
     m_treeView->setEnabled(true);
-    statusBar()->showMessage(tr("Opened: %1").arg(QString::fromStdString(firstVolPath)), 3000);
     refreshFileList();
+    statusBar()->showMessage(tr("Opened: %1").arg(QString::fromStdString(firstVolPath)), 3000);
     return true;
 }
 

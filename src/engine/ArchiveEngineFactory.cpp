@@ -45,7 +45,7 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<TarGzEngine>(); },            true  },
 
     // ── Libarchive-based engines ──────────────────────
-    { "7z",     ".7z",                               ArchiveType::SevenZip,
+    { "7z",     ".7z,.001,.002,.003,.004,.005,.006,.007,.008,.009",  ArchiveType::SevenZip,
         []() {
             // Prefer Bit7zEngine if 7z.dll is available (full write support)
             auto bit7z = std::make_unique<Bit7zEngine>();
