@@ -482,7 +482,7 @@ void MainWindow::onNewArchive()
 
         // Run save on a worker thread so the UI stays responsive
         m_progressDlg->setLabelText(tr("Saving..."));
-        m_progressDlg->setRange(0, 0);
+        QApplication::processEvents();
 
         std::atomic<bool> saveDone{false};
         std::atomic<bool> saveOk{false};
@@ -492,12 +492,10 @@ void MainWindow::onNewArchive()
             saveDone = true;
         });
 
+        // Process only paint/timer events (not user input) so the
+        // dialog stays responsive while modality blocks the main window.
         while (!saveDone)
-        {
-            QApplication::processEvents(QEventLoop::AllEvents, 100);
-            if (m_progressDlg->wasCanceled())
-                break;
-        }
+            QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
         if (saveThread.joinable())
             saveThread.join();
@@ -703,7 +701,7 @@ void MainWindow::doAddPaths(const QStringList& paths)
 
     // Run save on a worker thread so the UI stays responsive
     m_progressDlg->setLabelText(tr("Saving..."));
-    m_progressDlg->setRange(0, 0);
+    QApplication::processEvents();
 
     std::atomic<bool> saveDone{false};
     std::atomic<bool> saveOk{false};
@@ -713,12 +711,10 @@ void MainWindow::doAddPaths(const QStringList& paths)
         saveDone = true;
     });
 
+    // Process only paint/timer events (not user input) so the
+    // dialog stays responsive while modality blocks the main window.
     while (!saveDone)
-    {
-        QApplication::processEvents(QEventLoop::AllEvents, 100);
-        if (m_progressDlg->wasCanceled())
-            break;
-    }
+        QApplication::processEvents(QEventLoop::ExcludeUserInputEvents);
 
     if (saveThread.joinable())
         saveThread.join();
