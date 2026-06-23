@@ -205,13 +205,36 @@ std::vector<uint8_t> Bit7zEngine::ReadFile(std::string_view entryName)
     int idx = findEntry(entryName);
     if (idx < 0) return {};
 
+    // Determine expected size for validation
+    uint64_t expectedSize = 0;
+    if (idx >= 0 && idx < static_cast<int>(m_entries.size()))
+        expectedSize = m_entries[idx].size;
+
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
+
+        // Report progress for UI responsiveness
+        extractor.setProgressCallback([this](uint64_t) -> bool {
+            QApplication::processEvents();
+            return !m_extractCancelled;
+        });
+
         std::vector<bit7z::byte_t> buf;
         extractor.extract(m_path, buf, static_cast<uint32_t>(idx));
 
         std::vector<uint8_t> data(buf.begin(), buf.end());
+
+        // If the extracted data is smaller than expected and we're not cancelled,
+        // the extraction likely hit a volume boundary — log a warning.
+        if (!data.empty() && expectedSize > 0 && data.size() < expectedSize
+            && !m_extractCancelled)
+        {
+            LOG_WARN("Bit7zEngine: read %s truncated: got %zu bytes, expected %llu",
+                     std::string(entryName).c_str(), data.size(),
+                     static_cast<unsigned long long>(expectedSize));
+        }
+
         return data;
     }
     catch (const std::exception& e)
