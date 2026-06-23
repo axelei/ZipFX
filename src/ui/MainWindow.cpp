@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
+#include "ProgressInfo.h"
 #include "icons.h"
 
 #ifdef _WIN32
@@ -398,19 +399,24 @@ void MainWindow::onNewArchive()
     if (!result.sourcePaths.isEmpty())
     {
         int total = 0;
+        uint64_t totalBytes = 0;
         for (const auto& sp : result.sourcePaths)
         {
             fs::path src(sp.toStdWString());
             if (fs::is_directory(src))
             {
                 for (const auto& de : fs::recursive_directory_iterator(src))
-                    if (de.is_regular_file()) total++;
+                    if (de.is_regular_file()) { total++; totalBytes += fs::file_size(de); }
             }
             else if (fs::is_regular_file(src))
             {
                 total++;
+                totalBytes += fs::file_size(src);
             }
         }
+
+        ProgressInfo pi;
+        pi.start(totalBytes);
 
         m_progressDlg = new QProgressDialog(tr("Adding files..."), nullptr,
             0, total, this);
@@ -430,6 +436,14 @@ void MainWindow::onNewArchive()
                         fs::path rel = de.path().lexically_relative(src);
                         m_engine->AddFile(de.path().string(), rel.generic_string());
                         m_progressDlg->setValue(++count);
+                        pi.addBytes(fs::file_size(de));
+                        if (pi.shouldUpdate())
+                        {
+                            pi.updateRate();
+                            m_progressDlg->setLabelText(
+                                tr("Adding: %1 %2").arg(
+                                    QString::fromStdWString(rel.wstring()), pi.etaString()));
+                        }
                         QApplication::processEvents();
                     }
                 }
@@ -438,6 +452,14 @@ void MainWindow::onNewArchive()
             {
                 m_engine->AddFile(src.string(), src.filename().string());
                 m_progressDlg->setValue(++count);
+                pi.addBytes(fs::file_size(src));
+                if (pi.shouldUpdate())
+                {
+                    pi.updateRate();
+                    m_progressDlg->setLabelText(
+                        tr("Adding: %1 %2").arg(
+                            QString::fromStdWString(src.filename().wstring()), pi.etaString()));
+                }
                 QApplication::processEvents();
             }
         }
@@ -550,23 +572,28 @@ void MainWindow::doAddPaths(const QStringList& paths)
     QString prefix = m_model->currentDir();
     if (!prefix.isEmpty()) prefix += "/";
 
-    // Count total files (recursing directories)
+    // Count total files & compute total bytes (recursing directories)
     int total = 0;
+    uint64_t totalBytes = 0;
     for (const auto& path : paths)
     {
         fs::path src(path.toStdWString());
         if (fs::is_directory(src))
         {
             for (const auto& de : fs::recursive_directory_iterator(src))
-                if (de.is_regular_file()) total++;
+                if (de.is_regular_file()) { total++; totalBytes += fs::file_size(de); }
         }
         else if (fs::is_regular_file(src))
         {
             total++;
+            totalBytes += fs::file_size(src);
         }
     }
 
     if (total == 0) return;
+
+    ProgressInfo pi;
+    pi.start(totalBytes);
 
     m_progressDlg = new QProgressDialog(tr("Adding files..."), tr("Cancel"),
         0, total, this);
@@ -593,8 +620,19 @@ void MainWindow::doAddPaths(const QStringList& paths)
                         + QString::fromStdWString(rel.generic_wstring());
                     m_engine->AddFile(de.path().string(), archivePath.toStdString());
                     m_progressDlg->setValue(++count);
-                    m_progressDlg->setLabelText(tr("Adding: %1").arg(
-                        QString::fromStdWString(rel.wstring())));
+                    pi.addBytes(fs::file_size(de));
+                    if (pi.shouldUpdate())
+                    {
+                        pi.updateRate();
+                        m_progressDlg->setLabelText(
+                            tr("Adding: %1 %2").arg(
+                                QString::fromStdWString(rel.wstring()), pi.etaString()));
+                    }
+                    else
+                    {
+                        m_progressDlg->setLabelText(tr("Adding: %1").arg(
+                            QString::fromStdWString(rel.wstring())));
+                    }
                     QApplication::processEvents();
                 }
             }
@@ -603,8 +641,19 @@ void MainWindow::doAddPaths(const QStringList& paths)
         {
             m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
             m_progressDlg->setValue(++count);
-            m_progressDlg->setLabelText(tr("Adding: %1").arg(
-                QString::fromStdWString(src.filename().wstring())));
+            pi.addBytes(fs::file_size(src));
+            if (pi.shouldUpdate())
+            {
+                pi.updateRate();
+                m_progressDlg->setLabelText(
+                    tr("Adding: %1 %2").arg(
+                        QString::fromStdWString(src.filename().wstring()), pi.etaString()));
+            }
+            else
+            {
+                m_progressDlg->setLabelText(tr("Adding: %1").arg(
+                    QString::fromStdWString(src.filename().wstring())));
+            }
             QApplication::processEvents();
         }
     }
@@ -674,6 +723,14 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
     m_extractCancelled = false;
 
+    // Compute total bytes for ETA
+    uint64_t totalBytes = 0;
+    for (const auto& e : toExtract)
+        totalBytes += e.packedSize > 0 ? e.packedSize : e.size;
+
+    ProgressInfo pi;
+    pi.start(totalBytes);
+
     m_progressDlg = new QProgressDialog(tr("Extracting..."), tr("Cancel"),
         0, (int)toExtract.size(), this);
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
@@ -692,7 +749,17 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         const auto& entry = toExtract[i];
         QString name = QString::fromUtf8(entry.name.c_str());
         m_progressDlg->setValue((int)i);
-        m_progressDlg->setLabelText(tr("Extracting: %1").arg(name));
+
+        pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
+        if (pi.shouldUpdate())
+        {
+            pi.updateRate();
+            m_progressDlg->setLabelText(tr("Extracting: %1 %2").arg(name, pi.etaString()));
+        }
+        else
+        {
+            m_progressDlg->setLabelText(tr("Extracting: %1").arg(name));
+        }
         QApplication::processEvents();
 
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
@@ -774,6 +841,13 @@ void MainWindow::onTest()
 
     int total = (int)entries.size();
 
+    uint64_t totalBytes = 0;
+    for (const auto& e : entries)
+        totalBytes += e.packedSize > 0 ? e.packedSize : e.size;
+
+    ProgressInfo pi;
+    pi.start(totalBytes);
+
     QProgressDialog prog(tr("Testing integrity..."), tr("Cancel"),
         0, total, this);
     prog.setWindowModality(Qt::ApplicationModal);
@@ -784,8 +858,19 @@ void MainWindow::onTest()
             prog.setValue(current);
             if (current < total)
             {
-                prog.setLabelText(tr("Testing: %1").arg(
-                    QString::fromUtf8(entries[current].name.c_str())));
+                pi.addBytes(entries[current].packedSize > 0
+                    ? entries[current].packedSize : entries[current].size);
+                if (pi.shouldUpdate())
+                {
+                    pi.updateRate();
+                    prog.setLabelText(tr("Testing: %1 %2").arg(
+                        QString::fromUtf8(entries[current].name.c_str()), pi.etaString()));
+                }
+                else
+                {
+                    prog.setLabelText(tr("Testing: %1").arg(
+                        QString::fromUtf8(entries[current].name.c_str())));
+                }
             }
             QApplication::processEvents();
         },
@@ -1166,6 +1251,15 @@ void MainWindow::onBeginDrag()
         + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
     QDir().mkpath(tmpRoot);
 
+    uint64_t totalBytesDrag = 0;
+    for (const auto& fp : filePaths)
+        for (const auto& e : allEntries)
+            if (e.path == fp.toStdString())
+                { totalBytesDrag += e.packedSize > 0 ? e.packedSize : e.size; break; }
+
+    ProgressInfo piDrag;
+    piDrag.start(totalBytesDrag);
+
     QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
         0, filePaths.size(), this);
     prog.setWindowModality(Qt::ApplicationModal);
@@ -1176,10 +1270,24 @@ void MainWindow::onBeginDrag()
     {
         if (prog.wasCanceled()) break;
         prog.setValue(i);
-        prog.setLabelText(tr("Extracting: %1").arg(filePaths[i]));
-        QApplication::processEvents();
 
         std::string fp = filePaths[i].toStdString();
+
+        piDrag.addBytes(0); // update time check; bytes tracked per-entry below
+        for (const auto& e : allEntries)
+            if (e.path == fp)
+                { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
+        if (piDrag.shouldUpdate())
+        {
+            piDrag.updateRate();
+            prog.setLabelText(tr("Extracting: %1 %2").arg(filePaths[i], piDrag.etaString()));
+        }
+        else
+        {
+            prog.setLabelText(tr("Extracting: %1").arg(filePaths[i]));
+        }
+        QApplication::processEvents();
+
         QString fpQ = filePaths[i];
         QString dragName = fpQ.startsWith(prefix) ? fpQ.mid(prefix.size()) : fpQ;
         QString destPath = tmpRoot + dragName;

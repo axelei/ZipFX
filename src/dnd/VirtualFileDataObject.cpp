@@ -257,13 +257,16 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     // Show progress dialog on first call
     if (!m_progressDlg)
     {
-        m_progressDlg = new DragProgressDialog(m_progressTotal, nullptr);
+        uint64_t totalBytes = 0;
+        for (const auto& f : m_files)
+            totalBytes += f.info.size;
+        m_progressDlg = new DragProgressDialog(m_progressTotal, totalBytes, nullptr);
     }
 
     if (m_progressDlg->wasCancelled())
         return E_FAIL;
 
-    m_progressDlg->updateProgress(idx + 1,
+    m_progressDlg->updateProgress(idx + 1, entry.info.size,
         QString::fromUtf8(entry.info.archivePath.c_str()));
 
     auto data = entry.info.engine->ReadFile(entry.info.archivePath);
