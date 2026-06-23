@@ -1,12 +1,42 @@
 ; ZipFX NSIS installer
 ; Requires: NSIS (https://nsis.sourceforge.io)
-; Build with: makensis installer.nsi
+; Build with: makensis /DVERSION=0.2.0 installer.nsi
 
 Unicode True
+
+!ifndef VERSION
+!define VERSION "0.2.0"
+!endif
+
+!include "MUI2.nsh"
+!include "FileFunc.nsh"
+
 Name "ZipFX"
 OutFile "ZipFX-Setup.exe"
 InstallDir "$PROGRAMFILES64\ZipFX"
+InstallDirRegKey HKLM "Software\ZipFX" ""
+
+; Request application privileges for Windows Vista+
 RequestExecutionLevel admin
+
+; Interface Settings
+!define MUI_ABORTWARNING
+!define MUI_ICON "..\src\resources\AppIcon.ico"
+!define MUI_UNICON "..\src\resources\AppIcon.ico"
+!define MUI_WELCOMEFINISHPAGE_BITMAP ""
+!define MUI_HEADERIMAGE ""
+
+; Pages (wizard order)
+!insertmacro MUI_PAGE_WELCOME
+!insertmacro MUI_PAGE_DIRECTORY
+!insertmacro MUI_PAGE_INSTFILES
+!insertmacro MUI_PAGE_FINISH
+
+!insertmacro MUI_UNPAGE_CONFIRM
+!insertmacro MUI_UNPAGE_INSTFILES
+
+; Languages
+!insertmacro MUI_LANGUAGE "English"
 
 Section "Install"
     SetOutPath "$INSTDIR"
@@ -34,16 +64,24 @@ Section "Install"
     CreateDirectory "$INSTDIR\styles"
     File "build_win\styles\qmodernwindowsstyle.dll"
 
+    ; Additional Qt plugins
+    CreateDirectory "$INSTDIR\imageformats"
+    CreateDirectory "$INSTDIR\iconengines"
+    CreateDirectory "$INSTDIR\tls"
+    CreateDirectory "$INSTDIR\networkinformation"
+    CreateDirectory "$INSTDIR\generic"
+
     ; Translations
     CreateDirectory "$INSTDIR\translations"
     File /r "build_win\translations\*.qm"
 
-    ; App icon for desktop shortcut
+    ; App icon for shortcuts
     File "..\src\resources\AppIcon.ico"
 
     ; Start menu
     CreateDirectory "$SMPROGRAMS\ZipFX"
     CreateShortCut "$SMPROGRAMS\ZipFX\ZipFX.lnk" "$INSTDIR\ZipFX.exe" "" "$INSTDIR\AppIcon.ico"
+    CreateShortCut "$SMPROGRAMS\ZipFX\Uninstall.lnk" "$INSTDIR\Uninstall.exe" "" "$INSTDIR\AppIcon.ico"
 
     ; Desktop shortcut
     CreateShortCut "$DESKTOP\ZipFX.lnk" "$INSTDIR\ZipFX.exe" "" "$INSTDIR\AppIcon.ico"
@@ -66,7 +104,10 @@ Section "Install"
     WriteRegStr HKCR ".hog"   "" "ZipFX.Archive"
     WriteRegStr HKCR ".vpk"   "" "ZipFX.Archive"
     WriteRegStr HKCR ".adf"   "" "ZipFX.Archive"
+    WriteRegStr HKCR ".ima"   "" "ZipFX.Archive"
+    WriteRegStr HKCR ".img"   "" "ZipFX.Archive"
 
+    WriteRegStr HKCR "ZipFX.Archive" "" "ZipFX Archive"
     WriteRegStr HKCR "ZipFX.Archive\DefaultIcon" "" "$INSTDIR\AppIcon.ico"
     WriteRegStr HKCR "ZipFX.Archive\shell\open\command" "" '"$INSTDIR\ZipFX.exe" "%1"'
 
@@ -78,6 +119,14 @@ Section "Install"
         "UninstallString" '"$INSTDIR\Uninstall.exe"'
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
         "DisplayIcon" "$INSTDIR\AppIcon.ico"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "Publisher" "ZipFX Team"
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "DisplayVersion" "${VERSION}"
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "NoModify" 1
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "NoRepair" 1
 SectionEnd
 
 Section "Uninstall"
@@ -95,11 +144,17 @@ Section "Uninstall"
     Delete "$INSTDIR\Uninstall.exe"
     RMDir /r "$INSTDIR\platforms"
     RMDir /r "$INSTDIR\styles"
+    RMDir /r "$INSTDIR\imageformats"
+    RMDir /r "$INSTDIR\iconengines"
+    RMDir /r "$INSTDIR\tls"
+    RMDir /r "$INSTDIR\networkinformation"
+    RMDir /r "$INSTDIR\generic"
     RMDir /r "$INSTDIR\translations"
     RMDir "$INSTDIR"
 
     ; Remove shortcuts
     Delete "$SMPROGRAMS\ZipFX\ZipFX.lnk"
+    Delete "$SMPROGRAMS\ZipFX\Uninstall.lnk"
     RMDir "$SMPROGRAMS\ZipFX"
     Delete "$DESKTOP\ZipFX.lnk"
 
@@ -122,7 +177,10 @@ Section "Uninstall"
     DeleteRegValue HKCR ".hog" ""
     DeleteRegValue HKCR ".vpk" ""
     DeleteRegValue HKCR ".adf" ""
+    DeleteRegValue HKCR ".ima" ""
+    DeleteRegValue HKCR ".img" ""
 
     ; Remove uninstall entry
     DeleteRegKey HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX"
+    DeleteRegKey HKLM "Software\ZipFX"
 SectionEnd

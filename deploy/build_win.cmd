@@ -101,7 +101,7 @@ if not exist "%ProgramFiles%\NSIS\makensis.exe" if not exist "%ProgramFiles(x86)
 )
 echo === Building NSIS installer ===
 set "PATH=%PATH%;%ProgramFiles%\NSIS;%ProgramFiles(x86)%\NSIS"
-makensis installer.nsi
+makensis /DVERSION=0.2.0 installer.nsi
 if errorlevel 1 (
     echo Warning: NSIS installer build failed
     goto :makezip
