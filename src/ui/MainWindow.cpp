@@ -437,6 +437,66 @@ bool MainWindow::saveWithProgress()
     return true;
 }
 
+bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile)
+{
+    // Run extraction on a worker thread so the UI stays responsive
+    ProgressInfo extractPi;
+    struct { std::mutex m; ArchiveEngine::ExtractProgressInfo info; } ep;
+    uint64_t prevBytesEp = 0;
+
+    m_engine->setExtractProgressCb([&](const ArchiveEngine::ExtractProgressInfo& info) {
+        std::lock_guard<std::mutex> lock(ep.m);
+        ep.info = info;
+    });
+
+    std::atomic<bool> extractDone{false};
+    std::atomic<bool> extractOk{false};
+    std::string entryPath = entry.path;
+    std::string destStr = destFile.toStdString();
+
+    std::thread extractThread([&]() {
+        extractOk = m_engine->Extract(entryPath, destStr);
+        extractDone = true;
+        // Clear callback so it isn't called on a destroyed lambda after thread detaches
+        m_engine->setExtractProgressCb(nullptr);
+    });
+
+    while (!extractDone)
+    {
+        QApplication::processEvents();
+
+        if (m_progressDlg && m_progressDlg->wasCanceled())
+        {
+            m_engine->cancelExtract();
+            // Don't break — keep processing events until thread finishes
+        }
+
+        {
+            std::lock_guard<std::mutex> lock(ep.m);
+            auto& ei = ep.info;
+            if (ei.totalBytes > 0)
+            {
+                if (extractPi.totalBytes == 0)
+                    extractPi.start(ei.totalBytes);
+                extractPi.addBytes(ei.bytesProcessed - prevBytesEp);
+                prevBytesEp = ei.bytesProcessed;
+                if (extractPi.shouldUpdate())
+                {
+                    extractPi.updateRate();
+                    m_progressDlg->setLabelText(
+                        tr("Extracting: %1 %2").arg(
+                            destFile, extractPi.etaString()));
+                }
+            }
+        }
+    }
+
+    if (extractThread.joinable())
+        extractThread.join();
+
+    return extractOk;
+}
+
 void MainWindow::afterActionDialog()
 {
     QDialog afterDlg(this);
@@ -877,27 +937,6 @@ void MainWindow::doExtract(const QString& destPath, bool all)
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
     m_progressDlg->show();
 
-    // Per-file extract progress updates the dialog with real-time ETA
-    ProgressInfo extractFilePi;
-    uint64_t prevExtractBytes = 0;
-    m_engine->setExtractProgressCb([&](const ArchiveEngine::ExtractProgressInfo& info) {
-        if (info.totalBytes > 0)
-        {
-            if (extractFilePi.totalBytes == 0)
-                extractFilePi.start(info.totalBytes);
-            extractFilePi.addBytes(info.bytesProcessed - prevExtractBytes);
-            prevExtractBytes = info.bytesProcessed;
-
-            if (extractFilePi.shouldUpdate())
-            {
-                extractFilePi.updateRate();
-                m_progressDlg->setLabelText(
-                    tr("Extracting: %1 %2").arg(
-                        QString::fromStdString(info.fileName), extractFilePi.etaString()));
-            }
-        }
-    });
-
     bool applyToAll = false;
 
     for (size_t i = 0; i < toExtract.size(); ++i)
@@ -905,7 +944,6 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         if (m_progressDlg->wasCanceled())
         {
             m_extractCancelled = true;
-            m_engine->cancelExtract();
             break;
         }
 
@@ -925,16 +963,11 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         }
         QApplication::processEvents();
 
-        // Reset per-file progress tracker for the new file
-        extractFilePi = ProgressInfo{};
-        prevExtractBytes = 0;
-
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
 
         // Overwrite check
         if (QFileInfo::exists(destFile) && !applyToAll)
         {
-            // Simplified overwrite: use QMessageBox
             auto ret = QMessageBox::question(this, tr("Overwrite?"),
                 tr("File exists:\n%1\nOverwrite?").arg(name),
                 QMessageBox::Yes | QMessageBox::No | QMessageBox::Cancel);
@@ -950,8 +983,15 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
         QDir().mkpath(QFileInfo(destFile).path());
 
-        if (!m_engine->Extract(entry.path, destFile.toStdString()))
+        if (!extractFileWithProgress(entry, destFile))
+        {
+            if (m_extractCancelled)
+            {
+                statusBar()->showMessage(tr("Extraction cancelled."), 3000);
+                break;
+            }
             qWarning("Failed to extract: %s", entry.path.c_str());
+        }
     }
 
     m_progressDlg->close();

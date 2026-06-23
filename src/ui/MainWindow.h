@@ -16,6 +16,7 @@
 #include <memory>
 
 class ArchiveEngine;
+struct ArchiveEntry;
 class FileListModel;
 struct ZipFXIcons;
 
@@ -82,6 +83,7 @@ private:
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
     bool saveWithProgress();
+    bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile);
     void afterActionDialog();
 
     std::unique_ptr<ArchiveEngine> m_engine;
