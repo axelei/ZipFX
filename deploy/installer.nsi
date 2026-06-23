@@ -9,7 +9,6 @@ Unicode True
 !endif
 
 !include "MUI2.nsh"
-!include "FileFunc.nsh"
 
 Name "ZipFX"
 OutFile "ZipFX-Setup.exe"
@@ -123,6 +122,10 @@ Section "Install"
         "Publisher" "ZipFX Team"
     WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
         "DisplayVersion" "${VERSION}"
+    WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "EstimatedSize" 200000
+    WriteRegStr HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
+        "URLInfoAbout" "https://github.com/axelei/ZipFX"
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
         "NoModify" 1
     WriteRegDWORD HKLM "Software\Microsoft\Windows\CurrentVersion\Uninstall\ZipFX" \
