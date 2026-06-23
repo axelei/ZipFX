@@ -31,20 +31,26 @@ echo === Building ===
 cmake --build %BUILD_DIR% --target ZipFX -j8
 if errorlevel 1 exit /b 1
 
-echo === Running windeployqt ===
-where windeployqt >nul 2>nul
-if errorlevel 1 (
-    rem Try to find windeployqt near the Qt6_DIR that cmake used
-    for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
-    if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
-    if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('where windeployqt 2^>nul') do set "WINDEPLOYQT=%%a"
-) else (
-    set "WINDEPLOYQT=windeployqt"
-)
+echo === Deploying Qt DLLs ===
+set WINDEPLOYQT=
+where windeployqt >nul 2>nul && set "WINDEPLOYQT=windeployqt"
+if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
+if "!WINDEPLOYQT!"=="" for /f "tokens=*" %%a in ('dir /s /b "%QT_DIR%\..\..\windeployqt.exe" 2^>nul') do set "WINDEPLOYQT=%%a"
 if not "!WINDEPLOYQT!"=="" (
     "!WINDEPLOYQT!" --no-translations --no-compiler-runtime "%BUILD_DIR%/ZipFX.exe"
 ) else (
-    echo Warning: windeployqt not found. Copy Qt DLLs manually.
+    echo windeployqt not found. Copying Qt DLLs manually...
+    copy /y "%QT_DIR%\bin\Qt6Core.dll"    "%BUILD_DIR%\" >nul
+    copy /y "%QT_DIR%\bin\Qt6Gui.dll"     "%BUILD_DIR%\" >nul
+    copy /y "%QT_DIR%\bin\Qt6Widgets.dll" "%BUILD_DIR%\" >nul
+    copy /y "%QT_DIR%\bin\Qt6Network.dll" "%BUILD_DIR%\" >nul 2>nul
+    copy /y "%QT_DIR%\bin\Qt6Svg.dll"     "%BUILD_DIR%\" >nul 2>nul
+    mkdir "%BUILD_DIR%\platforms" 2>nul
+    copy /y "%QT_DIR%\plugins\platforms\qwindows.dll" "%BUILD_DIR%\platforms\" >nul
+    mkdir "%BUILD_DIR%\styles" 2>nul
+    if exist "%QT_DIR%\plugins\styles\qmodernwindowsstyle.dll" (
+        copy /y "%QT_DIR%\plugins\styles\qmodernwindowsstyle.dll" "%BUILD_DIR%\styles\" >nul
+    )
 )
 
 echo === Copying 7z.dll ===
