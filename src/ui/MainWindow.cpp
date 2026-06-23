@@ -198,8 +198,22 @@ void MainWindow::setupMenus()
         act->setChecked(locale == QLocale::system().name().left(2));
         langGroup->addAction(act);
     };
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xAC\xF0\x9F\x87\xA7"), tr("English"), "en");  // 🇬🇧
-    addLang(QString::fromUtf8("\xF0\x9F\x87\xAA\xF0\x9F\x87\xB8"), tr("Spanish"), "es");  // 🇪🇸
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAC\xF0\x9F\x87\xA7"), "English", "en");     // 🇬🇧
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAA\xF0\x9F\x87\xB8"), "Espa\xC3\xB1ol", "es"); // 🇪🇸
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAB\xF0\x9F\x87\xB7"), "Fran\xC3\xA7ais", "fr"); // 🇫🇷
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xA9\xF0\x9F\x87\xAA"), "Deutsch", "de");      // 🇩🇪
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAE\xF0\x9F\x87\xB9"), "Italiano", "it");     // 🇮🇹
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB5\xF0\x9F\x87\xB9"), "Portugu\xC3\xAAs", "pt"); // 🇵🇹
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB3\xF0\x9F\x87\xB1"), "Nederlands", "nl");  // 🇳🇱
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB8\xF0\x9F\x87\xAA"), "Svenska", "sv");     // 🇸🇪
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB3\xF0\x9F\x87\xB4"), "Norsk", "no");       // 🇳🇴
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xA9\xF0\x9F\x87\xB0"), "Dansk", "da");       // 🇩🇰
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAB\xF0\x9F\x87\xAE"), "Suomi", "fi");       // 🇫🇮
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB7\xF0\x9F\x87\xBA"), "\xD0\xA0\xD1\x83\xD1\x81\xD1\x81\xD0\xBA\xD0\xB8\xD0\xB9", "ru"); // 🇷🇺
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xAF\xF0\x9F\x87\xB5"), "\xE6\x97\xA5\xE6\x9C\xAC\xE8\xAA\x9E", "ja"); // 🇯🇵
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xA8\xF0\x9F\x87\xB3"), "\xE4\xB8\xAD\xE6\x96\x87", "zh"); // 🇨🇳
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB0\xF0\x9F\x87\xB7"), "\xED\x95\x9C\xEA\xB5\xAD\xEC\x96\xB4", "ko"); // 🇰🇷
+    addLang(QString::fromUtf8("\xF0\x9F\x87\xB8\xF0\x9F\x87\xA6"), "\xD8\xA7\xD9\x84\xD8\xB9\xD8\xB1\xD8\xA8\xD9\x8A\xD8\xA9", "ar"); // 🇸🇦
 
     connect(langGroup, &QActionGroup::triggered, this, [this](QAction* act) {
         QString locale = act->data().toString();
