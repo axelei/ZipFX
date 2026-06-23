@@ -56,7 +56,15 @@ int main(int argc, char* argv[])
     }
 
     if (isCli)
-        return runCli(argc, argv);
+    {
+        // Strip --cli from argv before passing to runCli
+        int newArgc = 0;
+        const char* newArgv[64];
+        for (int i = 0; i < argc && newArgc < 64; ++i)
+            if (std::string(argv[i]) != "--cli")
+                newArgv[newArgc++] = argv[i];
+        return runCli(newArgc, const_cast<char**>(newArgv));
+    }
 
     // GUI mode – requires Qt
     QApplication app(argc, argv);
