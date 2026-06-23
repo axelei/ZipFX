@@ -398,6 +398,13 @@ void MainWindow::onNewArchive()
     // Auto-add source items if provided
     if (!result.sourcePaths.isEmpty())
     {
+        // Show dialog immediately so user sees feedback during pre-count
+        m_progressDlg = new QProgressDialog(tr("Counting files..."), nullptr,
+            0, 0, this);
+        m_progressDlg->setWindowModality(Qt::ApplicationModal);
+        m_progressDlg->show();
+        QApplication::processEvents();
+
         int total = 0;
         uint64_t totalBytes = 0;
         for (const auto& sp : result.sourcePaths)
@@ -415,13 +422,19 @@ void MainWindow::onNewArchive()
             }
         }
 
+        if (total == 0)
+        {
+            m_progressDlg->close();
+            delete m_progressDlg;
+            m_progressDlg = nullptr;
+            return;
+        }
+
         ProgressInfo pi;
         pi.start(totalBytes);
 
-        m_progressDlg = new QProgressDialog(tr("Adding files..."), nullptr,
-            0, total, this);
-        m_progressDlg->setWindowModality(Qt::ApplicationModal);
-        m_progressDlg->show();
+        m_progressDlg->setRange(0, total);
+        m_progressDlg->setLabelText(tr("Adding files..."));
 
         int count = 0;
         for (const auto& sp : result.sourcePaths)
@@ -575,6 +588,13 @@ void MainWindow::doAddPaths(const QStringList& paths)
     QString prefix = m_model->currentDir();
     if (!prefix.isEmpty()) prefix += "/";
 
+    // Show dialog immediately so user sees feedback during pre-count
+    m_progressDlg = new QProgressDialog(tr("Counting files..."), tr("Cancel"),
+        0, 0, this);
+    m_progressDlg->setWindowModality(Qt::ApplicationModal);
+    m_progressDlg->show();
+    QApplication::processEvents();
+
     // Count total files & compute total bytes (recursing directories)
     int total = 0;
     uint64_t totalBytes = 0;
@@ -593,15 +613,19 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
-    if (total == 0) return;
+    if (total == 0)
+    {
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+        return;
+    }
 
     ProgressInfo pi;
     pi.start(totalBytes);
 
-    m_progressDlg = new QProgressDialog(tr("Adding files..."), tr("Cancel"),
-        0, total, this);
-    m_progressDlg->setWindowModality(Qt::ApplicationModal);
-    m_progressDlg->show();
+    m_progressDlg->setRange(0, total);
+    m_progressDlg->setLabelText(tr("Adding files..."));
 
     int count = 0;
     for (const auto& path : paths)
