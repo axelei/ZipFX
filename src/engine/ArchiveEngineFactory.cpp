@@ -21,6 +21,9 @@
 #include <string_view>
 #include <vector>
 
+#include <filesystem>
+namespace fs = std::filesystem;
+
 namespace {
 
 struct FormatEntry
@@ -173,6 +176,58 @@ static bool extMatch(const char* pattern, const std::string& ext)
 }
 
 } // anonymous namespace
+
+std::string ArchiveEngineFactory::ResolveFirstVolume(std::string_view path)
+{
+    std::string spath(path);
+    auto dot = spath.rfind('.');
+    if (dot == std::string::npos) return spath;
+
+    std::string ext = spath.substr(dot + 1);
+
+    // Pattern: .002-.999 → .001  (7z/zip split volumes)
+    if (ext.size() == 3 && ext.find_first_not_of("0123456789") == std::string::npos)
+    {
+        int volNum = std::stoi(ext);
+        if (volNum > 1)
+        {
+            // Check for .7z.001 / .zip.001 naming
+            auto prevDot = spath.rfind('.', dot - 1);
+            if (prevDot != std::string::npos && (dot - prevDot) <= 5)
+            {
+                std::string innerExt = spath.substr(prevDot + 1, dot - prevDot - 1);
+                std::string firstVol = spath.substr(0, prevDot + 1) + innerExt + ".001";
+                if (fs::exists(firstVol))
+                    return firstVol;
+            }
+            std::string firstVol = spath.substr(0, dot) + ".001";
+            if (fs::exists(firstVol))
+                return firstVol;
+        }
+        return spath;
+    }
+
+    // Pattern: .part2.rar, .part3.zip → .part1.*
+    auto partPos = spath.rfind(".part");
+    if (partPos != std::string::npos)
+    {
+        auto numEnd = spath.find('.', partPos + 6);
+        if (numEnd != std::string::npos)
+        {
+            std::string numStr = spath.substr(partPos + 5, numEnd - partPos - 5);
+            if (!numStr.empty() &&
+                numStr.find_first_not_of("0123456789") == std::string::npos &&
+                std::stoi(numStr) > 1)
+            {
+                std::string firstVol = spath.substr(0, partPos + 5) + "1" + spath.substr(numEnd);
+                if (fs::exists(firstVol))
+                    return firstVol;
+            }
+        }
+    }
+
+    return spath;
+}
 
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string_view path)

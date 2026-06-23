@@ -16,10 +16,16 @@
 namespace fs = std::filesystem;
 
 // ── helpers ────────────────────────────────────────────────────────────
+static std::string resolvePath(const std::string& path)
+{
+    return ArchiveEngineFactory::ResolveFirstVolume(path);
+}
+
 static int doList(const std::string& path)
 {
-    auto engine = ArchiveEngineFactory::CreateForFile(path);
-    if (!engine || !engine->Open(path))
+    auto rpath = resolvePath(path);
+    auto engine = ArchiveEngineFactory::CreateForFile(rpath);
+    if (!engine || !engine->Open(rpath))
     {
         std::cerr << "Error: cannot open " << path << std::endl;
         return 1;
@@ -77,8 +83,9 @@ static int doList(const std::string& path)
 
 static int doExtract(const std::string& path, const std::string& outDir)
 {
-    auto engine = ArchiveEngineFactory::CreateForFile(path);
-    if (!engine || !engine->Open(path))
+    auto rpath = resolvePath(path);
+    auto engine = ArchiveEngineFactory::CreateForFile(rpath);
+    if (!engine || !engine->Open(rpath))
     {
         std::cerr << "Error: cannot open " << path << std::endl;
         return 1;
@@ -103,7 +110,8 @@ static int doCreate(const std::string& path, const std::vector<std::string>& sou
                     bool encryptHeaders, uint64_t volumeSize)
 {
     // Detect format from extension
-    auto engine = ArchiveEngineFactory::CreateForFile(path);
+    auto rpath = resolvePath(path);
+    auto engine = ArchiveEngineFactory::CreateForFile(rpath);
     if (!engine)
     {
         // Try by format name
@@ -197,8 +205,9 @@ static int doCreate(const std::string& path, const std::vector<std::string>& sou
 
 static int doTest(const std::string& path)
 {
-    auto engine = ArchiveEngineFactory::CreateForFile(path);
-    if (!engine || !engine->Open(path))
+    auto rpath = resolvePath(path);
+    auto engine = ArchiveEngineFactory::CreateForFile(rpath);
+    if (!engine || !engine->Open(rpath))
     {
         std::cerr << "Error: cannot open " << path << std::endl;
         return 1;
@@ -213,8 +222,9 @@ static int doTest(const std::string& path)
 
 static int doInfo(const std::string& path)
 {
-    auto engine = ArchiveEngineFactory::CreateForFile(path);
-    if (!engine || !engine->Open(path))
+    auto rpath = resolvePath(path);
+    auto engine = ArchiveEngineFactory::CreateForFile(rpath);
+    if (!engine || !engine->Open(rpath))
     {
         std::cerr << "Error: cannot open " << path << std::endl;
         return 1;

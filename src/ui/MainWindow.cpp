@@ -619,8 +619,10 @@ bool MainWindow::openArchive(const QString& path)
     onCloseArchive();
 
     std::string spath = path.toStdString();
-    auto engine = ArchiveEngineFactory::CreateForFile(spath);
-    if (!engine || !engine->Open(spath))
+    std::string firstVolPath = ArchiveEngineFactory::ResolveFirstVolume(spath);
+
+    auto engine = ArchiveEngineFactory::CreateForFile(firstVolPath);
+    if (!engine || !engine->Open(firstVolPath))
     {
         QMessageBox::warning(this, tr("Open Failed"),
             tr("Could not open the archive."));
@@ -628,10 +630,10 @@ bool MainWindow::openArchive(const QString& path)
     }
 
     m_engine = std::move(engine);
-    m_currentPath = spath;
-    m_addrBox->setEditText(path);
+    m_currentPath = firstVolPath;
+    m_addrBox->setEditText(QString::fromStdString(firstVolPath));
     m_treeView->setEnabled(true);
-    statusBar()->showMessage(tr("Opened: %1").arg(path), 3000);
+    statusBar()->showMessage(tr("Opened: %1").arg(QString::fromStdString(firstVolPath)), 3000);
     refreshFileList();
     return true;
 }
