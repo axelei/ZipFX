@@ -240,6 +240,13 @@ if(APPLE)
     set_source_files_properties("${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns"
         PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
     target_sources(ZipFX PRIVATE "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns")
+    # Copy translations into the bundle (also via RESOURCE)
+    file(GLOB QM_FILES "${CMAKE_BINARY_DIR}/translations/*.qm")
+    foreach(QM ${QM_FILES})
+        set_source_files_properties("${QM}"
+            PROPERTIES MACOSX_PACKAGE_LOCATION "Resources/translations")
+        target_sources(ZipFX PRIVATE "${QM}")
+    endforeach()
 endif()
 
 if(WIN32)

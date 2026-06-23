@@ -11,6 +11,7 @@
 #include <bit7z/bitcompressionlevel.hpp>
 
 #include <QApplication>
+#include <QDir>
 
 #include <filesystem>
 #include <fstream>
@@ -21,25 +22,71 @@ namespace fs = std::filesystem;
 
 static const char* kDllNames[] = {
     "7z.dll",
+    "lib7z.dylib",
     "lib7z.so",
+    "lib7z.arm64.dylib",
     "7z.so",
 };
 
 Bit7zEngine::Bit7zEngine()
 {
-    for (auto name : kDllNames)
+    // Build search paths
+    QStringList searchPaths;
+    searchPaths << QApplication::applicationDirPath()
+                << QApplication::applicationDirPath() + "/../Resources"
+                << QApplication::applicationDirPath() + "/../PlugIns";
+
+#ifdef __APPLE__
+    // Development paths: look next to the source tree
     {
-        try
-        {
-            m_lib = std::make_unique<bit7z::Bit7zLibrary>(name);
-            LOG_DBG("Bit7zEngine: loaded %s", name);
-            break;
-        }
-        catch (...)
-        {
-            continue;
+        QString base = QApplication::applicationDirPath();
+        for (int i = 0; i < 4; i++) {
+            base += "/..";
+            QString libPath = base + "/lib/macos/arm64/";
+            if (QDir(libPath).exists())
+                searchPaths << QDir(libPath).absolutePath();
         }
     }
+    searchPaths << "/usr/local/lib" << "/opt/homebrew/lib";
+#endif
+
+    for (auto name : kDllNames)
+    {
+        for (const auto& dir : searchPaths)
+        {
+            QString fullPath = dir + "/" + name;
+            try
+            {
+                m_lib = std::make_unique<bit7z::Bit7zLibrary>(fullPath.toStdString());
+                LOG_DBG("Bit7zEngine: loaded %s", qPrintable(fullPath));
+                break;
+            }
+            catch (...)
+            {
+                continue;
+            }
+        }
+        if (m_lib) break;
+    }
+
+    // Also try bare names (system search)
+    if (!m_lib)
+    {
+        for (auto name : kDllNames)
+        {
+            try
+            {
+                m_lib = std::make_unique<bit7z::Bit7zLibrary>(name);
+                LOG_DBG("Bit7zEngine: loaded %s", name);
+                break;
+            }
+            catch (...)
+            {
+                continue;
+            }
+        }
+    }
+
     if (!m_lib)
         LOG_WARN("Bit7zEngine: no 7-Zip library found");
 }

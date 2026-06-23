@@ -17,6 +17,7 @@ static QTranslator* LoadAppTranslator(const QString& locale)
     QStringList paths = {
         QApplication::applicationDirPath() + "/translations",
         QApplication::applicationDirPath() + "/../translations",
+        QApplication::applicationDirPath() + "/../Resources/translations",
         "translations"
     };
     auto* t = new QTranslator();
