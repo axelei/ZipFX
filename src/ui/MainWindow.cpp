@@ -26,6 +26,9 @@ typedef void (WINAPI *SHChangeNotify_t)(LONG, UINT, LPCVOID, LPCVOID);
 #include <QDrag>
 #include <QMimeData>
 #include <QDragEnterEvent>
+
+#include <atomic>
+#include <thread>
 #ifdef Q_OS_MACOS
 #include "dnd/MacPromiseDrag.h"
 #endif
@@ -477,20 +480,34 @@ void MainWindow::onNewArchive()
             }
         }
 
-        // Close progress dialog before Save — the dialog would ghost
-        // during the blocking save operation (single-threaded).
+        // Run save on a worker thread so the UI stays responsive
+        m_progressDlg->setLabelText(tr("Saving..."));
+        m_progressDlg->setRange(0, 0);
+
+        std::atomic<bool> saveDone{false};
+        std::atomic<bool> saveOk{false};
+
+        std::thread saveThread([this, &saveDone, &saveOk]() {
+            saveOk = m_engine->Save();
+            saveDone = true;
+        });
+
+        while (!saveDone)
+        {
+            QApplication::processEvents(QEventLoop::AllEvents, 100);
+            if (m_progressDlg->wasCanceled())
+                break;
+        }
+
+        if (saveThread.joinable())
+            saveThread.join();
+
         m_progressDlg->close();
         delete m_progressDlg;
         m_progressDlg = nullptr;
 
-        statusBar()->showMessage(tr("Saving..."));
-        QApplication::processEvents();
-
-        bool saved = m_engine->Save();
-
-        if (!saved)
+        if (!saveOk)
         {
-            statusBar()->showMessage(tr("Failed to save archive."));
             QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
             return;
         }
@@ -684,20 +701,34 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
     }
 
-    // Close progress dialog before Save — the dialog would ghost
-    // during the blocking save operation (single-threaded).
+    // Run save on a worker thread so the UI stays responsive
+    m_progressDlg->setLabelText(tr("Saving..."));
+    m_progressDlg->setRange(0, 0);
+
+    std::atomic<bool> saveDone{false};
+    std::atomic<bool> saveOk{false};
+
+    std::thread saveThread([this, &saveDone, &saveOk]() {
+        saveOk = m_engine->Save();
+        saveDone = true;
+    });
+
+    while (!saveDone)
+    {
+        QApplication::processEvents(QEventLoop::AllEvents, 100);
+        if (m_progressDlg->wasCanceled())
+            break;
+    }
+
+    if (saveThread.joinable())
+        saveThread.join();
+
     m_progressDlg->close();
     delete m_progressDlg;
     m_progressDlg = nullptr;
 
-    statusBar()->showMessage(tr("Saving..."));
-    QApplication::processEvents();
-
-    if (!m_engine->Save())
-    {
-        statusBar()->showMessage(tr("Failed to save archive."));
+    if (!saveOk)
         QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-    }
 
     refreshFileList();
 }
