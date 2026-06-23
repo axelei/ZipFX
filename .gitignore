@@ -15,3 +15,5 @@ Thumbs.db
 _deps/
 
 test_build/
+
+deploy/build_win/

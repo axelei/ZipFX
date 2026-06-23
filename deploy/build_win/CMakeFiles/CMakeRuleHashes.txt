@@ -1,8 +1,0 @@
-# Hashes of file build rules.
-455a525b660e5a23b1cb61d4550960dc CMakeFiles/ZipFX_autogen
-3c94047eaed02579bbbac93bc3b782e4 ZipFX_autogen/timestamp
-88d95d6435f3f466a96a08f63dd5de9c _deps/libzip-build/CMakeFiles/dist
-e120b90b314a2684edd11bf7ca0ec4a6 _deps/libzip-build/CMakeFiles/distcheck
-886491b22e88eca67f4aa208e148a225 _deps/libzip-build/lib/zip_err_str.c
-76e4d45846a7a4de73610379fcd27c84 _deps/libzip-build/ossfuzz/CMakeFiles/list-fuzzers
-4b0553beb7578672e9cf537023a073fa _deps/zlib-build/zlib1rc.obj
