@@ -84,7 +84,8 @@ private:
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
     bool saveWithProgress();
-    bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile);
+    bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile,
+                                 ProgressInfo& pi, uint64_t baseBytes);
     void afterActionDialog();
     void loadRecentFiles();
     void addRecentFile(const QString& path);

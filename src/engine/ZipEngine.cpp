@@ -176,22 +176,38 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         return false;
     }
 
-    std::vector<uint8_t> buf(static_cast<size_t>(st.size));
-    if (st.size > 0)
+    std::ofstream out(dp, std::ios::binary);
+    if (!out) { zip_fclose(zf); return false; }
+
+    constexpr size_t kChunk = 256 * 1024;
+    std::vector<uint8_t> buf(kChunk);
+    uint64_t bytesWritten = 0;
+    uint64_t fileTotal = st.size;
+
+    while (bytesWritten < fileTotal)
     {
-        zip_int64_t n = zip_fread(zf, buf.data(), buf.size());
-        if (n < 0 || static_cast<zip_uint64_t>(n) != st.size)
+        if (m_extractCancelled) { zip_fclose(zf); return false; }
+
+        size_t toRead = std::min(kChunk, static_cast<size_t>(fileTotal - bytesWritten));
+        zip_int64_t n = zip_fread(zf, buf.data(), toRead);
+        if (n <= 0) { zip_fclose(zf); return false; }
+
+        out.write(reinterpret_cast<const char*>(buf.data()), n);
+        if (!out.good()) { zip_fclose(zf); return false; }
+
+        bytesWritten += static_cast<uint64_t>(n);
+
+        if (m_extractProgressCb)
         {
-            zip_fclose(zf);
-            return false;
+            ExtractProgressInfo info;
+            info.bytesProcessed = bytesWritten;
+            info.totalBytes = fileTotal;
+            info.fileName = name;
+            m_extractProgressCb(info);
         }
     }
     zip_fclose(zf);
-
-    std::ofstream out(dp, std::ios::binary);
-    if (!out) return false;
-    out.write(reinterpret_cast<const char*>(buf.data()), buf.size());
-    return out.good();
+    return true;
 }
 
 bool ZipEngine::ExtractAll(std::string_view destPath)

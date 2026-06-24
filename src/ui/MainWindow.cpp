@@ -463,11 +463,11 @@ bool MainWindow::saveWithProgress()
     return true;
 }
 
-bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile)
+bool MainWindow::extractFileWithProgress(
+    const ArchiveEntry& entry, const QString& destFile,
+    ProgressInfo& pi, uint64_t baseBytes)
 {
-    // Run extraction on a worker thread so the UI stays responsive
     struct { std::mutex m; ArchiveEngine::ExtractProgressInfo info; } ep;
-    uint64_t prevBytesEp = 0;
 
     m_engine->setExtractProgressCb([&](const ArchiveEngine::ExtractProgressInfo& info) {
         std::lock_guard<std::mutex> lock(ep.m);
@@ -484,22 +484,43 @@ bool MainWindow::extractFileWithProgress(const ArchiveEntry& entry, const QStrin
         extractDone = true;
     });
 
+    QString name = QString::fromUtf8(entry.name.c_str());
+
     while (!extractDone)
     {
         QApplication::processEvents();
+        QThread::msleep(16);
 
         if (m_progressDlg && m_progressDlg->wasCanceled())
-        {
             m_engine->cancelExtract();
+
+        uint64_t fileBytesNow = 0;
+        {
+            std::lock_guard<std::mutex> lock(ep.m);
+            fileBytesNow = ep.info.bytesProcessed;
+        }
+
+        pi.bytesProcessed = baseBytes + fileBytesNow;
+        if (pi.shouldUpdate())
+        {
+            pi.updateRate();
+            int pct = pi.percent();
+            QString eta = pi.etaString();
+            if (m_progressDlg)
+            {
+                m_progressDlg->setValue(pct);
+                QString label = name + QChar('\n')
+                    + tr("%1%").arg(pct)
+                    + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                m_progressDlg->setLabelText(label);
+            }
         }
     }
 
     if (extractThread.joinable())
         extractThread.join();
 
-    // Clear callback on the main thread (not the worker thread) for thread safety
     m_engine->setExtractProgressCb(nullptr);
-
     return extractOk;
 }
 
@@ -1023,20 +1044,24 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
     m_extractCancelled = false;
 
-    // Compute total bytes for ETA
     uint64_t totalBytes = 0;
     for (const auto& e : toExtract)
-        totalBytes += e.packedSize > 0 ? e.packedSize : e.size;
+        totalBytes += e.size;
 
     ProgressInfo pi;
     pi.start(totalBytes);
 
     m_progressDlg = new QProgressDialog(tr("Extracting..."), tr("Cancel"),
-        0, (int)toExtract.size(), this);
+        0, 100, this);
+    m_progressDlg->setAutoClose(false);
+    m_progressDlg->setAutoReset(false);
     m_progressDlg->setWindowModality(Qt::ApplicationModal);
+    if (auto* lbl = m_progressDlg->findChild<QLabel*>())
+        lbl->setAlignment(Qt::AlignLeft);
     m_progressDlg->show();
 
     bool applyToAll = false;
+    uint64_t bytesSoFar = 0;
 
     for (size_t i = 0; i < toExtract.size(); ++i)
     {
@@ -1048,11 +1073,9 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
         const auto& entry = toExtract[i];
         QString name = QString::fromUtf8(entry.name.c_str());
-        m_progressDlg->setValue((int)i);
 
         QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
 
-        // Overwrite check
         if (QFileInfo::exists(destFile) && !applyToAll)
         {
             auto ret = QMessageBox::question(this, tr("Overwrite?"),
@@ -1070,18 +1093,10 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
         QDir().mkpath(QFileInfo(destFile).path());
 
-        bool extractOk = extractFileWithProgress(entry, destFile);
+        bool extractOk = extractFileWithProgress(entry, destFile, pi, bytesSoFar);
 
-        // Update overall progress AFTER extraction completes
-        pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
-        pi.updateRate();
-        m_progressDlg->setValue((int)i + 1);
-        {
-            QString eta = pi.etaString();
-            QString label = name + (eta.isEmpty() ? QString() : QChar('\n') + eta);
-            m_progressDlg->setLabelText(label);
-        }
-        QApplication::processEvents();
+        bytesSoFar += entry.size;
+        pi.bytesProcessed = bytesSoFar;
 
         if (!extractOk)
         {
