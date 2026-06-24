@@ -13,6 +13,8 @@
 #include <QProgressDialog>
 #include <QTranslator>
 
+#include "ProgressInfo.h"
+
 #include <memory>
 
 class ArchiveEngine;
