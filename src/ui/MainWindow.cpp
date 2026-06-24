@@ -728,6 +728,7 @@ void MainWindow::loadRecentFiles()
     QSettings settings;
     int size = settings.beginReadArray("recentFiles");
     m_addrBox->clear();
+    m_addrBox->setEditText(QString());
     for (int i = 0; i < size; ++i)
     {
         settings.setArrayIndex(i);
@@ -736,6 +737,8 @@ void MainWindow::loadRecentFiles()
             m_addrBox->addItem(path);
     }
     settings.endArray();
+    m_addrBox->setEditText(QString());
+    m_addrBox->setCurrentIndex(-1);
 }
 
 bool MainWindow::openArchive(const QString& path)
