@@ -394,6 +394,12 @@ bool MainWindow::saveWithProgress()
             m_progressDlg->setLabelText(tr("Cancelling..."));
         }
 
+        bool needsRangeInit = false;
+        bool needsUpdate = false;
+        int pct = 0;
+        QString fileName;
+        QString eta;
+
         {
             std::lock_guard<std::mutex> lock(spMutex);
             if (spInfo.totalBytes > 0)
@@ -401,29 +407,41 @@ bool MainWindow::saveWithProgress()
                 if (savePi.totalBytes == 0)
                 {
                     savePi.start(spInfo.totalBytes);
-                    m_progressDlg->setRange(0, 100);
-                    if (auto* lbl = m_progressDlg->findChild<QLabel*>())
-                        lbl->setAlignment(Qt::AlignLeft);
+                    needsRangeInit = true;
                 }
                 savePi.addBytes(spInfo.bytesProcessed - prevBytes);
                 prevBytes = spInfo.bytesProcessed;
                 if (savePi.shouldUpdate() && !userCancelled)
                 {
                     savePi.updateRate();
-                    m_progressDlg->setValue(savePi.percent());
-                    QString eta = savePi.etaString();
-                    QString label = QString::fromStdString(spInfo.fileName)
-                        + QChar('\n')
-                        + tr("%1%").arg(savePi.percent())
-                        + (eta.isEmpty() ? QString() : QChar('\n') + eta);
-                    m_progressDlg->setLabelText(label);
+                    pct = savePi.percent();
+                    fileName = QString::fromStdString(spInfo.fileName);
+                    eta = savePi.etaString();
+                    needsUpdate = true;
                 }
             }
+        }
+
+        if (needsRangeInit)
+        {
+            m_progressDlg->setRange(0, 100);
+            if (auto* lbl = m_progressDlg->findChild<QLabel*>())
+                lbl->setAlignment(Qt::AlignLeft);
+        }
+        if (needsUpdate)
+        {
+            m_progressDlg->setValue(pct);
+            QString label = fileName + QChar('\n')
+                + tr("%1%").arg(pct)
+                + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+            m_progressDlg->setLabelText(label);
         }
     }
 
     if (saveThread.joinable())
         saveThread.join();
+
+    m_engine->setSaveProgressCb(nullptr);
 
     m_progressDlg->close();
     delete m_progressDlg;
