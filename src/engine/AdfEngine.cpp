@@ -83,6 +83,180 @@ void AdfEngine::Close()
     m_entries.clear();
 }
 
+bool AdfEngine::Create(std::string_view path)
+{
+    Close();
+    m_path = path;
+
+    adfLibInit();
+    adfEnvSetProperty(ADF_PR_QUIET, true);
+
+    // Standard floppy geometry: 80 cylinders, 2 heads, 11 sectors = 880 KB
+    auto* dev = adfDevCreate("dump", m_path.c_str(), 80, 2, 11);
+    if (!dev)
+    {
+        LOG_ERR("AdfEngine: failed to create %s", m_path.c_str());
+        adfLibCleanUp();
+        return false;
+    }
+
+    if (adfCreateFlop(dev, "ZipFX", ADF_DOSFS_FFS) != ADF_RC_OK)
+    {
+        adfDevClose(dev);
+        adfLibCleanUp();
+        LOG_ERR("AdfEngine: failed to format %s", m_path.c_str());
+        return false;
+    }
+
+    if (adfDevMount(dev) != ADF_RC_OK)
+    {
+        adfDevClose(dev);
+        adfLibCleanUp();
+        return false;
+    }
+
+    auto* vol = adfVolMount(dev, 0, ADF_ACCESS_MODE_READWRITE);
+    if (!vol)
+    {
+        adfDevUnMount(dev);
+        adfDevClose(dev);
+        adfLibCleanUp();
+        return false;
+    }
+
+    m_dev = dev;
+    m_vol = vol;
+    m_isOpen = true;
+    m_modified = false;
+    LOG_DBG("AdfEngine: created %s", m_path.c_str());
+    return true;
+}
+
+bool AdfEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
+{
+    if (!m_isOpen || !m_vol) return false;
+
+    auto* vol = static_cast<struct AdfVolume*>(m_vol);
+
+    // Read the source file
+    std::ifstream src(std::string(srcPath), std::ios::binary | std::ios::ate);
+    if (!src) return false;
+    auto fileSize = src.tellg();
+    if (fileSize < 0) return false;
+    src.seekg(0);
+    std::vector<uint8_t> fileData(static_cast<size_t>(fileSize));
+    src.read(reinterpret_cast<char*>(fileData.data()), fileData.size());
+    if (!src) return false;
+
+    // Navigate to parent directory, creating path components as needed
+    std::string pathStr(archivePath);
+    auto slash = pathStr.rfind('/');
+    std::string dirPath = (slash != std::string::npos) ? pathStr.substr(0, slash) : "";
+    std::string fileName = (slash != std::string::npos) ? pathStr.substr(slash + 1) : pathStr;
+
+    if (!ensureDir(vol, dirPath))
+    {
+        LOG_ERR("AdfEngine: failed to create directory path %s", dirPath.c_str());
+        return false;
+    }
+
+    // Write the file
+    auto* file = adfFileOpen(vol, pathStr.c_str(), ADF_FILE_MODE_WRITE);
+    if (!file)
+    {
+        LOG_ERR("AdfEngine: failed to create file %s", pathStr.c_str());
+        return false;
+    }
+
+    if (!fileData.empty())
+    {
+        auto written = adfFileWrite(file, fileData.size(), fileData.data());
+        if (written != fileData.size())
+        {
+            LOG_ERR("AdfEngine: short write for %s (%u of %zu)",
+                    pathStr.c_str(), written, fileData.size());
+            adfFileClose(file);
+            return false;
+        }
+    }
+
+    adfFileClose(file);
+    m_modified = true;
+    return true;
+}
+
+bool AdfEngine::RemoveEntry(std::string_view entryName)
+{
+    LOG_WARN("AdfEngine: RemoveEntry not supported");
+    return false;
+}
+
+bool AdfEngine::Save()
+{
+    if (!m_modified) return true;
+
+    // ADFlib writes changes immediately — just re-scan the directory tree
+    auto* vol = static_cast<struct AdfVolume*>(m_vol);
+    m_entries.clear();
+    walkDir(vol, vol->rootBlock, "");
+    m_modified = false;
+    LOG_DBG("AdfEngine: saved %s (%zu entries)", m_path.c_str(), m_entries.size());
+    return true;
+}
+
+bool AdfEngine::ensureDir(void* volPtr, const std::string& path)
+{
+    if (path.empty()) return true;
+
+    auto* vol = static_cast<struct AdfVolume*>(volPtr);
+
+    // Navigate to root first
+    adfToRootDir(vol);
+
+    // Split path into components and create each
+    std::string remaining = path;
+    std::string component;
+    size_t pos;
+    while ((pos = remaining.find('/')) != std::string::npos)
+    {
+        component = remaining.substr(0, pos);
+        remaining = remaining.substr(pos + 1);
+
+        if (component.empty()) continue;
+
+        // Try to change into this directory; if it fails, create it
+        if (adfChangeDir(vol, component.c_str()) != ADF_RC_OK)
+        {
+            auto parentSect = vol->curDirPtr;
+            if (adfCreateDir(vol, parentSect, component.c_str()) != ADF_RC_OK)
+            {
+                LOG_ERR("AdfEngine: failed to create dir %s", component.c_str());
+                return false;
+            }
+            if (adfChangeDir(vol, component.c_str()) != ADF_RC_OK)
+                return false;
+        }
+    }
+
+    // Last path component
+    if (!remaining.empty())
+    {
+        if (adfChangeDir(vol, remaining.c_str()) != ADF_RC_OK)
+        {
+            auto parentSect = vol->curDirPtr;
+            if (adfCreateDir(vol, parentSect, remaining.c_str()) != ADF_RC_OK)
+            {
+                LOG_ERR("AdfEngine: failed to create dir %s", remaining.c_str());
+                return false;
+            }
+        }
+    }
+
+    // Navigate back to root so subsequent operations use full paths
+    adfToRootDir(vol);
+    return true;
+}
+
 void AdfEngine::walkDir(void* volPtr, int sector, const std::string& prefix)
 {
     auto* vol = static_cast<struct AdfVolume*>(volPtr);
