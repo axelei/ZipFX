@@ -4,6 +4,7 @@
 #include "ArchiveEngine.h"
 
 #include <functional>
+#include <map>
 #include <set>
 
 struct gzFile_s;
@@ -51,6 +52,7 @@ private:
     std::vector<ArchiveEntry> m_entries;
     std::vector<QueueEntry> m_entryQueue;
     std::set<std::string> m_removedEntries;
+    std::map<std::string, std::string> m_linkTargets; // hardlink name -> target name
     std::atomic<bool> m_extractCancelled{false};
 };
 

@@ -128,6 +128,19 @@ static std::string TarName(const TarHeader* hdr)
     return result;
 }
 
+static std::string StripDotSlash(const std::string& name)
+{
+    if (name.size() >= 2 && name[0] == '.' && name[1] == '/')
+        return name.substr(2);
+    return name;
+}
+
+static std::string TarLinkName(const TarHeader* hdr)
+{
+    std::string result(hdr->linkname, strnlen(hdr->linkname, TAR_NAME_SIZE));
+    return StripDotSlash(result);
+}
+
 // ── Lifecycle ──────────────────────────────────────────────────────────
 TarGzEngine::~TarGzEngine()
 {
@@ -142,6 +155,42 @@ bool TarGzEngine::Create(std::string_view path)
     m_modified = false;
     m_entries.clear();
     return true;
+}
+
+// Skip fileSize bytes (padded to TAR_BLOCK_SIZE) in the gzFile stream
+static void SkipTarData(gzFile f, uint64_t fileSize)
+{
+    uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+    std::vector<char> skipBuf(static_cast<size_t>(
+        std::min(skipBytes, static_cast<uint64_t>(65536))));
+    while (skipBytes > 0)
+    {
+        size_t toRead = static_cast<size_t>(
+            std::min(skipBytes, static_cast<uint64_t>(skipBuf.size())));
+        int r = gzread(f, skipBuf.data(), static_cast<unsigned int>(toRead));
+        if (r <= 0) break;
+        skipBytes -= static_cast<uint64_t>(r);
+    }
+}
+
+// Read fileSize bytes from the gzFile stream (the data block following a header)
+static std::string ReadTarDataAsString(gzFile f, uint64_t fileSize)
+{
+    std::string result(static_cast<size_t>(fileSize), '\0');
+    if (fileSize > 0)
+        gzread(f, result.data(), static_cast<unsigned int>(fileSize));
+    // Skip remaining padding
+    uint64_t padded = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+    uint64_t remaining = padded - fileSize;
+    if (remaining > 0)
+    {
+        std::vector<char> pad(static_cast<size_t>(remaining));
+        gzread(f, pad.data(), static_cast<unsigned int>(remaining));
+    }
+    // Trim trailing nulls (GNU long names are null-terminated)
+    while (!result.empty() && result.back() == '\0')
+        result.pop_back();
+    return result;
 }
 
 bool TarGzEngine::Open(std::string_view path)
@@ -159,59 +208,93 @@ bool TarGzEngine::Open(std::string_view path)
     m_isOpen = true;
     m_modified = false;
     m_entries.clear();
+    m_linkTargets.clear();
 
     LOG_DBG("TarGzEngine: reading entries from %s", m_path.c_str());
 
-    // Read all entries
+    std::string gnuLongName;
+    std::string gnuLongLink;
+
     TarHeader hdr;
     while (true)
     {
         int bytesRead = gzread(f, &hdr, TAR_BLOCK_SIZE);
         if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE))
-        {
             break;
-        }
 
         if (IsEndOfArchive(&hdr))
-        {
             break;
-        }
 
         if (!ValidateChecksum(&hdr))
-        {
             break;
-        }
 
         uint64_t fileSize = ParseOctal(hdr.size, 12);
-        std::string entryName = TarName(&hdr);
+
+        // GNU long name (typeflag 'L'): the data block contains the real filename
+        if (hdr.typeflag == 'L')
+        {
+            gnuLongName = ReadTarDataAsString(f, fileSize);
+            continue;
+        }
+
+        // GNU long link (typeflag 'K'): the data block contains the real link target
+        if (hdr.typeflag == 'K')
+        {
+            gnuLongLink = ReadTarDataAsString(f, fileSize);
+            continue;
+        }
+
+        // PAX extended header (typeflag 'x' or 'g'): skip for now
+        if (hdr.typeflag == 'x' || hdr.typeflag == 'g')
+        {
+            SkipTarData(f, fileSize);
+            continue;
+        }
+
+        std::string entryName = gnuLongName.empty()
+            ? TarName(&hdr) : gnuLongName;
+        entryName = StripDotSlash(entryName);
+        gnuLongName.clear();
+
+        std::string linkTarget = gnuLongLink.empty()
+            ? TarLinkName(&hdr) : gnuLongLink;
+        gnuLongLink.clear();
+
+        bool isHardlink = (hdr.typeflag == '1');
+        bool isSymlink = (hdr.typeflag == '2');
+        bool isDir = (hdr.typeflag == '5');
+
+        // Track hardlink targets so ReadFile can resolve them
+        if (isHardlink && !linkTarget.empty())
+            m_linkTargets[entryName] = linkTarget;
+
+        // For hardlinks, resolve the size from the link target
+        uint64_t displaySize = fileSize;
+        if (isHardlink && fileSize == 0 && !linkTarget.empty())
+        {
+            for (const auto& prev : m_entries)
+                if (prev.name == linkTarget)
+                    { displaySize = prev.size; break; }
+        }
 
         ArchiveEntry entry;
         entry.name = entryName;
         entry.path = entryName;
-        entry.size = fileSize;
-        entry.packedSize = fileSize;
-        entry.isDirectory = (hdr.typeflag == '5');
+        entry.size = displaySize;
+        entry.packedSize = displaySize;
+        entry.isDirectory = isDir;
         entry.permissions = ParseOctal(hdr.mode, 8) & 0xFFF;
 
-        struct tm timeinfo = {};
+        if (isSymlink)
+            entry.comment = "-> " + linkTarget;
+
         uint64_t mtime = ParseOctal(hdr.mtime, 12);
         entry.modified = std::chrono::system_clock::from_time_t(
             static_cast<time_t>(mtime));
 
         m_entries.push_back(std::move(entry));
 
-        uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-        std::vector<char> skipBuf(static_cast<size_t>(
-            std::min(skipBytes, static_cast<uint64_t>(65536))));
-
-        while (skipBytes > 0)
-        {
-            size_t toRead = static_cast<size_t>(
-                std::min(skipBytes, static_cast<uint64_t>(skipBuf.size())));
-            int r = gzread(f, skipBuf.data(), static_cast<unsigned int>(toRead));
-            if (r <= 0) break;
-            skipBytes -= static_cast<uint64_t>(r);
-        }
+        SkipTarData(f, fileSize);
     }
 
     LOG_DBG("TarGzEngine: loaded %zu entries", m_entries.size());
@@ -230,6 +313,7 @@ void TarGzEngine::Close()
     m_entries.clear();
     m_entryQueue.clear();
     m_removedEntries.clear();
+    m_linkTargets.clear();
 }
 
 // ── Reading ────────────────────────────────────────────────────────────
@@ -264,67 +348,66 @@ bool TarGzEngine::ExtractAll(std::string_view destPath)
 std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
 {
     if (!m_isOpen)
-    {
         return {};
-    }
+
+    // Resolve hardlinks: if this entry is a hardlink, read from the target
+    std::string name(entryName);
+    auto linkIt = m_linkTargets.find(name);
+    if (linkIt != m_linkTargets.end())
+        name = linkIt->second;
 
     gzclose(m_gzFile);
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile)
-    {
         return {};
-    }
+
+    std::string gnuLongName;
 
     TarHeader hdr;
     while (true)
     {
         int bytesRead = gzread(m_gzFile, &hdr, TAR_BLOCK_SIZE);
         if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE))
-        {
             break;
-        }
 
         if (IsEndOfArchive(&hdr))
-        {
             break;
-        }
 
         if (!ValidateChecksum(&hdr))
-        {
             break;
-        }
 
         uint64_t fileSize = ParseOctal(hdr.size, 12);
-        std::string currentName = TarName(&hdr);
 
-        uint64_t paddedSize = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+        // Handle GNU long name
+        if (hdr.typeflag == 'L')
+        {
+            gnuLongName = ReadTarDataAsString(m_gzFile, fileSize);
+            continue;
+        }
 
-        if (currentName == entryName)
+        // Skip PAX headers and GNU long link
+        if (hdr.typeflag == 'x' || hdr.typeflag == 'g' || hdr.typeflag == 'K')
+        {
+            SkipTarData(m_gzFile, fileSize);
+            continue;
+        }
+
+        std::string currentName = gnuLongName.empty()
+            ? TarName(&hdr) : gnuLongName;
+        currentName = StripDotSlash(currentName);
+        gnuLongName.clear();
+
+        if (currentName == name && fileSize > 0)
         {
             std::vector<uint8_t> result(static_cast<size_t>(fileSize));
-            if (fileSize > 0)
-            {
-                int r = gzread(m_gzFile, result.data(),
-                               static_cast<unsigned int>(fileSize));
-                if (r <= 0)
-                {
-                    return {};
-                }
-            }
+            int r = gzread(m_gzFile, result.data(),
+                           static_cast<unsigned int>(fileSize));
+            if (r <= 0)
+                return {};
             return result;
         }
 
-        std::vector<char> skipBuf(static_cast<size_t>(
-            std::min(paddedSize, static_cast<uint64_t>(65536))));
-        while (paddedSize > 0)
-        {
-            size_t toRead = static_cast<size_t>(
-                std::min(paddedSize, static_cast<uint64_t>(skipBuf.size())));
-            int r = gzread(m_gzFile, skipBuf.data(),
-                           static_cast<unsigned int>(toRead));
-            if (r <= 0) break;
-            paddedSize -= static_cast<uint64_t>(r);
-        }
+        SkipTarData(m_gzFile, fileSize);
     }
 
     return {};
@@ -537,52 +620,8 @@ bool TarGzEngine::Save()
 
     gzclose(out);
 
-    // Re-read to refresh entry list
-    m_entryQueue.clear();
-    m_removedEntries.clear();
-    m_modified = false;
-
-    gzFile f = gzopen(m_path.c_str(), "rb");
-    if (f)
-    {
-        if (m_gzFile) gzclose(m_gzFile);
-        m_gzFile = f;
-        m_entries.clear();
-
-        TarHeader hdr;
-        while (true)
-        {
-            int bytesRead = gzread(f, &hdr, TAR_BLOCK_SIZE);
-            if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE)) break;
-            if (IsEndOfArchive(&hdr)) break;
-            if (!ValidateChecksum(&hdr)) break;
-
-            uint64_t fileSize = ParseOctal(hdr.size, 12);
-            ArchiveEntry entry;
-            entry.name = TarName(&hdr);
-            entry.path = entry.name;
-            entry.size = fileSize;
-            entry.packedSize = fileSize;
-            entry.isDirectory = (hdr.typeflag == '5');
-            entry.permissions = ParseOctal(hdr.mode, 8) & 0xFFF;
-            uint64_t mtime = ParseOctal(hdr.mtime, 12);
-            entry.modified = std::chrono::system_clock::from_time_t(
-                static_cast<time_t>(mtime));
-            m_entries.push_back(std::move(entry));
-
-            uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-            std::vector<char> skipBuf(static_cast<size_t>(
-                std::min(skipBytes, static_cast<uint64_t>(65536))));
-            while (skipBytes > 0)
-            {
-                size_t toRead = static_cast<size_t>(
-                    std::min(skipBytes, static_cast<uint64_t>(skipBuf.size())));
-                int r = gzread(f, skipBuf.data(), static_cast<unsigned int>(toRead));
-                if (r <= 0) break;
-                skipBytes -= static_cast<uint64_t>(r);
-            }
-        }
-    }
+    // Re-open to refresh entry list
+    Open(m_path);
 
     LOG_DBG("TarGzEngine: saved successfully (%zu entries)", m_entries.size());
     return true;
