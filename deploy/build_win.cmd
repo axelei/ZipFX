@@ -64,6 +64,7 @@ if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
 if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe not found
 if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll not found
 if not exist "%BUILD_DIR%\Qt6Core.dll" echo WARNING: Qt6Core.dll not found
+if not exist "%BUILD_DIR%\libzip.dll" echo WARNING: libzip.dll not found
 
 echo === Checking NSIS ===
 set "NSIS_DIR="
@@ -117,6 +118,8 @@ goto :eof
 set PKG_NAME=ZipFX-win64.zip
 powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
     "%BUILD_DIR%\Qt6*.dll",^
+    "%BUILD_DIR%\libzip.dll",^
+    "%BUILD_DIR%\libadf.dll",^
     "%BUILD_DIR%\7z.dll",^
     "%BUILD_DIR%\platforms",^
     "%BUILD_DIR%\styles",^

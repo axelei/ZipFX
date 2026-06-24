@@ -41,8 +41,13 @@ endif()
 
 # Collect DLLs that need to be next to test executables
 set(TEST_DLLS "")
-if(WIN32 AND 7ZIP_DLL)
-    list(APPEND TEST_DLLS "${7ZIP_DLL}")
+if(WIN32)
+    list(APPEND TEST_DLLS
+        "${libzip_BINARY_DIR}/lib/libzip.dll"
+    )
+    if(7ZIP_DLL)
+        list(APPEND TEST_DLLS "${7ZIP_DLL}")
+    endif()
 endif()
 
 macro(add_zipfx_test TEST_NAME)
