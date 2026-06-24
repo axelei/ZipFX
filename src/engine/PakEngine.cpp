@@ -34,13 +34,13 @@ bool PakEngine::Open(std::string_view path)
             f.read(reinterpret_cast<char*>(de), 64);
             if (!f) return false;
 
-            uint32_t off = read32(de);
-            uint32_t sz = read32(de + 4);
-            if (sz == 0) continue;
-
             char name[57] = {};
-            std::memcpy(name, de + 8, 56);
+            std::memcpy(name, de, 56);
             name[56] = '\0';
+
+            uint32_t off = read32(de + 56);
+            uint32_t sz = read32(de + 60);
+            if (sz == 0) continue;
 
             entries.push_back({name, off, sz});
         }
@@ -69,17 +69,17 @@ bool PakEngine::doSave(std::ofstream& f)
         curOff += e.size;
     }
 
-    // Write directory
+    // Write directory (name[56] + offset[4] + size[4])
     uint32_t dirOff = curOff;
     for (size_t i = 0; i < count; ++i)
     {
         if (m_entries[i].size == 0) continue;
-        write32LE(f, offsets[i]);
-        write32LE(f, m_entries[i].size);
         char name[56] = {};
         std::memcpy(name, m_entries[i].name.c_str(),
                     (std::min)(m_entries[i].name.size(), size_t{56}));
         f.write(name, 56);
+        write32LE(f, offsets[i]);
+        write32LE(f, m_entries[i].size);
     }
 
     // Fix header
