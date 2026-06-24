@@ -729,14 +729,32 @@ void MainWindow::loadRecentFiles()
     int size = settings.beginReadArray("recentFiles");
     m_addrBox->clear();
     m_addrBox->setEditText(QString());
-    for (int i = 0; i < size; ++i)
+    int loaded = 0;
+    for (int i = 0; i < size && loaded < 10; ++i)
     {
         settings.setArrayIndex(i);
         QString path = settings.value("path").toString();
         if (QFileInfo::exists(path))
+        {
             m_addrBox->addItem(path);
+            loaded++;
+        }
     }
     settings.endArray();
+    // Trim excess entries from QSettings
+    if (size > 10)
+    {
+        QStringList keep;
+        for (int i = 0; i < m_addrBox->count(); ++i)
+            keep.append(m_addrBox->itemText(i));
+        settings.beginWriteArray("recentFiles");
+        for (int i = 0; i < keep.size(); ++i)
+        {
+            settings.setArrayIndex(i);
+            settings.setValue("path", keep[i]);
+        }
+        settings.endArray();
+    }
     m_addrBox->setEditText(QString());
     m_addrBox->setCurrentIndex(-1);
 }
