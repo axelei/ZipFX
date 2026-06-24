@@ -399,15 +399,24 @@ bool MainWindow::saveWithProgress()
             if (spInfo.totalBytes > 0)
             {
                 if (savePi.totalBytes == 0)
+                {
                     savePi.start(spInfo.totalBytes);
+                    m_progressDlg->setRange(0, 100);
+                    if (auto* lbl = m_progressDlg->findChild<QLabel*>())
+                        lbl->setAlignment(Qt::AlignLeft);
+                }
                 savePi.addBytes(spInfo.bytesProcessed - prevBytes);
                 prevBytes = spInfo.bytesProcessed;
                 if (savePi.shouldUpdate() && !userCancelled)
                 {
                     savePi.updateRate();
-                    m_progressDlg->setLabelText(
-                        tr("Saving: %1 %2").arg(
-                            QString::fromStdString(spInfo.fileName), savePi.etaString()));
+                    m_progressDlg->setValue(savePi.percent());
+                    QString eta = savePi.etaString();
+                    QString label = QString::fromStdString(spInfo.fileName)
+                        + QChar('\n')
+                        + tr("%1%").arg(savePi.percent())
+                        + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                    m_progressDlg->setLabelText(label);
                 }
             }
         }
@@ -605,9 +614,10 @@ void MainWindow::onNewArchive()
                         if (pi.shouldUpdate())
                         {
                             pi.updateRate();
-                            m_progressDlg->setLabelText(
-                                tr("Adding: %1 %2").arg(
-                                    QString::fromStdWString(rel.wstring()), pi.etaString()));
+                            QString eta = pi.etaString();
+                            QString label = QString::fromStdWString(rel.wstring())
+                                + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                            m_progressDlg->setLabelText(label);
                         }
                         QApplication::processEvents();
                     }
@@ -621,9 +631,10 @@ void MainWindow::onNewArchive()
                 if (pi.shouldUpdate())
                 {
                     pi.updateRate();
-                    m_progressDlg->setLabelText(
-                        tr("Adding: %1 %2").arg(
-                            QString::fromStdWString(src.filename().wstring()), pi.etaString()));
+                    QString eta = pi.etaString();
+                    QString label = QString::fromStdWString(src.filename().wstring())
+                        + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                    m_progressDlg->setLabelText(label);
                 }
                 QApplication::processEvents();
             }
@@ -650,7 +661,7 @@ void MainWindow::onNewArchive()
 
         if (!saveWithProgress())
         {
-            m_progressDlg = nullptr;
+            refreshFileList();
             return;
         }
 
@@ -882,17 +893,15 @@ void MainWindow::doAddPaths(const QStringList& paths)
                     m_engine->AddFile(de.path().string(), archivePath.toStdString());
                     m_progressDlg->setValue(++count);
                     pi.addBytes(fs::file_size(de));
-                    if (pi.shouldUpdate())
                     {
-                        pi.updateRate();
-                        m_progressDlg->setLabelText(
-                            tr("Adding: %1 %2").arg(
-                                QString::fromStdWString(rel.wstring()), pi.etaString()));
-                    }
-                    else
-                    {
-                        m_progressDlg->setLabelText(tr("Adding: %1").arg(
-                            QString::fromStdWString(rel.wstring())));
+                        QString fname = QString::fromStdWString(rel.wstring());
+                        if (pi.shouldUpdate())
+                        {
+                            pi.updateRate();
+                            QString eta = pi.etaString();
+                            fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                        }
+                        m_progressDlg->setLabelText(fname);
                     }
                     QApplication::processEvents();
                 }
@@ -903,17 +912,15 @@ void MainWindow::doAddPaths(const QStringList& paths)
             m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
             m_progressDlg->setValue(++count);
             pi.addBytes(fs::file_size(src));
-            if (pi.shouldUpdate())
             {
-                pi.updateRate();
-                m_progressDlg->setLabelText(
-                    tr("Adding: %1 %2").arg(
-                        QString::fromStdWString(src.filename().wstring()), pi.etaString()));
-            }
-            else
-            {
-                m_progressDlg->setLabelText(tr("Adding: %1").arg(
-                    QString::fromStdWString(src.filename().wstring())));
+                QString fname = QString::fromStdWString(src.filename().wstring());
+                if (pi.shouldUpdate())
+                {
+                    pi.updateRate();
+                    QString eta = pi.etaString();
+                    fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                }
+                m_progressDlg->setLabelText(fname);
             }
             QApplication::processEvents();
         }
@@ -1050,8 +1057,11 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         pi.addBytes(entry.packedSize > 0 ? entry.packedSize : entry.size);
         pi.updateRate();
         m_progressDlg->setValue((int)i + 1);
-        m_progressDlg->setLabelText(tr("Extracting: %1  %2").arg(
-            name, pi.etaString()));
+        {
+            QString eta = pi.etaString();
+            QString label = name + (eta.isEmpty() ? QString() : QChar('\n') + eta);
+            m_progressDlg->setLabelText(label);
+        }
         QApplication::processEvents();
 
         if (!extractOk)
@@ -1530,14 +1540,15 @@ void MainWindow::onBeginDrag()
         for (const auto& e : allEntries)
             if (e.path == fp)
                 { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
-        if (piDrag.shouldUpdate())
         {
-            piDrag.updateRate();
-            prog.setLabelText(tr("Extracting: %1 %2").arg(filePaths[i], piDrag.etaString()));
-        }
-        else
-        {
-            prog.setLabelText(tr("Extracting: %1").arg(filePaths[i]));
+            QString fname = filePaths[i];
+            if (piDrag.shouldUpdate())
+            {
+                piDrag.updateRate();
+                QString eta = piDrag.etaString();
+                fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
+            }
+            prog.setLabelText(fname);
         }
         QApplication::processEvents();
 

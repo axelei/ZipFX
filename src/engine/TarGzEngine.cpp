@@ -434,6 +434,7 @@ bool TarGzEngine::Save()
     {
         return true;
     }
+    m_saveCancelled = false;
 
     LOG_DBG("TarGzEngine: saving %s (%zu existing, %zu queued, %zu removed)",
             m_path.c_str(), m_entries.size(), m_entryQueue.size(), m_removedEntries.size());

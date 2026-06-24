@@ -306,6 +306,7 @@ bool ZipEngine::RenameEntry(std::string_view entryName, std::string_view newName
 bool ZipEngine::Save()
 {
     if (!m_zip || !m_modified) return true;
+    m_saveCancelled = false;
 
     // Compute total bytes for progress reporting
     uint64_t totalBytes = 0;
@@ -344,8 +345,11 @@ bool ZipEngine::Save()
             continue;
         }
 
-        std::error_code ec;
-        bytesDone += fs::file_size(pa.srcPath, ec);
+        {
+            std::error_code ec;
+            auto sz = fs::file_size(pa.srcPath, ec);
+            if (!ec) bytesDone += sz;
+        }
 
         zip_int64_t idx = zip_name_locate(
             m_zip, pa.archivePath.c_str(), 0);
@@ -397,6 +401,13 @@ bool ZipEngine::Save()
         zip_discard(m_zip);
         m_zip = nullptr;
         LOG_DBG("ZipEngine: save cancelled, discarding changes");
+
+        int err = 0;
+        m_zip = zip_open(m_path.c_str(), 0, &err);
+        m_entries.clear();
+        if (m_zip)
+            LoadEntries();
+        m_modified = false;
         return false;
     }
 

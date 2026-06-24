@@ -7,6 +7,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <set>
 
 namespace bit7z {
 class Bit7zLibrary;
@@ -63,6 +64,8 @@ private:
 
     // Write state
     std::map<std::string, std::string> m_pendingAdds; // archivePath -> srcPath
+    std::set<std::string> m_pendingDeletes;
+    bool m_modified = false;
     std::string m_password;
     bool m_encryptHeaders = false;
     uint64_t m_volumeSize = 0;

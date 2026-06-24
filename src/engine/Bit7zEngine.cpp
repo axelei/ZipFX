@@ -4,6 +4,7 @@
 
 #include <bit7z/bit7zlibrary.hpp>
 #include <bit7z/bitarchivereader.hpp>
+#include <bit7z/bitarchiveeditor.hpp>
 #include <bit7z/bitarchivewriter.hpp>
 #include <bit7z/bitfileextractor.hpp>
 #include <bit7z/bitformat.hpp>
@@ -159,8 +160,10 @@ void Bit7zEngine::Close()
     m_reader.reset();
     m_isOpen = false;
     m_isNew = false;
+    m_modified = false;
     m_entries.clear();
     m_pendingAdds.clear();
+    m_pendingDeletes.clear();
 }
 
 const std::vector<ArchiveEntry>& Bit7zEngine::ListContents()
@@ -312,61 +315,93 @@ bool Bit7zEngine::AddFile(std::string_view srcPath, std::string_view archivePath
 
 bool Bit7zEngine::RemoveEntry(std::string_view entryName)
 {
-    (void)entryName;
-    return false;
+    std::string name(entryName);
+    for (auto& c : name)
+        if (c == '\\') c = '/';
+
+    m_pendingDeletes.insert(name);
+    m_modified = true;
+
+    std::erase_if(m_entries, [&](const ArchiveEntry& e) { return e.path == name; });
+    return true;
 }
 
 bool Bit7zEngine::Save()
 {
-    if (!m_isOpen || m_pendingAdds.empty()) return true;
+    if (!m_isOpen || (m_pendingAdds.empty() && m_pendingDeletes.empty())) return true;
+    m_saveCancelled = false;
 
     try
     {
-        // Use different writer constructor for new vs existing archives
-        auto writer = m_isNew
-            ? std::make_unique<bit7z::BitArchiveWriter>(*m_lib, bit7z::BitFormat::SevenZip)
-            : std::make_unique<bit7z::BitArchiveWriter>(*m_lib, m_path, bit7z::BitFormat::SevenZip);
+        bool hasDeletes = !m_pendingDeletes.empty() && !m_isNew;
 
-        if (!m_password.empty())
-            writer->setPassword(m_password, m_encryptHeaders);
-
-        writer->setCompressionLevel(
-            static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
-
-        if (m_volumeSize > 0)
-            writer->setVolumeSize(m_volumeSize);
-
-        if (!m_isNew)
-            writer->setUpdateMode(bit7z::UpdateMode::Append);
-
-        // Compute total bytes
-        uint64_t totalBytes7z = 0;
-        for (const auto& [archivePath, srcPath] : m_pendingAdds)
+        if (hasDeletes)
         {
-            std::error_code ec;
-            totalBytes7z += fs::file_size(srcPath, ec);
+            auto editor = std::make_unique<bit7z::BitArchiveEditor>(
+                *m_lib, m_path, bit7z::BitFormat::SevenZip);
+
+            if (!m_password.empty())
+                editor->setPassword(m_password, m_encryptHeaders);
+
+            editor->setCompressionLevel(
+                static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
+
+            for (const auto& name : m_pendingDeletes)
+                editor->deleteItem(name);
+
+            for (const auto& [archivePath, srcPath] : m_pendingAdds)
+                editor->addFile(srcPath, archivePath);
+
+            editor->applyChanges();
         }
+        else
+        {
+            auto writer = m_isNew
+                ? std::make_unique<bit7z::BitArchiveWriter>(*m_lib, bit7z::BitFormat::SevenZip)
+                : std::make_unique<bit7z::BitArchiveWriter>(*m_lib, m_path, bit7z::BitFormat::SevenZip);
 
-        for (const auto& [archivePath, srcPath] : m_pendingAdds)
-            writer->addFile(srcPath, archivePath);
+            if (!m_password.empty())
+                writer->setPassword(m_password, m_encryptHeaders);
 
-        // Progress callback enables cancellation and reports progress
-        writer->setProgressCallback([this, totalBytes7z](uint64_t processed) -> bool {
-            if (m_saveProgressCb)
+            writer->setCompressionLevel(
+                static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
+
+            if (m_volumeSize > 0)
+                writer->setVolumeSize(m_volumeSize);
+
+            if (!m_isNew)
+                writer->setUpdateMode(bit7z::UpdateMode::Append);
+
+            // Compute total bytes
+            uint64_t totalBytes7z = 0;
+            for (const auto& [archivePath, srcPath] : m_pendingAdds)
             {
-                SaveProgressInfo info;
-                info.bytesProcessed = processed;
-                info.totalBytes = totalBytes7z;
-                m_saveProgressCb(info);
+                std::error_code ec;
+                totalBytes7z += fs::file_size(srcPath, ec);
             }
-            return !m_saveCancelled;
-        });
 
-        writer->compressTo(m_path);
+            for (const auto& [archivePath, srcPath] : m_pendingAdds)
+                writer->addFile(srcPath, archivePath);
+
+            writer->setProgressCallback([this, totalBytes7z](uint64_t processed) -> bool {
+                if (m_saveProgressCb)
+                {
+                    SaveProgressInfo info;
+                    info.bytesProcessed = processed;
+                    info.totalBytes = totalBytes7z;
+                    m_saveProgressCb(info);
+                }
+                return !m_saveCancelled;
+            });
+
+            writer->compressTo(m_path);
+        }
 
         // Re-open in read mode
         m_isNew = false;
         m_pendingAdds.clear();
+        m_pendingDeletes.clear();
+        m_modified = false;
         m_reader = std::make_unique<bit7z::BitArchiveReader>(*m_lib, m_path);
         m_isOpen = true;
         m_entries.clear();
@@ -376,7 +411,6 @@ bool Bit7zEngine::Save()
         {
             ArchiveEntry ae;
             ae.name = item.path();
-            // Normalize backslashes that 7z.dll may have inserted
             for (auto& c : ae.name)
                 if (c == '\\') c = '/';
             ae.path = ae.name;
