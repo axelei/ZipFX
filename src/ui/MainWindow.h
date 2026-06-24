@@ -85,6 +85,8 @@ private:
     bool saveWithProgress();
     bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile);
     void afterActionDialog();
+    void loadRecentFiles();
+    void addRecentFile(const QString& path);
 
     std::unique_ptr<ArchiveEngine> m_engine;
     std::string m_currentPath;

@@ -316,6 +316,14 @@ void MainWindow::setupUI()
         m_addrBox->setEditText(m_model->currentDir());
     });
 
+    loadRecentFiles();
+    connect(m_addrBox, QOverload<int>::of(&QComboBox::activated),
+        this, [this](int index) {
+            QString text = m_addrBox->itemText(index);
+            if (QFileInfo::exists(text))
+                openArchive(text);
+        });
+
     addrLayout->addWidget(addrLabel);
     addrLayout->addWidget(m_addrBox, 1);
     addrLayout->addWidget(m_upBtn);
@@ -662,7 +670,7 @@ void MainWindow::onNewArchive()
     }
 
     m_currentPath = result.path.toStdString();
-    m_addrBox->setEditText(result.path);
+    addRecentFile(result.path);
     m_treeView->setEnabled(true);
     statusBar()->showMessage(tr("Archive created"), 3000);
     refreshFileList();
@@ -683,6 +691,53 @@ void MainWindow::onOpenArchive()
     openArchive(path);
 }
 
+void MainWindow::loadRecentFiles()
+{
+    QSettings settings;
+    int size = settings.beginReadArray("recentFiles");
+    m_addrBox->clear();
+    for (int i = 0; i < size; ++i)
+    {
+        settings.setArrayIndex(i);
+        QString path = settings.value("path").toString();
+        if (QFileInfo::exists(path))
+            m_addrBox->addItem(path);
+    }
+    settings.endArray();
+}
+
+void MainWindow::addRecentFile(const QString& path)
+{
+    QSettings settings;
+    QStringList recent;
+    int size = settings.beginReadArray("recentFiles");
+    for (int i = 0; i < size && recent.size() < 9; ++i)
+    {
+        settings.setArrayIndex(i);
+        QString p = settings.value("path").toString();
+        if (p != path && QFileInfo::exists(p))
+            recent.append(p);
+    }
+    settings.endArray();
+    recent.prepend(path);
+
+    settings.beginWriteArray("recentFiles");
+    for (int i = 0; i < recent.size(); ++i)
+    {
+        settings.setArrayIndex(i);
+        settings.setValue("path", recent[i]);
+    }
+    settings.endArray();
+
+    // Update combo box without triggering the activated signal
+    m_addrBox->blockSignals(true);
+    m_addrBox->clear();
+    for (const auto& p : recent)
+        m_addrBox->addItem(p);
+    m_addrBox->setEditText(path);
+    m_addrBox->blockSignals(false);
+}
+
 bool MainWindow::openArchive(const QString& path)
 {
     onCloseArchive();
@@ -700,7 +755,7 @@ bool MainWindow::openArchive(const QString& path)
 
     m_engine = std::move(engine);
     m_currentPath = firstVolPath;
-    m_addrBox->setEditText(QString::fromStdString(firstVolPath));
+    addRecentFile(QString::fromStdString(firstVolPath));
     m_treeView->setEnabled(true);
     refreshFileList();
     statusBar()->showMessage(tr("Opened: %1").arg(QString::fromStdString(firstVolPath)), 3000);
