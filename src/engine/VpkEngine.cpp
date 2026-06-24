@@ -142,7 +142,7 @@ std::string VpkEngine::volumePath(int archiveIndex) const
         base = m_path.substr(0, m_path.size() - 4); // strip .vpk
 
     char volStr[16];
-    std::snprintf(volStr, sizeof(volStr), "_%03u.vpk", archiveIndex + 1);
+    std::snprintf(volStr, sizeof(volStr), "_%03u.vpk", archiveIndex);
     return base + volStr;
 }
 
