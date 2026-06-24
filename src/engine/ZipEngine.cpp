@@ -390,9 +390,16 @@ bool ZipEngine::Save()
         return false;
     }
 
+    // Compute total bytes zip_close will process (existing + new entries)
+    uint64_t totalCloseBytes = totalBytes;
+    for (const auto& e : m_entries)
+        totalCloseBytes += e.size;
+
     // Register progress callback for zip_close (where actual compression happens)
-    if (m_saveProgressCb && totalBytes > 0)
+    if (m_saveProgressCb && totalCloseBytes > 0)
     {
+        m_totalBytesForProgress = totalCloseBytes;
+        m_lastFileName = lastName;
         zip_register_progress_callback_with_state(m_zip, 0.001,
             [](zip_t*, double progress, void* ud) {
                 auto* self = static_cast<ZipEngine*>(ud);
@@ -407,8 +414,6 @@ bool ZipEngine::Save()
                 }
             },
             nullptr, this);
-        m_totalBytesForProgress = totalBytes;
-        m_lastFileName = lastName;
     }
 
     // Commit changes to disk (libzip handles everything in-place)
