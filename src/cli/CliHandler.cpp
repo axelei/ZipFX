@@ -81,7 +81,8 @@ static int doList(const std::string& path)
     return 0;
 }
 
-static int doExtract(const std::string& path, const std::string& outDir)
+static int doExtract(const std::string& path, const std::string& outDir,
+                    const std::vector<std::string>& files)
 {
     auto rpath = resolvePath(path);
     auto engine = ArchiveEngineFactory::CreateForFile(rpath);
@@ -93,14 +94,38 @@ static int doExtract(const std::string& path, const std::string& outDir)
 
     fs::create_directories(outDir);
 
-    if (!engine->ExtractAll(outDir))
+    if (!files.empty())
     {
-        std::cerr << "Error: extraction failed" << std::endl;
-        engine->Close();
-        return 1;
+        // Extract only the specified files
+        bool allOk = true;
+        for (const auto& f : files)
+        {
+            fs::path fullPath = fs::path(outDir) / f;
+            fs::create_directories(fullPath.parent_path());
+            if (!engine->Extract(f, fullPath.string()))
+            {
+                std::cerr << "Error: failed to extract " << f << std::endl;
+                allOk = false;
+            }
+        }
+        if (!allOk)
+        {
+            engine->Close();
+            return 1;
+        }
+        std::cout << "Extracted " << files.size() << " file(s) to " << outDir << std::endl;
+    }
+    else
+    {
+        if (!engine->ExtractAll(outDir))
+        {
+            std::cerr << "Error: extraction failed" << std::endl;
+            engine->Close();
+            return 1;
+        }
+        std::cout << "Extracted to " << outDir << std::endl;
     }
 
-    std::cout << "Extracted to " << outDir << std::endl;
     engine->Close();
     return 0;
 }
@@ -271,8 +296,10 @@ int runCli(int argc, char* argv[])
     auto* extractCmd = app.add_subcommand("extract", "Extract archive");
     std::string extractArchive;
     std::string extractDir;
+    std::vector<std::string> extractFiles;
     extractCmd->add_option("archive", extractArchive, "Path to the archive")->required();
     extractCmd->add_option("-o,--output", extractDir, "Output directory (default: archive name without extension)");
+    extractCmd->add_option("files", extractFiles, "Files to extract (omit to extract all)");
 
     // create
     auto* createCmd = app.add_subcommand("create", "Create archive");
@@ -317,7 +344,7 @@ int runCli(int argc, char* argv[])
         auto dir = extractDir.empty()
             ? fs::path(extractArchive).stem().string()
             : extractDir;
-        return doExtract(extractArchive, dir);
+        return doExtract(extractArchive, dir, extractFiles);
     }
 
     if (*createCmd)

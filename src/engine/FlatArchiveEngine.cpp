@@ -95,6 +95,7 @@ bool FlatArchiveEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& e : m_entries)
     {
+        if (m_extractCancelled) { LOG_DBG("FlatArchiveEngine: extract cancelled"); return false; }
         auto data = ReadFile(e.name);
         if (data.empty()) return false;
         fs::path dest = fs::path(destPath) / e.name;
@@ -149,6 +150,19 @@ bool FlatArchiveEngine::AddFile(std::string_view srcPath, std::string_view archi
     entry.data.resize(static_cast<size_t>(sz));
     src.read(reinterpret_cast<char*>(entry.data.data()), sz);
     return src.good();
+}
+
+bool FlatArchiveEngine::RenameEntry(std::string_view entryName, std::string_view newName)
+{
+    for (auto& e : m_entries)
+    {
+        if (e.name == entryName)
+        {
+            e.name = newName;
+            return true;
+        }
+    }
+    return false;
 }
 
 bool FlatArchiveEngine::RemoveEntry(std::string_view entryName)

@@ -46,6 +46,8 @@ public:
     explicit MainWindow(const QString& fileToOpen, QWidget* parent = nullptr);
     ~MainWindow() override;
 
+    bool openArchive(const QString& path);
+
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
     void dropEvent(QDropEvent* event) override;
@@ -75,7 +77,6 @@ private:
     void setupUI();
     void refreshFileList();
     void updateStatusBar();
-    bool openArchive(const QString& path);
 #ifdef _WIN32
     void registerFileAssociations();
 #endif

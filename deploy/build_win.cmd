@@ -123,8 +123,15 @@ powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
     "%BUILD_DIR%\libadf.dll",^
     "%BUILD_DIR%\libStormLib.dll",^
     "%BUILD_DIR%\7z.dll",^
+    "%BUILD_DIR%\opengl32sw.dll",^
+    "%BUILD_DIR%\D3Dcompiler_47.dll",^
     "%BUILD_DIR%\platforms",^
     "%BUILD_DIR%\styles",^
+    "%BUILD_DIR%\imageformats",^
+    "%BUILD_DIR%\iconengines",^
+    "%BUILD_DIR%\networkinformation",^
+    "%BUILD_DIR%\generic",^
+    "%BUILD_DIR%\tls",^
     "%BUILD_DIR%\translations" ^
     -DestinationPath "%PKG_NAME%" -Force
 echo === Done: %PKG_NAME% ===

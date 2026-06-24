@@ -240,6 +240,7 @@ bool TarGzEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& entry : m_entries)
     {
+        if (m_extractCancelled) { LOG_DBG("TarGzEngine: extract cancelled"); return false; }
         if (entry.isDirectory)
         {
             fs::create_directories(fs::path(destPath) / entry.name);

@@ -276,8 +276,14 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
             return fmt.create();
     }
 
-    // Last resort: Bit7z
-    return kFormats[std::size(kFormats) - 1].create();
+    // Last resort: Bit7z (only if the library is actually available)
+    {
+        auto bit7z = std::make_unique<Bit7zEngine>();
+        if (bit7z->isLibraryLoaded())
+            return bit7z;
+    }
+
+    return nullptr;
 }
 
 std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFormat(

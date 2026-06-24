@@ -31,6 +31,11 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    void setPassword(const std::string& pwd) { m_password = pwd; }
+    void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
+    void cancelExtract() override { m_extractCancelled = true; }
+    bool isExtractCancelled() const { return m_extractCancelled; }
+
     std::string_view FormatName() const override { return "ZIP"; }
     bool SupportsCreation() const override { return true; }
     bool IsOpen() const override { return m_zip != nullptr; }
@@ -40,6 +45,9 @@ private:
     std::string m_path;
     bool    m_modified = false;
     bool    m_isNew = false; // created via Create(), not opened
+    std::string m_password;
+    bool m_encryptHeaders = false;
+    std::atomic<bool> m_extractCancelled{false};
 
     std::vector<ArchiveEntry> m_entries;
 
@@ -51,7 +59,6 @@ private:
     std::vector<PendingAdd> m_pendingAdds;
 
     void LoadEntries();
-    static int GetCompressionLevel();
 };
 
 #endif

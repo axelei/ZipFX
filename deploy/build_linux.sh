@@ -32,14 +32,27 @@ if [ -n "$LIB7Z" ]; then
     cp "$LIB7Z" "${BUILD_DIR}/install/bin/"
 fi
 
+echo "=== Creating tar.gz ==="
+tar czf ZipFX-Linux.tar.gz -C "${BUILD_DIR}/install" .
+echo "=== Done: ZipFX-Linux.tar.gz ==="
+
 echo "=== AppImage (if linuxdeploy available) ==="
-if command -v linuxdeployqt &>/dev/null; then
-    linuxdeployqt "${BUILD_DIR}/install/share/applications/zipfx.desktop" \
-        -appimage -bundle-non-qt-libs
+if command -v linuxdeploy &>/dev/null; then
+    # Copy lib7z.so into the AppDir
+    LIB7Z=""
+    for path in ../lib/linux/x64/lib7z.so ../lib/linux/lib7z.so; do
+        if [ -f "$path" ]; then LIB7Z="$path"; break; fi
+    done
+    if [ -n "$LIB7Z" ]; then
+        mkdir -p "${BUILD_DIR}/install/usr/lib"
+        cp "$LIB7Z" "${BUILD_DIR}/install/usr/lib/"
+    fi
+    linuxdeploy --appdir "${BUILD_DIR}/install" \
+        --desktop-file "${BUILD_DIR}/install/share/applications/zipfx.desktop" \
+        --icon-file "${BUILD_DIR}/install/share/icons/hicolor/256x256/apps/zipfx.png" \
+        --plugin qt --output appimage
     mv ZipFX*.AppImage ZipFX-Linux.AppImage 2>/dev/null || true
     echo "=== AppImage created ==="
 else
-    echo "=== Creating tar.gz (linuxdeployqt not found) ==="
-    tar czf ZipFX-Linux.tar.gz -C "${BUILD_DIR}/install" .
-    echo "=== Done: ZipFX-Linux.tar.gz ==="
+    echo "=== Skipping AppImage (linuxdeploy not found) ==="
 fi

@@ -29,6 +29,8 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    void cancelExtract() override { m_extractCancelled = true; }
+
     std::string_view FormatName() const override { return "ADF"; }
     bool SupportsCreation() const override { return true; }
     bool IsOpen() const override { return m_isOpen; }
@@ -44,6 +46,7 @@ private:
     bool m_isOpen = false;
     bool m_modified = false;
     std::vector<ArchiveEntry> m_entries;
+    std::atomic<bool> m_extractCancelled{false};
 };
 
 #endif

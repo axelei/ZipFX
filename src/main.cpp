@@ -4,11 +4,14 @@
 #include <QApplication>
 #include <QDir>
 #include <QIcon>
+#include <QLocalServer>
+#include <QLocalSocket>
 #include <QStandardPaths>
 #include <QTranslator>
 #include <QLibraryInfo>
 #include <QLocale>
 #include <QSettings>
+#include <QSharedMemory>
 
 #include "ui/MainWindow.h"
 
@@ -32,6 +35,33 @@ static QTranslator* LoadAppTranslator(const QString& locale)
     return nullptr;
 }
 
+// ── Single-instance ────────────────────────────────────────────────────
+// Uses QSharedMemory to detect an existing instance and QLocalServer to
+// forward file paths to the running window.
+
+static const char* kSharedMemKey = "ZipFX-SingleInstance";
+static const char* kLocalServerName = "ZipFX-LocalServer";
+
+static bool tryActivateExistingInstance(const QString& fileToOpen)
+{
+    QSharedMemory sharedMem(kSharedMemKey);
+    if (!sharedMem.attach())
+        return false; // No existing instance found
+
+    // Send the file path to the existing instance via local socket
+    QLocalSocket socket;
+    socket.connectToServer(kLocalServerName);
+    if (!socket.waitForConnected(1000))
+        return false;
+
+    QByteArray data = fileToOpen.toUtf8();
+    socket.write(data);
+    socket.waitForBytesWritten(1000);
+    socket.disconnectFromServer();
+    return true;
+}
+
+// ── Main ───────────────────────────────────────────────────────────────
 int main(int argc, char* argv[])
 {
     // Collect bare file arguments (not subcommands) for the GUI
@@ -67,12 +97,28 @@ int main(int argc, char* argv[])
         return runCli(newArgc, const_cast<char**>(newArgv));
     }
 
+    // Single-instance: if another instance is running, forward the file and exit
+    if (tryActivateExistingInstance(fileToOpen))
+    {
+        qDebug("Forwarded file to existing ZipFX instance, exiting");
+        return 0;
+    }
+
     // GUI mode – requires Qt
     QApplication app(argc, argv);
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
     app.setApplicationVersion(ZIPFX_VERSION);
     app.setWindowIcon(QIcon(app.applicationDirPath() + "/AppIcon.png"));
+
+    // Create shared memory to own the instance
+    auto* sharedMem = new QSharedMemory(kSharedMemKey);
+    sharedMem->create(1);
+
+    // Local server to receive file paths from other instances
+    auto* localServer = new QLocalServer();
+    QLocalServer::removeServer(kLocalServerName);
+    localServer->listen(kLocalServerName);
 
     // Load Qt's built-in translations
     {
@@ -95,5 +141,17 @@ int main(int argc, char* argv[])
 
     MainWindow w(fileToOpen);
     w.show();
+
+    // Handle file paths forwarded from other instances
+    QObject::connect(localServer, &QLocalServer::newConnection, [&]() {
+        QLocalSocket* client = localServer->nextPendingConnection();
+        if (!client) return;
+        client->waitForReadyRead(1000);
+        QString path = QString::fromUtf8(client->readAll());
+        if (!path.isEmpty())
+            w.openArchive(path);
+        client->deleteLater();
+    });
+
     return app.exec();
 }

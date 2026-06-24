@@ -11,11 +11,6 @@ namespace fs = std::filesystem;
 // libzip flags
 static constexpr int ZIP_FLAGS = ZIP_FL_OVERWRITE | ZIP_FL_ENC_GUESS;
 
-int ZipEngine::GetCompressionLevel()
-{
-    return 6; // default compression (0=store, 9=max)
-}
-
 // ── Lifecycle ──────────────────────────────────────────────────────────
 ZipEngine::~ZipEngine()
 {
@@ -113,6 +108,12 @@ void ZipEngine::LoadEntries()
         if (st.mtime > 0)
             entry.modified = std::chrono::system_clock::from_time_t(st.mtime);
 
+        // Read per-file comment
+        zip_uint32_t commentLen = 0;
+        const char* comment = zip_file_get_comment(m_zip, i, &commentLen, 0);
+        if (comment && commentLen > 0)
+            entry.comment = std::string(comment, commentLen);
+
         m_entries.push_back(std::move(entry));
     }
 }
@@ -163,7 +164,11 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         return true;
     }
 
-    zip_file_t* zf = zip_fopen_index(m_zip, idx, 0);
+    zip_file_t* zf = nullptr;
+    if (st.encryption_method != ZIP_EM_NONE && !m_password.empty())
+        zf = zip_fopen_index_encrypted(m_zip, idx, 0, m_password.c_str());
+    else
+        zf = zip_fopen_index(m_zip, idx, 0);
     if (!zf)
     {
         qWarning("ZipEngine: zip_fopen_index failed for '%s'", name.c_str());
@@ -192,6 +197,7 @@ bool ZipEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& entry : m_entries)
     {
+        if (m_extractCancelled) { LOG_DBG("ZipEngine: extract cancelled"); return false; }
         if (entry.isDirectory)
         {
             fs::create_directories(fs::path(std::string(destPath) + "/" + entry.name));
@@ -221,7 +227,11 @@ std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
 
     if (st.size == 0) return {};
 
-    zip_file_t* zf = zip_fopen_index(m_zip, idx, 0);
+    zip_file_t* zf = nullptr;
+    if (st.encryption_method != ZIP_EM_NONE && !m_password.empty())
+        zf = zip_fopen_index_encrypted(m_zip, idx, 0, m_password.c_str());
+    else
+        zf = zip_fopen_index(m_zip, idx, 0);
     if (!zf) return {};
 
     std::vector<uint8_t> data(static_cast<size_t>(st.size));
@@ -341,7 +351,7 @@ bool ZipEngine::Save()
             m_zip, pa.archivePath.c_str(), 0);
         if (idx >= 0)
         {
-            if (zip_file_replace(m_zip, idx, src, GetCompressionLevel()) != 0)
+            if (zip_file_replace(m_zip, idx, src, m_compressionLevel) != 0)
             {
                 LOG_WARN("ZipEngine: can't replace %s", pa.archivePath.c_str());
                 zip_source_free(src);
@@ -350,12 +360,19 @@ bool ZipEngine::Save()
         else
         {
             idx = zip_file_add(m_zip, pa.archivePath.c_str(),
-                               src, GetCompressionLevel());
+                               src, m_compressionLevel);
             if (idx < 0)
             {
                 LOG_WARN("ZipEngine: can't add %s", pa.archivePath.c_str());
                 zip_source_free(src);
             }
+        }
+
+        // Apply encryption if password is set
+        if (idx >= 0 && !m_password.empty())
+        {
+            zip_uint16_t method = m_encryptHeaders ? ZIP_EM_AES_256 : ZIP_EM_AES_128;
+            zip_file_set_encryption(m_zip, idx, method, m_password.c_str());
         }
 
         // Preserve Unix permissions from the source file

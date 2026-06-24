@@ -329,6 +329,7 @@ bool AdfEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& e : m_entries)
     {
+        if (m_extractCancelled) { LOG_DBG("AdfEngine: extract cancelled"); return false; }
         if (e.isDirectory)
         {
             fs::create_directories(fs::path(destPath) / e.name);

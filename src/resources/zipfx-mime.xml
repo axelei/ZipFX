@@ -52,5 +52,126 @@
 		<glob pattern="*.W3X"/>
 		<glob pattern="*.w3m"/>
 		<glob pattern="*.W3M"/>
+		<glob pattern="*.lzh"/>
+		<glob pattern="*.LZH"/>
+		<glob pattern="*.lha"/>
+		<glob pattern="*.LHA"/>
+		<glob pattern="*.xar"/>
+		<glob pattern="*.XAR"/>
+		<glob pattern="*.cpio"/>
+		<glob pattern="*.CPIO"/>
+		<glob pattern="*.a"/>
+		<glob pattern="*.deb"/>
+		<glob pattern="*.DEB"/>
+		<glob pattern="*.wad"/>
+		<glob pattern="*.WAD"/>
+		<glob pattern="*.pak"/>
+		<glob pattern="*.PAK"/>
+		<glob pattern="*.grp"/>
+		<glob pattern="*.GRP"/>
+		<glob pattern="*.hog"/>
+		<glob pattern="*.HOG"/>
+		<glob pattern="*.vpk"/>
+		<glob pattern="*.VPK"/>
+		<glob pattern="*.adf"/>
+		<glob pattern="*.ADF"/>
+		<glob pattern="*.adz"/>
+		<glob pattern="*.ADZ"/>
+		<glob pattern="*.flp"/>
+		<glob pattern="*.FLP"/>
+		<glob pattern="*.dsk"/>
+		<glob pattern="*.DSK"/>
+		<glob pattern="*.vhd"/>
+		<glob pattern="*.VHD"/>
+		<glob pattern="*.vhdx"/>
+		<glob pattern="*.VHDX"/>
+		<glob pattern="*.vmdk"/>
+		<glob pattern="*.VMDK"/>
+		<glob pattern="*.qcow"/>
+		<glob pattern="*.QCOW"/>
+		<glob pattern="*.qcow2"/>
+		<glob pattern="*.QCOW2"/>
+		<glob pattern="*.nrg"/>
+		<glob pattern="*.NRG"/>
+		<glob pattern="*.bin"/>
+		<glob pattern="*.BIN"/>
+		<glob pattern="*.cue"/>
+		<glob pattern="*.CUE"/>
+	</mime-type>
+	<mime-type type="application/x-wad">
+		<comment>WAD game archive (Doom)</comment>
+		<glob pattern="*.wad"/>
+		<glob pattern="*.WAD"/>
+	</mime-type>
+	<mime-type type="application/x-pak">
+		<comment>PAK game archive (Quake)</comment>
+		<glob pattern="*.pak"/>
+		<glob pattern="*.PAK"/>
+	</mime-type>
+	<mime-type type="application/x-grp">
+		<comment>GRP game archive (Duke Nukem 3D)</comment>
+		<glob pattern="*.grp"/>
+		<glob pattern="*.GRP"/>
+	</mime-type>
+	<mime-type type="application/x-hog">
+		<comment>HOG game archive (Descent)</comment>
+		<glob pattern="*.hog"/>
+		<glob pattern="*.HOG"/>
+	</mime-type>
+	<mime-type type="application/x-vpk">
+		<comment>VPK game archive (Valve Source)</comment>
+		<glob pattern="*.vpk"/>
+		<glob pattern="*.VPK"/>
+	</mime-type>
+	<mime-type type="application/x-mpq">
+		<comment>MPQ game archive (Blizzard)</comment>
+		<glob pattern="*.mpq"/>
+		<glob pattern="*.MPQ"/>
+		<glob pattern="*.mpk"/>
+		<glob pattern="*.MPK"/>
+		<glob pattern="*.w3x"/>
+		<glob pattern="*.W3X"/>
+		<glob pattern="*.w3m"/>
+		<glob pattern="*.W3M"/>
+	</mime-type>
+	<mime-type type="application/x-adf">
+		<comment>Amiga Disk File</comment>
+		<glob pattern="*.adf"/>
+		<glob pattern="*.ADF"/>
+		<glob pattern="*.adz"/>
+		<glob pattern="*.ADZ"/>
+	</mime-type>
+	<mime-type type="application/x-vhd">
+		<comment>Virtual Hard Disk</comment>
+		<glob pattern="*.vhd"/>
+		<glob pattern="*.VHD"/>
+		<glob pattern="*.vhdx"/>
+		<glob pattern="*.VHDX"/>
+	</mime-type>
+	<mime-type type="application/x-vmdk">
+		<comment>Virtual Machine Disk</comment>
+		<glob pattern="*.vmdk"/>
+		<glob pattern="*.VMDK"/>
+	</mime-type>
+	<mime-type type="application/x-qcow2">
+		<comment>QEMU Copy-On-Write</comment>
+		<glob pattern="*.qcow"/>
+		<glob pattern="*.QCOW"/>
+		<glob pattern="*.qcow2"/>
+		<glob pattern="*.QCOW2"/>
+	</mime-type>
+	<mime-type type="application/x-nrg">
+		<comment>Nero CD Image</comment>
+		<glob pattern="*.nrg"/>
+		<glob pattern="*.NRG"/>
+	</mime-type>
+	<mime-type type="application/x-raw-disk-image">
+		<comment>Raw Disk Image</comment>
+		<glob pattern="*.ima"/>
+		<glob pattern="*.img"/>
+		<glob pattern="*.flp"/>
+		<glob pattern="*.dsk"/>
+		<glob pattern="*.bin"/>
+		<glob pattern="*.cue"/>
 	</mime-type>
 </mime-info>

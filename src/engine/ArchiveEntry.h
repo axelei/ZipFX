@@ -16,6 +16,7 @@ struct ArchiveEntry
     uint32_t permissions = 0;      // Unix mode bits (e.g., 0644)
     std::chrono::system_clock::time_point modified;
     std::string compressionMethod;
+    std::string comment;
 };
 
 #endif

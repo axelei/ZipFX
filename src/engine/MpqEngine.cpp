@@ -8,6 +8,9 @@
 
 #include <StormLib.h>
 
+// Map 0-9 compression level to StormLib compression types
+static int mpqCompressionType(int level);
+
 #include <algorithm>
 #include <chrono>
 #include <cstring>
@@ -242,6 +245,7 @@ bool MpqEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& e : m_entries)
     {
+        if (m_extractCancelled) { LOG_DBG("MpqEngine: extract cancelled"); return false; }
         if (e.isDirectory) continue;
 
         fs::path fullPath = fs::path(destPath) / e.name;
@@ -393,15 +397,15 @@ bool MpqEngine::Save()
         auto fileSz = fs::file_size(pa.srcPath, ec);
         bytesDone += ec ? 0 : fileSz;
 
-        // Use ZLIB compression (good balance of speed and ratio)
         std::string stormArchived = toStormPath(pa.archivePath);
+        int stormLevel = mpqCompressionType(m_compressionLevel);
         if (!SFileAddFileEx(
                 hMpq,
                 pa.srcPath.c_str(),
                 stormArchived.c_str(),
                 MPQ_FILE_COMPRESS | MPQ_FILE_SECTOR_CRC,
-                MPQ_COMPRESSION_ZLIB,
-                MPQ_COMPRESSION_ZLIB))
+                stormLevel,
+                stormLevel))
         {
             LOG_WARN("MpqEngine: failed to add %s as %s",
                      pa.srcPath.c_str(), pa.archivePath.c_str());
@@ -438,6 +442,15 @@ bool MpqEngine::Save()
     m_modified = false;
     reloadEntries();
     return true;
+}
+
+// Map 0-9 compression level to StormLib compression types
+static int mpqCompressionType(int level)
+{
+    if (level <= 1) return MPQ_COMPRESSION_HUFFMANN;
+    if (level <= 3) return MPQ_COMPRESSION_ZLIB;
+    if (level <= 6) return MPQ_COMPRESSION_ZLIB;
+    return MPQ_COMPRESSION_BZIP2;
 }
 
 // ── Testing ────────────────────────────────────────────────────────────

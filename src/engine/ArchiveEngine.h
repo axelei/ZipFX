@@ -56,11 +56,15 @@ public:
     using SaveProgressCb = std::function<void(const SaveProgressInfo&)>;
     void setSaveProgressCb(SaveProgressCb cb) { m_saveProgressCb = std::move(cb); }
 
+    virtual void setCompressionLevel(int level) { m_compressionLevel = level; }
+    virtual int compressionLevel() const { return m_compressionLevel; }
+
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;
     virtual bool IsOpen() const = 0;
 
 protected:
+    int m_compressionLevel = 6; // 0=store, 9=max
     std::atomic<bool> m_saveCancelled{false};
     SaveProgressCb m_saveProgressCb;
     ExtractProgressCb m_extractProgressCb;

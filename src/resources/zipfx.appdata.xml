@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<component type="desktop-application">
+  <id>com.zipfx.app</id>
+  <name>ZipFX</name>
+  <summary>Multi-format archive manager for power users</summary>
+  <description>
+    <p>ZipFX is a cross-platform GUI archive manager built with Qt6. It supports a wide range of archive formats through multiple backends including libzip, libarchive, Bit7z, and native engines for game archives and disk images.</p>
+    <p>Features include hierarchical and flat file tree browsing, recursive folder add, in-place ZIP modification, drag and drop, CLI mode, file preview, and archive integrity testing.</p>
+  </description>
+  <developer_name>ZipFX Team</developer_name>
+  <url type="homepage">https://github.com/axelei/ZipFX</url>
+  <url type="bugtracker">https://github.com/axelei/ZipFX/issues</url>
+  <project_license>GPL-3.0-or-later</project_license>
+  <metadata_license>CC0-1.0</metadata_license>
+  <categories>
+    <category>Utility</category>
+    <category>Archiving</category>
+  </categories>
+  <screenshots>
+    <screenshot type="default">
+      <caption>ZipFX main window</caption>
+      <image>https://raw.githubusercontent.com/axelei/ZipFX/main/screenshots/main.png</image>
+    </screenshot>
+  </screenshots>
+  <provides>
+    <binary>ZipFX</binary>
+  </provides>
+</component>

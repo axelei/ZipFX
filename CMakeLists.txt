@@ -50,6 +50,8 @@ set(BUILD_TOOLS        OFF CACHE BOOL "" FORCE)
 set(BUILD_REGRESS      OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES     OFF CACHE BOOL "" FORCE)
 set(BUILD_DOC          OFF CACHE BOOL "" FORCE)
+set(LIBZIP_DO_INSTALL  OFF CACHE BOOL "" FORCE)
+set(SKIP_INSTALL_ALL   ON  CACHE BOOL "" FORCE)
 FetchContent_Declare(
     libzip
     GIT_REPOSITORY https://github.com/nih-at/libzip.git
@@ -100,7 +102,7 @@ target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 # adflib  –  Amiga Disk File format (.adf)
 # ====================================================================
 set(ADFLIB_WARNINGS OFF CACHE BOOL "" FORCE)
-set(ADFLIB_TESTS OFF CACHE BOOL "" FORCE)
+set(ADFLIB_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(ADFLIB_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(ADFLIB_DEV_NATIVE OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
@@ -174,9 +176,9 @@ elseif(APPLE)
 else()
     list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/Qt/6.11.1/gcc_64")
 endif()
-find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
+find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 # ====================================================================
 # CLI11  –  header-only command-line parser
@@ -256,6 +258,7 @@ target_link_libraries(ZipFX PRIVATE
     adf
     storm
     Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Network
 )
 
 if(APPLE)
@@ -382,14 +385,12 @@ if(WIN32)
             "$<TARGET_FILE_DIR:ZipFX>/"
         COMMENT "Copying libadf.dll"
     )
-    if(EXISTS "${StormLib_BINARY_DIR}/libStormLib.dll")
-        add_custom_command(TARGET ZipFX POST_BUILD
-            COMMAND ${CMAKE_COMMAND} -E copy_if_different
-                "${StormLib_BINARY_DIR}/libStormLib.dll"
-                "$<TARGET_FILE_DIR:ZipFX>/"
-            COMMENT "Copying libStormLib.dll"
-        )
-    endif()
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${StormLib_BINARY_DIR}/libStormLib.dll"
+            "$<TARGET_FILE_DIR:ZipFX>/"
+        COMMENT "Copying libStormLib.dll"
+    )
 endif()
 
 # ====================================================================
@@ -499,11 +500,33 @@ if(UNIX AND NOT APPLE)
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx-mime.xml"
         DESTINATION "share/mime/packages")
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
-        DESTINATION "share/icons/hicolor/256x256/apps"
+        DESTINATION "share/icons/hicolor/16x16/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/22x22/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/32x32/apps"
         RENAME "zipfx.png")
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
         DESTINATION "share/icons/hicolor/48x48/apps"
         RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/64x64/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/128x128/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/256x256/apps"
+        RENAME "zipfx.png")
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "share/icons/hicolor/scalable/apps"
+        RENAME "zipfx.png")
+
+    # AppStream metainfo
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx.appdata.xml"
+        DESTINATION "share/metainfo")
 
     # Post-install: update XDG databases
     include(CMakePackageConfigHelpers)

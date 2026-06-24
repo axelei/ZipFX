@@ -30,6 +30,8 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    void cancelExtract() override { m_extractCancelled = true; }
+
     std::string_view FormatName() const override { return "TAR.GZ"; }
     bool SupportsCreation() const override { return true; }
     bool IsOpen() const override { return m_isOpen; }
@@ -47,6 +49,7 @@ private:
     bool m_modified = false;
     std::vector<ArchiveEntry> m_entries;
     std::vector<QueueEntry> m_entryQueue;
+    std::atomic<bool> m_extractCancelled{false};
 };
 
 #endif

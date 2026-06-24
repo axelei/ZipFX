@@ -335,7 +335,7 @@ bool Bit7zEngine::Save()
             writer->setPassword(m_password, m_encryptHeaders);
 
         writer->setCompressionLevel(
-            static_cast<bit7z::BitCompressionLevel>(6));
+            static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
 
         if (m_volumeSize > 0)
             writer->setVolumeSize(m_volumeSize);

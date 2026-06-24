@@ -24,12 +24,15 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    void cancelExtract() override { m_extractCancelled = true; }
+
     bool SupportsCreation() const override { return true; }
     bool IsOpen() const override { return m_isOpen; }
 
     bool Create(std::string_view path) override;
     bool AddFile(std::string_view srcPath, std::string_view archivePath) override;
     bool RemoveEntry(std::string_view entryName) override;
+    bool RenameEntry(std::string_view entryName, std::string_view newName) override;
     bool Save() override;
 
 protected:
@@ -48,6 +51,7 @@ protected:
     std::string m_path;
     bool m_isOpen = false;
     std::vector<FileEntry> m_entries;
+    std::atomic<bool> m_extractCancelled{false};
     int findEntry(std::string_view name) const;
 };
 

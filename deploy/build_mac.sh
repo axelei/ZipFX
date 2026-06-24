@@ -29,9 +29,13 @@ echo "=== Building ==="
 
 echo "=== Running macdeployqt ==="
 if command -v macdeployqt &>/dev/null; then
-    macdeployqt "${BUILD_DIR}/ZipFX.app" -verbose=1 || true
+    if ! macdeployqt "${BUILD_DIR}/ZipFX.app" -verbose=1; then
+        echo "Warning: macdeployqt reported errors (app may still work)"
+    fi
 elif [ -x "${QT_DIR}/bin/macdeployqt" ]; then
-    "${QT_DIR}/bin/macdeployqt" "${BUILD_DIR}/ZipFX.app" -verbose=1 || true
+    if ! "${QT_DIR}/bin/macdeployqt" "${BUILD_DIR}/ZipFX.app" -verbose=1; then
+        echo "Warning: macdeployqt reported errors (app may still work)"
+    fi
 else
     echo "macdeployqt not found — skipping (app should still work for development)"
 fi
@@ -58,17 +62,36 @@ codesign --force --deep --sign - "${BUILD_DIR}/ZipFX.app"
 
 echo "=== Creating DMG ==="
 PKG_NAME="ZipFX-macOS.dmg"
+# Use a temporary background image if one exists, otherwise create without one
+DMG_BG=""
+for path in ../resources/dmg-background.png ../resources/dmg-background.tiff; do
+    if [ -f "$path" ]; then DMG_BG="$path"; break; fi
+done
 if command -v create-dmg &>/dev/null; then
-    create-dmg \
-        --volname "ZipFX" \
-        --window-pos 200 120 \
-        --window-size 600 450 \
-        --icon-size 100 \
-        --icon "ZipFX.app" 175 120 \
-        --hide-extension "ZipFX.app" \
-        --app-drop-link 425 120 \
-        "${PKG_NAME}" \
-        "${BUILD_DIR}/ZipFX.app"
+    if [ -n "$DMG_BG" ]; then
+        create-dmg \
+            --volname "ZipFX" \
+            --window-pos 200 120 \
+            --window-size 600 450 \
+            --icon-size 100 \
+            --icon "ZipFX.app" 175 120 \
+            --hide-extension "ZipFX.app" \
+            --app-drop-link 425 120 \
+            --background "$DMG_BG" \
+            "${PKG_NAME}" \
+            "${BUILD_DIR}/ZipFX.app"
+    else
+        create-dmg \
+            --volname "ZipFX" \
+            --window-pos 200 120 \
+            --window-size 600 450 \
+            --icon-size 100 \
+            --icon "ZipFX.app" 175 120 \
+            --hide-extension "ZipFX.app" \
+            --app-drop-link 425 120 \
+            "${PKG_NAME}" \
+            "${BUILD_DIR}/ZipFX.app"
+    fi
 else
     hdiutil create -volname "ZipFX" -srcfolder "${BUILD_DIR}/ZipFX.app" \
         -ov -format UDZO "${PKG_NAME}"
