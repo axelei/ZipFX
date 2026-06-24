@@ -4,6 +4,7 @@
 
 #include <filesystem>
 #include <fstream>
+#include <memory>
 #include <cstring>
 
 namespace fs = std::filesystem;
@@ -317,19 +318,67 @@ bool ZipEngine::Save()
         if (!ec) totalBytes += sz;
     }
 
+    // Progress state shared with layered source callbacks
+    struct SourceProgress {
+        std::atomic<uint64_t> bytesRead{0};
+        uint64_t totalBytes = 0;
+        std::string lastName;
+        SaveProgressCb cb;
+    };
+    auto sp = std::make_shared<SourceProgress>();
+    sp->totalBytes = totalBytes;
+    sp->cb = m_saveProgressCb;
+
     // Flush pending additions
-    std::string lastName;
     for (const auto& pa : m_pendingAdds)
     {
         if (m_saveCancelled) break;
 
-        lastName = pa.archivePath;
+        sp->lastName = pa.archivePath;
 
-        zip_source_t* src = zip_source_file_create(
+        zip_source_t* fileSrc = zip_source_file_create(
             pa.srcPath.c_str(), 0, -1, nullptr);
-        if (!src)
+        if (!fileSrc)
         {
             LOG_WARN("ZipEngine: can't create source for %s", pa.srcPath.c_str());
+            continue;
+        }
+
+        // Wrap with a layered source that counts bytes read during compression
+        auto* spPtr = new std::shared_ptr<SourceProgress>(sp);
+        zip_source_t* src = zip_source_layered_create(fileSrc,
+            [](zip_source_t* inner, void* ud, void* data,
+               zip_uint64_t len, zip_source_cmd_t cmd) -> zip_int64_t {
+                auto* shared = static_cast<std::shared_ptr<SourceProgress>*>(ud);
+                if (cmd == ZIP_SOURCE_READ) {
+                    zip_int64_t n = zip_source_read(inner, data, len);
+                    if (n > 0) {
+                        auto& s = **shared;
+                        s.bytesRead += static_cast<uint64_t>(n);
+                        if (s.cb && s.totalBytes > 0)
+                        {
+                            SaveProgressInfo info;
+                            info.bytesProcessed = s.bytesRead.load();
+                            info.totalBytes = s.totalBytes;
+                            info.fileName = s.lastName;
+                            s.cb(info);
+                        }
+                    }
+                    return n;
+                }
+                if (cmd == ZIP_SOURCE_FREE) {
+                    delete shared;
+                    return 0;
+                }
+                return zip_source_pass_to_lower_layer(inner, data, len, cmd);
+            },
+            spPtr, nullptr);
+
+        if (!src)
+        {
+            delete spPtr;
+            zip_source_free(fileSrc);
+            LOG_WARN("ZipEngine: can't create layered source for %s", pa.srcPath.c_str());
             continue;
         }
 
@@ -388,40 +437,6 @@ bool ZipEngine::Save()
             LoadEntries();
         m_modified = false;
         return false;
-    }
-
-    // Compute fraction of zip_close spent on existing data (just copied, nearly instant)
-    uint64_t existingBytes = 0;
-    for (const auto& e : m_entries)
-        existingBytes += e.size;
-    uint64_t totalCloseBytes = totalBytes + existingBytes;
-
-    // Register progress callback for zip_close (where actual compression happens)
-    if (m_saveProgressCb && totalBytes > 0)
-    {
-        m_newBytesForProgress = totalBytes;
-        m_existingFraction = (totalCloseBytes > 0)
-            ? static_cast<double>(existingBytes) / static_cast<double>(totalCloseBytes)
-            : 0.0;
-        m_lastFileName = lastName;
-        zip_register_progress_callback_with_state(m_zip, 0.001,
-            [](zip_t*, double progress, void* ud) {
-                auto* self = static_cast<ZipEngine*>(ud);
-                if (!self->m_saveProgressCb) return;
-
-                double ef = self->m_existingFraction;
-                double adjusted = (progress <= ef) ? 0.0
-                    : (progress - ef) / (1.0 - ef);
-                if (adjusted > 1.0) adjusted = 1.0;
-
-                SaveProgressInfo info;
-                info.bytesProcessed = static_cast<uint64_t>(
-                    adjusted * static_cast<double>(self->m_newBytesForProgress));
-                info.totalBytes = self->m_newBytesForProgress;
-                info.fileName = self->m_lastFileName;
-                self->m_saveProgressCb(info);
-            },
-            nullptr, this);
     }
 
     // Commit changes to disk (libzip handles everything in-place)
