@@ -37,12 +37,12 @@ bool WadEngine::Open(std::string_view path)
 
     m_fmtName = fmt;
 
-    // WAD3 (Half-Life) uses 32-byte directory entries with 16-byte names.
-    // Doom WAD uses 16-byte entries with 8-byte names.
-    bool isWad3 = (fmt == "WAD3");
-    int entrySize = isWad3 ? 32 : 16;
+    // WAD2 (Quake) and WAD3 (Half-Life) use 32-byte directory entries
+    // with 16-byte names. Doom WAD (IWAD/PWAD) uses 16-byte entries.
+    bool isWad23 = (fmt == "WAD2" || fmt == "WAD3");
+    int entrySize = isWad23 ? 32 : 16;
 
-    return parse(path, m_fmtName.c_str(), [isWad3, entrySize](std::ifstream& f, std::vector<FileEntry>& entries) {
+    return parse(path, m_fmtName.c_str(), [isWad23, entrySize](std::ifstream& f, std::vector<FileEntry>& entries) {
         entries.clear();
         uint8_t hdr[12];
         f.read(reinterpret_cast<char*>(hdr), 12);
@@ -59,11 +59,11 @@ bool WadEngine::Open(std::string_view path)
             if (!f) return false;
 
             uint32_t off = read32(de);
-            uint32_t sz  = isWad3 ? read32(de + 8) : read32(de + 4);
+            uint32_t sz  = isWad23 ? read32(de + 8) : read32(de + 4);
             if (sz == 0) continue;
 
-            int nameLen = isWad3 ? 16 : 8;
-            int nameOff = isWad3 ? 16 : 8;
+            int nameLen = isWad23 ? 16 : 8;
+            int nameOff = isWad23 ? 16 : 8;
             char name[17] = {};
             std::memcpy(name, de + nameOff, nameLen);
             // Trim trailing spaces and nulls
