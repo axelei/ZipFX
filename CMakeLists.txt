@@ -1,4 +1,5 @@
 cmake_minimum_required(VERSION 3.20)
+set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
 project(ZipFX VERSION 0.2.0 LANGUAGES C CXX)
 if(APPLE)
     enable_language(OBJCXX)
@@ -126,6 +127,18 @@ if(TARGET bit7z64 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(bit7z64 PRIVATE -Wno-error=array-bounds)
 endif()
 
+# Fix missing #include <algorithm> in bit7z v4.0.1 (newer GCC no longer
+# transitively includes <algorithm> from other headers)
+if(TARGET bit7z64)
+    foreach(_bf bitarchiveeditor.cpp bitinputarchive.cpp)
+        set(_bf_path "${bit7z_SOURCE_DIR}/src/${_bf}")
+        file(READ "${_bf_path}" _bf_content)
+        if(NOT "${_bf_content}" MATCHES "#.*include.*<algorithm>")
+            file(WRITE "${_bf_path}" "#include <algorithm>\n${_bf_content}")
+        endif()
+    endforeach()
+endif()
+
 # ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
@@ -137,6 +150,8 @@ if(WIN32)
 elseif(APPLE)
     list(APPEND CMAKE_PREFIX_PATH "/usr/local/opt/qt" "/opt/homebrew/opt/qt"
          "$ENV{HOME}/Qt/6.11.1/macos")
+else()
+    list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/Qt/6.11.1/gcc_64")
 endif()
 find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets)
