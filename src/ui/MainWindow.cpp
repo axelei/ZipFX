@@ -691,21 +691,6 @@ void MainWindow::onOpenArchive()
     openArchive(path);
 }
 
-void MainWindow::loadRecentFiles()
-{
-    QSettings settings;
-    int size = settings.beginReadArray("recentFiles");
-    m_addrBox->clear();
-    for (int i = 0; i < size; ++i)
-    {
-        settings.setArrayIndex(i);
-        QString path = settings.value("path").toString();
-        if (QFileInfo::exists(path))
-            m_addrBox->addItem(path);
-    }
-    settings.endArray();
-}
-
 void MainWindow::addRecentFile(const QString& path)
 {
     QSettings settings;
@@ -736,6 +721,21 @@ void MainWindow::addRecentFile(const QString& path)
         m_addrBox->addItem(p);
     m_addrBox->setEditText(path);
     m_addrBox->blockSignals(false);
+}
+
+void MainWindow::loadRecentFiles()
+{
+    QSettings settings;
+    int size = settings.beginReadArray("recentFiles");
+    m_addrBox->clear();
+    for (int i = 0; i < size; ++i)
+    {
+        settings.setArrayIndex(i);
+        QString path = settings.value("path").toString();
+        if (QFileInfo::exists(path))
+            m_addrBox->addItem(path);
+    }
+    settings.endArray();
 }
 
 bool MainWindow::openArchive(const QString& path)
