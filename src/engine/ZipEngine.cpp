@@ -390,28 +390,36 @@ bool ZipEngine::Save()
         return false;
     }
 
-    // Compute total bytes zip_close will process (existing + new entries)
-    uint64_t totalCloseBytes = totalBytes;
+    // Compute fraction of zip_close spent on existing data (just copied, nearly instant)
+    uint64_t existingBytes = 0;
     for (const auto& e : m_entries)
-        totalCloseBytes += e.size;
+        existingBytes += e.size;
+    uint64_t totalCloseBytes = totalBytes + existingBytes;
 
     // Register progress callback for zip_close (where actual compression happens)
-    if (m_saveProgressCb && totalCloseBytes > 0)
+    if (m_saveProgressCb && totalBytes > 0)
     {
-        m_totalBytesForProgress = totalCloseBytes;
+        m_newBytesForProgress = totalBytes;
+        m_existingFraction = (totalCloseBytes > 0)
+            ? static_cast<double>(existingBytes) / static_cast<double>(totalCloseBytes)
+            : 0.0;
         m_lastFileName = lastName;
         zip_register_progress_callback_with_state(m_zip, 0.001,
             [](zip_t*, double progress, void* ud) {
                 auto* self = static_cast<ZipEngine*>(ud);
-                if (self->m_saveProgressCb)
-                {
-                    SaveProgressInfo info;
-                    info.bytesProcessed = static_cast<uint64_t>(
-                        progress * static_cast<double>(self->m_totalBytesForProgress));
-                    info.totalBytes = self->m_totalBytesForProgress;
-                    info.fileName = self->m_lastFileName;
-                    self->m_saveProgressCb(info);
-                }
+                if (!self->m_saveProgressCb) return;
+
+                double ef = self->m_existingFraction;
+                double adjusted = (progress <= ef) ? 0.0
+                    : (progress - ef) / (1.0 - ef);
+                if (adjusted > 1.0) adjusted = 1.0;
+
+                SaveProgressInfo info;
+                info.bytesProcessed = static_cast<uint64_t>(
+                    adjusted * static_cast<double>(self->m_newBytesForProgress));
+                info.totalBytes = self->m_newBytesForProgress;
+                info.fileName = self->m_lastFileName;
+                self->m_saveProgressCb(info);
             },
             nullptr, this);
     }
