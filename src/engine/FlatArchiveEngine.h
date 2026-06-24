@@ -33,7 +33,7 @@ public:
     bool Save() override;
 
 protected:
-    struct FileEntry { std::string name; uint32_t offset = 0; uint32_t size = 0; std::vector<uint8_t> data; };
+    struct FileEntry { std::string name; uint32_t offset = 0; uint32_t size = 0; std::vector<uint8_t> data; uint16_t archiveIndex = 0x7FFF; };
 
     bool parse(std::string_view path, const char* formatName,
                std::function<bool(std::ifstream& f, FileEntry& entry)> readEntry);
@@ -48,8 +48,6 @@ protected:
     std::string m_path;
     bool m_isOpen = false;
     std::vector<FileEntry> m_entries;
-
-private:
     int findEntry(std::string_view name) const;
 };
 

@@ -1,6 +1,7 @@
 #include "VpkEngine.h"
 
 #include <algorithm>
+#include <cstdio>
 #include <cstdint>
 #include <cstring>
 
@@ -85,33 +86,34 @@ bool VpkEngine::Open(std::string_view path)
                 std::string fname = readNullString(f);
                 if (fname.empty() || !f) break;
 
-                uint8_t entry[16];
-                f.read(reinterpret_cast<char*>(entry), 16);
+                uint8_t entry[18];
+                f.read(reinterpret_cast<char*>(entry), 18);
                 if (!f) return false;
 
                 uint16_t preloadSize = read16(entry + 4);
                 uint16_t archiveIndex = read16(entry + 6);
                 uint32_t entryOff = read32(entry + 8);
                 uint32_t entryLen = read32(entry + 12);
+                // entry[16-17] = 0xFFFF terminator (skip)
 
-                if (archiveIndex == 0x7FFF)
+                // Build full path: dir/fname.ext
+                std::string fullPath;
+                if (!dir.empty() && dir != " ")
                 {
-                    std::string fullPath;
-                    if (!dir.empty() && dir != " ")
-                    {
-                        fullPath = dir;
-                        fullPath += '/';
-                    }
-                    fullPath += fname;
-                    fullPath += '.';
-                    fullPath += ext;
-
-                    m_entries.push_back({
-                        fullPath,
-                        dataSectionStart + entryOff,
-                        entryLen
-                    });
+                    fullPath = dir;
+                    fullPath += '/';
                 }
+                fullPath += fname;
+                fullPath += '.';
+                fullPath += ext;
+
+                uint32_t dataOff = (archiveIndex == 0x7FFF)
+                    ? (dataSectionStart + entryOff)  // embedded in this file
+                    : entryOff;                       // in a volume file (offset within that file)
+
+                m_entries.push_back({
+                    fullPath, dataOff, entryLen, {}, archiveIndex
+                });
 
                 if (preloadSize > 0)
                     f.seekg(preloadSize, std::ios::cur);
@@ -126,6 +128,45 @@ bool VpkEngine::Open(std::string_view path)
 
     m_isOpen = true;
     return true;
+}
+
+std::string VpkEngine::volumePath(int archiveIndex) const
+{
+    // _dir.vpk → _001.vpk, _002.vpk, etc.
+    // plain.vpk → plain_001.vpk, plain_002.vpk, etc.
+    auto dirPos = m_path.rfind("_dir.vpk");
+    std::string base;
+    if (dirPos != std::string::npos && dirPos + 8 == m_path.size())
+        base = m_path.substr(0, dirPos);
+    else
+        base = m_path.substr(0, m_path.size() - 4); // strip .vpk
+
+    char volStr[16];
+    std::snprintf(volStr, sizeof(volStr), "_%03u.vpk", archiveIndex + 1);
+    return base + volStr;
+}
+
+std::vector<uint8_t> VpkEngine::ReadFile(std::string_view entryName)
+{
+    int idx = findEntry(entryName);
+    if (idx < 0) return {};
+    const auto& e = m_entries[idx];
+
+    if (e.archiveIndex == 0x7FFF)
+    {
+        // Data is embedded in the _dir.vpk file
+        return FlatArchiveEngine::ReadFile(entryName);
+    }
+
+    // Data is in a volume file
+    auto volPath = volumePath(e.archiveIndex);
+    std::ifstream f(volPath, std::ios::binary);
+    if (!f) return {};
+    std::vector<uint8_t> data(e.size);
+    f.seekg(e.offset);
+    f.read(reinterpret_cast<char*>(data.data()), e.size);
+    if (!f) return {};
+    return data;
 }
 
 bool VpkEngine::doSave(std::ofstream& f)
