@@ -37,7 +37,12 @@ bool WadEngine::Open(std::string_view path)
 
     m_fmtName = fmt;
 
-    return parse(path, m_fmtName.c_str(), [](std::ifstream& f, std::vector<FileEntry>& entries) {
+    // WAD3 (Half-Life) uses 32-byte directory entries with 16-byte names.
+    // Doom WAD uses 16-byte entries with 8-byte names.
+    bool isWad3 = (fmt == "WAD3");
+    int entrySize = isWad3 ? 32 : 16;
+
+    return parse(path, m_fmtName.c_str(), [isWad3, entrySize](std::ifstream& f, std::vector<FileEntry>& entries) {
         entries.clear();
         uint8_t hdr[12];
         f.read(reinterpret_cast<char*>(hdr), 12);
@@ -48,18 +53,22 @@ bool WadEngine::Open(std::string_view path)
 
         for (int i = 0; i < count; ++i)
         {
-            uint8_t de[16];
-            f.seekg(dirOff + i * 16);
-            f.read(reinterpret_cast<char*>(de), 16);
+            uint8_t de[32];
+            f.seekg(dirOff + i * entrySize);
+            f.read(reinterpret_cast<char*>(de), entrySize);
             if (!f) return false;
 
             uint32_t off = read32(de);
-            uint32_t sz  = read32(de + 4);
+            uint32_t sz  = isWad3 ? read32(de + 8) : read32(de + 4);
             if (sz == 0) continue;
 
-            char name[9] = {};
-            std::memcpy(name, de + 8, 8);
-            for (int c = 7; c >= 0 && name[c] == ' '; --c) name[c] = '\0';
+            int nameLen = isWad3 ? 16 : 8;
+            int nameOff = isWad3 ? 16 : 8;
+            char name[17] = {};
+            std::memcpy(name, de + nameOff, nameLen);
+            // Trim trailing spaces and nulls
+            for (int c = nameLen - 1; c >= 0 && (name[c] == ' ' || name[c] == '\0'); --c)
+                name[c] = '\0';
 
             entries.push_back({name, off, sz});
         }
