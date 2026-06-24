@@ -14,37 +14,31 @@
     // Use a fixed filename — the actual files are extracted in writePromiseToURL:
     return @"ZipFX_Export.extracted";
 }
-- (NSOperationQueue*)operationQueueForFilePromiseProvider:(NSFilePromiseProvider*)p
-{
-    static NSOperationQueue* q;
-    static dispatch_once_t once;
-    dispatch_once(&once, ^{ q = [[NSOperationQueue alloc] init]; q.maxConcurrentOperationCount = 1; });
-    return q;
-}
 - (void)filePromiseProvider:(NSFilePromiseProvider*)p writePromiseToURL:(NSURL*)url completionHandler:(void (^)(NSError*))h
 {
-    NSError* err = nil;
-    @try {
-        NSString* destDir = [[url path] stringByDeletingLastPathComponent];
-        NSFileManager* fm = [NSFileManager defaultManager];
-        for (NSUInteger i = 0; i < self.archivePaths.count; i++) {
-            NSString* fullDest = [destDir stringByAppendingPathComponent:self.displayPaths[i]];
-            NSString* dir = [fullDest stringByDeletingLastPathComponent];
-            [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
-            std::string ep([self.archivePaths[i] UTF8String]);
-            std::string dest([fullDest UTF8String]);
-            if (!self.engine->Extract(ep, dest)) {
+    dispatch_async(dispatch_get_main_queue(), ^{
+        NSError* err = nil;
+        @try {
+            // The URL's parent directory is the drop destination.
+            // Extract ALL files with subdirectory structure there.
+            NSString* destDir = [[url path] stringByDeletingLastPathComponent];
+            NSFileManager* fm = [NSFileManager defaultManager];
+            for (NSUInteger i = 0; i < self.archivePaths.count; i++) {
+                NSString* fullDest = [destDir stringByAppendingPathComponent:self.displayPaths[i]];
+                NSString* dir = [fullDest stringByDeletingLastPathComponent];
+                [fm createDirectoryAtPath:dir withIntermediateDirectories:YES attributes:nil error:nil];
+                std::string ep([self.archivePaths[i] UTF8String]);
                 auto data = self.engine->ReadFile(ep);
                 if (!data.empty()) {
                     NSData* nd = [NSData dataWithBytes:data.data() length:data.size()];
                     [nd writeToFile:fullDest atomically:NO];
                 }
             }
+        } @catch (NSException* e) {
+            err = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:@{NSLocalizedDescriptionKey: [e reason]}];
         }
-    } @catch (NSException* e) {
-        err = [NSError errorWithDomain:NSCocoaErrorDomain code:NSFileWriteUnknownError userInfo:@{NSLocalizedDescriptionKey: [e reason]}];
-    }
-    h(err);
+        h(err);
+    });
 }
 - (void)dealloc { [_archivePaths release]; [_displayPaths release]; [super dealloc]; }
 @end

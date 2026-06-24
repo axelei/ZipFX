@@ -1522,7 +1522,27 @@ void MainWindow::onBeginDrag()
         StartVirtualDrag(vfdo, (HWND)winId());
     }
 #else
-    // Extract to temp with progress, then QDrag with file URLs
+#ifdef Q_OS_MACOS
+    // macOS: native file promises (lazy extraction on drop)
+    // Return full relative path from fileNameForType: — macOS 15 may
+    // create the subdirectory structure at the drop destination.
+    {
+        QByteArray buf;
+        for (int i = 0; i < filePaths.size(); ++i) {
+            std::string archivePath = filePaths[i].toStdString();
+            QString dragName = filePaths[i];
+            if (!prefix.isEmpty() && dragName.startsWith(prefix))
+                dragName = dragName.mid(prefix.size());
+            // Keep subdirectory structure for macOS 15 to recreate
+            buf.append(archivePath.c_str(), archivePath.size() + 1);
+            QByteArray dn = dragName.toUtf8();
+            buf.append(dn.constData(), dn.size() + 1);
+        }
+        startMacFilePromiseDrag((void*)winId(), m_engine.get(),
+                                buf.constData(), filePaths.size());
+    }
+#else
+    // Extract to temp, then QDrag with file URLs
     QString tmpRoot = QStandardPaths::writableLocation(
         QStandardPaths::TempLocation) + "/ZipFX_Drag/"
         + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
@@ -1532,49 +1552,49 @@ void MainWindow::onBeginDrag()
     for (const auto& fp : filePaths)
         for (const auto& e : allEntries)
             if (e.path == fp.toStdString())
-                { totalBytesDrag += e.size; break; }
+                { totalBytesDrag += e.packedSize > 0 ? e.packedSize : e.size; break; }
 
     ProgressInfo piDrag;
     piDrag.start(totalBytesDrag);
 
-    m_progressDlg = new QProgressDialog(tr("Preparing files for drag..."), tr("Cancel"),
-        0, 100, this);
-    m_progressDlg->setAutoClose(false);
-    m_progressDlg->setAutoReset(false);
-    m_progressDlg->setWindowModality(Qt::ApplicationModal);
-    if (auto* lbl = m_progressDlg->findChild<QLabel*>())
-        lbl->setAlignment(Qt::AlignLeft);
-    m_progressDlg->show();
+    QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
+        0, filePaths.size(), this);
+    prog.setWindowModality(Qt::ApplicationModal);
+    prog.show();
 
     QList<QUrl> urls;
-    uint64_t bytesSoFar = 0;
     for (int i = 0; i < filePaths.size(); ++i)
     {
-        if (m_progressDlg->wasCanceled()) break;
+        if (prog.wasCanceled()) break;
+        prog.setValue(i);
 
         std::string fp = filePaths[i].toStdString();
+
+        piDrag.addBytes(0);
+        for (const auto& e : allEntries)
+            if (e.path == fp)
+                { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
+        {
+            QString fname = filePaths[i];
+            if (piDrag.shouldUpdate())
+            {
+                piDrag.updateRate();
+                QString eta = piDrag.etaString();
+                fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
+            }
+            prog.setLabelText(fname);
+        }
+        QApplication::processEvents();
+
         QString fpQ = filePaths[i];
         QString dragName = fpQ.startsWith(prefix) ? fpQ.mid(prefix.size()) : fpQ;
         QString destPath = tmpRoot + dragName;
         QDir().mkpath(QFileInfo(destPath).path());
 
-        uint64_t entrySize = 0;
-        for (const auto& e : allEntries)
-            if (e.path == fp) { entrySize = e.size; break; }
-
-        bool ok = extractFileWithProgress(
-            ArchiveEntry{.name = fp, .path = fp, .size = entrySize},
-            destPath, piDrag, bytesSoFar);
-        bytesSoFar += entrySize;
-        piDrag.bytesProcessed = bytesSoFar;
-
-        if (ok)
+        if (m_engine->Extract(fp, destPath.toStdString()))
             urls << QUrl::fromLocalFile(destPath);
     }
-
-    m_progressDlg->close();
-    delete m_progressDlg;
-    m_progressDlg = nullptr;
+    prog.close();
 
     if (!urls.isEmpty())
     {
@@ -1584,6 +1604,7 @@ void MainWindow::onBeginDrag()
         drag->setMimeData(mime);
         drag->exec(Qt::CopyAction);
     }
+#endif
 #endif
 }
 
