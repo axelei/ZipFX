@@ -11,7 +11,7 @@
 //         LOG_WARN("warning %1", val)
 //         LOG_ERR("error %1", val)
 
-static inline QString _qt_printf(const char* fmt, ...)
+inline QString _qt_printf(const char* fmt, ...)
 {
     va_list args;
     va_start(args, fmt);

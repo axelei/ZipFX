@@ -105,7 +105,7 @@ bool LibarchiveEngine::LoadEntries()
 }
 
 // ── Listing ────────────────────────────────────────────────────────────
-std::vector<ArchiveEntry> LibarchiveEngine::ListContents()
+const std::vector<ArchiveEntry>& LibarchiveEngine::ListContents()
 {
     return m_entries;
 }

@@ -20,7 +20,7 @@ public:
     virtual bool Create(std::string_view path) { return false; }
     virtual void Close() = 0;
 
-    virtual std::vector<ArchiveEntry> ListContents() = 0;
+    virtual const std::vector<ArchiveEntry>& ListContents() = 0;
     virtual bool Extract(std::string_view entryName, std::string_view destPath);
     virtual bool ExtractAll(std::string_view destPath) = 0;
     virtual std::vector<uint8_t> ReadFile(std::string_view entryName) = 0;

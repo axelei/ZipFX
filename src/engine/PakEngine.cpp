@@ -1,18 +1,8 @@
 #include "PakEngine.h"
+#include "BinaryUtils.h"
 
 #include <algorithm>
 #include <cstring>
-
-static uint32_t read32(const uint8_t* d) {
-    return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
-         | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
-}
-
-static void write32LE(std::ofstream& f, uint32_t v) {
-    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
-                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
-    f.write(reinterpret_cast<const char*>(b), 4);
-}
 
 bool PakEngine::Open(std::string_view path)
 {
@@ -23,8 +13,8 @@ bool PakEngine::Open(std::string_view path)
         if (!f) return false;
         if (std::memcmp(hdr, "PACK", 4) != 0) return false;
 
-        uint32_t dirOff = read32(hdr + 4);
-        uint32_t dirSz = read32(hdr + 8);
+        uint32_t dirOff = readLE32(hdr + 4);
+        uint32_t dirSz = readLE32(hdr + 8);
         int count = static_cast<int>(dirSz / 64);
 
         for (int i = 0; i < count; ++i)
@@ -38,8 +28,8 @@ bool PakEngine::Open(std::string_view path)
             std::memcpy(name, de, 56);
             name[56] = '\0';
 
-            uint32_t off = read32(de + 56);
-            uint32_t sz = read32(de + 60);
+            uint32_t off = readLE32(de + 56);
+            uint32_t sz = readLE32(de + 60);
             if (sz == 0) continue;
 
             entries.push_back({name, off, sz});
@@ -55,8 +45,8 @@ bool PakEngine::doSave(std::ofstream& f)
 
     // Write header (placeholder offsets)
     f.write("PACK", 4);
-    write32LE(f, 0);
-    write32LE(f, 0);
+    writeLE32(f, 0);
+    writeLE32(f, 0);
 
     std::vector<uint32_t> offsets;
     uint32_t curOff = 12;
@@ -78,14 +68,14 @@ bool PakEngine::doSave(std::ofstream& f)
         std::memcpy(name, m_entries[i].name.c_str(),
                     (std::min)(m_entries[i].name.size(), size_t{56}));
         f.write(name, 56);
-        write32LE(f, offsets[i]);
-        write32LE(f, m_entries[i].size);
+        writeLE32(f, offsets[i]);
+        writeLE32(f, m_entries[i].size);
     }
 
     // Fix header
     uint32_t dirSz = static_cast<uint32_t>(count * 64);
     f.seekp(4);
-    write32LE(f, dirOff);
-    write32LE(f, dirSz);
+    writeLE32(f, dirOff);
+    writeLE32(f, dirSz);
     return f.good();
 }

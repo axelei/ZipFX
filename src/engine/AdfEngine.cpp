@@ -67,13 +67,13 @@ void AdfEngine::Close()
 {
     if (m_vol)
     {
-        auto* vol = static_cast<struct AdfVolume*>(m_vol);
+        auto* vol = m_vol;
         adfVolUnMount(vol);
         m_vol = nullptr;
     }
     if (m_dev)
     {
-        auto* dev = static_cast<struct AdfDevice*>(m_dev);
+        auto* dev = m_dev;
         adfDevUnMount(dev);
         adfDevClose(dev);
         m_dev = nullptr;
@@ -136,7 +136,7 @@ bool AdfEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {
     if (!m_isOpen || !m_vol) return false;
 
-    auto* vol = static_cast<struct AdfVolume*>(m_vol);
+    auto* vol = m_vol;
 
     // Read the source file
     std::ifstream src(std::string(srcPath), std::ios::binary | std::ios::ate);
@@ -196,7 +196,7 @@ bool AdfEngine::Save()
     if (!m_modified) return true;
 
     // ADFlib writes changes immediately — just re-scan the directory tree
-    auto* vol = static_cast<struct AdfVolume*>(m_vol);
+    auto* vol = m_vol;
     m_entries.clear();
     walkDir(vol, vol->rootBlock, "");
     m_modified = false;
@@ -204,11 +204,9 @@ bool AdfEngine::Save()
     return true;
 }
 
-bool AdfEngine::ensureDir(void* volPtr, const std::string& path)
+bool AdfEngine::ensureDir(AdfVolume* vol, const std::string& path)
 {
     if (path.empty()) return true;
-
-    auto* vol = static_cast<struct AdfVolume*>(volPtr);
 
     // Navigate to root first
     adfToRootDir(vol);
@@ -257,9 +255,8 @@ bool AdfEngine::ensureDir(void* volPtr, const std::string& path)
     return true;
 }
 
-void AdfEngine::walkDir(void* volPtr, int sector, const std::string& prefix)
+void AdfEngine::walkDir(AdfVolume* vol, int sector, const std::string& prefix)
 {
-    auto* vol = static_cast<struct AdfVolume*>(volPtr);
     auto* list = adfGetRDirEnt(vol, sector, true);
     if (!list) return;
 
@@ -298,7 +295,7 @@ void AdfEngine::walkDir(void* volPtr, int sector, const std::string& prefix)
     adfFreeDirList(list);
 }
 
-std::vector<ArchiveEntry> AdfEngine::ListContents()
+const std::vector<ArchiveEntry>& AdfEngine::ListContents()
 {
     return m_entries;
 }
@@ -352,7 +349,7 @@ std::vector<uint8_t> AdfEngine::ReadFile(std::string_view entryName)
 {
     if (!m_isOpen || !m_vol) return {};
 
-    auto* vol = static_cast<struct AdfVolume*>(m_vol);
+    auto* vol = m_vol;
 
     auto* file = adfFileOpen(vol, std::string(entryName).c_str(), ADF_FILE_MODE_READ);
     if (!file) return {};

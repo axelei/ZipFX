@@ -1,19 +1,9 @@
 #include "WadEngine.h"
+#include "BinaryUtils.h"
 
 #include <algorithm>
 #include <cstring>
 #include <string>
-
-static uint32_t read32(const uint8_t* d) {
-    return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
-         | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
-}
-
-static void write32LE(std::ofstream& f, uint32_t v) {
-    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
-                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
-    f.write(reinterpret_cast<const char*>(b), 4);
-}
 
 bool WadEngine::Open(std::string_view path)
 {
@@ -48,8 +38,8 @@ bool WadEngine::Open(std::string_view path)
         f.read(reinterpret_cast<char*>(hdr), 12);
         if (!f) return false;
 
-        int count = static_cast<int>(read32(hdr + 4));
-        uint32_t dirOff = read32(hdr + 8);
+        int count = static_cast<int>(readLE32(hdr + 4));
+        uint32_t dirOff = readLE32(hdr + 8);
 
         for (int i = 0; i < count; ++i)
         {
@@ -58,8 +48,8 @@ bool WadEngine::Open(std::string_view path)
             f.read(reinterpret_cast<char*>(de), entrySize);
             if (!f) return false;
 
-            uint32_t off = read32(de);
-            uint32_t sz  = isWad23 ? read32(de + 8) : read32(de + 4);
+            uint32_t off = readLE32(de);
+            uint32_t sz  = isWad23 ? readLE32(de + 8) : readLE32(de + 4);
             if (sz == 0) continue;
 
             int nameLen = isWad23 ? 16 : 8;
@@ -83,8 +73,8 @@ bool WadEngine::doSave(std::ofstream& f)
 
     // Write header (placeholder dirOff)
     f.write(fmt.data(), 4);
-    write32LE(f, static_cast<uint32_t>(m_entries.size()));
-    write32LE(f, 0);
+    writeLE32(f, static_cast<uint32_t>(m_entries.size()));
+    writeLE32(f, 0);
 
     // Data offsets start at 12 (after header)
     std::vector<uint32_t> offsets;
@@ -103,8 +93,8 @@ bool WadEngine::doSave(std::ofstream& f)
     for (size_t i = 0; i < m_entries.size(); ++i)
     {
         if (m_entries[i].size == 0) continue;
-        write32LE(f, offsets[i]);
-        write32LE(f, m_entries[i].size);
+        writeLE32(f, offsets[i]);
+        writeLE32(f, m_entries[i].size);
         char name[8] = { ' ', ' ', ' ', ' ', ' ', ' ', ' ', ' ' };
         std::memcpy(name, m_entries[i].name.c_str(),
                     (std::min)(m_entries[i].name.size(), size_t{8}));
@@ -113,6 +103,6 @@ bool WadEngine::doSave(std::ofstream& f)
 
     // Fix dirOff in header
     f.seekp(8);
-    write32LE(f, dirOff);
+    writeLE32(f, dirOff);
     return f.good();
 }

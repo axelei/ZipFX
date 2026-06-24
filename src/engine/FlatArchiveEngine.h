@@ -15,7 +15,7 @@ public:
     ~FlatArchiveEngine() override;
     void Close() override;
 
-    std::vector<ArchiveEntry> ListContents() override;
+    const std::vector<ArchiveEntry>& ListContents() override;
     bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
@@ -47,10 +47,13 @@ protected:
     // Subclasses override to write their format on Save()
     virtual bool doSave(std::ofstream& f) = 0;
 
+    void rebuildArchiveEntries();
+
     std::string m_formatName;
     std::string m_path;
     bool m_isOpen = false;
     std::vector<FileEntry> m_entries;
+    std::vector<ArchiveEntry> m_archiveEntries;
     std::atomic<bool> m_extractCancelled{false};
     int findEntry(std::string_view name) const;
 };

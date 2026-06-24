@@ -215,7 +215,7 @@ void MpqEngine::reloadEntries()
 
 // ── Reading ────────────────────────────────────────────────────────────
 
-std::vector<ArchiveEntry> MpqEngine::ListContents()
+const std::vector<ArchiveEntry>& MpqEngine::ListContents()
 {
     return m_entries;
 }
@@ -318,10 +318,11 @@ bool MpqEngine::RemoveEntry(std::string_view entryName)
         return false;
     }
 
-    // Remove from our entry cache
+    // Remove from our entry cache (entries use forward slashes)
+    std::string fwdName(entryName);
     for (auto it = m_entries.begin(); it != m_entries.end(); ++it)
     {
-        if (it->path == name)
+        if (it->path == fwdName)
         {
             m_entries.erase(it);
             break;
@@ -345,13 +346,15 @@ bool MpqEngine::RenameEntry(std::string_view entryName, std::string_view newName
         return false;
     }
 
-    // Update entry cache
+    // Update entry cache (entries use forward slashes)
+    std::string fwdOld(entryName);
+    std::string fwdNew(newName);
     for (auto& e : m_entries)
     {
-        if (e.path == oldName)
+        if (e.path == fwdOld)
         {
-            e.name = newNameStr;
-            e.path = newNameStr;
+            e.name = fwdNew;
+            e.path = fwdNew;
             break;
         }
     }

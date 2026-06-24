@@ -163,7 +163,7 @@ void Bit7zEngine::Close()
     m_pendingAdds.clear();
 }
 
-std::vector<ArchiveEntry> Bit7zEngine::ListContents()
+const std::vector<ArchiveEntry>& Bit7zEngine::ListContents()
 {
     return m_entries;
 }
@@ -205,7 +205,6 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
                 info.fileName = entryName;
                 m_extractProgressCb(info);
             }
-            QApplication::processEvents();
             return !m_extractCancelled;
         });
 
@@ -265,7 +264,6 @@ std::vector<uint8_t> Bit7zEngine::ReadFile(std::string_view entryName)
 
         // Report progress for UI responsiveness
         extractor.setProgressCallback([this](uint64_t) -> bool {
-            QApplication::processEvents();
             return !m_extractCancelled;
         });
 
@@ -326,10 +324,8 @@ bool Bit7zEngine::Save()
     {
         // Use different writer constructor for new vs existing archives
         auto writer = m_isNew
-            ? std::unique_ptr<bit7z::BitArchiveWriter>(
-                new bit7z::BitArchiveWriter(*m_lib, bit7z::BitFormat::SevenZip))
-            : std::unique_ptr<bit7z::BitArchiveWriter>(
-                new bit7z::BitArchiveWriter(*m_lib, m_path, bit7z::BitFormat::SevenZip));
+            ? std::make_unique<bit7z::BitArchiveWriter>(*m_lib, bit7z::BitFormat::SevenZip)
+            : std::make_unique<bit7z::BitArchiveWriter>(*m_lib, m_path, bit7z::BitFormat::SevenZip);
 
         if (!m_password.empty())
             writer->setPassword(m_password, m_encryptHeaders);

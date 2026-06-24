@@ -1,18 +1,8 @@
 #include "HogEngine.h"
+#include "BinaryUtils.h"
 
 #include <algorithm>
 #include <cstring>
-
-static uint32_t read32(const uint8_t* d) {
-    return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
-         | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
-}
-
-static void write32LE(std::ofstream& f, uint32_t v) {
-    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
-                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
-    f.write(reinterpret_cast<const char*>(b), 4);
-}
 
 bool HogEngine::Open(std::string_view path)
 {
@@ -28,8 +18,8 @@ bool HogEngine::Open(std::string_view path)
             f.read(reinterpret_cast<char*>(de), 44);
             if (!f || f.gcount() < 44) break;
 
-            uint32_t off = read32(de + 36);
-            uint32_t sz  = read32(de + 40);
+            uint32_t off = readLE32(de + 36);
+            uint32_t sz  = readLE32(de + 40);
             if (sz == 0 && off == 0) break;
 
             char name[37] = {};
@@ -61,8 +51,8 @@ bool HogEngine::doSave(std::ofstream& f)
         std::memcpy(name, e.name.c_str(),
                     (std::min)(e.name.size(), size_t{36}));
         f.write(name, 36);
-        write32LE(f, dataOff);
-        write32LE(f, e.size);
+        writeLE32(f, dataOff);
+        writeLE32(f, e.size);
         dataOff += e.size;
     }
 

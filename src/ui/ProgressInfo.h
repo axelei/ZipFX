@@ -47,9 +47,6 @@ struct ProgressInfo
         if (elapsed < 1000) return {};
         if (bytesProcessed == 0) return {};
 
-        double elapsedSec = elapsed / 1000.0;
-        double rate = bytesProcessed / elapsedSec;
-
         if (smoothedRate < 1.0) return {};
 
         uint64_t remaining = (totalBytes > bytesProcessed) ? (totalBytes - bytesProcessed) : 0;

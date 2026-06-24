@@ -4,6 +4,7 @@
 #include "ArchiveEngine.h"
 
 #include <functional>
+#include <set>
 
 struct gzFile_s;
 typedef struct gzFile_s* gzFile;
@@ -17,7 +18,7 @@ public:
     bool Create(std::string_view path) override;
     void Close() override;
 
-    std::vector<ArchiveEntry> ListContents() override;
+    const std::vector<ArchiveEntry>& ListContents() override;
     // Uses default ArchiveEngine::Extract (ReadFile + write to disk)
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
@@ -49,6 +50,7 @@ private:
     bool m_modified = false;
     std::vector<ArchiveEntry> m_entries;
     std::vector<QueueEntry> m_entryQueue;
+    std::set<std::string> m_removedEntries;
     std::atomic<bool> m_extractCancelled{false};
 };
 

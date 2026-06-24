@@ -119,7 +119,7 @@ void ZipEngine::LoadEntries()
 }
 
 // ── Reading ────────────────────────────────────────────────────────────
-std::vector<ArchiveEntry> ZipEngine::ListContents()
+const std::vector<ArchiveEntry>& ZipEngine::ListContents()
 {
     return m_entries;
 }
@@ -351,7 +351,7 @@ bool ZipEngine::Save()
             m_zip, pa.archivePath.c_str(), 0);
         if (idx >= 0)
         {
-            if (zip_file_replace(m_zip, idx, src, m_compressionLevel) != 0)
+            if (zip_file_replace(m_zip, idx, src, ZIP_FL_OVERWRITE) != 0)
             {
                 LOG_WARN("ZipEngine: can't replace %s", pa.archivePath.c_str());
                 zip_source_free(src);
@@ -359,13 +359,19 @@ bool ZipEngine::Save()
         }
         else
         {
-            idx = zip_file_add(m_zip, pa.archivePath.c_str(),
-                               src, m_compressionLevel);
+            idx = zip_file_add(m_zip, pa.archivePath.c_str(), src, 0);
             if (idx < 0)
             {
                 LOG_WARN("ZipEngine: can't add %s", pa.archivePath.c_str());
                 zip_source_free(src);
             }
+        }
+
+        if (idx >= 0)
+        {
+            zip_int32_t method = (m_compressionLevel == 0) ? ZIP_CM_STORE : ZIP_CM_DEFLATE;
+            zip_set_file_compression(m_zip, idx, method,
+                                     static_cast<zip_uint32_t>(m_compressionLevel));
         }
 
         // Apply encryption if password is set

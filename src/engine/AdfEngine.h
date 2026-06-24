@@ -6,6 +6,9 @@
 #include <string>
 #include <vector>
 
+struct AdfDevice;
+struct AdfVolume;
+
 class AdfEngine : public ArchiveEngine
 {
 public:
@@ -16,7 +19,7 @@ public:
     bool Create(std::string_view path) override;
     void Close() override;
 
-    std::vector<ArchiveEntry> ListContents() override;
+    const std::vector<ArchiveEntry>& ListContents() override;
     bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
@@ -37,11 +40,11 @@ public:
 
 private:
     int findEntry(std::string_view name) const;
-    void walkDir(void* vol, int sector, const std::string& prefix);
-    bool ensureDir(void* vol, const std::string& path);
+    void walkDir(AdfVolume* vol, int sector, const std::string& prefix);
+    bool ensureDir(AdfVolume* vol, const std::string& path);
 
-    void* m_dev = nullptr;
-    void* m_vol = nullptr;
+    AdfDevice* m_dev = nullptr;
+    AdfVolume* m_vol = nullptr;
     std::string m_path;
     bool m_isOpen = false;
     bool m_modified = false;

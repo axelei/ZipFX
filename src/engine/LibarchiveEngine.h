@@ -22,7 +22,7 @@ public:
 
     bool Open(std::string_view path) override;
     void Close() override;
-    std::vector<ArchiveEntry> ListContents() override;
+    const std::vector<ArchiveEntry>& ListContents() override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
     bool TestIntegrity(

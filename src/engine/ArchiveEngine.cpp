@@ -2,18 +2,17 @@
 
 #include "Logging.h"
 
+#include <atomic>
 #include <filesystem>
 #include <fstream>
 
 namespace fs = std::filesystem;
 
+static std::atomic<uint64_t> s_renameCounter{0};
+
 bool ArchiveEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     auto data = ReadFile(entryName);
-    if (data.empty())
-    {
-        return false;
-    }
 
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
@@ -24,8 +23,11 @@ bool ArchiveEngine::Extract(std::string_view entryName, std::string_view destPat
         return false;
     }
 
-    out.write(reinterpret_cast<const char*>(data.data()),
-              static_cast<std::streamsize>(data.size()));
+    if (!data.empty())
+    {
+        out.write(reinterpret_cast<const char*>(data.data()),
+                  static_cast<std::streamsize>(data.size()));
+    }
     return out.good();
 }
 
@@ -36,7 +38,9 @@ bool ArchiveEngine::RenameEntry(std::string_view entryName, std::string_view new
     if (data.empty()) return false;
 
     // Write to temp file
-    auto tmpPath = fs::temp_directory_path() / ("zipfx-rename-" + std::to_string(time(nullptr)));
+    auto tmpPath = fs::temp_directory_path() /
+        ("zipfx-rename-" + std::to_string(time(nullptr)) + "-" +
+         std::to_string(s_renameCounter.fetch_add(1)));
     {
         std::ofstream tmp(tmpPath, std::ios::binary);
         if (!tmp) return false;

@@ -35,7 +35,7 @@ class FileStream : public IStream
 {
     HANDLE m_hFile;
     std::wstring m_path;
-    ULONG m_ref = 1;
+    volatile LONG m_ref = 1;
 
 public:
     FileStream(const std::wstring& path, HANDLE hFile)
@@ -58,10 +58,10 @@ public:
         *ppv = nullptr;
         return E_NOINTERFACE;
     }
-    STDMETHODIMP_(ULONG) AddRef() override { return ++m_ref; }
+    STDMETHODIMP_(ULONG) AddRef() override { return InterlockedIncrement(&m_ref); }
     STDMETHODIMP_(ULONG) Release() override
     {
-        ULONG r = --m_ref;
+        LONG r = InterlockedDecrement(&m_ref);
         if (r == 0) delete this;
         return r;
     }
@@ -141,10 +141,10 @@ STDMETHODIMP VirtualFileDataObject::QueryInterface(REFIID riid, void** ppv)
     return E_NOINTERFACE;
 }
 
-STDMETHODIMP_(ULONG) VirtualFileDataObject::AddRef() { return ++m_refCount; }
+STDMETHODIMP_(ULONG) VirtualFileDataObject::AddRef() { return InterlockedIncrement(&m_refCount); }
 STDMETHODIMP_(ULONG) VirtualFileDataObject::Release()
 {
-    ULONG r = --m_refCount;
+    LONG r = InterlockedDecrement(&m_refCount);
     if (r == 0) delete this;
     return r;
 }
@@ -365,10 +365,12 @@ STDMETHODIMP VirtualDropSource::QueryInterface(REFIID riid, void** ppv)
     *ppv = nullptr;
     return E_NOINTERFACE;
 }
-STDMETHODIMP_(ULONG) VirtualDropSource::AddRef() { return ++m_ref; }
+STDMETHODIMP_(ULONG) VirtualDropSource::AddRef() { return InterlockedIncrement(&m_ref); }
 STDMETHODIMP_(ULONG) VirtualDropSource::Release()
 {
-    ULONG r = --m_ref; if (r == 0) delete this; return r;
+    LONG r = InterlockedDecrement(&m_ref);
+    if (r == 0) delete this;
+    return r;
 }
 STDMETHODIMP VirtualDropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState)
 {

@@ -25,6 +25,8 @@
 #include <QMimeData>
 #include <QDragEnterEvent>
 
+#include <QThread>
+
 #include <atomic>
 #include <thread>
 #ifdef Q_OS_MACOS
@@ -126,21 +128,8 @@ MainWindow::MainWindow(QWidget* parent)
 }
 
 MainWindow::MainWindow(const QString& fileToOpen, QWidget* parent)
-    : QMainWindow(parent)
+    : MainWindow(parent)
 {
-    setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
-    resize(960, 640);
-    m_icons = new ZipFXIcons(CreatePlaceholderIcons());
-    setupMenus();
-    setupToolbar();
-    setupUI();
-    setAcceptDrops(true);
-    statusBar()->showMessage(tr("Ready"));
-
-#ifdef _WIN32
-    registerFileAssociations();
-#endif
-
     if (!fileToOpen.isEmpty())
         openArchive(fileToOpen);
 }
@@ -396,6 +385,7 @@ bool MainWindow::saveWithProgress()
     while (!saveDone)
     {
         QApplication::processEvents();
+        QThread::msleep(16);
 
         if (!userCancelled && m_progressDlg->wasCanceled())
         {
@@ -1084,34 +1074,9 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
 void MainWindow::doExtractSelected(const QModelIndexList& selection)
 {
+    (void)selection;
     QString dest = QFileDialog::getExistingDirectory(this, tr("Extract selected to"));
     if (dest.isEmpty()) return;
-
-    auto paths = m_model->selectedEntryPaths(selection);
-    auto allEntries = m_engine->ListContents();
-    std::vector<ArchiveEntry> toExtract;
-
-    for (const auto& p : paths)
-    {
-        std::string sp = p.toStdString();
-        bool isDir = false;
-        for (const auto& e : allEntries)
-            if (e.path == sp || e.path == sp + "/")
-                { isDir = e.isDirectory; break; }
-
-        if (isDir)
-        {
-            std::string prefix = sp + "/";
-            for (const auto& e : allEntries)
-                if (!e.isDirectory && e.path.compare(0, prefix.size(), prefix) == 0)
-                    toExtract.push_back(e);
-        }
-        else
-        {
-            for (const auto& e : allEntries)
-                if (e.path == sp) { toExtract.push_back(e); break; }
-        }
-    }
 
     doExtract(dest, false);
 }

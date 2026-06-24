@@ -50,7 +50,7 @@ public:
     STDMETHODIMP EnumDAdvise(IEnumSTATDATA** ppEnum) override;
 
 private:
-    ULONG m_refCount = 1;
+    volatile LONG m_refCount = 1;
 
     struct FileEntry
     {
@@ -82,7 +82,7 @@ public:
     STDMETHODIMP QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyState) override;
     STDMETHODIMP GiveFeedback(DWORD dwEffect) override;
 private:
-    ULONG m_ref = 1;
+    volatile LONG m_ref = 1;
 };
 
 // Helper: start a drag with VirtualFileDataObject (bypasses wxDropSource)

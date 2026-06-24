@@ -53,10 +53,10 @@ bool FlatArchiveEngine::parse(std::string_view path, const char* formatName,
     return true;
 }
 
-std::vector<ArchiveEntry> FlatArchiveEngine::ListContents()
+void FlatArchiveEngine::rebuildArchiveEntries()
 {
-    std::vector<ArchiveEntry> result;
-    result.reserve(m_entries.size());
+    m_archiveEntries.clear();
+    m_archiveEntries.reserve(m_entries.size());
     for (const auto& e : m_entries)
     {
         ArchiveEntry ae;
@@ -65,9 +65,14 @@ std::vector<ArchiveEntry> FlatArchiveEngine::ListContents()
         ae.size = e.size;
         ae.packedSize = e.size;
         ae.isDirectory = false;
-        result.push_back(std::move(ae));
+        m_archiveEntries.push_back(std::move(ae));
     }
-    return result;
+}
+
+const std::vector<ArchiveEntry>& FlatArchiveEngine::ListContents()
+{
+    rebuildArchiveEntries();
+    return m_archiveEntries;
 }
 
 int FlatArchiveEngine::findEntry(std::string_view name) const

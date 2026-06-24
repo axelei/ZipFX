@@ -228,10 +228,12 @@ void TarGzEngine::Close()
     m_isOpen = false;
     m_modified = false;
     m_entries.clear();
+    m_entryQueue.clear();
+    m_removedEntries.clear();
 }
 
 // ── Reading ────────────────────────────────────────────────────────────
-std::vector<ArchiveEntry> TarGzEngine::ListContents()
+const std::vector<ArchiveEntry>& TarGzEngine::ListContents()
 {
     return m_entries;
 }
@@ -338,6 +340,7 @@ bool TarGzEngine::AddFile(std::string_view srcPath, std::string_view archivePath
 
 bool TarGzEngine::RemoveEntry(std::string_view entryName)
 {
+    m_removedEntries.insert(std::string(entryName));
     m_modified = true;
     return true;
 }
@@ -349,7 +352,53 @@ bool TarGzEngine::Save()
         return true;
     }
 
-    LOG_DBG("TarGzEngine: saving %s (%zu queued files)", m_path.c_str(), m_entryQueue.size());
+    LOG_DBG("TarGzEngine: saving %s (%zu existing, %zu queued, %zu removed)",
+            m_path.c_str(), m_entries.size(), m_entryQueue.size(), m_removedEntries.size());
+
+    // Collect existing entries' data before overwriting the file
+    struct MergedEntry
+    {
+        std::string archivePath;
+        std::vector<uint8_t> data;
+        uint32_t permissions;
+        uint64_t mtime;
+    };
+    std::vector<MergedEntry> merged;
+
+    // Names of new entries (so we skip originals being replaced)
+    std::set<std::string> newNames;
+    for (const auto& qe : m_entryQueue)
+        newNames.insert(qe.archivePath);
+
+    // Preserve existing entries that are not removed or replaced
+    for (const auto& entry : m_entries)
+    {
+        if (entry.isDirectory) continue;
+        if (m_removedEntries.count(entry.name)) continue;
+        if (newNames.count(entry.name)) continue;
+
+        auto data = ReadFile(entry.name);
+        MergedEntry me;
+        me.archivePath = entry.name;
+        me.data = std::move(data);
+        me.permissions = entry.permissions;
+        me.mtime = static_cast<uint64_t>(
+            std::chrono::system_clock::to_time_t(entry.modified));
+        merged.push_back(std::move(me));
+    }
+
+    // Compute total bytes for progress
+    uint64_t totalTarBytes = 0;
+    int totalTarFiles = static_cast<int>(merged.size());
+    for (const auto& me : merged)
+        totalTarBytes += me.data.size();
+    for (const auto& qe : m_entryQueue)
+    {
+        std::error_code ec;
+        auto sz = fs::file_size(qe.srcPath, ec);
+        if (!ec) totalTarBytes += sz;
+        totalTarFiles++;
+    }
 
     gzFile out = gzopen(m_path.c_str(), "wb");
     if (!out)
@@ -361,7 +410,6 @@ bool TarGzEngine::Save()
     auto writeBlock = [&](const void* data, size_t size)
     {
         gzwrite(out, data, static_cast<unsigned int>(size));
-        // Pad to block boundary
         size_t pad = (TAR_BLOCK_SIZE - size % TAR_BLOCK_SIZE) % TAR_BLOCK_SIZE;
         if (pad)
         {
@@ -370,26 +418,76 @@ bool TarGzEngine::Save()
         }
     };
 
-    // Compute total bytes for progress
-    uint64_t totalTarBytes = 0;
-    int totalTarFiles = 0;
-    for (const auto& qe : m_entryQueue)
+    auto writeTarEntry = [&](const std::string& archivePath,
+                             const uint8_t* fileData, uint64_t fileSize,
+                             uint32_t perms, uint64_t mtime)
     {
-        std::error_code ec;
-        auto sz = fs::file_size(qe.srcPath, ec);
-        if (!ec) totalTarBytes += sz;
-        totalTarFiles++;
-    }
+        std::string name = archivePath;
+        std::string prefix;
+        size_t slash = name.rfind('/');
+        if (slash != std::string::npos && slash <= TAR_PREFIX_SIZE)
+        {
+            prefix = name.substr(0, slash);
+            name = name.substr(slash + 1);
+        }
+        if (name.size() >= TAR_NAME_SIZE)
+            name.resize(TAR_NAME_SIZE - 1);
+        if (prefix.size() >= TAR_PREFIX_SIZE)
+            prefix.resize(TAR_PREFIX_SIZE - 1);
+
+        TarHeader hdr = {};
+        std::memcpy(hdr.name, name.c_str(), name.size());
+        std::memcpy(hdr.prefix, prefix.c_str(), prefix.size());
+        FormatOctal(hdr.mode, 8, perms ? perms : 0644);
+        FormatOctal(hdr.size, 12, fileSize);
+        FormatOctal(hdr.mtime, 12, mtime);
+        hdr.typeflag = '0';
+        std::memcpy(hdr.magic, "ustar", 5);
+        std::memcpy(hdr.version, "00", 2);
+        FormatOctal(hdr.chksum, 8, 0);
+        FormatOctal(hdr.chksum, 8, ComputeChecksum(&hdr));
+
+        writeBlock(&hdr, sizeof(hdr));
+        if (fileSize > 0)
+            writeBlock(fileData, static_cast<size_t>(fileSize));
+    };
 
     int fileIdx = 0;
     uint64_t bytesDone = 0;
 
+    // Write preserved existing entries
+    for (const auto& me : merged)
+    {
+        if (m_saveCancelled)
+        {
+            gzclose(out);
+            LOG_DBG("TarGzEngine: save cancelled");
+            return false;
+        }
+
+        if (m_saveProgressCb)
+        {
+            SaveProgressInfo info;
+            info.currentFile = fileIdx;
+            info.totalFiles = totalTarFiles;
+            info.bytesProcessed = bytesDone;
+            info.totalBytes = totalTarBytes;
+            info.fileName = me.archivePath;
+            m_saveProgressCb(info);
+        }
+
+        writeTarEntry(me.archivePath, me.data.data(), me.data.size(),
+                      me.permissions, me.mtime);
+        bytesDone += me.data.size();
+        fileIdx++;
+    }
+
+    // Write newly added entries from queue
     for (const auto& qe : m_entryQueue)
     {
         if (m_saveCancelled)
         {
             gzclose(out);
-            fs::remove(m_path);
             LOG_DBG("TarGzEngine: save cancelled");
             return false;
         }
@@ -405,25 +503,6 @@ bool TarGzEngine::Save()
             m_saveProgressCb(info);
         }
 
-        std::string name = qe.archivePath;
-        std::string prefix;
-        size_t slash = name.rfind('/');
-        if (slash != std::string::npos && slash <= TAR_PREFIX_SIZE)
-        {
-            prefix = name.substr(0, slash);
-            name = name.substr(slash + 1);
-        }
-        if (name.size() >= TAR_NAME_SIZE)
-        {
-            LOG_WARN("TarGzEngine: filename too long, truncated: %s", name.c_str());
-            name.resize(TAR_NAME_SIZE - 1);
-        }
-        if (prefix.size() >= TAR_PREFIX_SIZE)
-        {
-            LOG_WARN("TarGzEngine: path too long, truncated: %s", prefix.c_str());
-            prefix.resize(TAR_PREFIX_SIZE - 1);
-        }
-
         std::ifstream in(qe.srcPath, std::ios::binary | std::ios::ate);
         if (!in)
         {
@@ -433,52 +512,21 @@ bool TarGzEngine::Save()
 
         uint64_t fileSize = static_cast<uint64_t>(in.tellg());
         in.seekg(0, std::ios::beg);
-
-        auto fileData = std::vector<uint8_t>(static_cast<size_t>(fileSize));
+        std::vector<uint8_t> fileData(static_cast<size_t>(fileSize));
         in.read(reinterpret_cast<char*>(fileData.data()), fileData.size());
 
-        TarHeader hdr = {};
-        std::memcpy(hdr.name, name.c_str(), name.size());
-        std::memcpy(hdr.prefix, prefix.c_str(), prefix.size());
+        uint32_t perms = 0644;
         {
-            // Preserve source file permissions (default to 644)
             std::error_code ec;
             auto srcPerms = fs::status(qe.srcPath, ec).permissions();
-            mode_t mode = (ec || srcPerms == fs::perms::unknown)
-                ? 0644 : static_cast<mode_t>(srcPerms) & 0777;
-            FormatOctal(hdr.mode, 8, mode);
+            if (!ec && srcPerms != fs::perms::unknown)
+                perms = static_cast<uint32_t>(srcPerms) & 0777;
         }
-#ifndef _WIN32
-        // Preserve uid/gid and user/group names (POSIX only)
-        {
-            struct stat st;
-            if (stat(qe.srcPath.c_str(), &st) == 0)
-            {
-                FormatOctal(hdr.uid, 8, st.st_uid);
-                FormatOctal(hdr.gid, 8, st.st_gid);
-                struct passwd* pw = getpwuid(st.st_uid);
-                if (pw) std::strncpy(hdr.uname, pw->pw_name, sizeof(hdr.uname) - 1);
-                struct group* gr = getgrgid(st.st_gid);
-                if (gr) std::strncpy(hdr.gname, gr->gr_name, sizeof(hdr.gname) - 1);
-            }
-        }
-#endif
-        FormatOctal(hdr.size, 12, fileSize);
 
-        auto now = std::chrono::system_clock::to_time_t(
-            std::chrono::system_clock::now());
-        FormatOctal(hdr.mtime, 12, static_cast<uint64_t>(now));
+        auto now = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(
+            std::chrono::system_clock::now()));
 
-        hdr.typeflag = '0';
-        std::memcpy(hdr.magic, "ustar", 5);
-        std::memcpy(hdr.version, "00", 2);
-
-        FormatOctal(hdr.chksum, 8, 0);
-        FormatOctal(hdr.chksum, 8, ComputeChecksum(&hdr));
-
-        writeBlock(&hdr, sizeof(hdr));
-        writeBlock(fileData.data(), fileData.size());
-
+        writeTarEntry(qe.archivePath, fileData.data(), fileSize, perms, now);
         bytesDone += fileSize;
         fileIdx++;
     }
@@ -488,7 +536,55 @@ bool TarGzEngine::Save()
     gzwrite(out, endBlock.data(), static_cast<unsigned int>(endBlock.size()));
 
     gzclose(out);
-    LOG_DBG("TarGzEngine: saved successfully");
+
+    // Re-read to refresh entry list
+    m_entryQueue.clear();
+    m_removedEntries.clear();
+    m_modified = false;
+
+    gzFile f = gzopen(m_path.c_str(), "rb");
+    if (f)
+    {
+        if (m_gzFile) gzclose(m_gzFile);
+        m_gzFile = f;
+        m_entries.clear();
+
+        TarHeader hdr;
+        while (true)
+        {
+            int bytesRead = gzread(f, &hdr, TAR_BLOCK_SIZE);
+            if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE)) break;
+            if (IsEndOfArchive(&hdr)) break;
+            if (!ValidateChecksum(&hdr)) break;
+
+            uint64_t fileSize = ParseOctal(hdr.size, 12);
+            ArchiveEntry entry;
+            entry.name = TarName(&hdr);
+            entry.path = entry.name;
+            entry.size = fileSize;
+            entry.packedSize = fileSize;
+            entry.isDirectory = (hdr.typeflag == '5');
+            entry.permissions = ParseOctal(hdr.mode, 8) & 0xFFF;
+            uint64_t mtime = ParseOctal(hdr.mtime, 12);
+            entry.modified = std::chrono::system_clock::from_time_t(
+                static_cast<time_t>(mtime));
+            m_entries.push_back(std::move(entry));
+
+            uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+            std::vector<char> skipBuf(static_cast<size_t>(
+                std::min(skipBytes, static_cast<uint64_t>(65536))));
+            while (skipBytes > 0)
+            {
+                size_t toRead = static_cast<size_t>(
+                    std::min(skipBytes, static_cast<uint64_t>(skipBuf.size())));
+                int r = gzread(f, skipBuf.data(), static_cast<unsigned int>(toRead));
+                if (r <= 0) break;
+                skipBytes -= static_cast<uint64_t>(r);
+            }
+        }
+    }
+
+    LOG_DBG("TarGzEngine: saved successfully (%zu entries)", m_entries.size());
     return true;
 }
 

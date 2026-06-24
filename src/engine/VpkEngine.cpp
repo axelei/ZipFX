@@ -1,29 +1,10 @@
 #include "VpkEngine.h"
+#include "BinaryUtils.h"
 
 #include <algorithm>
 #include <cstdio>
 #include <cstdint>
 #include <cstring>
-
-static uint32_t read32(const uint8_t* d) {
-    return static_cast<uint32_t>(d[0]) | (static_cast<uint32_t>(d[1]) << 8)
-         | (static_cast<uint32_t>(d[2]) << 16) | (static_cast<uint32_t>(d[3]) << 24);
-}
-
-static uint16_t read16(const uint8_t* d) {
-    return static_cast<uint16_t>(d[0]) | (static_cast<uint16_t>(d[1]) << 8);
-}
-
-static void write32LE(std::ofstream& f, uint32_t v) {
-    uint8_t b[4] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8),
-                     static_cast<uint8_t>(v >> 16), static_cast<uint8_t>(v >> 24) };
-    f.write(reinterpret_cast<const char*>(b), 4);
-}
-
-static void write16LE(std::ofstream& f, uint16_t v) {
-    uint8_t b[2] = { static_cast<uint8_t>(v), static_cast<uint8_t>(v >> 8) };
-    f.write(reinterpret_cast<const char*>(b), 2);
-}
 
 static std::string readNullString(std::ifstream& f)
 {
@@ -45,12 +26,12 @@ bool VpkEngine::Open(std::string_view path)
     uint8_t hdr[12];
     f.read(reinterpret_cast<char*>(hdr), 12);
     if (!f) return false;
-    if (read32(hdr) != 0x55AA1234) return false;
+    if (readLE32(hdr) != 0x55AA1234) return false;
 
-    uint32_t version = read32(hdr + 4);
+    uint32_t version = readLE32(hdr + 4);
     if (version != 1 && version != 2) return false;
 
-    uint32_t treeSize = read32(hdr + 8);
+    uint32_t treeSize = readLE32(hdr + 8);
     uint32_t headerSize = (version == 2) ? 28 : 12;
     uint32_t dataSectionStart = headerSize + treeSize;
 
@@ -60,9 +41,9 @@ bool VpkEngine::Open(std::string_view path)
         f.read(reinterpret_cast<char*>(v2hdr), 16);
         if (!f) return false;
 
-        uint32_t archiveMD5SectionSize = read32(v2hdr + 4);
-        uint32_t otherMD5SectionSize = read32(v2hdr + 8);
-        uint32_t signatureSectionSize = read32(v2hdr + 12);
+        uint32_t archiveMD5SectionSize = readLE32(v2hdr + 4);
+        uint32_t otherMD5SectionSize = readLE32(v2hdr + 8);
+        uint32_t signatureSectionSize = readLE32(v2hdr + 12);
 
         dataSectionStart = headerSize + treeSize
             + archiveMD5SectionSize + otherMD5SectionSize + signatureSectionSize;
@@ -90,10 +71,10 @@ bool VpkEngine::Open(std::string_view path)
                 f.read(reinterpret_cast<char*>(entry), 18);
                 if (!f) return false;
 
-                uint16_t preloadSize = read16(entry + 4);
-                uint16_t archiveIndex = read16(entry + 6);
-                uint32_t entryOff = read32(entry + 8);
-                uint32_t entryLen = read32(entry + 12);
+                uint16_t preloadSize = readLE16(entry + 4);
+                uint16_t archiveIndex = readLE16(entry + 6);
+                uint32_t entryOff = readLE32(entry + 8);
+                uint32_t entryLen = readLE32(entry + 12);
                 // entry[16-17] = 0xFFFF terminator (skip)
 
                 // Build full path: dir/fname.ext
@@ -254,9 +235,9 @@ bool VpkEngine::doSave(std::ofstream& f)
     uint32_t treeSize = static_cast<uint32_t>(tree.size());
     uint32_t headerSize = 12;
 
-    write32LE(f, 0x55AA1234);
-    write32LE(f, version);
-    write32LE(f, treeSize);
+    writeLE32(f, 0x55AA1234);
+    writeLE32(f, version);
+    writeLE32(f, treeSize);
 
     // Write tree
     f.write(reinterpret_cast<const char*>(tree.data()), tree.size());
