@@ -7,9 +7,11 @@
 #include <cstring>
 #include <filesystem>
 #include <fstream>
+#ifndef _WIN32
 #include <sys/stat.h>
 #include <pwd.h>
 #include <grp.h>
+#endif
 #include <vector>
 
 namespace fs = std::filesystem;
@@ -445,7 +447,8 @@ bool TarGzEngine::Save()
                 ? 0644 : static_cast<mode_t>(srcPerms) & 0777;
             FormatOctal(hdr.mode, 8, mode);
         }
-        // Preserve uid/gid and user/group names
+#ifndef _WIN32
+        // Preserve uid/gid and user/group names (POSIX only)
         {
             struct stat st;
             if (stat(qe.srcPath.c_str(), &st) == 0)
@@ -458,6 +461,7 @@ bool TarGzEngine::Save()
                 if (gr) std::strncpy(hdr.gname, gr->gr_name, sizeof(hdr.gname) - 1);
             }
         }
+#endif
         FormatOctal(hdr.size, 12, fileSize);
 
         auto now = std::chrono::system_clock::to_time_t(
