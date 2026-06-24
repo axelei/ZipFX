@@ -33,6 +33,9 @@ Amiga Disk Files, and more.
 - **Extraction and save after-action** (sleep / hibernate / shutdown)
 - **File rename** (right-click context menu; in-place for ZIP)
 - **POSIX permissions column** displayed as `rwxrwxrwx`
+- **Recent files list** — address bar remembers last 10 opened archives
+- **Multi-volume VPK support** — reads from `_000.vpk`, `_001.vpk` volume files
+- **ADF creation** — create Amiga floppy images directly
 - **App icon** on all platforms (`.ico` Windows, `.icns` macOS, `.png` Linux)
 
 ---
@@ -43,8 +46,8 @@ Amiga Disk Files, and more.
 |--------|------|-------|---------|-------|
 | ZIP | ✅ | ✅ | libzip | In-place modify |
 | 7z | ✅ | ✅ | Bit7z / libarchive | Full write via Bit7z (AES-256, header encrypt, solid, multi-volume), read via libarchive fallback |
-| RAR | ✅ | ❌ | libarchive | |
-| RAR5 | ✅ | ❌ | libarchive | |
+| RAR | ✅ | ❌ | Bit7z / libarchive | Multi-volume support via 7z.dll |
+| RAR5 | ✅ | ❌ | Bit7z / libarchive | |
 | ISO | ✅ | ❌ | libarchive | |
 | CAB | ✅ | ❌ | libarchive | |
 | LHA/LZH | ✅ | ❌ | libarchive | |
@@ -73,12 +76,13 @@ Amiga Disk Files, and more.
 | QCOW2 | ✅ | ❌ | Bit7z | Magic `QFI\xFB` |
 | NRG | ✅ | ❌ | Bit7z | Nero CD images |
 | BIN/CUE | ✅ | ❌ | Bit7z | Extension-based |
+| IMA/IMG/FLP/DSK | ✅ | ❌ | Bit7z | Floppy/disk images |
 
 ### Amiga Disk Files
 
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
-| ADF | ✅ | ❌ | AdfEngine (ADFlib) | Magic `DOS` at offset 0 |
+| ADF | ✅ | ✅ | AdfEngine (ADFlib) | Create floppy images (880 KB, FFS) |
 
 ### Additional Formats (via Bit7z / 7z.dll)
 
@@ -216,13 +220,13 @@ ArchiveEngine (pure virtual interface)
 │   functions for 7z, RAR, RAR5, ISO, CAB, LHA, XAR, CPIO, AR
 ├── Bit7zEngine (7-Zip DLL/SO) — extended formats,
 │   7z write with AES-256, fallback for exotic formats
-├── AdfEngine (ADFlib) — Amiga Disk Files
+├── AdfEngine (ADFlib) — Amiga Disk Files (read + write FFS)
 ├── FlatArchiveEngine (base class)
 │   ├── WadEngine — Doom IWAD/PWAD/WAD2/WAD3
 │   ├── PakEngine — Quake PACK
 │   ├── GrpEngine — Duke Nukem 3D GRP
 │   ├── HogEngine — Descent HOG
-│   └── VpkEngine — Valve VPK
+│   └── VpkEngine — Valve VPK (multi-volume _dir/_001.vpk)
 └── [Bit7z fallback] — last-resort auto-detect via 7z.dll
 ```
 
@@ -248,6 +252,7 @@ zipfx list archive.zip
 zipfx extract archive.7z -o /tmp/out
 zipfx create output.zip file1.txt file2.txt
 zipfx create output.7z --password secret --encrypt-headers file.dat
+zipfx create output.adf file.txt                   # ADF floppy image
 zipfx test archive.rar
 zipfx info archive.iso
 zipfx --cli list archive.cab
