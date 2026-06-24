@@ -48,6 +48,7 @@ if(WIN32)
     if(7ZIP_DLL)
         list(APPEND TEST_DLLS "${7ZIP_DLL}")
     endif()
+    list(APPEND TEST_DLLS "${StormLib_BINARY_DIR}/libStormLib.dll")
 endif()
 
 macro(add_zipfx_test TEST_NAME)

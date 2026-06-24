@@ -48,6 +48,7 @@ private slots:
         m_grpFile  = write("test.grp", {'K', 'e', 'n', 'S', 'i', 'l', 'v', 'e', 'r', 'm', 'a', 'n'});
         m_hogFile  = write("test.hog", {'H', 'O', 'G', 0xF0});
         m_vpkFile  = write("test.vpk", {0x34, 0x12, 0xAA, 0x55});
+        m_mpqFile  = write("test.mpq", {'M', 'P', 'Q', 0x1A});
 
         // Additional formats
         m_cpioFile = write("test.cpio", {'0', '7', '0', '7', '0', '1'});
@@ -134,6 +135,10 @@ private slots:
     {
         QCOMPARE(FileSignature::Detect(m_vpkFile.string()), ArchiveType::Vpk);
     }
+    void testMpqMagic()
+    {
+        QCOMPARE(FileSignature::Detect(m_mpqFile.string()), ArchiveType::Mpq);
+    }
 
     void testEmpty()
     {
@@ -151,7 +156,7 @@ private:
     fs::path m_cpioFile, m_lhaFile, m_arFile;
     fs::path m_vhdFile, m_vmdkFile, m_qcowFile, m_nrgFile, m_nrg5File, m_adfFile;
     fs::path m_wadIWAD, m_wadPWAD, m_wadWAD2, m_wadWAD3;
-    fs::path m_pakFile, m_grpFile, m_hogFile, m_vpkFile;
+    fs::path m_pakFile, m_grpFile, m_hogFile, m_vpkFile, m_mpqFile;
 };
 
 QTEST_MAIN(tst_FileSignature)

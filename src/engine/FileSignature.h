@@ -27,7 +27,8 @@ enum class ArchiveType
     Pak,
     Grp,
     Hog,
-    Vpk
+    Vpk,
+    Mpq
 };
 
 struct FileSignature

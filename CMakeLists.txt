@@ -130,6 +130,24 @@ if(TARGET bit7z64 AND CMAKE_CXX_COMPILER_ID MATCHES "GNU")
     target_compile_options(bit7z64 PRIVATE -Wno-error=array-bounds)
 endif()
 
+# ====================================================================
+# StormLib  –  MPQ archive support (Blizzard games: Warcraft, StarCraft, Diablo)
+# ====================================================================
+set(STORM_BUILD_TESTS OFF CACHE BOOL "" FORCE)
+set(STORM_SKIP_INSTALL ON CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    StormLib
+    GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
+    GIT_TAG        master
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(StormLib)
+
+# StormLib builds as 'storm' static library
+if(TARGET storm)
+    set_target_properties(storm PROPERTIES POSITION_INDEPENDENT_CODE ON)
+endif()
+
 # Fix missing #include <algorithm> in bit7z v4.0.1 (newer GCC no longer
 # transitively includes <algorithm> from other headers)
 if(TARGET bit7z64)
@@ -202,6 +220,7 @@ set(ZIPFX_SOURCES
     src/engine/HogEngine.cpp
     src/engine/GrpEngine.cpp
     src/engine/VpkEngine.cpp
+    src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp
 )
 
@@ -221,6 +240,7 @@ target_include_directories(ZipFX PRIVATE
     ${libarchive_SOURCE_DIR}/libarchive
     ${CLI11_SOURCE_DIR}/include
     ${adflib_SOURCE_DIR}/src
+    ${storm_SOURCE_DIR}/src
 )
 
 target_compile_definitions(ZipFX PRIVATE
@@ -234,6 +254,7 @@ target_link_libraries(ZipFX PRIVATE
     zlibstatic
     bit7z
     adf
+    storm
     Qt${QT_VERSION_MAJOR}::Widgets
 )
 
@@ -360,6 +381,12 @@ if(WIN32)
             "${adflib_BINARY_DIR}/src/libadf.dll"
             "$<TARGET_FILE_DIR:ZipFX>/"
         COMMENT "Copying libadf.dll"
+    )
+    add_custom_command(TARGET ZipFX POST_BUILD
+        COMMAND ${CMAKE_COMMAND} -E copy_if_different
+            "${StormLib_BINARY_DIR}/libStormLib.dll"
+            "$<TARGET_FILE_DIR:ZipFX>/"
+        COMMENT "Copying libStormLib.dll"
     )
 endif()
 

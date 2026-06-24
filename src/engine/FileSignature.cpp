@@ -72,6 +72,8 @@ static const SigEntry kSignatures[] =
         return d[0] == 'H' && d[1] == 'O' && d[2] == 'G' && d[3] == 0xF0; }},
     { ArchiveType::Vpk,      4, [](const uint8_t* d, size_t) {
         return d[0] == 0x34 && d[1] == 0x12 && d[2] == 0xAA && d[3] == 0x55; }},
+    { ArchiveType::Mpq,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'M' && d[1] == 'P' && d[2] == 'Q' && d[3] == 0x1A; }},
 };
 
 ArchiveType FileSignature::Detect(std::string_view path)
