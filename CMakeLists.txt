@@ -138,7 +138,7 @@ set(STORM_SKIP_INSTALL ON CACHE BOOL "" FORCE)
 FetchContent_Declare(
     StormLib
     GIT_REPOSITORY https://github.com/ladislav-zezula/StormLib.git
-    GIT_TAG        master
+    GIT_TAG        v9.31
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(StormLib)
@@ -382,12 +382,14 @@ if(WIN32)
             "$<TARGET_FILE_DIR:ZipFX>/"
         COMMENT "Copying libadf.dll"
     )
-    add_custom_command(TARGET ZipFX POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${StormLib_BINARY_DIR}/libStormLib.dll"
-            "$<TARGET_FILE_DIR:ZipFX>/"
-        COMMENT "Copying libStormLib.dll"
-    )
+    if(EXISTS "${StormLib_BINARY_DIR}/libStormLib.dll")
+        add_custom_command(TARGET ZipFX POST_BUILD
+            COMMAND ${CMAKE_COMMAND} -E copy_if_different
+                "${StormLib_BINARY_DIR}/libStormLib.dll"
+                "$<TARGET_FILE_DIR:ZipFX>/"
+            COMMENT "Copying libStormLib.dll"
+        )
+    endif()
 endif()
 
 # ====================================================================

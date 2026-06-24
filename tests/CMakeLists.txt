@@ -15,6 +15,7 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/GrpEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/HogEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/VpkEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
 )
@@ -27,6 +28,7 @@ set(TEST_LIBS
     zlibstatic
     adf
     bit7z
+    storm
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Test
 )
@@ -48,7 +50,9 @@ if(WIN32)
     if(7ZIP_DLL)
         list(APPEND TEST_DLLS "${7ZIP_DLL}")
     endif()
-    list(APPEND TEST_DLLS "${StormLib_BINARY_DIR}/libStormLib.dll")
+    if(EXISTS "${StormLib_BINARY_DIR}/libStormLib.dll")
+        list(APPEND TEST_DLLS "${StormLib_BINARY_DIR}/libStormLib.dll")
+    endif()
 endif()
 
 macro(add_zipfx_test TEST_NAME)
@@ -65,6 +69,7 @@ macro(add_zipfx_test TEST_NAME)
         ${libzip_BINARY_DIR}/lib
         ${libarchive_SOURCE_DIR}/libarchive
         ${adflib_SOURCE_DIR}
+        ${storm_SOURCE_DIR}/src
         ${CLI11_SOURCE_DIR}/include
     )
     target_compile_definitions(${TEST_NAME} PRIVATE
@@ -102,3 +107,4 @@ add_zipfx_test(tst_LibarchiveEngine)
 add_zipfx_test(tst_FileListModel)
 add_zipfx_test(tst_CliHandler)
 add_zipfx_test(tst_FlatArchiveEngines)
+add_zipfx_test(tst_MpqEngine)

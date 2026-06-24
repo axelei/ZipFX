@@ -44,5 +44,13 @@
 		<glob pattern="*.VMDK"/>
 		<glob pattern="*.qcow"/>
 		<glob pattern="*.qcow2"/>
+		<glob pattern="*.mpq"/>
+		<glob pattern="*.MPQ"/>
+		<glob pattern="*.mpk"/>
+		<glob pattern="*.MPK"/>
+		<glob pattern="*.w3x"/>
+		<glob pattern="*.W3X"/>
+		<glob pattern="*.w3m"/>
+		<glob pattern="*.W3M"/>
 	</mime-type>
 </mime-info>

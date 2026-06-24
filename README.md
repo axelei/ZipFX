@@ -57,7 +57,7 @@ Amiga Disk Files, and more.
 | TAR.GZ | ✅ | ✅ | zlib + manual tar | Full create + extract; rewrites on save |
 | JAR, APK, DOCX, XLSX, PPTX, ODT, ODS, ODP, EPUB, WAR, EAR | ✅ | ✅ | libzip | ZIP-based formats |
 
-### Game Archive Formats (native, no compression)
+### Game Archive Formats
 
 | Format | Read | Write | Backend | Used By |
 |--------|------|-------|---------|---------|
@@ -66,6 +66,7 @@ Amiga Disk Files, and more.
 | GRP | ✅ | ✅ | FlatArchiveEngine | Duke Nukem 3D (KenSilverman) |
 | HOG | ✅ | ✅ | FlatArchiveEngine | Descent (HOG) |
 | VPK | ✅ | ✅ | FlatArchiveEngine | Valve (Source engine games) |
+| **MPQ** | ✅ | ✅ | StormLib | Warcraft III, StarCraft II, Diablo III, WoW |
 
 ### Disk / CD Image Formats
 
@@ -124,6 +125,7 @@ The following are fetched automatically by CMake via `FetchContent`:
 - **libarchive** — 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR
 - **bit7z** — extended format support via 7-Zip engine
 - **ADFlib** — Amiga Disk File format (.adf)
+- **StormLib** — Blizzard MPQ archive format
 - **CLI11** — command-line interface
 
 ### Build steps
@@ -227,6 +229,8 @@ ArchiveEngine (pure virtual interface)
 │   ├── GrpEngine — Duke Nukem 3D GRP
 │   ├── HogEngine — Descent HOG
 │   └── VpkEngine — Valve VPK (multi-volume _dir/_001.vpk)
+├── MpqEngine (StormLib) — Blizzard MPQ
+│   (Warcraft III, StarCraft II, Diablo III, WoW)
 └── [Bit7z fallback] — last-resort auto-detect via 7z.dll
 ```
 

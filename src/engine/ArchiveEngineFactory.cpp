@@ -114,8 +114,8 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<HogEngine>(); },               false },
     { "VPK",    ".vpk",                              ArchiveType::Vpk,
         []() { return std::make_unique<VpkEngine>(); },                 false },
-    { "MPQ",    ".mpq,.mpk",                         ArchiveType::Mpq,
-        []() { return std::make_unique<MpqEngine>(); },                  false },
+    { "MPQ",    ".mpq,.mpk,.w3x,.w3m",               ArchiveType::Mpq,
+        []() { return std::make_unique<MpqEngine>(); },                  true  },
 
     // ── Disk images (via Bit7z) ───────────────────────
     // These need 7z.dll; explicit entries give proper FormatName display.
