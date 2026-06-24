@@ -1622,38 +1622,7 @@ void MainWindow::dropEvent(QDropEvent* event)
         return;
     }
 
-    QString prefix = m_model->currentDir();
-    if (!prefix.isEmpty()) prefix += "/";
-
-    for (const auto& path : paths)
-    {
-        fs::path src(path.toStdWString());
-        QString archiveBase = prefix + QString::fromStdWString(src.filename().wstring());
-
-        if (fs::is_directory(src))
-        {
-            // Recurse into directory and add every file inside
-            for (const auto& de : fs::recursive_directory_iterator(src))
-            {
-                if (de.is_regular_file())
-                {
-                    fs::path rel = de.path().lexically_relative(src);
-                    QString archivePath = archiveBase + "/"
-                        + QString::fromStdWString(rel.generic_wstring());
-                    m_engine->AddFile(de.path().string(), archivePath.toStdString());
-                }
-            }
-        }
-        else if (fs::is_regular_file(src))
-        {
-            m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
-        }
-    }
-
-    if (!m_engine->Save())
-        QMessageBox::warning(this, tr("Error"), tr("Failed to save."));
-
-    refreshFileList();
+    doAddPaths(paths);
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
