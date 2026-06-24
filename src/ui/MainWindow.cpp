@@ -26,6 +26,7 @@
 #include <QDragEnterEvent>
 
 #include <QThread>
+#include <QTimer>
 
 #include <atomic>
 #include <thread>
@@ -1640,7 +1641,7 @@ void MainWindow::dropEvent(QDropEvent* event)
         return;
     }
 
-    doAddPaths(paths);
+    QTimer::singleShot(0, this, [this, paths]() { doAddPaths(paths); });
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────
