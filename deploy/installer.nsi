@@ -48,9 +48,7 @@ Section "Install"
     File "build_win\Qt6Svg.dll"
     File "build_win\Qt6Widgets.dll"
 
-    ; Third-party DLLs
-    File "build_win\libzip.dll"
-    File "build_win\libadf.dll"
+    ; Third-party DLLs (libzip and adflib are now statically linked)
     File "build_win\7z.dll"
 
     ; Qt plugins
@@ -145,8 +143,6 @@ Section "Uninstall"
     Delete "$INSTDIR\Qt6Network.dll"
     Delete "$INSTDIR\Qt6Svg.dll"
     Delete "$INSTDIR\Qt6Widgets.dll"
-    Delete "$INSTDIR\libzip.dll"
-    Delete "$INSTDIR\libadf.dll"
     Delete "$INSTDIR\7z.dll"
     Delete "$INSTDIR\AppIcon.ico"
     Delete "$INSTDIR\Uninstall.exe"

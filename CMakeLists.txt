@@ -10,6 +10,9 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 set(CMAKE_AUTOMOC ON)
 
+# Build dependencies as static libraries (no extra DLLs to ship)
+set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+
 # Force the correct MinGW make program (CLion sometimes picks Gow's make.exe)
 if(WIN32 AND EXISTS "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe")
     set(CMAKE_MAKE_PROGRAM "C:/Qt/Tools/mingw1310_64/bin/mingw32-make.exe" CACHE FILEPATH "MinGW make" FORCE)
@@ -344,21 +347,7 @@ if(WIN32)
     endif()
 endif()
 
-# Copy libzip.dll next to the executable (shared library)
-if(WIN32)
-    add_custom_command(TARGET ZipFX POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${libzip_BINARY_DIR}/lib/libzip.dll"
-            "$<TARGET_FILE_DIR:ZipFX>/"
-        COMMENT "Copying libzip.dll"
-    )
-    add_custom_command(TARGET ZipFX POST_BUILD
-        COMMAND ${CMAKE_COMMAND} -E copy_if_different
-            "${adflib_BINARY_DIR}/src/libadf.dll"
-            "$<TARGET_FILE_DIR:ZipFX>/"
-        COMMENT "Copying libadf.dll"
-    )
-endif()
+# libzip and adflib are now static (BUILD_SHARED_LIBS=OFF) — no DLLs to copy
 
 # ====================================================================
 # 7-Zip shared library  –  required by Bit7zEngine at runtime
