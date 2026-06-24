@@ -58,6 +58,9 @@ private:
     };
     std::vector<PendingAdd> m_pendingAdds;
 
+    uint64_t m_totalBytesForProgress = 0;
+    std::string m_lastFileName;
+
     void LoadEntries();
 };
 

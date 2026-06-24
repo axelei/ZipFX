@@ -314,41 +314,23 @@ bool ZipEngine::Save()
     {
         std::error_code ec;
         auto sz = fs::file_size(pa.srcPath, ec);
-        if (ec) sz = 0;
-        totalBytes += sz;
+        if (!ec) totalBytes += sz;
     }
 
     // Flush pending additions
-    size_t fileIdx = 0;
-    uint64_t bytesDone = 0;
+    std::string lastName;
     for (const auto& pa : m_pendingAdds)
     {
         if (m_saveCancelled) break;
 
-        if (m_saveProgressCb)
-        {
-            SaveProgressInfo info;
-            info.currentFile = static_cast<int>(fileIdx);
-            info.totalFiles = static_cast<int>(m_pendingAdds.size());
-            info.bytesProcessed = bytesDone;
-            info.totalBytes = totalBytes;
-            info.fileName = pa.archivePath;
-            m_saveProgressCb(info);
-        }
+        lastName = pa.archivePath;
 
         zip_source_t* src = zip_source_file_create(
             pa.srcPath.c_str(), 0, -1, nullptr);
         if (!src)
         {
             LOG_WARN("ZipEngine: can't create source for %s", pa.srcPath.c_str());
-            fileIdx++;
             continue;
-        }
-
-        {
-            std::error_code ec;
-            auto sz = fs::file_size(pa.srcPath, ec);
-            if (!ec) bytesDone += sz;
         }
 
         zip_int64_t idx = zip_name_locate(
@@ -378,21 +360,18 @@ bool ZipEngine::Save()
                                      static_cast<zip_uint32_t>(m_compressionLevel));
         }
 
-        // Apply encryption if password is set
         if (idx >= 0 && !m_password.empty())
         {
             zip_uint16_t method = m_encryptHeaders ? ZIP_EM_AES_256 : ZIP_EM_AES_128;
             zip_file_set_encryption(m_zip, idx, method, m_password.c_str());
         }
 
-        // Preserve Unix permissions from the source file
         if (idx >= 0)
         {
             fs::perms perms = fs::status(pa.srcPath).permissions();
             zip_uint32_t attrs = (static_cast<zip_uint32_t>(perms) & 0xFFF) << 16;
             zip_file_set_external_attributes(m_zip, idx, 0, 3, attrs);
         }
-        fileIdx++;
     }
     m_pendingAdds.clear();
 
@@ -409,6 +388,27 @@ bool ZipEngine::Save()
             LoadEntries();
         m_modified = false;
         return false;
+    }
+
+    // Register progress callback for zip_close (where actual compression happens)
+    if (m_saveProgressCb && totalBytes > 0)
+    {
+        zip_register_progress_callback_with_state(m_zip, 0.001,
+            [](zip_t*, double progress, void* ud) {
+                auto* self = static_cast<ZipEngine*>(ud);
+                if (self->m_saveProgressCb)
+                {
+                    SaveProgressInfo info;
+                    info.bytesProcessed = static_cast<uint64_t>(
+                        progress * static_cast<double>(self->m_totalBytesForProgress));
+                    info.totalBytes = self->m_totalBytesForProgress;
+                    info.fileName = self->m_lastFileName;
+                    self->m_saveProgressCb(info);
+                }
+            },
+            nullptr, this);
+        m_totalBytesForProgress = totalBytes;
+        m_lastFileName = lastName;
     }
 
     // Commit changes to disk (libzip handles everything in-place)
