@@ -65,6 +65,7 @@ if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe not found
 if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll not found
 if not exist "%BUILD_DIR%\Qt6Core.dll" echo WARNING: Qt6Core.dll not found
 if not exist "%BUILD_DIR%\libzip.dll" echo WARNING: libzip.dll not found
+if not exist "%BUILD_DIR%\libStormLib.dll" echo WARNING: libStormLib.dll not found
 
 echo === Checking NSIS ===
 set "NSIS_DIR="
@@ -120,6 +121,7 @@ powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
     "%BUILD_DIR%\Qt6*.dll",^
     "%BUILD_DIR%\libzip.dll",^
     "%BUILD_DIR%\libadf.dll",^
+    "%BUILD_DIR%\libStormLib.dll",^
     "%BUILD_DIR%\7z.dll",^
     "%BUILD_DIR%\platforms",^
     "%BUILD_DIR%\styles",^

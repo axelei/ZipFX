@@ -51,6 +51,7 @@ Section "Install"
     ; Third-party DLLs
     File "build_win\libzip.dll"
     File "build_win\libadf.dll"
+    File "build_win\libStormLib.dll"
     File "build_win\7z.dll"
 
     ; Qt plugins
@@ -147,6 +148,7 @@ Section "Uninstall"
     Delete "$INSTDIR\Qt6Widgets.dll"
     Delete "$INSTDIR\libzip.dll"
     Delete "$INSTDIR\libadf.dll"
+    Delete "$INSTDIR\libStormLib.dll"
     Delete "$INSTDIR\7z.dll"
     Delete "$INSTDIR\AppIcon.ico"
     Delete "$INSTDIR\Uninstall.exe"
