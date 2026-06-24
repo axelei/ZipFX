@@ -1485,7 +1485,7 @@ void MainWindow::onBeginDrag()
 
         std::string fp = filePaths[i].toStdString();
 
-        piDrag.addBytes(0); // update time check; bytes tracked per-entry below
+        piDrag.addBytes(0);
         for (const auto& e : allEntries)
             if (e.path == fp)
                 { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
