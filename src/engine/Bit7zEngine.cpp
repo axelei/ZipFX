@@ -344,7 +344,6 @@ bool Bit7zEngine::RemoveEntry(std::string_view entryName)
 bool Bit7zEngine::Save()
 {
     if (!m_isOpen || (m_pendingAdds.empty() && m_pendingDeletes.empty())) return true;
-    m_saveCancelled = false;
 
     try
     {

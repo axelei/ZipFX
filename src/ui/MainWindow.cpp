@@ -380,6 +380,8 @@ bool MainWindow::saveWithProgress()
         spInfo = info;
     });
 
+    m_engine->resetSaveCancel();
+
     std::thread saveThread([this, &saveDone, &saveOk]() {
         saveOk = m_engine->Save();
         saveDone = true;
@@ -485,6 +487,8 @@ bool MainWindow::runSave(const QString& label)
 
     std::atomic<bool> done{false};
     std::atomic<bool> ok{false};
+
+    m_engine->resetSaveCancel();
 
     std::thread t([this, &done, &ok]() {
         ok = m_engine->Save();
@@ -1006,6 +1010,19 @@ void MainWindow::doAddPaths(const QStringList& paths)
             }
             QApplication::processEvents();
         }
+    }
+
+    if (m_progressDlg->wasCanceled())
+    {
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+        std::string path = m_currentPath;
+        m_engine->Close();
+        m_engine->Open(path);
+        refreshFileList();
+        statusBar()->showMessage(tr("Add cancelled."), 3000);
+        return;
     }
 
     // Embed "After" combo directly in the progress dialog (same
@@ -1807,6 +1824,20 @@ void MainWindow::refreshFileList()
 
     auto entries = m_engine->ListContents();
     m_model->setEntries(entries);
+
+    bool hasPacked = false, hasCRC = false, hasPerms = false, hasComment = false;
+    for (const auto& e : entries)
+    {
+        if (e.isDirectory) continue;
+        if (e.packedSize > 0 && e.packedSize != e.size) hasPacked = true;
+        if (e.crc != 0) hasCRC = true;
+        if (e.permissions != 0) hasPerms = true;
+        if (!e.comment.empty()) hasComment = true;
+    }
+    m_treeView->setColumnHidden(FileListModel::ColPacked, !hasPacked);
+    m_treeView->setColumnHidden(FileListModel::ColCRC, !hasCRC);
+    m_treeView->setColumnHidden(FileListModel::ColPermissions, !hasPerms);
+    m_treeView->setColumnHidden(FileListModel::ColComment, !hasComment);
 
     statusBar()->showMessage(
         tr("%1 files").arg(entries.size()));

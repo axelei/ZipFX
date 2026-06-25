@@ -398,7 +398,6 @@ bool MpqEngine::RenameEntry(std::string_view entryName, std::string_view newName
 bool MpqEngine::Save()
 {
     if (!m_handle || !m_modified) return true;
-    m_saveCancelled = false;
 
     auto* hMpq = static_cast<HANDLE>(m_handle);
 

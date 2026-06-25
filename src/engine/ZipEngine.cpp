@@ -353,7 +353,6 @@ bool ZipEngine::RenameEntry(std::string_view entryName, std::string_view newName
 bool ZipEngine::Save()
 {
     if (!m_zip || !m_modified) return true;
-    m_saveCancelled = false;
 
     // Compute total bytes for progress reporting
     uint64_t totalBytes = 0;

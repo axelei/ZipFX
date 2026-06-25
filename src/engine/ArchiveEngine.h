@@ -35,6 +35,7 @@ public:
         std::function<bool()> cancelFlag = nullptr) = 0;
 
     void cancelSave() { m_saveCancelled = true; }
+    void resetSaveCancel() { m_saveCancelled = false; }
     bool isSaveCancelled() const { return m_saveCancelled; }
     virtual void cancelExtract() {} // engines may override to abort extraction
 
