@@ -14,9 +14,16 @@
 #include <QStringList>
 #include <QTranslator>
 
+class QSplitter;
+class QStackedWidget;
+class QGraphicsView;
+class QGraphicsScene;
+class QTextEdit;
+
 #include "ProgressInfo.h"
 
 #include <memory>
+#include <set>
 
 class ArchiveEngine;
 struct ArchiveEntry;
@@ -82,7 +89,15 @@ private:
     void setupUI();
     void refreshFileList();
     void updateStatusBar();
+    void updatePreview();
     void onOpenEntry(bool pickApp);
+    void onConvertArchive();
+    void onRepairArchive();
+    void onBatchOps();
+    void onPasswordManager();
+    void onFindFiles();
+    void savePassword(const QString& archive, const QString& password);
+    QString loadPassword(const QString& archive);
 #ifdef _WIN32
     void registerFileAssociations();
 #endif
@@ -102,17 +117,27 @@ private:
     std::string m_archivePassword;
     QStringList m_excludePatterns;
     bool m_keepBrokenFiles = false;
+    std::set<int> m_userManagedCols;
 
     // UI
-    QWidget*      m_centralWidget = nullptr;
-    QVBoxLayout*  m_mainLayout = nullptr;
-    ArchiveTreeView* m_treeView = nullptr;
-    FileListModel*    m_model = nullptr;
-    QComboBox*    m_addrBox = nullptr;
-    QPushButton*  m_upBtn = nullptr;
-    QToolBar*     m_toolbar = nullptr;
-    QLineEdit*    m_searchBox = nullptr;
-    ZipFXIcons*   m_icons = nullptr;
+    QWidget*         m_centralWidget  = nullptr;
+    QVBoxLayout*     m_mainLayout     = nullptr;
+    QSplitter*       m_splitter       = nullptr;
+    ArchiveTreeView* m_treeView       = nullptr;
+    FileListModel*   m_model          = nullptr;
+    QComboBox*       m_addrBox        = nullptr;
+    QPushButton*     m_upBtn          = nullptr;
+    QToolBar*        m_toolbar        = nullptr;
+    QLineEdit*       m_searchBox      = nullptr;
+    ZipFXIcons*      m_icons          = nullptr;
+
+    // Preview pane
+    QWidget*         m_previewPanel   = nullptr;
+    QLabel*          m_previewInfo    = nullptr;
+    QStackedWidget*  m_previewStack   = nullptr;
+    QTextEdit*       m_previewText    = nullptr;
+    QGraphicsView*   m_previewImage   = nullptr;
+    QGraphicsScene*  m_previewScene   = nullptr;
 
     // Translation
     QTranslator* m_currentTranslator = nullptr;

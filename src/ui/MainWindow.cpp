@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
+#include "FindFilesDialog.h"
 #include "icons.h"
 
 #ifdef _WIN32
@@ -30,9 +31,17 @@
 #include <QTimer>
 #include <QClipboard>
 #include <QDesktopServices>
+#include <QDirIterator>
 #include <QFile>
 #include <QFormLayout>
+#include <QGroupBox>
 #include <QProcess>
+#include <QSplitter>
+#include <QStackedWidget>
+#include <QTableWidget>
+#include <QTreeWidget>
+#include <QHeaderView>
+#include <QDateEdit>
 
 #include <atomic>
 #include <thread>
@@ -208,9 +217,16 @@ void MainWindow::setupMenus()
         QString pwd = QInputDialog::getText(this, tr("Set Password"),
             tr("Archive password:"), QLineEdit::Password,
             QString::fromStdString(m_archivePassword), &ok);
-        if (ok) {
-            m_archivePassword = pwd.toStdString();
-            m_engine->setPassword(m_archivePassword);
+        if (!ok) return;
+        m_archivePassword = pwd.toStdString();
+        m_engine->setPassword(m_archivePassword);
+        if (!pwd.isEmpty() && !m_currentPath.empty())
+        {
+            auto ans = QMessageBox::question(this, tr("Save Password"),
+                tr("Remember this password for this archive?"),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (ans == QMessageBox::Yes)
+                savePassword(QFileInfo(QString::fromStdString(m_currentPath)).fileName(), pwd);
         }
     });
     cmdMenu->addAction(tr("E&xclude Patterns..."), this, [this]() {
@@ -232,6 +248,13 @@ void MainWindow::setupMenus()
 
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
     cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
+    cmdMenu->addSeparator();
+    cmdMenu->addAction(tr("Find Fi&les...\tCtrl+F"), this, &MainWindow::onFindFiles);
+    cmdMenu->addAction(tr("Con&vert Archive..."),    this, &MainWindow::onConvertArchive);
+    cmdMenu->addAction(tr("Re&pair Archive..."),     this, &MainWindow::onRepairArchive);
+    cmdMenu->addAction(tr("Batch &Operations..."),   this, &MainWindow::onBatchOps);
+    cmdMenu->addSeparator();
+    cmdMenu->addAction(tr("Password &Manager..."),   this, &MainWindow::onPasswordManager);
 
     // Options
     auto optsMenu = menuBar()->addMenu(tr("&Options"));
@@ -240,6 +263,16 @@ void MainWindow::setupMenus()
     connect(flatAction, &QAction::toggled, this, [this](bool checked) {
         m_model->setFlatMode(checked);
         m_upBtn->setVisible(checked);
+    });
+
+    QAction* previewAct = optsMenu->addAction(tr("Show &Preview Pane"));
+    previewAct->setCheckable(true);
+    previewAct->setChecked(false);
+    connect(previewAct, &QAction::toggled, this, [this](bool checked) {
+        if (m_previewPanel) {
+            m_previewPanel->setVisible(checked);
+            if (checked) updatePreview();
+        }
     });
 
     {
@@ -430,8 +463,69 @@ void MainWindow::setupUI()
     });
     connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
         this, &MainWindow::updateStatusBar);
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+        this, &MainWindow::updatePreview);
 
-    m_mainLayout->addWidget(m_treeView, 1);
+    // Column visibility toggle — right-click header
+    m_treeView->header()->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_treeView->header(), &QHeaderView::customContextMenuRequested,
+        this, [this](const QPoint& pos) {
+            QMenu menu(this);
+            for (int col = 1; col < FileListModel::ColCount; ++col)
+            {
+                QString name = m_model->headerData(col, Qt::Horizontal, Qt::DisplayRole).toString();
+                if (name.isEmpty()) continue;
+                QAction* act = menu.addAction(name);
+                act->setCheckable(true);
+                act->setChecked(!m_treeView->isColumnHidden(col));
+                connect(act, &QAction::toggled, this, [this, col](bool shown) {
+                    m_userManagedCols.insert(col);
+                    m_treeView->setColumnHidden(col, !shown);
+                });
+            }
+            menu.exec(m_treeView->header()->mapToGlobal(pos));
+        });
+
+    // ── Preview pane ────────────────────────────────────────────────────
+    m_previewPanel = new QWidget(this);
+    m_previewPanel->setMinimumWidth(180);
+    auto* previewLay = new QVBoxLayout(m_previewPanel);
+    previewLay->setContentsMargins(4, 0, 0, 0);
+    previewLay->setSpacing(4);
+
+    m_previewInfo = new QLabel(tr("No selection"), m_previewPanel);
+    m_previewInfo->setAlignment(Qt::AlignLeft | Qt::AlignTop);
+    m_previewInfo->setWordWrap(true);
+    previewLay->addWidget(m_previewInfo);
+
+    m_previewStack = new QStackedWidget(m_previewPanel);
+
+    auto* placeholderPage = new QLabel(tr("Select a file to preview"), m_previewStack);
+    placeholderPage->setAlignment(Qt::AlignCenter);
+    m_previewStack->addWidget(placeholderPage);   // index 0
+
+    m_previewText = new QTextEdit(m_previewStack);
+    m_previewText->setReadOnly(true);
+    m_previewText->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    m_previewStack->addWidget(m_previewText);     // index 1
+
+    m_previewScene = new QGraphicsScene(m_previewPanel);
+    m_previewImage = new QGraphicsView(m_previewScene, m_previewStack);
+    m_previewImage->setDragMode(QGraphicsView::ScrollHandDrag);
+    m_previewImage->setFrameShape(QFrame::NoFrame);
+    m_previewStack->addWidget(m_previewImage);    // index 2
+
+    previewLay->addWidget(m_previewStack, 1);
+    m_previewPanel->hide();
+
+    // ── Splitter ────────────────────────────────────────────────────────
+    m_splitter = new QSplitter(Qt::Horizontal, this);
+    m_splitter->addWidget(m_treeView);
+    m_splitter->addWidget(m_previewPanel);
+    m_splitter->setStretchFactor(0, 3);
+    m_splitter->setStretchFactor(1, 1);
+
+    m_mainLayout->addWidget(m_splitter, 1);
 
     setCentralWidget(m_centralWidget);
 }
@@ -983,6 +1077,13 @@ bool MainWindow::openArchive(const QString& path)
     }
 
     m_engine = std::move(engine);
+    // Auto-load saved password if not already set by the user this session
+    if (m_archivePassword.empty())
+    {
+        QString saved = loadPassword(QFileInfo(QString::fromStdString(firstVolPath)).fileName());
+        if (!saved.isEmpty())
+            m_archivePassword = saved.toStdString();
+    }
     if (!m_archivePassword.empty())
         m_engine->setPassword(m_archivePassword);
     m_currentPath = firstVolPath;
@@ -2138,14 +2239,663 @@ void MainWindow::refreshFileList()
         if (e.permissions != 0) hasPerms = true;
         if (!e.comment.empty()) hasComment = true;
     }
-    m_treeView->setColumnHidden(FileListModel::ColPacked, !hasPacked);
-    m_treeView->setColumnHidden(FileListModel::ColCRC, !hasCRC);
-    m_treeView->setColumnHidden(FileListModel::ColPermissions, !hasPerms);
-    m_treeView->setColumnHidden(FileListModel::ColComment, !hasComment);
+    auto autoHide = [&](int col, bool hasData) {
+        if (m_userManagedCols.count(col) == 0)
+            m_treeView->setColumnHidden(col, !hasData);
+    };
+    autoHide(FileListModel::ColPacked,      hasPacked);
+    autoHide(FileListModel::ColCRC,         hasCRC);
+    autoHide(FileListModel::ColPermissions, hasPerms);
+    autoHide(FileListModel::ColComment,     hasComment);
 
     updateStatusBar();
     setWindowTitle(tr("ZipFX — %1").arg(
         QString::fromStdString(m_currentPath)));
+}
+
+// ── Password manager helpers ───────────────────────────────────────────
+void MainWindow::savePassword(const QString& archive, const QString& password)
+{
+    QSettings s;
+    QStringList archives, passwords;
+    int count = s.beginReadArray("passwordManager/passwords");
+    for (int i = 0; i < count; ++i)
+    {
+        s.setArrayIndex(i);
+        QString a = s.value("archive").toString();
+        if (a == archive) continue;
+        archives << a;
+        passwords << s.value("password").toString();
+    }
+    s.endArray();
+    if (!password.isEmpty()) { archives << archive; passwords << password; }
+    s.remove("passwordManager/passwords");
+    s.beginWriteArray("passwordManager/passwords");
+    for (int i = 0; i < archives.size(); ++i)
+    {
+        s.setArrayIndex(i);
+        s.setValue("archive", archives[i]);
+        s.setValue("password", passwords[i]);
+    }
+    s.endArray();
+}
+
+QString MainWindow::loadPassword(const QString& archive)
+{
+    QSettings s;
+    int count = s.beginReadArray("passwordManager/passwords");
+    QString found;
+    for (int i = 0; i < count; ++i)
+    {
+        s.setArrayIndex(i);
+        if (s.value("archive").toString() == archive)
+        {
+            found = s.value("password").toString();
+            break;
+        }
+    }
+    s.endArray();
+    return found;
+}
+
+// ── Feature 14: preview pane ───────────────────────────────────────────
+void MainWindow::updatePreview()
+{
+    if (!m_previewPanel || !m_previewPanel->isVisible() || !m_engine)
+    {
+        if (m_previewStack) m_previewStack->setCurrentIndex(0);
+        return;
+    }
+
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.size() != 1)
+    {
+        m_previewInfo->setText(tr("No selection"));
+        m_previewStack->setCurrentIndex(0);
+        return;
+    }
+
+    auto paths = m_model->selectedEntryPaths({sel[0]});
+    if (paths.isEmpty()) return;
+
+    const QString entryPath = paths[0];
+    const QString ext = QFileInfo(entryPath).suffix().toLower();
+    const std::string entryStd = entryPath.toStdString();
+
+    uint64_t entrySize = 0;
+    bool isDir = false;
+    for (const auto& e : m_engine->ListContents())
+    {
+        if (e.name == entryStd || e.path == entryStd)
+        {
+            entrySize = e.size;
+            isDir = e.isDirectory;
+            break;
+        }
+    }
+
+    if (isDir)
+    {
+        m_previewInfo->setText(tr("Folder: %1").arg(QFileInfo(entryPath).fileName()));
+        m_previewStack->setCurrentIndex(0);
+        return;
+    }
+
+    m_previewInfo->setText(tr("%1\n%2 bytes")
+        .arg(QFileInfo(entryPath).fileName()).arg(entrySize));
+
+    if (entrySize == 0 || !m_engine->SupportsViewFile())
+    {
+        m_previewStack->setCurrentIndex(0);
+        return;
+    }
+
+    static const QStringList imgExts = {
+        "png","jpg","jpeg","gif","bmp","svg","webp","ico","tiff","tif"};
+    static constexpr size_t kPreviewLimit = 65536;
+
+    if (imgExts.contains(ext))
+    {
+        auto data = m_engine->ReadFile(entryStd);
+        if (!data.empty())
+        {
+            QPixmap pix;
+            if (pix.loadFromData(data.data(), static_cast<uint32_t>(data.size())))
+            {
+                m_previewScene->clear();
+                auto* pi = m_previewScene->addPixmap(pix);
+                m_previewImage->fitInView(pi->sceneBoundingRect(), Qt::KeepAspectRatio);
+                m_previewStack->setCurrentIndex(2);
+                return;
+            }
+        }
+    }
+
+    auto data = m_engine->ReadFilePartial(entryStd, kPreviewLimit);
+    if (data.empty())
+    {
+        m_previewStack->setCurrentIndex(0);
+        return;
+    }
+
+    // Detect text vs binary
+    bool isText = true;
+    for (size_t i = 0; i < data.size() && i < 512; ++i)
+        if (data[i] == 0 || (data[i] < 9 && data[i] != 0x0A && data[i] != 0x0D))
+            { isText = false; break; }
+
+    if (isText)
+    {
+        m_previewText->setPlainText(QString::fromUtf8(
+            reinterpret_cast<const char*>(data.data()), static_cast<int>(data.size())));
+    }
+    else
+    {
+        QString hex;
+        size_t maxHex = std::min(data.size(), size_t(256));
+        for (size_t i = 0; i < maxHex; i += 16)
+        {
+            hex += QString("%1  ").arg(i, 6, 16, QChar('0'));
+            for (size_t j = 0; j < 16; ++j)
+            {
+                if (i + j < maxHex) hex += QString("%1 ").arg(data[i+j], 2, 16, QChar('0'));
+                else hex += "   ";
+                if (j == 7) hex += " ";
+            }
+            hex += " ";
+            for (size_t j = 0; j < 16 && i + j < maxHex; ++j)
+            {
+                char c = static_cast<char>(data[i+j]);
+                hex += (c >= 32 && c < 127) ? c : '.';
+            }
+            hex += "\n";
+        }
+        m_previewText->setPlainText(hex);
+    }
+    m_previewStack->setCurrentIndex(1);
+}
+
+// ── Feature 11: Find Files dialog ─────────────────────────────────────
+void MainWindow::onFindFiles()
+{
+    if (!m_engine || !m_engine->IsOpen())
+    {
+        QMessageBox::information(this, tr("Find"), tr("No archive open."));
+        return;
+    }
+
+    auto entries = m_engine->ListContents(); // copy so dialog outlives engine changes
+    FindFilesDialog dlg(entries, this);
+
+    connect(&dlg, &FindFilesDialog::entryActivated, this, [this](const QString& path) {
+        // Switch to flat mode and filter by filename so the entry is visible
+        m_model->setFlatMode(true);
+        QString fname = QFileInfo(path).fileName();
+        m_searchBox->setVisible(true);
+        m_searchBox->setText(fname);
+        m_model->setFilterString(fname);
+    });
+
+    dlg.exec();
+}
+
+// ── Feature 12: Archive conversion ────────────────────────────────────
+void MainWindow::onConvertArchive()
+{
+    if (!m_engine || !m_engine->IsOpen())
+    {
+        QMessageBox::information(this, tr("Convert"), tr("No archive open."));
+        return;
+    }
+
+    // Format picker dialog
+    QDialog pickDlg(this);
+    pickDlg.setWindowTitle(tr("Convert Archive"));
+    auto* lay = new QVBoxLayout(&pickDlg);
+    auto* form = new QFormLayout();
+
+    auto* fmtCombo = new QComboBox(&pickDlg);
+    const QStringList fmtNames = {"ZIP", "7-Zip (7z)", "TAR.GZ", "TAR.BZ2", "TAR.XZ"};
+    const QStringList fmtKeys  = {"zip", "7z", "tar.gz", "tar.bz2", "tar.xz"};
+    for (int i = 0; i < fmtNames.size(); ++i) fmtCombo->addItem(fmtNames[i], fmtKeys[i]);
+    form->addRow(tr("Target format:"), fmtCombo);
+
+    QFileInfo srcFi(QString::fromStdString(m_currentPath));
+    QString srcBase = srcFi.completeBaseName();
+    while (srcBase.contains('.')) srcBase = QFileInfo(srcBase).completeBaseName();
+
+    auto* pathEdit = new QLineEdit(srcFi.dir().filePath(srcBase + "_converted.zip"), &pickDlg);
+    auto* browseBtn = new QPushButton(tr("Browse..."), &pickDlg);
+    auto* pathRow = new QHBoxLayout();
+    pathRow->addWidget(pathEdit, 1);
+    pathRow->addWidget(browseBtn);
+    form->addRow(tr("Output path:"), pathRow);
+    lay->addLayout(form);
+
+    connect(fmtCombo, QOverload<int>::of(&QComboBox::currentIndexChanged), &pickDlg,
+        [&](int idx) {
+            QString ext = fmtKeys[idx];
+            pathEdit->setText(srcFi.dir().filePath(srcBase + "." + ext));
+        });
+    connect(browseBtn, &QPushButton::clicked, &pickDlg, [&]() {
+        QString p = QFileDialog::getSaveFileName(&pickDlg, tr("Save Converted Archive"),
+                                                 pathEdit->text());
+        if (!p.isEmpty()) pathEdit->setText(p);
+    });
+
+    auto* btnRow = new QHBoxLayout();
+    auto* okBtn     = new QPushButton(tr("Convert"), &pickDlg);
+    auto* cancelBtn = new QPushButton(tr("Cancel"),  &pickDlg);
+    okBtn->setDefault(true);
+    connect(okBtn,     &QPushButton::clicked, &pickDlg, &QDialog::accept);
+    connect(cancelBtn, &QPushButton::clicked, &pickDlg, &QDialog::reject);
+    btnRow->addStretch(); btnRow->addWidget(okBtn); btnRow->addWidget(cancelBtn);
+    lay->addLayout(btnRow);
+
+    if (pickDlg.exec() != QDialog::Accepted) return;
+
+    const QString outPath = pathEdit->text().trimmed();
+    const QString fmt     = fmtCombo->currentData().toString();
+    if (outPath.isEmpty()) return;
+
+    auto targetEngine = ArchiveEngineFactory::CreateForFormat(fmt.toStdString());
+    if (!targetEngine || !targetEngine->SupportsCreation())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Target format not supported for writing."));
+        return;
+    }
+
+    QTemporaryDir tempDir;
+    if (!tempDir.isValid())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Could not create temporary directory."));
+        return;
+    }
+
+    auto entries = m_engine->ListContents();
+    QProgressDialog prog(tr("Extracting..."), tr("Cancel"), 0,
+                         static_cast<int>(entries.size()), this);
+    prog.setWindowModality(Qt::ApplicationModal);
+    prog.show();
+
+    for (int i = 0; i < static_cast<int>(entries.size()); ++i)
+    {
+        if (prog.wasCanceled()) return;
+        prog.setValue(i);
+        const auto& e = entries[i];
+        if (e.isDirectory) continue;
+        prog.setLabelText(QString::fromUtf8(e.name.c_str()));
+        QApplication::processEvents();
+        QString dest = tempDir.path() + "/" + QString::fromUtf8(e.path.c_str());
+        QDir().mkpath(QFileInfo(dest).path());
+        m_engine->Extract(e.path, dest.toStdString());
+    }
+
+    prog.setLabelText(tr("Creating archive..."));
+    prog.setRange(0, 0);
+    QApplication::processEvents();
+
+    if (!targetEngine->Create(outPath.toStdString()))
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Could not create target archive."));
+        return;
+    }
+
+    QDir tempQDir(tempDir.path());
+    QDirIterator it(tempDir.path(), QDir::Files, QDirIterator::Subdirectories);
+    while (it.hasNext())
+    {
+        it.next();
+        if (prog.wasCanceled()) return;
+        prog.setLabelText(it.fileName());
+        QApplication::processEvents();
+        QString rel = tempQDir.relativeFilePath(it.filePath());
+        targetEngine->AddFile(it.filePath().toStdString(), rel.toStdString());
+    }
+
+    prog.setLabelText(tr("Saving..."));
+    QApplication::processEvents();
+
+    if (!targetEngine->Save())
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Failed to save converted archive."));
+        return;
+    }
+
+    prog.close();
+    QMessageBox::information(this, tr("Convert"),
+        tr("Converted successfully:\n%1").arg(outPath));
+}
+
+// ── Feature 15: Archive repair ────────────────────────────────────────
+void MainWindow::onRepairArchive()
+{
+    if (!m_engine || !m_engine->IsOpen())
+    {
+        QMessageBox::information(this, tr("Repair"), tr("No archive open."));
+        return;
+    }
+
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Repair Archive"));
+    dlg.setMinimumSize(520, 340);
+    auto* lay = new QVBoxLayout(&dlg);
+    lay->addWidget(new QLabel(
+        tr("Attempts to recover readable files from a corrupted archive."), &dlg));
+
+    auto* log = new QTextEdit(&dlg);
+    log->setReadOnly(true);
+    log->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    lay->addWidget(log, 1);
+
+    auto* btnRow = new QHBoxLayout();
+    auto* repairBtn = new QPushButton(tr("Start Repair"), &dlg);
+    repairBtn->setDefault(true);
+    auto* closeBtn = new QPushButton(tr("Close"), &dlg);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    btnRow->addStretch(); btnRow->addWidget(repairBtn); btnRow->addWidget(closeBtn);
+    lay->addLayout(btnRow);
+
+    connect(repairBtn, &QPushButton::clicked, &dlg, [&]() {
+        repairBtn->setEnabled(false);
+        log->clear();
+
+        log->append(tr("Testing archive integrity..."));
+        QApplication::processEvents();
+
+        bool ok = m_engine->TestIntegrity(nullptr, nullptr);
+        if (ok)
+        {
+            log->append(tr("Integrity test PASSED — archive appears undamaged."));
+            repairBtn->setEnabled(true);
+            return;
+        }
+
+        log->append(tr("Errors detected. Extracting recoverable files..."));
+        QApplication::processEvents();
+
+        QTemporaryDir tempDir;
+        if (!tempDir.isValid())
+        {
+            log->append(tr("ERROR: Cannot create temporary directory."));
+            repairBtn->setEnabled(true);
+            return;
+        }
+
+        auto entries = m_engine->ListContents();
+        int recovered = 0, failed = 0;
+        for (const auto& e : entries)
+        {
+            if (e.isDirectory) continue;
+            QString dest = tempDir.path() + "/" + QString::fromUtf8(e.path.c_str());
+            QDir().mkpath(QFileInfo(dest).path());
+            if (m_engine->Extract(e.path, dest.toStdString()))
+                recovered++;
+            else
+            {
+                log->append(tr("  FAILED: %1").arg(QString::fromUtf8(e.path.c_str())));
+                failed++;
+            }
+            QApplication::processEvents();
+        }
+
+        log->append(tr("Recovered %1 file(s), failed: %2.").arg(recovered).arg(failed));
+
+        if (recovered == 0)
+        {
+            log->append(tr("No files could be recovered."));
+            repairBtn->setEnabled(true);
+            return;
+        }
+
+        QString savePath = QFileDialog::getSaveFileName(
+            &dlg, tr("Save Recovered Files"),
+            QFileInfo(QString::fromStdString(m_currentPath)).dir()
+                .filePath(QFileInfo(QString::fromStdString(m_currentPath)).completeBaseName()
+                          + "_recovered.zip"));
+
+        if (!savePath.isEmpty())
+        {
+            auto eng = ArchiveEngineFactory::CreateForFormat("zip");
+            if (eng && eng->SupportsCreation() && eng->Create(savePath.toStdString()))
+            {
+                QDir tmp(tempDir.path());
+                QDirIterator it(tempDir.path(), QDir::Files, QDirIterator::Subdirectories);
+                while (it.hasNext())
+                {
+                    it.next();
+                    eng->AddFile(it.filePath().toStdString(),
+                                 tmp.relativeFilePath(it.filePath()).toStdString());
+                }
+                if (eng->Save())
+                    log->append(tr("Saved: %1").arg(savePath));
+                else
+                    log->append(tr("ERROR: Failed to write recovered archive."));
+            }
+        }
+
+        repairBtn->setEnabled(true);
+    });
+
+    dlg.exec();
+}
+
+// ── Feature 16: Batch operations ──────────────────────────────────────
+void MainWindow::onBatchOps()
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Batch Operations"));
+    dlg.setMinimumSize(560, 420);
+    auto* lay = new QVBoxLayout(&dlg);
+
+    auto* form = new QFormLayout();
+
+    auto* srcEdit = new QLineEdit(&dlg);
+    auto* srcBtn  = new QPushButton(tr("Browse..."), &dlg);
+    auto* srcRow  = new QHBoxLayout();
+    srcRow->addWidget(srcEdit, 1); srcRow->addWidget(srcBtn);
+    form->addRow(tr("Source folder:"), srcRow);
+    connect(srcBtn, &QPushButton::clicked, &dlg, [&]() {
+        QString d = QFileDialog::getExistingDirectory(&dlg, tr("Select Source Folder"));
+        if (!d.isEmpty()) srcEdit->setText(d);
+    });
+
+    auto* recurseCheck = new QCheckBox(tr("Include subfolders"), &dlg);
+    recurseCheck->setChecked(true);
+    form->addRow(recurseCheck);
+
+    auto* opCombo = new QComboBox(&dlg);
+    opCombo->addItem(tr("Test integrity of all archives"),  "test");
+    opCombo->addItem(tr("Extract all archives"),            "extract");
+    form->addRow(tr("Operation:"), opCombo);
+
+    auto* outEdit = new QLineEdit(&dlg);
+    auto* outBtn  = new QPushButton(tr("Browse..."), &dlg);
+    auto* outRow  = new QHBoxLayout();
+    outRow->addWidget(outEdit, 1); outRow->addWidget(outBtn);
+    auto* outLabel = new QLabel(tr("Output folder:"), &dlg);
+    form->addRow(outLabel, outRow);
+    connect(outBtn, &QPushButton::clicked, &dlg, [&]() {
+        QString d = QFileDialog::getExistingDirectory(&dlg, tr("Select Output Folder"));
+        if (!d.isEmpty()) outEdit->setText(d);
+    });
+
+    auto setOutVisible = [&]() {
+        bool ex = (opCombo->currentData() == "extract");
+        outLabel->setVisible(ex); outEdit->setVisible(ex); outBtn->setVisible(ex);
+    };
+    setOutVisible();
+    connect(opCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
+            &dlg, [&]() { setOutVisible(); });
+
+    lay->addLayout(form);
+
+    auto* log = new QTextEdit(&dlg);
+    log->setReadOnly(true);
+    lay->addWidget(log, 1);
+
+    auto* btnRow = new QHBoxLayout();
+    auto* startBtn  = new QPushButton(tr("Start"), &dlg);
+    auto* closeBtn  = new QPushButton(tr("Close"), &dlg);
+    startBtn->setDefault(true);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::reject);
+    btnRow->addStretch(); btnRow->addWidget(startBtn); btnRow->addWidget(closeBtn);
+    lay->addLayout(btnRow);
+
+    connect(startBtn, &QPushButton::clicked, &dlg, [&]() {
+        const QString srcFolder = srcEdit->text().trimmed();
+        if (srcFolder.isEmpty() || !QDir(srcFolder).exists())
+        {
+            QMessageBox::warning(&dlg, tr("Error"), tr("Please select a valid source folder."));
+            return;
+        }
+        const QString op        = opCombo->currentData().toString();
+        const QString outFolder = outEdit->text().trimmed();
+        if (op == "extract" && outFolder.isEmpty())
+        {
+            QMessageBox::warning(&dlg, tr("Error"), tr("Please select an output folder."));
+            return;
+        }
+
+        startBtn->setEnabled(false);
+        log->clear();
+
+        QDirIterator::IteratorFlags flags = recurseCheck->isChecked()
+            ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags;
+
+        // Discover archive files
+        QStringList archivePaths;
+        QDirIterator it(srcFolder, QDir::Files, flags);
+        while (it.hasNext())
+        {
+            it.next();
+            auto eng = ArchiveEngineFactory::CreateForFile(it.filePath().toStdString());
+            if (eng) archivePaths << it.filePath();
+        }
+
+        log->append(tr("Found %1 archive(s).").arg(archivePaths.size()));
+        QApplication::processEvents();
+
+        int ok = 0, fail = 0;
+        for (const auto& ap : archivePaths)
+        {
+            QApplication::processEvents();
+            log->append(QString("\n[%1]").arg(ap));
+
+            auto eng = ArchiveEngineFactory::CreateForFile(ap.toStdString());
+            if (!eng || !eng->Open(ap.toStdString()))
+            {
+                log->append(tr("  ERROR: could not open."));
+                fail++;
+                continue;
+            }
+
+            if (op == "test")
+            {
+                bool res = eng->TestIntegrity(nullptr, nullptr);
+                if (res) { log->append(tr("  OK: integrity check passed.")); ok++; }
+                else     { log->append(tr("  FAILED: integrity check failed.")); fail++; }
+            }
+            else
+            {
+                QFileInfo fi(ap);
+                QString dest = outFolder + "/" + fi.completeBaseName();
+                QDir().mkpath(dest);
+                if (eng->ExtractAll(dest.toStdString()))
+                {
+                    log->append(tr("  OK: extracted to %1").arg(dest)); ok++;
+                }
+                else
+                {
+                    log->append(tr("  FAILED: extraction failed.")); fail++;
+                }
+            }
+            QApplication::processEvents();
+        }
+
+        log->append(tr("\nDone. %1 succeeded, %2 failed.").arg(ok).arg(fail));
+        startBtn->setEnabled(true);
+    });
+
+    dlg.exec();
+}
+
+// ── Feature 17: Password manager ──────────────────────────────────────
+void MainWindow::onPasswordManager()
+{
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Password Manager"));
+    dlg.setMinimumSize(520, 320);
+    auto* lay = new QVBoxLayout(&dlg);
+
+    lay->addWidget(new QLabel(
+        tr("Saved passwords are applied automatically when opening archives."), &dlg));
+
+    auto* table = new QTableWidget(&dlg);
+    table->setColumnCount(2);
+    table->setHorizontalHeaderLabels({tr("Archive filename"), tr("Password")});
+    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
+    table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
+    table->setSelectionBehavior(QAbstractItemView::SelectRows);
+    table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+    lay->addWidget(table, 1);
+
+    // Load existing passwords
+    QSettings s;
+    int count = s.beginReadArray("passwordManager/passwords");
+    for (int i = 0; i < count; ++i)
+    {
+        s.setArrayIndex(i);
+        int row = table->rowCount();
+        table->insertRow(row);
+        table->setItem(row, 0, new QTableWidgetItem(s.value("archive").toString()));
+        table->setItem(row, 1, new QTableWidgetItem(s.value("password").toString()));
+    }
+    s.endArray();
+
+    auto* btnRow = new QHBoxLayout();
+    auto* addBtn  = new QPushButton(tr("Add..."), &dlg);
+    auto* delBtn  = new QPushButton(tr("Delete Selected"), &dlg);
+    auto* saveBtn = new QPushButton(tr("Save && Close"), &dlg);
+    saveBtn->setDefault(true);
+
+    connect(addBtn, &QPushButton::clicked, &dlg, [&]() {
+        int row = table->rowCount();
+        table->insertRow(row);
+        table->setItem(row, 0, new QTableWidgetItem(tr("archive.zip")));
+        table->setItem(row, 1, new QTableWidgetItem(QString()));
+        table->editItem(table->item(row, 0));
+    });
+
+    connect(delBtn, &QPushButton::clicked, &dlg, [&]() {
+        QSet<int> toRemove;
+        for (auto* item : table->selectedItems()) toRemove.insert(item->row());
+        QList<int> rows(toRemove.begin(), toRemove.end());
+        std::sort(rows.rbegin(), rows.rend());
+        for (int r : rows) table->removeRow(r);
+    });
+
+    connect(saveBtn, &QPushButton::clicked, &dlg, [&]() {
+        QSettings s2;
+        s2.remove("passwordManager/passwords");
+        s2.beginWriteArray("passwordManager/passwords");
+        for (int row = 0; row < table->rowCount(); ++row)
+        {
+            s2.setArrayIndex(row);
+            s2.setValue("archive",  table->item(row, 0)->text());
+            s2.setValue("password", table->item(row, 1)->text());
+        }
+        s2.endArray();
+        dlg.accept();
+    });
+
+    btnRow->addWidget(addBtn);
+    btnRow->addWidget(delBtn);
+    btnRow->addStretch();
+    btnRow->addWidget(saveBtn);
+    lay->addLayout(btnRow);
+
+    dlg.exec();
 }
 
 // ── Windows: register file associations on first launch ────────────
