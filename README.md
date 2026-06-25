@@ -13,29 +13,54 @@ formats, Amiga Disk Files, and more.
 
 ## Features
 
-- **Create, extract, view, and test** archives across dozens of formats
+### Browsing & Navigation
 - **Hierarchical and flat file tree browsing** with column sorting
-- **Recursive folder add** from filesystem (drag & drop or dialog)
+- **Search/filter bar** (case-insensitive substring matching)
+- **Find Files dialog** (`Ctrl+F`) — search by name glob, size range, and date range; double-click navigates to the entry
+- **Column visibility toggle** — right-click the column header to show/hide any column; choices are persistent across refreshes
+- **Status bar** shows selection count and total size of selected files
+- **Recent files list** — address bar remembers last 10 opened archives
+- **Multi-volume VPK support** — reads from `_000.vpk`, `_001.vpk` volume files
+
+### Extraction & Creation
+- **Create, extract, view, and test** archives across dozens of formats
 - **In-place ZIP modification** (add/delete files without full rewrite)
+- **Recursive folder add** from filesystem (drag & drop or dialog)
+- **Extract Here** — extract to the same directory as the archive
+- **Extract without Paths** — strips directory structure on extraction
+- **Exclude patterns** — glob-based patterns to skip files when adding
+- **Keep Broken Files on Extraction** — configurable option to retain partial files
 - **Windows shell drag & drop** with full directory structure preservation
+- **Overwrite confirmation** with apply-to-all
+- **Archive conversion** — convert any supported format to another (ZIP, 7z, TAR.GZ, TAR.BZ2, TAR.XZ) via extract-and-repack
+- **Archive repair** — test integrity, extract what can be recovered, save as a new archive
+
+### Batch & Automation
+- **Batch operations** — test or extract all archives in a folder (recursive optional); live log per archive
 - **CLI mode** (`list`, `extract`, `create`, `test`, `info` subcommands)
+- **Extraction and save after-action** (sleep / hibernate / shutdown)
+
+### Viewing & Preview
+- **Preview pane** (toggle via Options menu) — shows text, hex dump, or image inline for the selected entry; reads only a 64 KB chunk for speed
+- **File preview in viewer** — open or open-with for entries directly from the archive
+- **Archive information panel** (path, format, file/folder counts, packed and unpacked sizes, compression ratio, compression method)
+- **POSIX permissions column** displayed as `rwxrwxrwx`
+- **Magic-number file type detection** — opens files regardless of extension
+
+### Security & Passwords
+- **Password manager** — save passwords per archive filename; auto-applied when opening; editable via Commands menu
+- **Set Password** — prompts to save the password for next time
+- **AES-256 encryption** for 7z archives (with optional header encryption)
+
+### UI & UX
+- **Select All / Invert Selection** (Edit menu, `Ctrl+A`)
+- **Right-click context menu** with Open, Open With, Copy Path, Rename, Delete, Properties
+- **File rename** (right-click context menu; in-place for ZIP)
 - **16 languages**: English, Spanish, French, German, Italian, Portuguese,
   Dutch, Swedish, Norwegian, Danish, Finnish, Russian, Japanese, Chinese,
   Korean, Arabic
-- **File preview**: text / hex dump / image viewer with resize-to-fit
-- **Archive information panel** (path, format, file/folder counts, packed
-  and unpacked sizes, compression ratio)
-- **Search/filter bar** (case-insensitive substring matching)
-- **Overwrite confirmation** with apply-to-all
-- **Magic-number file type detection** — opens files regardless of extension
 - **Progress dialogs with byte-rate ETA and cancel** for all operations
-- **Cancel actually aborts the save** (engines check a cancel flag at
-  safe abort points, worker thread keeps the UI responsive while waiting)
-- **Extraction and save after-action** (sleep / hibernate / shutdown)
-- **File rename** (right-click context menu; in-place for ZIP)
-- **POSIX permissions column** displayed as `rwxrwxrwx`
-- **Recent files list** — address bar remembers last 10 opened archives
-- **Multi-volume VPK support** — reads from `_000.vpk`, `_001.vpk` volume files
+- **Cancel actually aborts the save** (engines check a cancel flag at safe abort points; worker thread keeps the UI responsive)
 - **ADF creation** — create Amiga floppy images directly
 - **App icon** on all platforms (`.ico` Windows, `.icns` macOS, `.png` Linux)
 
