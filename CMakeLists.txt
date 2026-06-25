@@ -347,6 +347,7 @@ set(ZIPFX_SOURCES
     src/engine/ChdEngine.cpp
     src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp
+    src/recovery/RecoveryRecord.cpp
 )
 
 if(WIN32)
@@ -360,6 +361,7 @@ add_executable(ZipFX ${ZIPFX_SOURCES})
 target_include_directories(ZipFX PRIVATE
     src
     ${CMAKE_BINARY_DIR}/generated
+    ${zlib_SOURCE_DIR}
     ${libzip_SOURCE_DIR}/lib
     ${libzip_BINARY_DIR}/lib
     ${libarchive_SOURCE_DIR}/libarchive
@@ -425,6 +427,13 @@ if(WIN32)
     target_link_options(ZipFX PRIVATE "-Wl,--allow-multiple-definition")
     target_sources(ZipFX PRIVATE "${CMAKE_SOURCE_DIR}/src/resources/app.rc")
     set_target_properties(ZipFX PROPERTIES WIN32_EXECUTABLE TRUE)
+endif()
+
+# ====================================================================
+# Shell extension (Windows-only; pure Win32, no Qt)
+# ====================================================================
+if(WIN32)
+    add_subdirectory(shellext)
 endif()
 
 # ====================================================================

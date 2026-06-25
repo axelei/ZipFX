@@ -57,6 +57,7 @@ public:
     ~MainWindow() override;
 
     bool openArchive(const QString& path);
+    void shellAdd(const QStringList& files);
 
 protected:
     void dragEnterEvent(QDragEnterEvent* event) override;
@@ -98,6 +99,9 @@ private:
     void onFindFiles();
     void savePassword(const QString& archive, const QString& password);
     QString loadPassword(const QString& archive);
+    void onAddRecoveryRecord();
+    void onVerifyRecoveryRecord();
+    void installShellExtension(bool install);
 #ifdef _WIN32
     void registerFileAssociations();
 #endif

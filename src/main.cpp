@@ -12,6 +12,7 @@
 #include <QLocale>
 #include <QSettings>
 #include <QSharedMemory>
+#include <QTimer>
 
 #include "ui/MainWindow.h"
 
@@ -65,24 +66,35 @@ static bool tryActivateExistingInstance(const QString& fileToOpen)
 int main(int argc, char* argv[])
 {
     // Collect bare file arguments (not subcommands) for the GUI
-    QString fileToOpen;
-    bool isCli = false;
+    QString     fileToOpen;
+    QStringList shellAddFiles;
+    bool        isCli      = false;
+    bool        isShellAdd = false;
 
     if (argc > 1)
     {
-        for (int i = 1; i < argc; ++i)
+        if (std::string(argv[1]) == "--shell-add")
         {
-            std::string arg(argv[i]);
-            if (arg == "--cli" || arg == "list" || arg == "extract" ||
-                arg == "create" || arg == "test" || arg == "info" ||
-                arg == "--help" || arg == "-h")
+            isShellAdd = true;
+            for (int i = 2; i < argc; ++i)
+                shellAddFiles << QString::fromUtf8(argv[i]);
+        }
+        else
+        {
+            for (int i = 1; i < argc; ++i)
             {
-                isCli = true;
-                break;
+                std::string arg(argv[i]);
+                if (arg == "--cli" || arg == "list" || arg == "extract" ||
+                    arg == "create" || arg == "test" || arg == "info" ||
+                    arg == "--help" || arg == "-h")
+                {
+                    isCli = true;
+                    break;
+                }
+                // First non-subcommand argument is treated as a file path
+                if (fileToOpen.isEmpty() && arg[0] != '-')
+                    fileToOpen = QString::fromUtf8(argv[i]);
             }
-            // First non-subcommand argument is treated as a file path
-            if (fileToOpen.isEmpty() && arg[0] != '-')
-                fileToOpen = QString::fromUtf8(argv[i]);
         }
     }
 
@@ -97,8 +109,8 @@ int main(int argc, char* argv[])
         return runCli(newArgc, const_cast<char**>(newArgv));
     }
 
-    // Single-instance: if another instance is running, forward the file and exit
-    if (tryActivateExistingInstance(fileToOpen))
+    // Shell-add always opens a new instance (no single-instance redirect)
+    if (!isShellAdd && tryActivateExistingInstance(fileToOpen))
     {
         qDebug("Forwarded file to existing ZipFX instance, exiting");
         return 0;
@@ -141,6 +153,9 @@ int main(int argc, char* argv[])
 
     MainWindow w(fileToOpen);
     w.show();
+
+    if (isShellAdd && !shellAddFiles.isEmpty())
+        QTimer::singleShot(0, [&]() { w.shellAdd(shellAddFiles); });
 
     // Handle file paths forwarded from other instances
     QObject::connect(localServer, &QLocalServer::newConnection, [&]() {

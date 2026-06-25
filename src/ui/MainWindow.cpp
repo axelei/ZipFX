@@ -2,6 +2,7 @@
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
 #include "FindFilesDialog.h"
+#include "recovery/RecoveryRecord.h"
 #include "icons.h"
 
 #ifdef _WIN32
@@ -254,6 +255,9 @@ void MainWindow::setupMenus()
     cmdMenu->addAction(tr("Re&pair Archive..."),     this, &MainWindow::onRepairArchive);
     cmdMenu->addAction(tr("Batch &Operations..."),   this, &MainWindow::onBatchOps);
     cmdMenu->addSeparator();
+    cmdMenu->addAction(tr("Add &Recovery Record..."),    this, &MainWindow::onAddRecoveryRecord);
+    cmdMenu->addAction(tr("&Verify/Repair with Recovery Record..."), this, &MainWindow::onVerifyRecoveryRecord);
+    cmdMenu->addSeparator();
     cmdMenu->addAction(tr("Password &Manager..."),   this, &MainWindow::onPasswordManager);
 
     // Options
@@ -279,6 +283,15 @@ void MainWindow::setupMenus()
         QSettings s;
         m_keepBrokenFiles = s.value("options/keepBrokenFiles", false).toBool();
     }
+#ifdef _WIN32
+    optsMenu->addSeparator();
+    optsMenu->addAction(tr("Install Shell &Extension (Explorer right-click)"), this,
+        [this]() { installShellExtension(true); });
+    optsMenu->addAction(tr("&Uninstall Shell Extension"), this,
+        [this]() { installShellExtension(false); });
+    optsMenu->addSeparator();
+#endif
+
     QAction* keepBrokenAct = optsMenu->addAction(tr("&Keep Broken Files on Extraction"));
     keepBrokenAct->setCheckable(true);
     keepBrokenAct->setChecked(m_keepBrokenFiles);
@@ -2896,6 +2909,342 @@ void MainWindow::onPasswordManager()
     lay->addLayout(btnRow);
 
     dlg.exec();
+}
+
+// ── Shell-add (from shell extension) ──────────────────────────────────────
+void MainWindow::shellAdd(const QStringList& files)
+{
+    if (!m_engine || !m_engine->IsOpen())
+    {
+        // No archive open — show the Create Archive dialog first
+        auto* dlg = new CreateArchiveDialog(this);
+        if (dlg->exec() != QDialog::Accepted)
+        {
+            dlg->deleteLater();
+            return;
+        }
+        CreateArchiveResult res = dlg->result();
+        dlg->deleteLater();
+
+        auto eng = ArchiveEngineFactory::CreateForFormat(res.format.toStdString());
+        if (!eng || !eng->Create(res.path.toStdString()))
+        {
+            QMessageBox::warning(this, tr("Error"), tr("Could not create archive."));
+            return;
+        }
+        m_engine      = std::move(eng);
+        m_currentPath = res.path.toStdString();
+        addRecentFile(res.path);
+        setWindowTitle("ZipFX — " + res.path);
+    }
+
+    doAddPaths(files);
+}
+
+// ── Feature 21: Recovery record ────────────────────────────────────────────
+void MainWindow::onAddRecoveryRecord()
+{
+    if (m_currentPath.empty())
+    {
+        QMessageBox::information(this, tr("Recovery Record"), tr("No archive open."));
+        return;
+    }
+
+    const QString archivePath = QString::fromStdString(m_currentPath);
+
+    // For RAR archives, also offer rar.exe path
+    const QString ext = QFileInfo(archivePath).suffix().toLower();
+    const bool isRar  = (ext == "rar");
+
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Add Recovery Record"));
+    auto* lay  = new QVBoxLayout(&dlg);
+
+    lay->addWidget(new QLabel(
+        tr("Creates a .rec sidecar file containing XOR parity blocks.\n"
+           "The sidecar allows corrupted bytes to be reconstructed\n"
+           "if individual data blocks are damaged."), &dlg));
+
+    auto* form = new QFormLayout();
+
+    auto* recPctSpin = new QSpinBox(&dlg);
+    recPctSpin->setRange(1, 30);
+    recPctSpin->setValue(5);
+    recPctSpin->setSuffix(tr("% of data blocks"));
+    form->addRow(tr("Recovery size:"), recPctSpin);
+
+    auto* blockSzCombo = new QComboBox(&dlg);
+    blockSzCombo->addItem(tr("32 KB"),  32768);
+    blockSzCombo->addItem(tr("64 KB"),  65536);
+    blockSzCombo->addItem(tr("128 KB"), 131072);
+    blockSzCombo->setCurrentIndex(1);
+    form->addRow(tr("Block size:"), blockSzCombo);
+
+    lay->addLayout(form);
+
+    if (isRar)
+    {
+        lay->addWidget(new QLabel(
+            tr("RAR tip: rar.exe also supports native recovery records (rr N%)."), &dlg));
+
+        auto* rarBtn = new QPushButton(tr("Add via rar.exe (if installed)..."), &dlg);
+        lay->addWidget(rarBtn);
+        connect(rarBtn, &QPushButton::clicked, &dlg, [&]() {
+            QString rarExe;
+#ifdef _WIN32
+            // Look in standard WinRAR locations
+            for (const auto* p : {R"(C:\Program Files\WinRAR\Rar.exe)",
+                                   R"(C:\Program Files (x86)\WinRAR\Rar.exe)"})
+                if (QFileInfo::exists(QString::fromLatin1(p)))
+                    { rarExe = QString::fromLatin1(p); break; }
+#else
+            rarExe = "rar";
+#endif
+            if (rarExe.isEmpty())
+            {
+                QMessageBox::warning(&dlg, tr("rar.exe"),
+                    tr("rar.exe not found. Install WinRAR or use the sidecar method."));
+                return;
+            }
+            QProcess proc;
+            proc.start(rarExe, {"rr" + QString::number(recPctSpin->value()) + "%",
+                                 archivePath});
+            if (!proc.waitForFinished(60000))
+            {
+                QMessageBox::warning(&dlg, tr("rar.exe"), tr("rar.exe timed out."));
+                return;
+            }
+            QMessageBox::information(&dlg, tr("rar.exe"),
+                proc.exitCode() == 0
+                    ? tr("Native RAR recovery record added.")
+                    : tr("rar.exe returned error %1:\n%2")
+                        .arg(proc.exitCode())
+                        .arg(QString::fromLocal8Bit(proc.readAllStandardError())));
+        });
+    }
+
+    auto* log = new QTextEdit(&dlg);
+    log->setReadOnly(true);
+    log->setMaximumHeight(80);
+    lay->addWidget(log);
+
+    auto* btnRow = new QHBoxLayout();
+    auto* goBtn    = new QPushButton(tr("Create Sidecar (.rec)"), &dlg);
+    auto* closeBtn = new QPushButton(tr("Close"), &dlg);
+    goBtn->setDefault(true);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    btnRow->addStretch(); btnRow->addWidget(goBtn); btnRow->addWidget(closeBtn);
+    lay->addLayout(btnRow);
+
+    connect(goBtn, &QPushButton::clicked, &dlg, [&]() {
+        goBtn->setEnabled(false);
+        log->clear();
+
+        RecoveryRecord::Options opts;
+        opts.recoveryPercent = recPctSpin->value();
+        opts.blockSize       = static_cast<uint32_t>(
+            blockSzCombo->currentData().toInt());
+
+        QProgressDialog prog(tr("Creating recovery record..."), {}, 0, 100, this);
+        prog.setWindowModality(Qt::ApplicationModal);
+        prog.show();
+
+        QString err = RecoveryRecord::create(archivePath, opts, [&](int pct) {
+            prog.setValue(pct);
+            QApplication::processEvents();
+        });
+
+        prog.close();
+        if (err.isEmpty())
+        {
+            log->append(tr("Sidecar created: %1")
+                .arg(RecoveryRecord::sidecarPath(archivePath)));
+            log->append(tr("Recovery: %1% of data blocks (%2).")
+                .arg(opts.recoveryPercent)
+                .arg(blockSzCombo->currentText()));
+        }
+        else
+        {
+            log->append(tr("ERROR: %1").arg(err));
+        }
+        goBtn->setEnabled(true);
+    });
+
+    dlg.exec();
+}
+
+void MainWindow::onVerifyRecoveryRecord()
+{
+    if (m_currentPath.empty())
+    {
+        QMessageBox::information(this, tr("Recovery Record"), tr("No archive open."));
+        return;
+    }
+
+    const QString archivePath = QString::fromStdString(m_currentPath);
+
+    // For RAR, also offer rar.exe repair
+    const QString ext = QFileInfo(archivePath).suffix().toLower();
+    const bool isRar  = (ext == "rar");
+
+    if (!RecoveryRecord::hasSidecar(archivePath))
+    {
+        QString msg = tr("No sidecar (.rec) file found for this archive.");
+        if (isRar)
+        {
+            // Try rar.exe repair as fallback
+            auto ans = QMessageBox::question(this, tr("Recovery Record"),
+                msg + "\n\n" + tr("Try repairing with rar.exe (native RAR recovery record)?"),
+                QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
+            if (ans == QMessageBox::Yes)
+            {
+                QString rarExe;
+#ifdef _WIN32
+                for (const auto* p : {R"(C:\Program Files\WinRAR\Rar.exe)",
+                                       R"(C:\Program Files (x86)\WinRAR\Rar.exe)"})
+                    if (QFileInfo::exists(QString::fromLatin1(p)))
+                        { rarExe = QString::fromLatin1(p); break; }
+#else
+                rarExe = "rar";
+#endif
+                if (rarExe.isEmpty())
+                {
+                    QMessageBox::warning(this, tr("rar.exe"), tr("rar.exe not found."));
+                    return;
+                }
+                QProcess proc;
+                proc.start(rarExe, {"r", archivePath});
+                proc.waitForFinished(120000);
+                QMessageBox::information(this, tr("rar.exe"),
+                    proc.exitCode() == 0
+                        ? tr("RAR repair completed.")
+                        : tr("rar.exe returned error %1:\n%2")
+                            .arg(proc.exitCode())
+                            .arg(QString::fromLocal8Bit(proc.readAllStandardError())));
+            }
+            return;
+        }
+        QMessageBox::information(this, tr("Recovery Record"), msg);
+        return;
+    }
+
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Verify/Repair with Recovery Record"));
+    dlg.setMinimumSize(500, 320);
+    auto* lay = new QVBoxLayout(&dlg);
+
+    lay->addWidget(new QLabel(
+        tr("Checks the archive against its .rec sidecar file.\n"
+           "If corruption is detected and is within recovery capacity,\n"
+           "the archive will be repaired in-place."), &dlg));
+
+    auto* log = new QTextEdit(&dlg);
+    log->setReadOnly(true);
+    log->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
+    lay->addWidget(log, 1);
+
+    auto* btnRow    = new QHBoxLayout();
+    auto* verifyBtn = new QPushButton(tr("Verify Only"), &dlg);
+    auto* repairBtn = new QPushButton(tr("Verify && Repair"), &dlg);
+    auto* closeBtn  = new QPushButton(tr("Close"), &dlg);
+    verifyBtn->setDefault(true);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    btnRow->addWidget(verifyBtn); btnRow->addWidget(repairBtn);
+    btnRow->addStretch(); btnRow->addWidget(closeBtn);
+    lay->addLayout(btnRow);
+
+    auto doVerify = [&](bool repair) {
+        verifyBtn->setEnabled(false);
+        repairBtn->setEnabled(false);
+        log->clear();
+
+        QProgressDialog prog(tr("Verifying..."), {}, 0, 100, this);
+        prog.setWindowModality(Qt::ApplicationModal);
+        prog.show();
+
+        auto result = RecoveryRecord::verify(archivePath, repair, [&](int pct) {
+            prog.setValue(pct);
+            QApplication::processEvents();
+        });
+
+        prog.close();
+
+        log->append(tr("Total blocks : %1").arg(result.totalBlocks));
+        log->append(tr("Bad blocks   : %1").arg(result.badBlocks));
+
+        if (result.badBlocks == 0)
+        {
+            log->append(tr("\nArchive integrity: OK — no corruption detected."));
+        }
+        else if (repair)
+        {
+            log->append(tr("Repaired     : %1").arg(result.repairedBlocks));
+            log->append(tr("Unrepairable : %1").arg(result.badBlocks - result.repairedBlocks));
+            if (result.ok)
+                log->append(tr("\nAll corrupted blocks repaired successfully."));
+            else
+                log->append(tr("\nERROR: %1").arg(result.errorMessage));
+        }
+        else
+        {
+            log->append(tr("\nCorruption detected. Use 'Verify && Repair' to attempt repair."));
+        }
+
+        verifyBtn->setEnabled(true);
+        repairBtn->setEnabled(true);
+    };
+
+    connect(verifyBtn, &QPushButton::clicked, &dlg, [&]() { doVerify(false); });
+    connect(repairBtn, &QPushButton::clicked, &dlg, [&]() { doVerify(true); });
+
+    dlg.exec();
+}
+
+// ── Shell extension install / uninstall ────────────────────────────────────
+void MainWindow::installShellExtension(bool install)
+{
+#ifndef _WIN32
+    Q_UNUSED(install)
+    QMessageBox::information(this, tr("Shell Extension"),
+        tr("Shell extensions are only available on Windows."));
+    return;
+#else
+    // Look for the DLL next to the executable
+    const QString dllPath = QApplication::applicationDirPath() + "/ZipFXShellExt.dll";
+    if (!QFileInfo::exists(dllPath))
+    {
+        QMessageBox::warning(this, tr("Shell Extension"),
+            tr("ZipFXShellExt.dll not found in the application directory.\n"
+               "Please build the shell extension target first."));
+        return;
+    }
+
+    const QString verb = install ? "install" : "uninstall";
+
+    // Use regsvr32 which calls DllRegisterServer / DllUnregisterServer
+    QStringList args;
+    if (!install) args << "/u";
+    args << "/s" << QDir::toNativeSeparators(dllPath);
+
+    QProcess proc;
+    proc.start("regsvr32", args);
+    bool ok = proc.waitForFinished(10000);
+
+    if (!ok || proc.exitCode() != 0)
+    {
+        QMessageBox::warning(this, tr("Shell Extension"),
+            tr("regsvr32 failed (exit %1).\n"
+               "You may need to run ZipFX as administrator for this operation.")
+                .arg(proc.exitCode()));
+        return;
+    }
+
+    QMessageBox::information(this, tr("Shell Extension"),
+        install
+            ? tr("Shell extension installed. Right-click any file in Explorer to use it.\n"
+                 "You may need to restart Explorer (or sign out) for the menu to appear.")
+            : tr("Shell extension uninstalled."));
+#endif
 }
 
 // ── Windows: register file associations on first launch ────────────
