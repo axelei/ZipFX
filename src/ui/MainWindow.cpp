@@ -1693,7 +1693,7 @@ void MainWindow::onBeginDrag()
             buf.append(dn.constData(), dn.size() + 1);
         }
         startMacFilePromiseDrag((void*)winId(), m_engine.get(),
-                                buf.constData(), filePaths.size());
+                                buf.constData(), filePaths.size(), this);
     }
 #else
     // Extract to temp, then QDrag with file URLs
