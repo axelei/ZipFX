@@ -65,6 +65,8 @@ public:
     virtual void setCompressionLevel(int level) { m_compressionLevel = level; }
     virtual int compressionLevel() const { return m_compressionLevel; }
 
+    virtual void setPassword(std::string_view /*pwd*/) {}
+
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;
     virtual bool IsOpen() const = 0;

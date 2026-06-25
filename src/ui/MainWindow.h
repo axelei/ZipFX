@@ -11,6 +11,7 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QProgressDialog>
+#include <QStringList>
 #include <QTranslator>
 
 #include "ProgressInfo.h"
@@ -81,10 +82,11 @@ private:
     void setupUI();
     void refreshFileList();
     void updateStatusBar();
+    void onOpenEntry(bool pickApp);
 #ifdef _WIN32
     void registerFileAssociations();
 #endif
-    void doExtract(const QString& destPath, bool all);
+    void doExtract(const QString& destPath, bool all, bool stripPaths = false);
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
     bool saveWithProgress();
@@ -97,6 +99,9 @@ private:
 
     std::unique_ptr<ArchiveEngine> m_engine;
     std::string m_currentPath;
+    std::string m_archivePassword;
+    QStringList m_excludePatterns;
+    bool m_keepBrokenFiles = false;
 
     // UI
     QWidget*      m_centralWidget = nullptr;

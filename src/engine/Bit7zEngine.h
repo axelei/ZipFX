@@ -49,7 +49,7 @@ public:
     // Settings (call before Create/Save)
     std::string archiveComment() const override;
 
-    void setPassword(const std::string& pwd) { m_password = pwd; }
+    void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }
 

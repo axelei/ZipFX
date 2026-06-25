@@ -6,6 +6,7 @@
 #ifdef _WIN32
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 #include "ProgressInfo.h"
@@ -27,6 +28,11 @@
 
 #include <QThread>
 #include <QTimer>
+#include <QClipboard>
+#include <QDesktopServices>
+#include <QFile>
+#include <QFormLayout>
+#include <QProcess>
 
 #include <atomic>
 #include <thread>
@@ -62,6 +68,7 @@
 
 #include <filesystem>
 #include <algorithm>
+#include <set>
 namespace fs = std::filesystem;
 
 // Helper: re-fits a graphics view when the parent widget resizes
@@ -152,17 +159,70 @@ void MainWindow::setupMenus()
     fileMenu->addAction(tr("&Close Archive\tCtrl+C"), this, &MainWindow::onCloseArchive);
     fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xtract to...\tCtrl+E"), this, &MainWindow::onExtractAll);
+    fileMenu->addAction(tr("Extract &Here"), this, [this]() {
+        if (!m_engine) return;
+        QFileInfo fi(QString::fromStdString(m_currentPath));
+        QString archiveName = fi.completeBaseName();
+        if (archiveName.endsWith(".tar", Qt::CaseInsensitive))
+            archiveName = QFileInfo(archiveName).completeBaseName();
+        QString destPath = fi.dir().filePath(archiveName);
+        QDir().mkpath(destPath);
+        doExtract(destPath, true, false);
+    });
     fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xit\tAlt+F4"), this, &QMainWindow::close);
+
+    // Edit
+    auto editMenu = menuBar()->addMenu(tr("&Edit"));
+    editMenu->addAction(tr("Select &All\tCtrl+A"), this, [this]() {
+        if (m_treeView) m_treeView->selectAll();
+    });
+    editMenu->addAction(tr("&Invert Selection"), this, [this]() {
+        if (!m_model || !m_treeView) return;
+        auto* sel = m_treeView->selectionModel();
+        int rows = m_model->rowCount();
+        for (int row = 0; row < rows; ++row) {
+            QModelIndex idx = m_model->index(row, 0);
+            sel->select(idx, QItemSelectionModel::Toggle | QItemSelectionModel::Rows);
+        }
+    });
 
     // Commands
     auto cmdMenu = menuBar()->addMenu(tr("&Commands"));
     cmdMenu->addAction(tr("&Add Files...\tAlt+A"), this, &MainWindow::onAddFiles);
     cmdMenu->addAction(tr("Add Fol&der...\tAlt+D"), this, &MainWindow::onAddFolder);
     cmdMenu->addAction(tr("E&xtract...\tAlt+E"), this, &MainWindow::onExtractAll);
+    cmdMenu->addAction(tr("Extract without &Paths..."), this, [this]() {
+        if (!m_engine) return;
+        QString dest = QFileDialog::getExistingDirectory(this, tr("Extract without paths to"));
+        if (dest.isEmpty()) return;
+        doExtract(dest, true, true);
+    });
     cmdMenu->addAction(tr("&Test\tAlt+T"), this, &MainWindow::onTest);
     cmdMenu->addAction(tr("&View\tAlt+V"), this, &MainWindow::onView);
     cmdMenu->addAction(tr("&Delete\tDel"), this, &MainWindow::onDelete);
+    cmdMenu->addSeparator();
+    cmdMenu->addAction(tr("Set &Password..."), this, [this]() {
+        if (!m_engine) return;
+        bool ok;
+        QString pwd = QInputDialog::getText(this, tr("Set Password"),
+            tr("Archive password:"), QLineEdit::Password,
+            QString::fromStdString(m_archivePassword), &ok);
+        if (ok) {
+            m_archivePassword = pwd.toStdString();
+            m_engine->setPassword(m_archivePassword);
+        }
+    });
+    cmdMenu->addAction(tr("E&xclude Patterns..."), this, [this]() {
+        bool ok;
+        QString pats = QInputDialog::getText(this, tr("Exclude Patterns"),
+            tr("Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):"),
+            QLineEdit::Normal, m_excludePatterns.join(","), &ok);
+        if (ok)
+            m_excludePatterns = pats.isEmpty()
+                ? QStringList()
+                : pats.split(",", Qt::SkipEmptyParts);
+    });
     cmdMenu->addSeparator();
     cmdMenu->addAction(tr("&Find...\tF3"), this, [this]() {
         m_searchBox->setVisible(!m_searchBox->isVisible());
@@ -180,6 +240,19 @@ void MainWindow::setupMenus()
     connect(flatAction, &QAction::toggled, this, [this](bool checked) {
         m_model->setFlatMode(checked);
         m_upBtn->setVisible(checked);
+    });
+
+    {
+        QSettings s;
+        m_keepBrokenFiles = s.value("options/keepBrokenFiles", false).toBool();
+    }
+    QAction* keepBrokenAct = optsMenu->addAction(tr("&Keep Broken Files on Extraction"));
+    keepBrokenAct->setCheckable(true);
+    keepBrokenAct->setChecked(m_keepBrokenFiles);
+    connect(keepBrokenAct, &QAction::toggled, this, [this](bool checked) {
+        m_keepBrokenFiles = checked;
+        QSettings s;
+        s.setValue("options/keepBrokenFiles", checked);
     });
 
     optsMenu->addSeparator();
@@ -355,6 +428,8 @@ void MainWindow::setupUI()
     connect(m_model, &FileListModel::directoryChanged, this, [this](const QString& dir) {
         m_addrBox->setEditText(dir);
     });
+    connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
+        this, &MainWindow::updateStatusBar);
 
     m_mainLayout->addWidget(m_treeView, 1);
 
@@ -565,6 +640,52 @@ bool MainWindow::extractFileWithProgress(
 
     m_engine->setExtractProgressCb(nullptr);
     return extractOk;
+}
+
+void MainWindow::updateStatusBar()
+{
+    if (!m_engine)
+    {
+        statusBar()->showMessage(tr("No archive open"));
+        return;
+    }
+
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.isEmpty())
+    {
+        statusBar()->showMessage(tr("%1 files").arg(m_engine->ListContents().size()));
+        return;
+    }
+
+    auto paths = m_model->selectedEntryPaths(sel);
+    const auto& entries = m_engine->ListContents();
+    uint64_t totalSize = 0;
+    int fileCount = 0;
+    for (const auto& p : paths)
+    {
+        std::string sp = p.toStdString();
+        for (const auto& e : entries)
+        {
+            if ((e.name == sp || e.path == sp) && !e.isDirectory)
+            {
+                totalSize += e.size;
+                fileCount++;
+                break;
+            }
+        }
+    }
+
+    QString sizeStr;
+    if (totalSize < 1024)
+        sizeStr = tr("%1 B").arg(totalSize);
+    else if (totalSize < 1024 * 1024)
+        sizeStr = tr("%1 KB").arg(totalSize / 1024.0, 0, 'f', 1);
+    else if (totalSize < static_cast<uint64_t>(1024) * 1024 * 1024)
+        sizeStr = tr("%1 MB").arg(totalSize / (1024.0 * 1024), 0, 'f', 1);
+    else
+        sizeStr = tr("%1 GB").arg(totalSize / (1024.0 * 1024 * 1024), 0, 'f', 2);
+
+    statusBar()->showMessage(tr("%1 file(s) selected, %2").arg(fileCount).arg(sizeStr));
 }
 
 void MainWindow::afterActionDialog()
@@ -862,6 +983,8 @@ bool MainWindow::openArchive(const QString& path)
     }
 
     m_engine = std::move(engine);
+    if (!m_archivePassword.empty())
+        m_engine->setPassword(m_archivePassword);
     m_currentPath = firstVolPath;
     addRecentFile(QString::fromStdString(firstVolPath));
     m_treeView->setEnabled(true);
@@ -914,6 +1037,13 @@ void MainWindow::doAddPaths(const QStringList& paths)
 {
     if (paths.isEmpty()) return;
 
+    auto isExcluded = [this](const QString& filename) -> bool {
+        for (const auto& pat : m_excludePatterns)
+            if (QDir::match(pat.trimmed(), filename))
+                return true;
+        return false;
+    };
+
     QString prefix = m_model->currentDir();
     if (!prefix.isEmpty()) prefix += "/";
 
@@ -935,7 +1065,10 @@ void MainWindow::doAddPaths(const QStringList& paths)
         if (fs::is_directory(src))
         {
             for (const auto& de : fs::recursive_directory_iterator(src))
-                if (de.is_regular_file()) { total++; totalBytes += fs::file_size(de); }
+                if (de.is_regular_file()) {
+                    QString fname = QString::fromStdWString(de.path().filename().wstring());
+                    if (!isExcluded(fname)) { total++; totalBytes += fs::file_size(de); }
+                }
         }
         else if (fs::is_regular_file(src))
         {
@@ -973,6 +1106,8 @@ void MainWindow::doAddPaths(const QStringList& paths)
                 if (m_progressDlg->wasCanceled()) break;
                 if (de.is_regular_file())
                 {
+                    QString fname0 = QString::fromStdWString(de.path().filename().wstring());
+                    if (isExcluded(fname0)) continue;
                     fs::path rel = de.path().lexically_relative(src);
                     QString archivePath = archiveBase + "/"
                         + QString::fromStdWString(rel.generic_wstring());
@@ -995,6 +1130,7 @@ void MainWindow::doAddPaths(const QStringList& paths)
         }
         else if (fs::is_regular_file(src))
         {
+            if (isExcluded(QString::fromStdWString(src.filename().wstring()))) continue;
             m_engine->AddFile(path.toStdString(), archiveBase.toStdString());
             m_progressDlg->setValue(++count);
             pi.addBytes(fs::file_size(src));
@@ -1073,7 +1209,7 @@ void MainWindow::onExtractSelected()
     doExtractSelected(sel);
 }
 
-void MainWindow::doExtract(const QString& destPath, bool all)
+void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
 {
     auto entries = m_engine->ListContents();
     if (entries.empty())
@@ -1133,7 +1269,10 @@ void MainWindow::doExtract(const QString& destPath, bool all)
         const auto& entry = toExtract[i];
         QString name = QString::fromUtf8(entry.name.c_str());
 
-        QString destFile = destPath + "/" + QString::fromUtf8(entry.path.c_str());
+        QString entryRelPath = stripPaths
+            ? QFileInfo(QString::fromUtf8(entry.path.c_str())).fileName()
+            : QString::fromUtf8(entry.path.c_str());
+        QString destFile = destPath + "/" + entryRelPath;
 
         if (QFileInfo::exists(destFile) && !applyToAll)
         {
@@ -1146,7 +1285,7 @@ void MainWindow::doExtract(const QString& destPath, bool all)
 
         if (entry.isDirectory)
         {
-            QDir().mkpath(destFile);
+            if (!stripPaths) QDir().mkpath(destFile);
             continue;
         }
 
@@ -1164,6 +1303,8 @@ void MainWindow::doExtract(const QString& destPath, bool all)
                 statusBar()->showMessage(tr("Extraction cancelled."), 3000);
                 break;
             }
+            if (!m_keepBrokenFiles && QFileInfo::exists(destFile))
+                QFile::remove(destFile);
             qWarning("Failed to extract: %s", entry.path.c_str());
         }
     }
@@ -1428,40 +1569,77 @@ void MainWindow::onInfo()
     if (!m_engine) return;
 
     auto entries = m_engine->ListContents();
-    if (entries.empty())
-    {
-        QMessageBox::information(this, tr("Info"), tr("Archive is empty."));
-        return;
-    }
 
     uint64_t totalSize = 0, totalPacked = 0;
     int files = 0, folders = 0;
+    std::set<std::string> methods;
     for (const auto& e : entries)
     {
         if (e.isDirectory) { folders++; continue; }
         files++;
         totalSize += e.size;
-        totalPacked += e.packedSize;
+        totalPacked += e.packedSize > 0 ? e.packedSize : e.size;
+        if (!e.compressionMethod.empty())
+            methods.insert(e.compressionMethod);
     }
 
-    QString text;
-    text += tr("Archive: %1\n").arg(QString::fromStdString(m_currentPath));
-    text += tr("Format: %1\n").arg(QString::fromUtf8(m_engine->FormatName().data()));
-    text += tr("Files: %1\n").arg(files);
-    text += tr("Folders: %1\n").arg(folders);
-    text += tr("Total size: %1 bytes\n").arg(totalSize);
-    text += tr("Packed size: %1 bytes\n").arg(totalPacked);
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Archive Information"));
+    dlg.setMinimumWidth(480);
+    auto* lay = new QVBoxLayout(&dlg);
+    auto* form = new QFormLayout();
+    form->setLabelAlignment(Qt::AlignRight);
+    lay->addLayout(form);
+
+    auto addRow = [&](const QString& label, const QString& value) {
+        auto* lbl = new QLabel(value, &dlg);
+        lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
+        lbl->setWordWrap(true);
+        form->addRow(label, lbl);
+    };
+
+    addRow(tr("Archive:"), QString::fromStdString(m_currentPath));
+    addRow(tr("Format:"), QString::fromUtf8(m_engine->FormatName().data()));
+
+    if (!methods.empty())
+    {
+        QStringList ml;
+        for (const auto& m : methods) ml << QString::fromStdString(m);
+        addRow(tr("Method:"), ml.join(", "));
+    }
+
+    addRow(tr("Files:"), QString::number(files));
+    addRow(tr("Folders:"), QString::number(folders));
+
+    auto fmtBytes = [](uint64_t b) -> QString {
+        if (b < 1024) return QString("%1 B").arg(b);
+        if (b < 1024*1024) return QString("%1 KB (%2 B)").arg(b/1024.0, 0, 'f', 1).arg(b);
+        if (b < static_cast<uint64_t>(1024)*1024*1024)
+            return QString("%1 MB (%2 B)").arg(b/(1024.0*1024), 0, 'f', 2).arg(b);
+        return QString("%1 GB (%2 B)").arg(b/(1024.0*1024*1024), 0, 'f', 3).arg(b);
+    };
+
+    addRow(tr("Uncompressed:"), fmtBytes(totalSize));
+    addRow(tr("Compressed:"), fmtBytes(totalPacked));
+
     if (totalSize > 0)
     {
-        int ratio = static_cast<int>(totalPacked * 100 / totalSize);
-        text += tr("Compression ratio: %1%\n").arg(ratio);
+        int saved = static_cast<int>((1.0 - static_cast<double>(totalPacked) / totalSize) * 100);
+        addRow(tr("Ratio:"), tr("%1% saved").arg(saved));
     }
 
     std::string comment = m_engine->archiveComment();
     if (!comment.empty())
-        text += tr("\nComment:\n%1\n").arg(QString::fromUtf8(comment.c_str()));
+        addRow(tr("Comment:"), QString::fromUtf8(comment.c_str()));
 
-    QMessageBox::information(this, tr("Archive Information"), text);
+    auto* btnRow = new QHBoxLayout();
+    btnRow->addStretch();
+    auto* closeBtn = new QPushButton(tr("Close"), &dlg);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+    btnRow->addWidget(closeBtn);
+    lay->addLayout(btnRow);
+
+    dlg.exec();
 }
 
 void MainWindow::onArchiveComment()
@@ -1544,6 +1722,61 @@ void MainWindow::onDelete()
     refreshFileList();
 }
 
+// ── Open entry with external application ──────────────────────────────
+void MainWindow::onOpenEntry(bool pickApp)
+{
+    if (!m_engine) return;
+
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.isEmpty()) return;
+
+    auto paths = m_model->selectedEntryPaths({sel[0]});
+    if (paths.isEmpty()) return;
+
+    QString entryPath = paths[0];
+    QFileInfo fi(entryPath);
+
+    // Skip directories
+    for (const auto& e : m_engine->ListContents())
+        if ((e.name == entryPath.toStdString() || e.path == entryPath.toStdString()) && e.isDirectory)
+            return;
+
+    QString filename = fi.fileName();
+    QString tempDir = QDir::tempPath() + "/ZipFX_Open/"
+        + QString::number(QDateTime::currentMSecsSinceEpoch()) + "/";
+    QDir().mkpath(tempDir);
+    QString destFile = tempDir + filename;
+
+    QApplication::setOverrideCursor(Qt::WaitCursor);
+    bool ok = m_engine->Extract(entryPath.toStdString(), destFile.toStdString());
+    QApplication::restoreOverrideCursor();
+
+    if (!ok)
+    {
+        QMessageBox::warning(this, tr("Error"), tr("Could not extract \"%1\".").arg(filename));
+        return;
+    }
+
+    if (!pickApp)
+    {
+        QDesktopServices::openUrl(QUrl::fromLocalFile(destFile));
+        return;
+    }
+
+#ifdef _WIN32
+    ShellExecuteW(nullptr, L"openas",
+        reinterpret_cast<LPCWSTR>(QDir::toNativeSeparators(destFile).utf16()),
+        nullptr, nullptr, SW_SHOWNORMAL);
+#elif defined(Q_OS_MACOS)
+    QProcess::startDetached("open", {"-W", destFile});
+#else
+    QString app = QFileDialog::getOpenFileName(this, tr("Open With..."),
+        QStandardPaths::standardLocations(QStandardPaths::ApplicationsLocation).value(0, "/usr/bin"));
+    if (!app.isEmpty())
+        QProcess::startDetached(app, {destFile});
+#endif
+}
+
 // ── List interactions ──────────────────────────────────────────────────
 void MainWindow::onItemDoubleClicked(const QModelIndex& index)
 {
@@ -1585,6 +1818,23 @@ void MainWindow::onContextMenu(const QPoint& pos)
 
     QAction* viewAct = menu.addAction(tr("View"), this, &MainWindow::onView);
     viewAct->setEnabled(hasEngine && hasSelection);
+
+    QAction* openAct = menu.addAction(tr("Open"), this, [this]() { onOpenEntry(false); });
+    openAct->setEnabled(hasEngine && hasSelection);
+
+    QAction* openWithAct = menu.addAction(tr("Open with..."), this, [this]() { onOpenEntry(true); });
+    openWithAct->setEnabled(hasEngine && hasSelection);
+
+    if (hasSelection)
+    {
+        menu.addSeparator();
+        menu.addAction(tr("&Copy Path"), this, [this]() {
+            auto sel = m_treeView->selectionModel()->selectedRows(0);
+            auto paths = m_model->selectedEntryPaths(sel);
+            if (!paths.isEmpty())
+                QApplication::clipboard()->setText(paths.join('\n'));
+        });
+    }
 
     if (hasEngine && m_engine->SupportsCreation())
     {
@@ -1893,8 +2143,7 @@ void MainWindow::refreshFileList()
     m_treeView->setColumnHidden(FileListModel::ColPermissions, !hasPerms);
     m_treeView->setColumnHidden(FileListModel::ColComment, !hasComment);
 
-    statusBar()->showMessage(
-        tr("%1 files").arg(entries.size()));
+    updateStatusBar();
     setWindowTitle(tr("ZipFX — %1").arg(
         QString::fromStdString(m_currentPath)));
 }
