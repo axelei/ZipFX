@@ -1253,32 +1253,56 @@ void MainWindow::onView()
     auto paths = m_model->selectedEntryPaths({sel[0]});
     if (paths.isEmpty()) return;
 
-    auto data = m_engine->ReadFile(paths[0].toStdString());
+    QString name = paths[0];
+    QString ext = QFileInfo(name).suffix().toLower();
+
+    // Look up actual size from the cached entry list (avoids reading the file for size)
+    uint64_t entrySize = 0;
+    std::string entryPath = name.toStdString();
+    for (const auto& e : m_engine->ListContents())
+    {
+        if (e.name == entryPath || e.path == entryPath)
+        {
+            entrySize = e.size;
+            break;
+        }
+    }
+
+    // Bail out for formats we can't preview without reading anything
+    if (ext == "pdf" || ext == "doc" || ext == "docx" || ext == "xls" || ext == "xlsx")
+    {
+        QMessageBox::information(this, tr("Info"),
+            tr("File: %1\nSize: %2 bytes\n\nCannot preview this format.").arg(name).arg(entrySize));
+        return;
+    }
+
+    static const QStringList imgExts = {"png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif"};
+    static constexpr size_t kTextLimit = 100000;
+    static constexpr size_t kHexLimit  = 4096;
+
+    // For non-images only read as much as we can display
+    std::vector<uint8_t> data;
+    if (imgExts.contains(ext))
+        data = m_engine->ReadFile(entryPath);
+    else
+        data = m_engine->ReadFilePartial(entryPath, kTextLimit);
+
     if (data.empty())
     {
         QMessageBox::warning(this, tr("Info"), tr("Could not read file."));
         return;
     }
 
-    QString name = paths[0];
-    QString ext = QFileInfo(name).suffix().toLower();
-    QStringList imgExts = {"png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif"};
+    // For images use the actual loaded size; for others use entry metadata
+    uint64_t displaySize = imgExts.contains(ext) ? static_cast<uint64_t>(data.size()) : entrySize;
 
     auto dlg = new QDialog(this);
     dlg->setWindowTitle(tr("View: %1").arg(name));
     dlg->resize(700, 500);
     auto* layout = new QVBoxLayout(dlg);
 
-    auto* infoLabel = new QLabel(tr("%1  —  %2 bytes").arg(name).arg(data.size()), dlg);
+    auto* infoLabel = new QLabel(tr("%1  —  %2 bytes").arg(name).arg(displaySize), dlg);
     layout->addWidget(infoLabel);
-
-    if (ext == "pdf" || ext == "doc" || ext == "docx" || ext == "xls" || ext == "xlsx")
-    {
-        QMessageBox::information(this, tr("Info"),
-            tr("File: %1\nSize: %2 bytes\n\nCannot preview this format.").arg(name).arg(data.size()));
-        delete dlg;
-        return;
-    }
 
     if (imgExts.contains(ext))
     {
@@ -1292,7 +1316,6 @@ void MainWindow::onView()
             view->setFrameShape(QFrame::NoFrame);
             layout->addWidget(view, 1);
 
-            // Fit image on show and on resize
             auto fitImage = [view, pixItem]() {
                 view->fitInView(pixItem->sceneBoundingRect(), Qt::KeepAspectRatio);
             };
@@ -1309,9 +1332,9 @@ void MainWindow::onView()
     }
     else
     {
-        // Check if text by looking for null bytes
-        bool isText = data.size() > 0;
-        for (size_t i = 0; i < data.size() && i < 4096; ++i)
+        // Detect binary vs text by checking for null/control bytes in the first 4096 bytes
+        bool isText = !data.empty();
+        for (size_t i = 0; i < data.size() && i < kHexLimit; ++i)
         {
             if (data[i] == 0 || (data[i] < 0x09 && data[i] != 0x0A && data[i] != 0x0D))
             {
@@ -1329,15 +1352,16 @@ void MainWindow::onView()
             QString content = QString::fromUtf8(
                 reinterpret_cast<const char*>(data.data()),
                 static_cast<int>(data.size()));
-            if (data.size() > 100000)
-                content = content.left(100000) + tr("\n\n... truncated (showing first 100000 bytes)");
+            if (entrySize > kTextLimit)
+                content += tr("\n\n... truncated (showing first %1 of %2 bytes)")
+                               .arg(kTextLimit).arg(entrySize);
             text->setPlainText(content);
         }
         else
         {
-            // Hex dump
+            // Hex dump — we only have up to kTextLimit bytes but only show kHexLimit
             QString hex;
-            size_t maxBytes = std::min(data.size(), size_t(4096));
+            size_t maxBytes = std::min(data.size(), kHexLimit);
             for (size_t i = 0; i < maxBytes; i += 16)
             {
                 hex += QString("%1  ").arg(i, 8, 16, QChar('0'));
@@ -1357,8 +1381,9 @@ void MainWindow::onView()
                 }
                 hex += "\n";
             }
-            if (data.size() > 4096)
-                hex += tr("... truncated (showing first 4096 bytes)");
+            if (entrySize > kHexLimit)
+                hex += tr("... truncated (showing first %1 of %2 bytes)")
+                           .arg(kHexLimit).arg(entrySize);
             text->setPlainText(hex);
         }
         layout->addWidget(text, 1);

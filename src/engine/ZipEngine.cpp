@@ -291,6 +291,38 @@ std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
     return data;
 }
 
+std::vector<uint8_t> ZipEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
+{
+    if (!m_zip) return {};
+
+    std::string name(entryName);
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0) return {};
+
+    struct zip_stat st;
+    zip_stat_init(&st);
+    if (zip_stat_index(m_zip, idx, 0, &st) != 0)
+        return {};
+
+    if (st.size == 0) return {};
+
+    zip_file_t* zf = nullptr;
+    if (st.encryption_method != ZIP_EM_NONE && !m_password.empty())
+        zf = zip_fopen_index_encrypted(m_zip, idx, 0, m_password.c_str());
+    else
+        zf = zip_fopen_index(m_zip, idx, 0);
+    if (!zf) return {};
+
+    size_t readSize = std::min(static_cast<size_t>(st.size), maxBytes);
+    std::vector<uint8_t> data(readSize);
+    zip_int64_t n = zip_fread(zf, data.data(), readSize);
+    zip_fclose(zf);
+
+    if (n < 0) return {};
+    data.resize(static_cast<size_t>(n));
+    return data;
+}
+
 // ── Writing ────────────────────────────────────────────────────────────
 bool ZipEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {

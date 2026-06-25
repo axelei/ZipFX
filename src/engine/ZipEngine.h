@@ -21,6 +21,7 @@ public:
     bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
+    std::vector<uint8_t> ReadFilePartial(std::string_view entryName, size_t maxBytes) override;
 
     bool AddFile(std::string_view srcPath, std::string_view archivePath) override;
     bool RemoveEntry(std::string_view entryName) override;

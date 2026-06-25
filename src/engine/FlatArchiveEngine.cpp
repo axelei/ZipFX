@@ -144,6 +144,27 @@ std::vector<uint8_t> FlatArchiveEngine::ReadFile(std::string_view entryName)
     return data;
 }
 
+std::vector<uint8_t> FlatArchiveEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
+{
+    int idx = findEntry(entryName);
+    if (idx < 0) return {};
+
+    const auto& e = m_entries[idx];
+    if (e.size == 0) return {};
+
+    std::ifstream f(m_path, std::ios::binary);
+    if (!f) return {};
+
+    size_t readSize = std::min(static_cast<size_t>(e.size), maxBytes);
+    std::vector<uint8_t> data(readSize);
+    f.seekg(e.offset);
+    f.read(reinterpret_cast<char*>(data.data()), static_cast<std::streamsize>(readSize));
+    auto got = static_cast<size_t>(f.gcount());
+    if (got == 0) return {};
+    data.resize(got);
+    return data;
+}
+
 bool FlatArchiveEngine::Create(std::string_view path)
 {
     m_path = path;

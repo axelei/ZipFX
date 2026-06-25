@@ -24,6 +24,7 @@ public:
     virtual bool Extract(std::string_view entryName, std::string_view destPath);
     virtual bool ExtractAll(std::string_view destPath) = 0;
     virtual std::vector<uint8_t> ReadFile(std::string_view entryName) = 0;
+    virtual std::vector<uint8_t> ReadFilePartial(std::string_view entryName, size_t maxBytes);
 
     virtual bool AddFile(std::string_view srcPath, std::string_view archivePath) { return false; }
     virtual bool RemoveEntry(std::string_view entryName) { return false; }

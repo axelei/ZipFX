@@ -312,6 +312,57 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
     return {};
 }
 
+std::vector<uint8_t> LibarchiveEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
+{
+    if (!m_isOpen) return {};
+
+    archive_read_free(m_archive);
+    m_archive = archive_read_new();
+    registerFormat(m_archive);
+    if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
+    {
+        LOG_ERR("%s: failed to re-open for ReadFilePartial", m_formatName.c_str());
+        archive_read_free(m_archive);
+        m_archive = nullptr;
+        m_isOpen = false;
+        return {};
+    }
+
+    std::string name(entryName);
+    bool singleEntry = (m_entries.size() == 1);
+    struct archive_entry* entry;
+    while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
+    {
+        const char* currentName = archive_entry_pathname(entry);
+        if (!currentName) continue;
+
+        if (name == currentName || (singleEntry && m_entries[0].name == name))
+        {
+            la_int64_t size = archive_entry_size(entry);
+            size_t readSize = (size > 0)
+                ? std::min(static_cast<size_t>(size), maxBytes)
+                : maxBytes;
+
+            std::vector<uint8_t> data(readSize);
+            la_ssize_t bytesRead = archive_read_data(m_archive, data.data(), readSize);
+
+            if (bytesRead < 0)
+            {
+                LOG_WARN("%s: archive_read_data failed: %s",
+                         m_formatName.c_str(), archive_error_string(m_archive));
+                return {};
+            }
+
+            data.resize(static_cast<size_t>(bytesRead));
+            return data;
+        }
+
+        archive_read_data_skip(m_archive);
+    }
+
+    return {};
+}
+
 // ── Testing ────────────────────────────────────────────────────────────
 bool LibarchiveEngine::TestIntegrity(
     std::function<void(int, int)> progressCallback,

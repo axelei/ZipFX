@@ -31,6 +31,14 @@ bool ArchiveEngine::Extract(std::string_view entryName, std::string_view destPat
     return out.good();
 }
 
+std::vector<uint8_t> ArchiveEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
+{
+    auto data = ReadFile(entryName);
+    if (data.size() > maxBytes)
+        data.resize(maxBytes);
+    return data;
+}
+
 bool ArchiveEngine::RenameEntry(std::string_view entryName, std::string_view newName)
 {
     // Default implementation: read, add new, remove old, save
