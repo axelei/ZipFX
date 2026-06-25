@@ -248,12 +248,27 @@ HRESULT VirtualFileDataObject::GetFileDescriptor(FORMATETC*, STGMEDIUM* pSTM)
     return S_OK;
 }
 
+// Return S_OK with a zero-length stream so the shell doesn't show an error dialog.
+static HRESULT emptyStream(STGMEDIUM* pSTM)
+{
+    IStream* stream = nullptr;
+    if (FAILED(CreateStreamOnHGlobal(nullptr, TRUE, &stream)))
+        return E_OUTOFMEMORY;
+    pSTM->tymed          = TYMED_ISTREAM;
+    pSTM->pstm           = stream;
+    pSTM->pUnkForRelease = nullptr;
+    return S_OK;
+}
+
 // ── File contents (extracted on demand) ───────────────────────────────
 HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
 {
     int idx = pFE->lindex;
     if (idx < 0 || idx >= static_cast<int>(m_files.size()))
         return DV_E_LINDEX;
+
+    if (m_cancelled)
+        return emptyStream(pSTM);
 
     auto& entry = m_files[idx];
     if (!entry.info.engine)
@@ -269,7 +284,13 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
     }
 
     if (m_progressDlg->wasCancelled())
-        return E_FAIL;
+    {
+        m_cancelled = true;
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+        return emptyStream(pSTM);
+    }
 
     // Indeterminate bar during extraction (file counted AFTER extraction)
     m_progressDlg->updateProgress(0, 0,
@@ -293,25 +314,35 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
 
     while (!extractDone)
     {
-        QApplication::processEvents();
-        if (m_progressDlg && m_progressDlg->wasCancelled())
-            break;
+        QApplication::processEvents(QEventLoop::AllEvents, 16);
+
+        if (!m_cancelled && m_progressDlg && m_progressDlg->wasCancelled())
+        {
+            m_cancelled = true;
+            entry.info.engine->cancelExtract();
+        }
     }
 
     if (extractThread.joinable())
         extractThread.join();
 
-    if (m_progressDlg && m_progressDlg->wasCancelled())
+    if (m_cancelled)
     {
         fs::remove(tmpPath);
-        return E_FAIL;
+        if (m_progressDlg)
+        {
+            m_progressDlg->close();
+            delete m_progressDlg;
+            m_progressDlg = nullptr;
+        }
+        return emptyStream(pSTM);
     }
 
     if (!extractOk)
     {
         LOG_ERR("VFDO: Extract failed for %s", entry.info.archivePath.c_str());
         fs::remove(tmpPath);
-        return E_FAIL;
+        return emptyStream(pSTM);
     }
 
     // Open the temp file for the shell to read

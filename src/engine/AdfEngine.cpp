@@ -310,15 +310,27 @@ int AdfEngine::findEntry(std::string_view name) const
 
 bool AdfEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    auto data = ReadFile(entryName);
-    if (data.empty()) return false;
+    if (!m_isOpen || !m_vol) return false;
+    m_extractCancelled = false;
+
+    auto* file = adfFileOpen(m_vol, std::string(entryName).c_str(), ADF_FILE_MODE_READ);
+    if (!file) return false;
 
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
-
     std::ofstream out(dest, std::ios::binary);
-    if (!out) return false;
-    out.write(reinterpret_cast<const char*>(data.data()), data.size());
+    if (!out) { adfFileClose(file); return false; }
+
+    constexpr int kChunk = 65536;
+    uint8_t buf[kChunk];
+    int n;
+    while ((n = adfFileRead(file, kChunk, buf)) > 0)
+    {
+        if (m_extractCancelled) { adfFileClose(file); return false; }
+        out.write(reinterpret_cast<const char*>(buf), n);
+    }
+
+    adfFileClose(file);
     return out.good();
 }
 

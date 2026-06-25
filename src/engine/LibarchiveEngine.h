@@ -3,6 +3,7 @@
 
 #include "ArchiveEngine.h"
 
+#include <atomic>
 #include <functional>
 #include <vector>
 
@@ -23,11 +24,14 @@ public:
     bool Open(std::string_view path) override;
     void Close() override;
     const std::vector<ArchiveEntry>& ListContents() override;
+    bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
     bool TestIntegrity(
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
+
+    void cancelExtract() override { m_extractCancelled = true; }
 
     std::string_view FormatName() const override { return m_formatName; }
     bool SupportsCreation() const override { return m_supportsCreation; }
@@ -46,6 +50,7 @@ private:
     bool m_supportsCreation = false;
     std::vector<FormatRegistrar> m_registrars;
     std::vector<ArchiveEntry> m_entries;
+    std::atomic<bool> m_extractCancelled{false};
 };
 
 #endif

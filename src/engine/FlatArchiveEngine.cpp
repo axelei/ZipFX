@@ -85,14 +85,32 @@ int FlatArchiveEngine::findEntry(std::string_view name) const
 
 bool FlatArchiveEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    auto data = ReadFile(entryName);
-    if (data.empty()) return false;
+    int idx = findEntry(entryName);
+    if (idx < 0) return false;
+
+    const auto& e = m_entries[idx];
+    std::ifstream in(m_path, std::ios::binary);
+    if (!in) return false;
+    in.seekg(e.offset);
 
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
     std::ofstream out(dest, std::ios::binary);
     if (!out) return false;
-    out.write(reinterpret_cast<const char*>(data.data()), data.size());
+
+    m_extractCancelled = false;
+    constexpr size_t kChunk = 65536;
+    char buf[kChunk];
+    uint32_t remaining = e.size;
+    while (remaining > 0)
+    {
+        if (m_extractCancelled) return false;
+        size_t toRead = std::min<size_t>(remaining, kChunk);
+        in.read(buf, toRead);
+        if (!in) return false;
+        out.write(buf, toRead);
+        remaining -= static_cast<uint32_t>(toRead);
+    }
     return out.good();
 }
 
@@ -101,13 +119,12 @@ bool FlatArchiveEngine::ExtractAll(std::string_view destPath)
     for (const auto& e : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("FlatArchiveEngine: extract cancelled"); return false; }
-        auto data = ReadFile(e.name);
-        if (data.empty()) return false;
+
         fs::path dest = fs::path(destPath) / e.name;
         fs::create_directories(dest.parent_path());
-        std::ofstream out(dest, std::ios::binary);
-        if (!out) return false;
-        out.write(reinterpret_cast<const char*>(data.data()), data.size());
+
+        if (!Extract(e.name, dest.string()))
+            return false;
     }
     return true;
 }

@@ -120,9 +120,64 @@ const std::vector<ArchiveEntry>& LibarchiveEngine::ListContents()
 }
 
 // ── Extraction ─────────────────────────────────────────────────────────
+bool LibarchiveEngine::Extract(std::string_view entryName, std::string_view destPath)
+{
+    if (!m_isOpen) return false;
+    m_extractCancelled = false;
+
+    archive_read_free(m_archive);
+    m_archive = archive_read_new();
+    registerFormat(m_archive);
+    if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
+    {
+        LOG_ERR("%s: failed to re-open for Extract", m_formatName.c_str());
+        archive_read_free(m_archive);
+        m_archive = nullptr;
+        m_isOpen = false;
+        return false;
+    }
+
+    std::string name(entryName);
+    bool singleEntry = (m_entries.size() == 1);
+    struct archive_entry* entry;
+    while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
+    {
+        const char* currentName = archive_entry_pathname(entry);
+        if (!currentName) continue;
+
+        if (name == currentName || (singleEntry && m_entries[0].name == name))
+        {
+            fs::path dest(destPath);
+            fs::create_directories(dest.parent_path());
+
+            std::ofstream out(dest, std::ios::binary);
+            if (!out)
+            {
+                LOG_ERR("%s: cannot create %s", m_formatName.c_str(), dest.string().c_str());
+                return false;
+            }
+
+            std::array<char, 65536> buf;
+            la_ssize_t bytesRead;
+            while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
+            {
+                if (m_extractCancelled) return false;
+                out.write(buf.data(), bytesRead);
+            }
+            return bytesRead >= 0 && out.good();
+        }
+
+        archive_read_data_skip(m_archive);
+    }
+
+    LOG_WARN("%s: entry '%s' not found", m_formatName.c_str(), name.c_str());
+    return false;
+}
+
 bool LibarchiveEngine::ExtractAll(std::string_view destPath)
 {
     if (!m_isOpen) return false;
+    m_extractCancelled = false;
 
     // Re-open for a single sequential pass through the archive
     archive_read_free(m_archive);
@@ -140,6 +195,8 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
     struct archive_entry* entry;
     while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
     {
+        if (m_extractCancelled) { LOG_DBG("%s: extract cancelled", m_formatName.c_str()); return false; }
+
         const char* currentName = archive_entry_pathname(entry);
         if (!currentName) continue;
 
@@ -169,6 +226,7 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
         la_ssize_t bytesRead;
         while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
         {
+            if (m_extractCancelled) { LOG_DBG("%s: extract cancelled", m_formatName.c_str()); return false; }
             out.write(buf.data(), bytesRead);
         }
 

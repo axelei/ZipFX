@@ -167,12 +167,14 @@ std::vector<uint8_t> ChdEngine::readRange(uint64_t offset, uint64_t length)
     if (!m_chd || m_hunkBytes == 0 || length == 0)
         return {};
 
+    m_extractCancelled = false;
     std::vector<uint8_t> result(length);
     std::vector<uint8_t> hunkBuf(m_hunkBytes);
 
     uint64_t bytesRead = 0;
     while (bytesRead < length)
     {
+        if (m_extractCancelled) { LOG_DBG("CHD: extract cancelled"); return {}; }
         uint64_t absPos = offset + bytesRead;
         uint32_t hunkNum = static_cast<uint32_t>(absPos / m_hunkBytes);
         uint32_t hunkOff = static_cast<uint32_t>(absPos % m_hunkBytes);
@@ -220,10 +222,51 @@ std::vector<uint8_t> ChdEngine::ReadFile(std::string_view entryName)
     return {};
 }
 
+bool ChdEngine::Extract(std::string_view entryName, std::string_view destPath)
+{
+    if (!m_chd || m_hunkBytes == 0) return false;
+    m_extractCancelled = false;
+
+    const TrackInfo* track = nullptr;
+    for (const auto& t : m_tracks)
+        if (t.name == entryName) { track = &t; break; }
+    if (!track) { LOG_WARN("CHD: entry '%.*s' not found", (int)entryName.size(), entryName.data()); return false; }
+
+    fs::path dest(destPath);
+    fs::create_directories(dest.parent_path());
+    std::ofstream out(dest, std::ios::binary);
+    if (!out) { LOG_ERR("CHD: cannot create %s", dest.string().c_str()); return false; }
+
+    std::vector<uint8_t> hunkBuf(m_hunkBytes);
+    uint64_t remaining = track->size;
+    uint64_t pos = track->offset;
+
+    while (remaining > 0)
+    {
+        if (m_extractCancelled) return false;
+
+        uint32_t hunkNum = static_cast<uint32_t>(pos / m_hunkBytes);
+        uint32_t hunkOff = static_cast<uint32_t>(pos % m_hunkBytes);
+
+        chd_error err = chd_read(m_chd, hunkNum, hunkBuf.data());
+        if (err != CHDERR_NONE) { LOG_WARN("CHD: error reading hunk %u", hunkNum); return false; }
+
+        uint64_t toCopy = std::min<uint64_t>(m_hunkBytes - hunkOff, remaining);
+        out.write(reinterpret_cast<const char*>(hunkBuf.data() + hunkOff), toCopy);
+        pos += toCopy;
+        remaining -= toCopy;
+    }
+    return out.good();
+}
+
 bool ChdEngine::ExtractAll(std::string_view destPath)
 {
+    m_extractCancelled = false;
+
     for (const auto& t : m_tracks)
     {
+        if (m_extractCancelled) { LOG_DBG("CHD: extract cancelled"); return false; }
+
         fs::path outPath = fs::path(destPath) / t.name;
         fs::create_directories(outPath.parent_path());
 
@@ -240,6 +283,8 @@ bool ChdEngine::ExtractAll(std::string_view destPath)
 
         while (remaining > 0)
         {
+            if (m_extractCancelled) { LOG_DBG("CHD: extract cancelled"); return false; }
+
             uint32_t hunkNum = static_cast<uint32_t>(pos / m_hunkBytes);
             uint32_t hunkOff = static_cast<uint32_t>(pos % m_hunkBytes);
 

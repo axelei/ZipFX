@@ -62,6 +62,7 @@ private:
     CLIPFORMAT m_cfContents   = 0;
     int m_progressTotal = 0;
     DragProgressDialog* m_progressDlg = nullptr;
+    bool m_cancelled = false;
 
 public:
     HWND m_parentHwnd = nullptr;

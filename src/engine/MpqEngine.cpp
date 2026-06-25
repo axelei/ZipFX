@@ -230,14 +230,46 @@ int MpqEngine::findEntry(std::string_view name) const
 
 bool MpqEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
-    auto data = ReadFile(entryName);
-    if (data.empty()) return false;
+    if (!m_isOpen || !m_handle) return false;
+    m_extractCancelled = false;
+
+    auto* hMpq = static_cast<HANDLE>(m_handle);
+    std::string name = toStormPath(entryName);
+
+    HANDLE hFile = nullptr;
+    if (!SFileOpenFileEx(hMpq, name.c_str(), SFILE_OPEN_FROM_MPQ, &hFile))
+        return false;
+
+    DWORD fileSize = SFileGetFileSize(hFile, nullptr);
+    if (fileSize == SFILE_INVALID_SIZE)
+    {
+        SFileCloseFile(hFile);
+        return false;
+    }
 
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
     std::ofstream out(dest, std::ios::binary);
-    if (!out) return false;
-    out.write(reinterpret_cast<const char*>(data.data()), data.size());
+    if (!out) { SFileCloseFile(hFile); return false; }
+
+    constexpr DWORD kChunk = 65536;
+    char buf[kChunk];
+    DWORD remaining = fileSize;
+    while (remaining > 0)
+    {
+        if (m_extractCancelled) { SFileCloseFile(hFile); return false; }
+        DWORD toRead = std::min(remaining, kChunk);
+        DWORD read = 0;
+        if (!SFileReadFile(hFile, buf, toRead, &read, nullptr) || read == 0)
+        {
+            SFileCloseFile(hFile);
+            return false;
+        }
+        out.write(buf, read);
+        remaining -= read;
+    }
+
+    SFileCloseFile(hFile);
     return out.good();
 }
 

@@ -13,11 +13,14 @@ public:
     bool Open(std::string_view path) override;
     void Close() override;
     const std::vector<ArchiveEntry>& ListContents() override;
+    bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
     bool TestIntegrity(
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
+
+    void cancelExtract() override { m_extractCancelled = true; }
 
     std::string_view FormatName() const override { return "CHD"; }
     bool SupportsCreation() const override { return false; }
@@ -42,6 +45,7 @@ private:
     uint64_t m_logicalBytes = 0;
     std::vector<TrackInfo> m_tracks;
     std::vector<ArchiveEntry> m_entries;
+    std::atomic<bool> m_extractCancelled{false};
 };
 
 #endif

@@ -322,6 +322,66 @@ const std::vector<ArchiveEntry>& TarGzEngine::ListContents()
     return m_entries;
 }
 
+bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
+{
+    if (!m_isOpen) return false;
+    m_extractCancelled = false;
+
+    std::string name(entryName);
+    auto linkIt = m_linkTargets.find(name);
+    if (linkIt != m_linkTargets.end())
+        name = linkIt->second;
+
+    gzclose(m_gzFile);
+    m_gzFile = gzopen(m_path.c_str(), "rb");
+    if (!m_gzFile) return false;
+
+    std::string gnuLongName;
+    TarHeader hdr;
+    while (true)
+    {
+        int br = gzread(m_gzFile, &hdr, TAR_BLOCK_SIZE);
+        if (br < static_cast<int>(TAR_BLOCK_SIZE)) break;
+        if (IsEndOfArchive(&hdr)) break;
+        if (!ValidateChecksum(&hdr)) break;
+
+        uint64_t fileSize = ParseOctal(hdr.size, 12);
+
+        if (hdr.typeflag == 'L') { gnuLongName = ReadTarDataAsString(m_gzFile, fileSize); continue; }
+        if (hdr.typeflag == 'x' || hdr.typeflag == 'g' || hdr.typeflag == 'K')
+        { SkipTarData(m_gzFile, fileSize); continue; }
+
+        std::string currentName = gnuLongName.empty() ? TarName(&hdr) : gnuLongName;
+        currentName = StripDotSlash(currentName);
+        gnuLongName.clear();
+
+        if (currentName == name && fileSize > 0)
+        {
+            fs::path dest(destPath);
+            fs::create_directories(dest.parent_path());
+            std::ofstream out(dest, std::ios::binary);
+            if (!out) return false;
+
+            constexpr unsigned kChunk = 65536;
+            char buf[kChunk];
+            uint64_t remaining = fileSize;
+            while (remaining > 0)
+            {
+                if (m_extractCancelled) return false;
+                unsigned toRead = static_cast<unsigned>(std::min<uint64_t>(remaining, kChunk));
+                int r = gzread(m_gzFile, buf, toRead);
+                if (r <= 0) return false;
+                out.write(buf, r);
+                remaining -= static_cast<unsigned>(r);
+            }
+            return out.good();
+        }
+
+        SkipTarData(m_gzFile, fileSize);
+    }
+    return false;
+}
+
 bool TarGzEngine::ExtractAll(std::string_view destPath)
 {
     for (const auto& entry : m_entries)
@@ -337,9 +397,7 @@ bool TarGzEngine::ExtractAll(std::string_view destPath)
         fs::create_directories(fullPath.parent_path());
 
         if (!Extract(entry.name, fullPath.string()))
-        {
             return false;
-        }
     }
 
     return true;

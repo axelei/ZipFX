@@ -20,7 +20,7 @@ public:
     void Close() override;
 
     const std::vector<ArchiveEntry>& ListContents() override;
-    // Uses default ArchiveEngine::Extract (ReadFile + write to disk)
+    bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
 
