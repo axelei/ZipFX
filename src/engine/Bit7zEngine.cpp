@@ -371,6 +371,10 @@ bool Bit7zEngine::Save()
 
     try
     {
+        // Release the reader before writing — on Windows the file handle
+        // blocks the temp-file rename that 7-Zip uses to replace the archive.
+        m_reader.reset();
+
         bool hasDeletes = !m_pendingDeletes.empty() && !m_isNew;
 
         if (hasDeletes)
