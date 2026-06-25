@@ -38,10 +38,13 @@ public:
         std::function<bool()> cancelFlag = nullptr) override;
 
     bool isLibraryLoaded() const { return m_lib != nullptr; }
+    void setReadOnly(bool ro) { m_readOnly = ro; }
 
     std::string_view FormatName() const override { return "Bit7z"; }
-    bool SupportsCreation() const override { return m_lib != nullptr; }
+    bool SupportsCreation() const override { return m_lib != nullptr && !m_readOnly; }
     bool IsOpen() const override { return m_isOpen; }
+    bool SupportsViewFile() const override;
+    std::string ViewUnsupportedReason() const override;
 
     // Settings (call before Create/Save)
     std::string archiveComment() const override;
@@ -71,6 +74,8 @@ private:
     std::string m_password;
     bool m_encryptHeaders = false;
     uint64_t m_volumeSize = 0;
+
+    bool m_readOnly = false;
 
     // Extraction cancellation
     std::atomic<bool> m_extractCancelled{false};

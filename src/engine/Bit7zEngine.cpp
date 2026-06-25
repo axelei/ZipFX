@@ -181,6 +181,30 @@ std::string Bit7zEngine::archiveComment() const
     return {};
 }
 
+bool Bit7zEngine::SupportsViewFile() const
+{
+    if (!m_isOpen || !m_reader) return false;
+    try {
+        if (m_reader->isSolid()) return false;
+        if (m_reader->isMultiVolume()) return false;
+    } catch (...) {}
+    return true;
+}
+
+std::string Bit7zEngine::ViewUnsupportedReason() const
+{
+    if (!m_isOpen || !m_reader) return {};
+    try {
+        if (m_reader->isSolid() && m_reader->isMultiVolume())
+            return "solid, multi-volume archive";
+        if (m_reader->isSolid())
+            return "solid archive";
+        if (m_reader->isMultiVolume())
+            return "multi-volume archive";
+    } catch (...) {}
+    return {};
+}
+
 const std::vector<ArchiveEntry>& Bit7zEngine::ListContents()
 {
     return m_entries;

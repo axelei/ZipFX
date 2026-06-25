@@ -457,11 +457,19 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
 
         if (currentName == name && fileSize > 0)
         {
-            std::vector<uint8_t> result(static_cast<size_t>(fileSize));
-            int r = gzread(m_gzFile, result.data(),
-                           static_cast<unsigned int>(fileSize));
-            if (r <= 0)
-                return {};
+            std::vector<uint8_t> result;
+            result.reserve(static_cast<size_t>(fileSize));
+            constexpr size_t kChunk = 65536;
+            uint8_t buf[kChunk];
+            uint64_t remaining = fileSize;
+            while (remaining > 0)
+            {
+                size_t toRead = static_cast<size_t>(std::min<uint64_t>(remaining, kChunk));
+                int r = gzread(m_gzFile, buf, static_cast<unsigned int>(toRead));
+                if (r <= 0) break;
+                result.insert(result.end(), buf, buf + r);
+                remaining -= static_cast<uint64_t>(r);
+            }
             return result;
         }
 
@@ -514,10 +522,19 @@ std::vector<uint8_t> TarGzEngine::ReadFilePartial(std::string_view entryName, si
         if (currentName == name && fileSize > 0)
         {
             size_t readSize = std::min(static_cast<size_t>(fileSize), maxBytes);
-            std::vector<uint8_t> result(readSize);
-            int r = gzread(m_gzFile, result.data(), static_cast<unsigned int>(readSize));
-            if (r <= 0) return {};
-            result.resize(static_cast<size_t>(r));
+            std::vector<uint8_t> result;
+            result.reserve(readSize);
+            constexpr size_t kChunk = 65536;
+            uint8_t buf[kChunk];
+            size_t remaining = readSize;
+            while (remaining > 0)
+            {
+                size_t toRead = std::min(remaining, kChunk);
+                int r = gzread(m_gzFile, buf, static_cast<unsigned int>(toRead));
+                if (r <= 0) break;
+                result.insert(result.end(), buf, buf + r);
+                remaining -= static_cast<size_t>(r);
+            }
             return result;
         }
 
@@ -586,7 +603,6 @@ bool TarGzEngine::Save()
 
     // Compute total bytes for progress
     uint64_t totalTarBytes = 0;
-    int totalTarFiles = static_cast<int>(merged.size());
     for (const auto& me : merged)
         totalTarBytes += me.data.size();
     for (const auto& qe : m_entryQueue)
@@ -594,7 +610,6 @@ bool TarGzEngine::Save()
         std::error_code ec;
         auto sz = fs::file_size(qe.srcPath, ec);
         if (!ec) totalTarBytes += sz;
-        totalTarFiles++;
     }
 
     gzFile out = gzopen(m_path.c_str(), "wb");
@@ -603,6 +618,8 @@ bool TarGzEngine::Save()
         LOG_ERR("TarGzEngine: cannot write %s", m_path.c_str());
         return false;
     }
+
+    uint64_t bytesDone = 0;
 
     auto writeBlock = [&](const void* data, size_t size)
     {
@@ -646,11 +663,36 @@ bool TarGzEngine::Save()
 
         writeBlock(&hdr, sizeof(hdr));
         if (fileSize > 0)
-            writeBlock(fileData, static_cast<size_t>(fileSize));
+        {
+            // Write data in chunks so progress updates mid-file
+            constexpr size_t kChunk = 65536;
+            size_t remaining = static_cast<size_t>(fileSize);
+            const uint8_t* ptr = fileData;
+            while (remaining > 0)
+            {
+                size_t toWrite = std::min(kChunk, remaining);
+                gzwrite(out, ptr, static_cast<unsigned int>(toWrite));
+                ptr += toWrite;
+                remaining -= toWrite;
+                bytesDone += toWrite;
+                if (m_saveProgressCb)
+                {
+                    SaveProgressInfo info;
+                    info.bytesProcessed = bytesDone;
+                    info.totalBytes = totalTarBytes;
+                    info.fileName = archivePath;
+                    m_saveProgressCb(info);
+                }
+            }
+            // Align to TAR_BLOCK_SIZE boundary
+            size_t pad = (TAR_BLOCK_SIZE - static_cast<size_t>(fileSize) % TAR_BLOCK_SIZE) % TAR_BLOCK_SIZE;
+            if (pad)
+            {
+                std::vector<char> zeros(pad, 0);
+                gzwrite(out, zeros.data(), static_cast<unsigned int>(pad));
+            }
+        }
     };
-
-    int fileIdx = 0;
-    uint64_t bytesDone = 0;
 
     // Write preserved existing entries
     for (const auto& me : merged)
@@ -662,21 +704,8 @@ bool TarGzEngine::Save()
             return false;
         }
 
-        if (m_saveProgressCb)
-        {
-            SaveProgressInfo info;
-            info.currentFile = fileIdx;
-            info.totalFiles = totalTarFiles;
-            info.bytesProcessed = bytesDone;
-            info.totalBytes = totalTarBytes;
-            info.fileName = me.archivePath;
-            m_saveProgressCb(info);
-        }
-
         writeTarEntry(me.archivePath, me.data.data(), me.data.size(),
                       me.permissions, me.mtime);
-        bytesDone += me.data.size();
-        fileIdx++;
     }
 
     // Write newly added entries from queue
@@ -687,17 +716,6 @@ bool TarGzEngine::Save()
             gzclose(out);
             LOG_DBG("TarGzEngine: save cancelled");
             return false;
-        }
-
-        if (m_saveProgressCb)
-        {
-            SaveProgressInfo info;
-            info.currentFile = fileIdx;
-            info.totalFiles = totalTarFiles;
-            info.bytesProcessed = bytesDone;
-            info.totalBytes = totalTarBytes;
-            info.fileName = qe.archivePath;
-            m_saveProgressCb(info);
         }
 
         std::ifstream in(qe.srcPath, std::ios::binary | std::ios::ate);
@@ -724,8 +742,6 @@ bool TarGzEngine::Save()
             std::chrono::system_clock::now()));
 
         writeTarEntry(qe.archivePath, fileData.data(), fileSize, perms, now);
-        bytesDone += fileSize;
-        fileIdx++;
     }
 
     // End-of-archive: two zero blocks

@@ -223,14 +223,34 @@ bool FlatArchiveEngine::RemoveEntry(std::string_view entryName)
 
 bool FlatArchiveEngine::Save()
 {
+    uint64_t totalBytes = 0;
+    for (const auto& e : m_entries)
+        totalBytes += e.size;
+    uint64_t bytesDone = 0;
+    int fileIdx = 0;
+    int totalFiles = static_cast<int>(m_entries.size());
+
     // Ensure all entries have their data cached
     for (auto& e : m_entries)
     {
+        if (m_saveProgressCb)
+        {
+            SaveProgressInfo info;
+            info.currentFile = fileIdx;
+            info.totalFiles = totalFiles;
+            info.bytesProcessed = bytesDone;
+            info.totalBytes = totalBytes;
+            info.fileName = e.name;
+            m_saveProgressCb(info);
+        }
+
         if (e.data.empty() && e.size > 0)
         {
             e.data = ReadFile(e.name);
             if (e.data.empty()) return false;
         }
+        bytesDone += e.size;
+        fileIdx++;
     }
 
     std::ofstream f(m_path, std::ios::binary);

@@ -137,7 +137,10 @@ static const FormatEntry kFormats[] = {
         []() {
             auto bit7z = std::make_unique<Bit7zEngine>();
             if (bit7z->isLibraryLoaded())
+            {
+                bit7z->setReadOnly(true);  // 7-Zip can read RAR but cannot write it
                 return std::unique_ptr<ArchiveEngine>(std::move(bit7z));
+            }
             return std::unique_ptr<ArchiveEngine>(
                 std::make_unique<LibarchiveEngine>(
                     std::vector<LibarchiveEngine::FormatRegistrar>{

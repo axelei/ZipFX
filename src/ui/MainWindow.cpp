@@ -1276,6 +1276,18 @@ void MainWindow::onView()
         return;
     }
 
+    // Check engine-level view support (e.g., solid or multi-volume archives)
+    if (!m_engine->SupportsViewFile())
+    {
+        QString reason = QString::fromStdString(m_engine->ViewUnsupportedReason());
+        QString msg = reason.isEmpty()
+            ? tr("Viewing individual files is not supported for this archive.")
+            : tr("Viewing individual files is not supported for this archive (%1).").arg(reason);
+        msg += tr("\n\nExtract the file first, then open it.");
+        QMessageBox::information(this, tr("View"), msg);
+        return;
+    }
+
     static const QStringList imgExts = {"png", "jpg", "jpeg", "gif", "bmp", "svg", "webp", "ico", "tiff", "tif"};
     static constexpr size_t kTextLimit = 100000;
     static constexpr size_t kHexLimit  = 4096;
@@ -1289,7 +1301,18 @@ void MainWindow::onView()
 
     if (data.empty())
     {
-        QMessageBox::warning(this, tr("Info"), tr("Could not read file."));
+        if (entrySize == 0)
+        {
+            QMessageBox::information(this, tr("View"), tr("The file \"%1\" is empty.").arg(name));
+        }
+        else
+        {
+            QMessageBox::warning(this, tr("View"),
+                tr("Could not read \"%1\".\n\n"
+                   "The archive may be encrypted, corrupted, or use a compression "
+                   "method that is not supported for in-place preview.\n\n"
+                   "Try extracting the file first.").arg(name));
+        }
         return;
     }
 
@@ -1803,8 +1826,14 @@ bool MainWindow::event(QEvent* event)
 // ── Drag & Drop ────────────────────────────────────────────────────────
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
-    if (event->mimeData()->hasUrls())
-        event->acceptProposedAction();
+    if (!event->mimeData()->hasUrls()) return;
+    // Reject drops when an archive is open but doesn't support adding files
+    if (m_engine && !m_engine->SupportsCreation())
+    {
+        event->ignore();
+        return;
+    }
+    event->acceptProposedAction();
 }
 
 void MainWindow::dropEvent(QDropEvent* event)

@@ -68,6 +68,8 @@ public:
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;
     virtual bool IsOpen() const = 0;
+    virtual bool SupportsViewFile() const { return true; }
+    virtual std::string ViewUnsupportedReason() const { return {}; }
 
 protected:
     int m_compressionLevel = 6; // 0=store, 9=max

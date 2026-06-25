@@ -417,20 +417,8 @@ bool MpqEngine::Save()
     {
         if (m_saveCancelled) break;
 
-        if (m_saveProgressCb)
-        {
-            SaveProgressInfo info;
-            info.currentFile = static_cast<int>(fileIdx);
-            info.totalFiles = static_cast<int>(m_pendingAdds.size());
-            info.bytesProcessed = bytesDone;
-            info.totalBytes = totalBytes;
-            info.fileName = pa.archivePath;
-            m_saveProgressCb(info);
-        }
-
         std::error_code ec;
         auto fileSz = fs::file_size(pa.srcPath, ec);
-        bytesDone += ec ? 0 : fileSz;
 
         std::string stormArchived = toStormPath(pa.archivePath);
         int stormLevel = mpqCompressionType(m_compressionLevel);
@@ -445,7 +433,20 @@ bool MpqEngine::Save()
             LOG_WARN("MpqEngine: failed to add %s as %s",
                      pa.srcPath.c_str(), pa.archivePath.c_str());
         }
+
+        bytesDone += ec ? 0 : fileSz;
         fileIdx++;
+
+        if (m_saveProgressCb)
+        {
+            SaveProgressInfo info;
+            info.currentFile = static_cast<int>(fileIdx);
+            info.totalFiles = static_cast<int>(m_pendingAdds.size());
+            info.bytesProcessed = bytesDone;
+            info.totalBytes = totalBytes;
+            info.fileName = pa.archivePath;
+            m_saveProgressCb(info);
+        }
     }
     m_pendingAdds.clear();
 
