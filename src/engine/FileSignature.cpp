@@ -74,6 +74,25 @@ static const SigEntry kSignatures[] =
         return d[0] == 0x34 && d[1] == 0x12 && d[2] == 0xAA && d[3] == 0x55; }},
     { ArchiveType::Mpq,      4, [](const uint8_t* d, size_t) {
         return d[0] == 'M' && d[1] == 'P' && d[2] == 'Q' && d[3] == 0x1A; }},
+    { ArchiveType::Xz,       6, [](const uint8_t* d, size_t) {
+        return d[0] == 0xFD && d[1] == 0x37 && d[2] == 0x7A &&
+               d[3] == 0x58 && d[4] == 0x5A && d[5] == 0x00; }},
+    { ArchiveType::Zstd,     4, [](const uint8_t* d, size_t) {
+        return d[0] == 0x28 && d[1] == 0xB5 && d[2] == 0x2F && d[3] == 0xFD; }},
+    { ArchiveType::Lz4,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 0x04 && d[1] == 0x22 && d[2] == 0x4D && d[3] == 0x18; }},
+    { ArchiveType::Bzip2,    3, [](const uint8_t* d, size_t) {
+        return d[0] == 'B' && d[1] == 'Z' && d[2] == 'h'; }},
+    { ArchiveType::Gob,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'G' && d[1] == 'O' && d[2] == 'B' && d[3] == ' '; }},
+    { ArchiveType::Rff,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'R' && d[1] == 'F' && d[2] == 'F' && d[3] == 0x1A; }},
+    { ArchiveType::Big,      4, [](const uint8_t* d, size_t) {
+        return (d[0] == 'B' && d[1] == 'I' && d[2] == 'G' && d[3] == 'F') ||
+               (d[0] == 'B' && d[1] == 'I' && d[2] == 'G' && d[3] == '4'); }},
+    { ArchiveType::Pod,      4, [](const uint8_t* d, size_t) {
+        return d[0] == 'P' && d[1] == 'O' && d[2] == 'D' &&
+               (d[3] == '1' || d[3] == '2' || d[3] == '3' || d[3] == '5'); }},
 };
 
 ArchiveType FileSignature::Detect(std::string_view path)

@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-ZipFX is a cross-platform GUI archive manager built with Qt6 and C++20. It supports dozens of archive formats through multiple backends (libzip, libarchive, bit7z/7-Zip, zlib, ADFlib, StormLib) plus native parsers for game archive formats (WAD, PAK, GRP, HOG, VPK). It includes both a Qt GUI and a CLI mode.
+ZipFX is a cross-platform GUI archive manager built with Qt6 and C++20. It supports dozens of archive formats through multiple backends (libzip, libarchive, bit7z/7-Zip, zlib, bzip2, liblzma, libzstd, liblz4, ADFlib, StormLib) plus native parsers for game archive formats (WAD, PAK, GRP, HOG, VPK, GOB, RFF, BIG, POD). It includes both a Qt GUI and a CLI mode.
 
 ## Build Commands
 
@@ -30,7 +30,7 @@ cd build && ctest -R tst_ZipEngine --output-on-failure
 build/tests/tst_ZipEngine
 ```
 
-All dependencies (zlib, libzip, libarchive, bit7z, ADFlib, StormLib, CLI11) are fetched automatically via CMake FetchContent. Only Qt6 must be pre-installed.
+All dependencies (zlib, bzip2, liblzma, libzstd, liblz4, libzip, libarchive, bit7z, ADFlib, StormLib, CLI11) are fetched automatically via CMake FetchContent. Only Qt6 must be pre-installed.
 
 Tests use the Qt Test framework (`QTest`). Each test file is a standalone executable registered via `add_zipfx_test()` in `tests/CMakeLists.txt`. On Windows, test executables need Qt and libzip DLLs on PATH (the CMake config handles this for `ctest`).
 
@@ -43,9 +43,9 @@ All archive format support flows through `ArchiveEngine` (pure virtual base in `
 Key engine subclasses:
 - **ZipEngine** — libzip; in-place modification (add/delete without rewrite)
 - **TarGzEngine** — zlib + manual tar header parsing/writing
-- **LibarchiveEngine** — parameterized with format registrar function pointers; used for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR (read-only)
+- **LibarchiveEngine** — parameterized with format/filter registrar function pointers; used for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR, WARC, MTREE (read-only), and compressed tar variants (tar.bz2, tar.xz, tar.zst, tar.lz4, tar.lzma) plus standalone compression (bz2, xz, zst, lz4, lzma)
 - **Bit7zEngine** — wraps 7-Zip DLL via bit7z; provides write support for 7z and read for exotic formats; loaded dynamically (gracefully absent)
-- **FlatArchiveEngine** — base class for headerless game archives; subclasses override `Open()` and `doSave()` to handle format-specific binary layouts (WadEngine, PakEngine, GrpEngine, HogEngine, VpkEngine)
+- **FlatArchiveEngine** — base class for headerless game archives; subclasses override `Open()` and `doSave()` to handle format-specific binary layouts (WadEngine, PakEngine, GrpEngine, HogEngine, VpkEngine, GobEngine, RffEngine, BigEngine, PodEngine)
 - **AdfEngine** — ADFlib wrapper for Amiga floppy disk images
 - **MpqEngine** — StormLib wrapper for Blizzard MPQ archives
 

@@ -35,17 +35,89 @@ set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(ZLIB_INSTALL      OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(zlib)
 
-# Custom FindZLIB that aliases to our zlibstatic target
+# Custom Find modules that alias FetchContent targets for downstream deps
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 set(HAVE_SNPRINTF TRUE CACHE INTERNAL "")
 
 # ====================================================================
+# bzip2  –  bzip2 compression (for libarchive tar.bz2 support)
+# ====================================================================
+FetchContent_Declare(
+    bzip2
+    GIT_REPOSITORY https://github.com/libarchive/bzip2.git
+    GIT_TAG        bzip2-1.0.8
+    GIT_SHALLOW    TRUE
+    DOWNLOAD_ONLY  TRUE
+)
+FetchContent_MakeAvailable(bzip2)
+add_library(bz2_static STATIC
+    ${bzip2_SOURCE_DIR}/blocksort.c
+    ${bzip2_SOURCE_DIR}/huffman.c
+    ${bzip2_SOURCE_DIR}/crctable.c
+    ${bzip2_SOURCE_DIR}/randtable.c
+    ${bzip2_SOURCE_DIR}/compress.c
+    ${bzip2_SOURCE_DIR}/decompress.c
+    ${bzip2_SOURCE_DIR}/bzlib.c
+)
+target_include_directories(bz2_static PUBLIC ${bzip2_SOURCE_DIR})
+
+# ====================================================================
+# xz (liblzma)  –  xz/lzma compression (for libarchive tar.xz support)
+# ====================================================================
+set(BUILD_TESTING        OFF CACHE BOOL "" FORCE)
+set(CREATE_XZ_SYMLINKS   OFF CACHE BOOL "" FORCE)
+set(CREATE_LZMA_SYMLINKS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    liblzma
+    GIT_REPOSITORY https://github.com/tukaani-project/xz.git
+    GIT_TAG        v5.6.4
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(liblzma)
+set(BUILD_TESTING ON CACHE BOOL "" FORCE)
+
+# ====================================================================
+# zstd  –  Zstandard compression (for libarchive tar.zst support)
+# ====================================================================
+set(ZSTD_BUILD_PROGRAMS  OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_TESTS     OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_SHARED    OFF CACHE BOOL "" FORCE)
+set(ZSTD_BUILD_STATIC    ON  CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    zstd
+    GIT_REPOSITORY https://github.com/facebook/zstd.git
+    GIT_TAG        v1.5.7
+    GIT_SHALLOW    TRUE
+    SOURCE_SUBDIR  build/cmake
+)
+FetchContent_MakeAvailable(zstd)
+
+# ====================================================================
+# lz4  –  LZ4 compression (for libarchive tar.lz4 support)
+# ====================================================================
+set(LZ4_BUILD_CLI         OFF CACHE BOOL "" FORCE)
+set(LZ4_BUILD_LEGACY_LZ4C OFF CACHE BOOL "" FORCE)
+set(BUILD_SHARED_LIBS     OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC_LIBS     ON  CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    lz4
+    GIT_REPOSITORY https://github.com/lz4/lz4.git
+    GIT_TAG        v1.10.0
+    GIT_SHALLOW    TRUE
+    SOURCE_SUBDIR  build/cmake
+)
+FetchContent_MakeAvailable(lz4)
+
+# ====================================================================
 # libzip  –  ZIP read/write (in-place delete/add)
 # ====================================================================
+set(BUILD_SHARED_LIBS  ON  CACHE BOOL "" FORCE)
 set(ENABLE_COMMONCRYPTO OFF CACHE BOOL "" FORCE)
 set(ENABLE_GNUTLS      OFF CACHE BOOL "" FORCE)
 set(ENABLE_MBEDTLS     OFF CACHE BOOL "" FORCE)
 set(ENABLE_OPENSSL     OFF CACHE BOOL "" FORCE)
+set(ENABLE_BZIP2       OFF CACHE BOOL "" FORCE)
+set(ENABLE_LZMA        OFF CACHE BOOL "" FORCE)
 set(BUILD_TOOLS        OFF CACHE BOOL "" FORCE)
 set(BUILD_REGRESS      OFF CACHE BOOL "" FORCE)
 set(BUILD_EXAMPLES     OFF CACHE BOOL "" FORCE)
@@ -64,14 +136,35 @@ FetchContent_MakeAvailable(libzip)
 # miniz  –  ZIP alternative (deprecated, kept for reference)
 # ====================================================================
 
+# Pre-set cache variables so libarchive finds our FetchContent-built deps.
+# BZip2 and LibLZMA use find_package(); LZ4 and Zstd use FIND_PATH/FIND_LIBRARY.
+set(BZIP2_FOUND       TRUE            CACHE BOOL "" FORCE)
+set(BZIP2_INCLUDE_DIR "${bzip2_SOURCE_DIR}" CACHE PATH "" FORCE)
+set(BZIP2_LIBRARIES   "bz2_static"    CACHE STRING "" FORCE)
+
+set(LIBLZMA_FOUND            TRUE CACHE BOOL "" FORCE)
+set(LIBLZMA_HAS_AUTO_DECODER TRUE CACHE BOOL "" FORCE)
+set(LIBLZMA_HAS_EASY_ENCODER TRUE CACHE BOOL "" FORCE)
+set(LIBLZMA_HAS_LZMA_PRESET TRUE CACHE BOOL "" FORCE)
+set(LIBLZMA_INCLUDE_DIR  "${liblzma_SOURCE_DIR}/src/liblzma/api" CACHE PATH "" FORCE)
+set(LIBLZMA_INCLUDE_DIRS "${liblzma_SOURCE_DIR}/src/liblzma/api" CACHE PATH "" FORCE)
+set(LIBLZMA_LIBRARIES    "liblzma"     CACHE STRING "" FORCE)
+set(LIBLZMA_LIBRARY      "liblzma"     CACHE STRING "" FORCE)
+
+set(LZ4_INCLUDE_DIR  "${lz4_SOURCE_DIR}/lib"  CACHE PATH "" FORCE)
+set(LZ4_LIBRARY      "lz4_static"             CACHE STRING "" FORCE)
+
+set(ZSTD_INCLUDE_DIR "${zstd_SOURCE_DIR}/lib"  CACHE PATH "" FORCE)
+set(ZSTD_LIBRARY     "libzstd_static"          CACHE STRING "" FORCE)
+
 # ====================================================================
-# libarchive  –  7z read/write + RAR read
+# libarchive  –  7z read/write + RAR read + compressed tar support
 # ====================================================================
-set(ENABLE_ZLIB         OFF CACHE BOOL "" FORCE)
-set(ENABLE_BZip2        OFF CACHE BOOL "" FORCE)
-set(ENABLE_LZMA         OFF CACHE BOOL "" FORCE)
-set(ENABLE_LZ4          OFF CACHE BOOL "" FORCE)
-set(ENABLE_ZSTD         OFF CACHE BOOL "" FORCE)
+set(ENABLE_ZLIB         ON  CACHE BOOL "" FORCE)
+set(ENABLE_BZip2        ON  CACHE BOOL "" FORCE)
+set(ENABLE_LZMA         ON  CACHE BOOL "" FORCE)
+set(ENABLE_LZ4          ON  CACHE BOOL "" FORCE)
+set(ENABLE_ZSTD         ON  CACHE BOOL "" FORCE)
 set(ENABLE_LIBB2        OFF CACHE BOOL "" FORCE)
 set(ENABLE_OPENSSL      OFF CACHE BOOL "" FORCE)
 set(ENABLE_EXPAT        OFF CACHE BOOL "" FORCE)
@@ -95,6 +188,17 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(libarchive)
+
+# CHECK_FUNCTION_EXISTS can't link against not-yet-built FetchContent libs,
+# so patch config.h for the defines it missed.
+set(_la_config "${libarchive_BINARY_DIR}/config.h")
+file(READ "${_la_config}" _la_config_h)
+string(REPLACE "/* #undef HAVE_LIBLZMA */"          "#define HAVE_LIBLZMA 1"          _la_config_h "${_la_config_h}")
+string(REPLACE "/* #undef HAVE_LZMA_H */"           "#define HAVE_LZMA_H 1"           _la_config_h "${_la_config_h}")
+string(REPLACE "/* #undef HAVE_LIBZSTD */"           "#define HAVE_LIBZSTD 1"          _la_config_h "${_la_config_h}")
+string(REPLACE "/* #undef HAVE_ZSTD_compressStream */" "#define HAVE_ZSTD_compressStream 1" _la_config_h "${_la_config_h}")
+string(REPLACE "/* #undef HAVE_LZMA_STREAM_ENCODER_MT */" "#define HAVE_LZMA_STREAM_ENCODER_MT 1" _la_config_h "${_la_config_h}")
+file(WRITE "${_la_config}" "${_la_config_h}")
 
 target_compile_definitions(archive_static PRIVATE LIBARCHIVE_STATIC)
 
@@ -221,6 +325,10 @@ set(ZIPFX_SOURCES
     src/engine/HogEngine.cpp
     src/engine/GrpEngine.cpp
     src/engine/VpkEngine.cpp
+    src/engine/GobEngine.cpp
+    src/engine/RffEngine.cpp
+    src/engine/BigEngine.cpp
+    src/engine/PodEngine.cpp
     src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp
 )
@@ -304,6 +412,7 @@ endif()
 # ====================================================================
 # Tests
 # ====================================================================
+set(BUILD_TESTING ON CACHE BOOL "" FORCE)
 if(BUILD_TESTING)
     find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Test)
     add_subdirectory(tests)

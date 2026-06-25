@@ -12,6 +12,10 @@
 #include "engine/GrpEngine.h"
 #include "engine/HogEngine.h"
 #include "engine/VpkEngine.h"
+#include "engine/GobEngine.h"
+#include "engine/RffEngine.h"
+#include "engine/BigEngine.h"
+#include "engine/PodEngine.h"
 #include "engine/ArchiveEntry.h"
 #include "TestUtils.h"
 
@@ -128,6 +132,10 @@ int main()
     testFormat("GRP", ".grp", []() { return std::make_unique<GrpEngine>(); });
     testFormat("HOG", ".hog", []() { return std::make_unique<HogEngine>(); });
     testFormat("VPK", ".vpk", []() { return std::make_unique<VpkEngine>(); });
+    testFormat("GOB", ".gob", []() { return std::make_unique<GobEngine>(); });
+    testFormat("RFF", ".rff", []() { return std::make_unique<RffEngine>(); });
+    testFormat("BIG", ".big", []() { return std::make_unique<BigEngine>(); });
+    testFormat("POD", ".pod", []() { return std::make_unique<PodEngine>(); });
 
     printf("\n%d / %d tests passed\n", passed, total);
     return (passed == total) ? 0 : 1;

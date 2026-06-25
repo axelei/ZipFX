@@ -10,6 +10,10 @@
 #include "HogEngine.h"
 #include "VpkEngine.h"
 #include "MpqEngine.h"
+#include "GobEngine.h"
+#include "RffEngine.h"
+#include "BigEngine.h"
+#include "PodEngine.h"
 #include "LibarchiveEngine.h"
 #include "FileSignature.h"
 
@@ -44,6 +48,75 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<ZipEngine>(); },              true  },
     { "TAR.GZ", ".tar,.tgz,.gz,.tar.gz",             ArchiveType::Gzip,
         []() { return std::make_unique<TarGzEngine>(); },            true  },
+
+    // ── Compressed tar variants (via libarchive) ─────
+    { "TAR.BZ2", ".tar.bz2,.tbz2,.tbz",             ArchiveType::Bzip2,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_bzip2 },
+            "TAR.BZ2", false, "bzip2"); },                           false },
+    { "TAR.XZ", ".tar.xz,.txz",                     ArchiveType::Xz,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_xz },
+            "TAR.XZ", false, "xz"); },                               false },
+    { "TAR.ZST", ".tar.zst,.tzst",                  ArchiveType::Zstd,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_zstd },
+            "TAR.ZST", false, "zstd"); },                            false },
+    { "TAR.LZ4", ".tar.lz4",                        ArchiveType::Lz4,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_lz4 },
+            "TAR.LZ4", false, "lz4"); },                             false },
+    { "TAR.LZMA", ".tar.lzma",                      ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_lzma },
+            "TAR.LZMA", false, "lzma"); },                           false },
+
+    // ── Standalone compression (single-file) ─────────
+    { "BZ2",    ".bz2",                              ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_bzip2 },
+            "BZ2", false, "bzip2"); },                               false },
+    { "XZ",     ".xz",                               ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_xz },
+            "XZ", false, "xz"); },                                   false },
+    { "ZST",    ".zst,.zstd",                        ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_zstd },
+            "ZST", false, "zstd"); },                                false },
+    { "LZ4",    ".lz4",                              ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_lz4 },
+            "LZ4", false, "lz4"); },                                 false },
+    { "LZMA",   ".lzma",                             ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_lzma },
+            "LZMA", false, "lzma"); },                               false },
 
     // ── Libarchive-based engines ──────────────────────
     { "7z",     ".7z,.001,.002,.003,.004,.005,.006,.007,.008,.009",  ArchiveType::SevenZip,
@@ -100,6 +173,16 @@ static const FormatEntry kFormats[] = {
             std::vector<LibarchiveEngine::FormatRegistrar>{
                 archive_read_support_format_ar },
             "AR"); },                                                false },
+    { "WARC",   ".warc",                             ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_warc },
+            "WARC"); },                                              false },
+    { "MTREE",  ".mtree",                            ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_mtree },
+            "MTREE"); },                                             false },
     { "ADF",    ".adf,.adz",                         ArchiveType::Adf,
         []() { return std::make_unique<AdfEngine>(); },              false },
 
@@ -114,6 +197,14 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<HogEngine>(); },               false },
     { "VPK",    ".vpk",                              ArchiveType::Vpk,
         []() { return std::make_unique<VpkEngine>(); },                 false },
+    { "GOB",    ".gob",                              ArchiveType::Gob,
+        []() { return std::make_unique<GobEngine>(); },               false },
+    { "RFF",    ".rff",                              ArchiveType::Rff,
+        []() { return std::make_unique<RffEngine>(); },               false },
+    { "BIG",    ".big,.viv",                         ArchiveType::Big,
+        []() { return std::make_unique<BigEngine>(); },               false },
+    { "POD",    ".pod",                              ArchiveType::Pod,
+        []() { return std::make_unique<PodEngine>(); },               false },
     { "MPQ",    ".mpq,.mpk,.w3x,.w3m",               ArchiveType::Mpq,
         []() { return std::make_unique<MpqEngine>(); },                  true  },
 
@@ -261,13 +352,29 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
     std::string ext(path.substr(dot));
     toLowerInPlace(ext);
 
-    // Check double extension .tar.gz
-    if (path.size() > 7)
+    // Check double extensions for compressed tars
+    static const struct { const char* suffix; const char* formatName; } kDoubleExts[] = {
+        { ".tar.gz",   "TAR.GZ"   },
+        { ".tar.bz2",  "TAR.BZ2"  },
+        { ".tar.xz",   "TAR.XZ"   },
+        { ".tar.zst",  "TAR.ZST"  },
+        { ".tar.lz4",  "TAR.LZ4"  },
+        { ".tar.lzma", "TAR.LZMA" },
+    };
+    for (const auto& de : kDoubleExts)
     {
-        std::string doubleExt(path.substr(path.size() - 7));
-        toLowerInPlace(doubleExt);
-        if (doubleExt == ".tar.gz")
-            return kFormats[1].create(); // TAR.GZ
+        size_t suffixLen = std::strlen(de.suffix);
+        if (path.size() > suffixLen)
+        {
+            std::string suffix(path.substr(path.size() - suffixLen));
+            toLowerInPlace(suffix);
+            if (suffix == de.suffix)
+            {
+                for (const auto& fmt : kFormats)
+                    if (std::string_view(fmt.name) == de.formatName)
+                        return fmt.create();
+            }
+        }
     }
 
     for (const auto& fmt : kFormats)

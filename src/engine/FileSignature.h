@@ -28,7 +28,17 @@ enum class ArchiveType
     Grp,
     Hog,
     Vpk,
-    Mpq
+    Mpq,
+    Warc,
+    Mtree,
+    Bzip2,
+    Xz,
+    Zstd,
+    Lz4,
+    Gob,
+    Rff,
+    Big,
+    Pod
 };
 
 struct FileSignature

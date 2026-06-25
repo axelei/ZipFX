@@ -28,4 +28,17 @@ inline void writeLE16(std::ofstream& f, uint16_t v)
     f.write(reinterpret_cast<const char*>(b), 2);
 }
 
+inline uint32_t readBE32(const uint8_t* d)
+{
+    return (static_cast<uint32_t>(d[0]) << 24) | (static_cast<uint32_t>(d[1]) << 16)
+         | (static_cast<uint32_t>(d[2]) << 8)  | static_cast<uint32_t>(d[3]);
+}
+
+inline void writeBE32(std::ofstream& f, uint32_t v)
+{
+    uint8_t b[4] = { static_cast<uint8_t>(v >> 24), static_cast<uint8_t>(v >> 16),
+                     static_cast<uint8_t>(v >> 8),  static_cast<uint8_t>(v) };
+    f.write(reinterpret_cast<const char*>(b), 4);
+}
+
 #endif

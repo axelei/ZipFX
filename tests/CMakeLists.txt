@@ -15,6 +15,10 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/GrpEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/HogEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/VpkEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/GobEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/RffEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/BigEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/PodEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp

@@ -86,7 +86,8 @@ bool LibarchiveEngine::LoadEntries()
         ArchiveEntry ae;
         ae.name = archive_entry_pathname(entry);
         ae.path = ae.name;
-        ae.size = static_cast<uint64_t>(archive_entry_size(entry));
+        la_int64_t rawSize = archive_entry_size(entry);
+        ae.size = rawSize > 0 ? static_cast<uint64_t>(rawSize) : 0;
         ae.packedSize = ae.size;
         ae.isDirectory = archive_entry_filetype(entry) == AE_IFDIR;
         ae.permissions = archive_entry_perm(entry) & 0xFFF;
@@ -99,6 +100,14 @@ bool LibarchiveEngine::LoadEntries()
         ae.compressionMethod = m_compressionMethod;
 
         m_entries.push_back(std::move(ae));
+    }
+
+    if (m_entries.size() == 1 && m_entries[0].name == "data")
+    {
+        fs::path archivePath(m_path);
+        std::string stem = archivePath.stem().string();
+        if (!stem.empty())
+            m_entries[0].name = m_entries[0].path = stem;
     }
 
     return true;
@@ -196,32 +205,45 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
     }
 
     std::string name(entryName);
+    bool singleEntry = (m_entries.size() == 1);
     struct archive_entry* entry;
     while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
     {
         const char* currentName = archive_entry_pathname(entry);
         if (!currentName) continue;
 
-        if (name == currentName)
+        if (name == currentName || (singleEntry && m_entries[0].name == name))
         {
             la_int64_t size = archive_entry_size(entry);
-            if (size <= 0)
+            if (size > 0)
             {
-                return {};
+                std::vector<uint8_t> data(static_cast<size_t>(size));
+                la_ssize_t bytesRead = archive_read_data(
+                    m_archive, data.data(), static_cast<size_t>(size));
+
+                if (bytesRead < 0)
+                {
+                    LOG_WARN("%s: archive_read_data failed: %s",
+                             m_formatName.c_str(), archive_error_string(m_archive));
+                    return {};
+                }
+
+                data.resize(static_cast<size_t>(bytesRead));
+                return data;
             }
 
-            std::vector<uint8_t> data(static_cast<size_t>(size));
-            la_ssize_t bytesRead = archive_read_data(
-                m_archive, data.data(), static_cast<size_t>(size));
-
+            // Streaming read for unknown-size entries (format_raw)
+            std::vector<uint8_t> data;
+            std::array<uint8_t, 65536> buf;
+            la_ssize_t bytesRead;
+            while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
+                data.insert(data.end(), buf.begin(), buf.begin() + bytesRead);
             if (bytesRead < 0)
             {
                 LOG_WARN("%s: archive_read_data failed: %s",
                          m_formatName.c_str(), archive_error_string(m_archive));
                 return {};
             }
-
-            data.resize(static_cast<size_t>(bytesRead));
             return data;
         }
 
