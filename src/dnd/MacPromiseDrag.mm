@@ -2,7 +2,7 @@
 #include <objc/runtime.h>
 #include "engine/ArchiveEngine.h"
 
-@interface BatchDelegate : NSObject <NSFilePromiseProviderDelegate>
+@interface BatchDelegate : NSObject <NSFilePromiseProviderDelegate, NSDraggingSource>
 @property (readwrite) ArchiveEngine* engine;
 @property (copy) NSArray* archivePaths;
 @property (copy) NSArray* displayPaths;
@@ -40,6 +40,10 @@
         h(err);
     });
 }
+- (NSDragOperation)draggingSession:(NSDraggingSession*)s sourceOperationMaskForDraggingContext:(NSDraggingContext)ctx
+{
+    return NSDragOperationCopy;
+}
 - (void)dealloc { [_archivePaths release]; [_displayPaths release]; [super dealloc]; }
 @end
 
@@ -74,7 +78,7 @@ extern "C" int startMacFilePromiseDrag(void* nsview, ArchiveEngine* engine, cons
     [item setDraggingFrame:NSMakeRect(0, 0, 32, 32)
                  contents:[[[NSImage alloc] initWithSize:NSMakeSize(32, 32)] autorelease]];
 
-    [view beginDraggingSessionWithItems:@[item] event:evt source:nil];
+    [view beginDraggingSessionWithItems:@[item] event:evt source:d];
 
     [prv release]; [item release];
     return 0;
