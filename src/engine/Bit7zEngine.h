@@ -44,6 +44,8 @@ public:
     bool IsOpen() const override { return m_isOpen; }
 
     // Settings (call before Create/Save)
+    std::string archiveComment() const override;
+
     void setPassword(const std::string& pwd) { m_password = pwd; }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }

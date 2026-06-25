@@ -22,6 +22,7 @@ public:
         ColModified,
         ColCRC,
         ColPermissions,
+        ColComment,
         ColCount
     };
 
@@ -69,6 +70,7 @@ public:
         uint32_t    permissions = 0;
         time_t      modified = 0;
         bool        hasEntry = false;
+        QString     comment;
 
         Item*       parentItem = nullptr;
         std::vector<Item*> children;

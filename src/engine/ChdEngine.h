@@ -22,7 +22,7 @@ public:
 
     void cancelExtract() override { m_extractCancelled = true; }
 
-    std::string_view FormatName() const override { return "CHD"; }
+    std::string_view FormatName() const override { return m_formatLabel; }
     bool SupportsCreation() const override { return false; }
     bool IsOpen() const override { return m_chd != nullptr; }
 
@@ -41,6 +41,7 @@ private:
 
     chd_file* m_chd = nullptr;
     std::string m_path;
+    std::string m_formatLabel = "CHD";
     uint32_t m_hunkBytes = 0;
     uint64_t m_logicalBytes = 0;
     std::vector<TrackInfo> m_tracks;

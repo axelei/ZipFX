@@ -58,11 +58,40 @@ bool ChdEngine::Open(std::string_view path)
         ae.size = t.size;
         ae.packedSize = 0;
         ae.isDirectory = false;
-        ae.compressionMethod = "CHD";
+        ae.compressionMethod = t.type;
         m_entries.push_back(std::move(ae));
     }
 
-    LOG_DBG("CHD: opened %s (%zu entries)", m_path.c_str(), m_entries.size());
+    // Build a descriptive format label from the disc type
+    if (!m_tracks.empty())
+    {
+        const auto& type = m_tracks[0].type;
+        if (type == "DVD")
+            m_formatLabel = "CHD (DVD)";
+        else if (type == "HDD")
+            m_formatLabel = "CHD (HDD)";
+        else if (type == "RAW")
+            m_formatLabel = "CHD (Raw)";
+        else
+        {
+            bool hasAudio = false, hasData = false;
+            for (const auto& t : m_tracks)
+            {
+                if (t.type == "AUDIO") hasAudio = true;
+                else hasData = true;
+            }
+            if (m_tracks.size() == 1 && hasData)
+                m_formatLabel = "CHD (ISO)";
+            else if (hasData && hasAudio)
+                m_formatLabel = "CHD (Mixed CD)";
+            else if (hasAudio)
+                m_formatLabel = "CHD (Audio CD)";
+            else
+                m_formatLabel = "CHD (CD)";
+        }
+    }
+
+    LOG_DBG("CHD: opened %s (%zu entries, %s)", m_path.c_str(), m_entries.size(), m_formatLabel.c_str());
     return true;
 }
 

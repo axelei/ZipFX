@@ -41,6 +41,7 @@
 #include <QPushButton>
 #include <QHeaderView>
 #include <QDateTime>
+#include <QProgressBar>
 #include <QProgressDialog>
 #include <QInputDialog>
 #include <QTextEdit>
@@ -150,6 +151,8 @@ void MainWindow::setupMenus()
     fileMenu->addAction(tr("&Open Archive...\tCtrl+O"), this, &MainWindow::onOpenArchive);
     fileMenu->addAction(tr("&Close Archive\tCtrl+C"), this, &MainWindow::onCloseArchive);
     fileMenu->addSeparator();
+    fileMenu->addAction(tr("E&xtract to...\tCtrl+E"), this, &MainWindow::onExtractAll);
+    fileMenu->addSeparator();
     fileMenu->addAction(tr("E&xit\tAlt+F4"), this, &QMainWindow::close);
 
     // Commands
@@ -168,6 +171,7 @@ void MainWindow::setupMenus()
     });
 
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
+    cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
 
     // Options
     auto optsMenu = menuBar()->addMenu(tr("&Options"));
@@ -463,6 +467,41 @@ bool MainWindow::saveWithProgress()
     return true;
 }
 
+bool MainWindow::runSave(const QString& label)
+{
+    QDialog dlg(this, Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+    dlg.setWindowTitle(label.isEmpty() ? tr("Saving...") : label);
+    dlg.setFixedSize(300, 80);
+    auto* lay = new QVBoxLayout(&dlg);
+    auto* lbl = new QLabel(label.isEmpty() ? tr("Saving...") : label, &dlg);
+    lbl->setAlignment(Qt::AlignCenter);
+    lay->addWidget(lbl);
+    auto* bar = new QProgressBar(&dlg);
+    bar->setRange(0, 0);
+    lay->addWidget(bar);
+    dlg.setWindowModality(Qt::ApplicationModal);
+    dlg.show();
+    QApplication::processEvents();
+
+    std::atomic<bool> done{false};
+    std::atomic<bool> ok{false};
+
+    std::thread t([this, &done, &ok]() {
+        ok = m_engine->Save();
+        done = true;
+    });
+
+    while (!done)
+        QApplication::processEvents(QEventLoop::AllEvents, 16);
+
+    if (t.joinable()) t.join();
+
+    if (!ok)
+        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
+
+    return ok;
+}
+
 bool MainWindow::extractFileWithProgress(
     const ArchiveEntry& entry, const QString& destFile,
     ProgressInfo& pi, uint64_t baseBytes)
@@ -593,6 +632,9 @@ void MainWindow::onNewArchive()
     }
 
     m_engine = std::move(engine);
+
+    if (!result.comment.isEmpty())
+        m_engine->setArchiveComment(result.comment.toStdString());
 
     // Auto-add source items if provided
     if (!result.sourcePaths.isEmpty())
@@ -1350,7 +1392,70 @@ void MainWindow::onInfo()
         text += tr("Compression ratio: %1%\n").arg(ratio);
     }
 
+    std::string comment = m_engine->archiveComment();
+    if (!comment.empty())
+        text += tr("\nComment:\n%1\n").arg(QString::fromUtf8(comment.c_str()));
+
     QMessageBox::information(this, tr("Archive Information"), text);
+}
+
+void MainWindow::onArchiveComment()
+{
+    if (!m_engine) return;
+
+    std::string current = m_engine->archiveComment();
+    bool ok = false;
+    QString text = QInputDialog::getMultiLineText(this, tr("Archive Comment"),
+        tr("Comment:"), QString::fromUtf8(current.c_str()), &ok);
+    if (!ok) return;
+
+    if (m_engine->setArchiveComment(text.toStdString()))
+    {
+        runSave(tr("Updating comment..."));
+        statusBar()->showMessage(tr("Archive comment updated."), 3000);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Error"),
+            tr("This format does not support archive comments."));
+    }
+}
+
+void MainWindow::onEntryComment()
+{
+    if (!m_engine) return;
+
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.isEmpty()) return;
+
+    auto paths = m_model->selectedEntryPaths(sel);
+    if (paths.isEmpty()) return;
+
+    QString entryPath = paths[0];
+    std::string entryStd = entryPath.toStdString();
+
+    // Find current comment
+    std::string current;
+    for (const auto& e : m_engine->ListContents())
+        if (e.path == entryStd) { current = e.comment; break; }
+
+    bool ok = false;
+    QString text = QInputDialog::getMultiLineText(this, tr("File Comment"),
+        tr("Comment for %1:").arg(entryPath),
+        QString::fromUtf8(current.c_str()), &ok);
+    if (!ok) return;
+
+    if (m_engine->setEntryComment(entryStd, text.toStdString()))
+    {
+        runSave(tr("Updating comment..."));
+        refreshFileList();
+        statusBar()->showMessage(tr("File comment updated."), 3000);
+    }
+    else
+    {
+        QMessageBox::warning(this, tr("Error"),
+            tr("This format does not support file comments."));
+    }
 }
 
 void MainWindow::onDelete()
@@ -1370,7 +1475,7 @@ void MainWindow::onDelete()
     for (const auto& p : paths)
         m_engine->RemoveEntry(p.toStdString());
 
-    m_engine->Save();
+    runSave(tr("Deleting..."));
     refreshFileList();
 }
 
@@ -1434,12 +1539,44 @@ void MainWindow::onContextMenu(const QPoint& pos)
             if (!prefix.isEmpty()) prefix += "/";
             QString fullNew = prefix + newName;
 
-            if (m_engine->RenameEntry(oldName.toStdString(), fullNew.toStdString()))
+            QDialog busyDlg(this, Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
+            busyDlg.setWindowTitle(tr("Renaming..."));
+            busyDlg.setFixedSize(300, 80);
+            auto* bLay = new QVBoxLayout(&busyDlg);
+            auto* bLbl = new QLabel(tr("Renaming..."), &busyDlg);
+            bLbl->setAlignment(Qt::AlignCenter);
+            bLay->addWidget(bLbl);
+            auto* bBar = new QProgressBar(&busyDlg);
+            bBar->setRange(0, 0);
+            bLay->addWidget(bBar);
+            busyDlg.setWindowModality(Qt::ApplicationModal);
+            busyDlg.show();
+            QApplication::processEvents();
+
+            std::atomic<bool> done{false};
+            std::atomic<bool> ok{false};
+            std::string oldStd = oldName.toStdString();
+            std::string newStd = fullNew.toStdString();
+
+            std::thread t([this, &done, &ok, &oldStd, &newStd]() {
+                ok = m_engine->RenameEntry(oldStd, newStd);
+                if (ok) ok = m_engine->Save();
+                done = true;
+            });
+
+            while (!done)
+                QApplication::processEvents(QEventLoop::AllEvents, 16);
+            if (t.joinable()) t.join();
+
+            if (ok)
                 refreshFileList();
             else
                 QMessageBox::warning(this, tr("Error"), tr("Rename failed."));
         });
         renameAct->setEnabled(hasSelection);
+
+        QAction* commentAct = menu.addAction(tr("Comment..."), this, &MainWindow::onEntryComment);
+        commentAct->setEnabled(hasSelection);
 
         QAction* delAct = menu.addAction(tr("Delete"), this, &MainWindow::onDelete);
         delAct->setEnabled(hasSelection);

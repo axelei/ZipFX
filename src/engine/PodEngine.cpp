@@ -6,7 +6,7 @@
 
 bool PodEngine::Open(std::string_view path)
 {
-    return parse(path, "POD", [](std::ifstream& f, std::vector<FileEntry>& entries) {
+    return parse(path, "POD", [this](std::ifstream& f, std::vector<FileEntry>& entries) {
         entries.clear();
         uint8_t hdr[8];
         f.read(reinterpret_cast<char*>(hdr), 8);
@@ -20,7 +20,17 @@ bool PodEngine::Open(std::string_view path)
 
         // POD2/POD3 have an 80-byte comment after the header
         if (ver == '2' || ver == '3' || ver == '5')
-            f.seekg(8 + 80);
+        {
+            char commentBuf[80] = {};
+            f.read(commentBuf, 80);
+            size_t clen = strnlen(commentBuf, 80);
+            while (clen > 0 && commentBuf[clen - 1] == ' ') --clen;
+            m_comment.assign(commentBuf, clen);
+        }
+        else
+        {
+            m_comment.clear();
+        }
 
         // Directory entries: name[32] + size[4] + offset[4]
         for (uint32_t i = 0; i < count; ++i)

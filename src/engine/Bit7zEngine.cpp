@@ -10,6 +10,7 @@
 #include <bit7z/bitformat.hpp>
 #include <bit7z/bittypes.hpp>
 #include <bit7z/bitcompressionlevel.hpp>
+#include <bit7z/bitpropvariant.hpp>
 
 #include <QApplication>
 #include <QDir>
@@ -129,6 +130,10 @@ bool Bit7zEngine::Open(std::string_view path)
             if (ae.permissions == 0)
                 ae.permissions = ae.isDirectory ? 0755 : 0644;
             ae.crc = item.crc();
+            try {
+                auto cv = item.itemProperty(bit7z::BitProperty::Comment);
+                if (cv.isString()) ae.comment = cv.getString();
+            } catch (...) {}
             m_entries.push_back(std::move(ae));
         }
 
@@ -164,6 +169,16 @@ void Bit7zEngine::Close()
     m_entries.clear();
     m_pendingAdds.clear();
     m_pendingDeletes.clear();
+}
+
+std::string Bit7zEngine::archiveComment() const
+{
+    if (!m_reader) return {};
+    try {
+        auto val = m_reader->archiveProperty(bit7z::BitProperty::Comment);
+        if (val.isString()) return val.getString();
+    } catch (...) {}
+    return {};
 }
 
 const std::vector<ArchiveEntry>& Bit7zEngine::ListContents()

@@ -6,6 +6,7 @@
 #include <QComboBox>
 #include <QSpinBox>
 #include <QCheckBox>
+#include <QPlainTextEdit>
 #include <QStringList>
 
 struct CreateArchiveResult
@@ -17,6 +18,7 @@ struct CreateArchiveResult
     QString password;
     bool encryptFilenames = false;
     int volumeSize = 0;
+    QString comment;
 };
 
 class CreateArchiveDialog : public QDialog
@@ -46,6 +48,7 @@ private:
     QLineEdit*   m_passwordEdit = nullptr;
     QCheckBox*   m_encryptNamesCheck = nullptr;
     QSpinBox*    m_volumeSpin = nullptr;
+    QPlainTextEdit* m_commentEdit = nullptr;
 
     struct FormatInfo
     {

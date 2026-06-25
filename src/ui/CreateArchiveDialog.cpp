@@ -106,6 +106,15 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     volLayout->addStretch();
     mainLayout->addWidget(volGroup);
 
+    // ── Comment ────────────────────────────────────────────
+    auto commentGroup = new QGroupBox(tr("Archive Comment"), this);
+    auto commentLayout = new QVBoxLayout(commentGroup);
+    m_commentEdit = new QPlainTextEdit(commentGroup);
+    m_commentEdit->setMaximumHeight(60);
+    m_commentEdit->setPlaceholderText(tr("Optional archive comment"));
+    commentLayout->addWidget(m_commentEdit);
+    mainLayout->addWidget(commentGroup);
+
     // ── Buttons ────────────────────────────────────────────
     auto btnLayout = new QHBoxLayout();
     btnLayout->addStretch();
@@ -222,6 +231,7 @@ CreateArchiveResult CreateArchiveDialog::result() const
         m_sourcePaths,
         m_passwordEdit->text(),
         m_encryptNamesCheck->isChecked(),
-        m_volumeSpin->value()
+        m_volumeSpin->value(),
+        m_commentEdit->toPlainText()
     };
 }

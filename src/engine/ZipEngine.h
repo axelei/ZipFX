@@ -31,6 +31,10 @@ public:
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;
 
+    std::string archiveComment() const override;
+    bool setArchiveComment(std::string_view comment) override;
+    bool setEntryComment(std::string_view entryName, std::string_view comment) override;
+
     void setPassword(const std::string& pwd) { m_password = pwd; }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void cancelExtract() override { m_extractCancelled = true; }

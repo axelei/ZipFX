@@ -138,6 +138,7 @@ void FileListModel::rebuild()
             item->permissions = e.permissions;
             item->modified = std::chrono::system_clock::to_time_t(e.modified);
             item->hasEntry = true;
+            item->comment = QString::fromUtf8(e.comment.c_str());
             item->parentItem = m_rootItem;
             m_rootItem->children.push_back(item);
         }
@@ -195,6 +196,7 @@ void FileListModel::rebuild()
                 item->crc = e.crc;
                 item->modified = std::chrono::system_clock::to_time_t(e.modified);
                 item->hasEntry = true;
+                item->comment = QString::fromUtf8(e.comment.c_str());
                 item->parentItem = m_rootItem;
                 m_rootItem->children.push_back(item);
             }
@@ -257,6 +259,8 @@ QVariant FileListModel::data(const QModelIndex& index, int role) const
             s += (m & 00001) ? 'x' : '-';
             return s;
         }
+        case ColComment:
+            return item->comment;
         }
     }
 
@@ -277,6 +281,7 @@ QVariant FileListModel::headerData(int section, Qt::Orientation orientation, int
     case ColModified: return tr("Modified");
     case ColCRC:      return tr("CRC");
     case ColPermissions: return tr("Permissions");
+    case ColComment:     return tr("Comment");
     }
     return {};
 }

@@ -67,6 +67,8 @@ private slots:
     void onView();
     void onInfo();
     void onDelete();
+    void onArchiveComment();
+    void onEntryComment();
 
     void onItemDoubleClicked(const QModelIndex& index);
     void onContextMenu(const QPoint& pos);
@@ -86,6 +88,7 @@ private:
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
     bool saveWithProgress();
+    bool runSave(const QString& label = {});
     bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile,
                                  ProgressInfo& pi, uint64_t baseBytes);
     void afterActionDialog();

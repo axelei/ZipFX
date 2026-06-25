@@ -119,6 +119,36 @@ void ZipEngine::LoadEntries()
     }
 }
 
+// ── Archive comment ───────────────────────────────────────────────────
+std::string ZipEngine::archiveComment() const
+{
+    if (!m_zip) return {};
+    int len = 0;
+    const char* c = zip_get_archive_comment(m_zip, &len, 0);
+    if (c && len > 0) return std::string(c, len);
+    return {};
+}
+
+bool ZipEngine::setArchiveComment(std::string_view comment)
+{
+    if (!m_zip) return false;
+    if (zip_set_archive_comment(m_zip, comment.data(), static_cast<zip_uint16_t>(comment.size())) != 0)
+        return false;
+    m_modified = true;
+    return true;
+}
+
+bool ZipEngine::setEntryComment(std::string_view entryName, std::string_view comment)
+{
+    if (!m_zip) return false;
+    zip_int64_t idx = zip_name_locate(m_zip, std::string(entryName).c_str(), 0);
+    if (idx < 0) return false;
+    if (zip_file_set_comment(m_zip, idx, comment.data(), static_cast<zip_uint16_t>(comment.size()), 0) != 0)
+        return false;
+    m_modified = true;
+    return true;
+}
+
 // ── Reading ────────────────────────────────────────────────────────────
 const std::vector<ArchiveEntry>& ZipEngine::ListContents()
 {
