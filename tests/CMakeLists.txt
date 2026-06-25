@@ -19,6 +19,7 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/RffEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/BigEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/PodEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/ChdEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
@@ -31,6 +32,7 @@ set(TEST_LIBS
     archive_static
     zlibstatic
     adf
+    chdr-static
     bit7z
     storm
     Qt${QT_VERSION_MAJOR}::Widgets
@@ -74,6 +76,7 @@ macro(add_zipfx_test TEST_NAME)
         ${libarchive_SOURCE_DIR}/libarchive
         ${adflib_SOURCE_DIR}
         ${storm_SOURCE_DIR}/src
+        ${libchdr_SOURCE_DIR}/include
         ${CLI11_SOURCE_DIR}/include
     )
     target_compile_definitions(${TEST_NAME} PRIVATE

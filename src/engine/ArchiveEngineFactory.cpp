@@ -14,6 +14,7 @@
 #include "RffEngine.h"
 #include "BigEngine.h"
 #include "PodEngine.h"
+#include "ChdEngine.h"
 #include "LibarchiveEngine.h"
 #include "FileSignature.h"
 
@@ -207,6 +208,10 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<PodEngine>(); },               false },
     { "MPQ",    ".mpq,.mpk,.w3x,.w3m",               ArchiveType::Mpq,
         []() { return std::make_unique<MpqEngine>(); },                  true  },
+
+    // ── Compressed disc images ─────────────────────────
+    { "CHD",    ".chd",                              ArchiveType::Chd,
+        []() { return std::make_unique<ChdEngine>(); },               false },
 
     // ── Disk images (via Bit7z) ───────────────────────
     // These need 7z.dll; explicit entries give proper FormatName display.

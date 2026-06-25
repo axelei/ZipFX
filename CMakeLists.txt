@@ -218,6 +218,20 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(adflib)
 
 # ====================================================================
+# libchdr  –  MAME Compressed Hunks of Data (.chd) disc images
+# ====================================================================
+set(BUILD_SHARED_LIBS  OFF CACHE BOOL "" FORCE)
+set(INSTALL_STATIC_LIBS OFF CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    libchdr
+    GIT_REPOSITORY https://github.com/rtissera/libchdr.git
+    GIT_TAG        v0.3.0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(libchdr)
+set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+
+# ====================================================================
 # bit7z  –  additional archive formats via 7-Zip engine (ARJ, DEB, DMG,
 #            MSI, NSIS, RPM, VDI, VHD, VMDK, WIM, etc.)
 # ====================================================================
@@ -329,6 +343,7 @@ set(ZIPFX_SOURCES
     src/engine/RffEngine.cpp
     src/engine/BigEngine.cpp
     src/engine/PodEngine.cpp
+    src/engine/ChdEngine.cpp
     src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp
 )
@@ -350,6 +365,7 @@ target_include_directories(ZipFX PRIVATE
     ${CLI11_SOURCE_DIR}/include
     ${adflib_SOURCE_DIR}/src
     ${storm_SOURCE_DIR}/src
+    ${libchdr_SOURCE_DIR}/include
 )
 
 target_compile_definitions(ZipFX PRIVATE
@@ -363,6 +379,7 @@ target_link_libraries(ZipFX PRIVATE
     zlibstatic
     bit7z
     adf
+    chdr-static
     storm
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network

@@ -38,7 +38,8 @@ enum class ArchiveType
     Gob,
     Rff,
     Big,
-    Pod
+    Pod,
+    Chd
 };
 
 struct FileSignature

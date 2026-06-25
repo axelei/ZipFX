@@ -4,9 +4,10 @@
 
 ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
 a wide range of archive formats through multiple backends: **libzip** for ZIP,
-**libarchive** for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, **Bit7z** (7-Zip engine)
-for extended format support, and native engines for game archive formats,
-Amiga Disk Files, and more.
+**libarchive** for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, compressed tars, and
+standalone compression, **Bit7z** (7-Zip engine) for extended format support,
+**libchdr** for MAME CHD disc images, and native engines for game archive
+formats, Amiga Disk Files, and more.
 
 ---
 
@@ -54,7 +55,19 @@ Amiga Disk Files, and more.
 | XAR | ✅ | ❌ | libarchive | |
 | CPIO | ✅ | ❌ | libarchive | |
 | AR | ✅ | ❌ | libarchive | `.a`, `.deb` |
+| WARC | ✅ | ❌ | libarchive | Web archive format |
+| MTREE | ✅ | ❌ | libarchive | BSD file hierarchy spec |
 | TAR.GZ | ✅ | ✅ | zlib + manual tar | Full create + extract; rewrites on save |
+| TAR.BZ2 | ✅ | ❌ | libarchive | `.tar.bz2`, `.tbz2` |
+| TAR.XZ | ✅ | ❌ | libarchive | `.tar.xz`, `.txz` |
+| TAR.ZST | ✅ | ❌ | libarchive | `.tar.zst`, `.tzst` |
+| TAR.LZ4 | ✅ | ❌ | libarchive | `.tar.lz4` |
+| TAR.LZMA | ✅ | ❌ | libarchive | `.tar.lzma` |
+| BZ2 | ✅ | ❌ | libarchive | Standalone bzip2 |
+| XZ | ✅ | ❌ | libarchive | Standalone xz |
+| ZST | ✅ | ❌ | libarchive | Standalone Zstandard |
+| LZ4 | ✅ | ❌ | libarchive | Standalone LZ4 |
+| LZMA | ✅ | ❌ | libarchive | Standalone LZMA |
 | JAR, APK, DOCX, XLSX, PPTX, ODT, ODS, ODP, EPUB, WAR, EAR | ✅ | ✅ | libzip | ZIP-based formats |
 
 ### Game Archive Formats
@@ -66,6 +79,10 @@ Amiga Disk Files, and more.
 | GRP | ✅ | ✅ | FlatArchiveEngine | Duke Nukem 3D (KenSilverman) |
 | HOG | ✅ | ✅ | FlatArchiveEngine | Descent (HOG) |
 | VPK | ✅ | ✅ | FlatArchiveEngine | Valve (Source engine games) |
+| GOB | ✅ | ✅ | FlatArchiveEngine | Dark Forces / Jedi Knight |
+| RFF | ✅ | ✅ | FlatArchiveEngine | Blood (Monolith) |
+| BIG | ✅ | ✅ | FlatArchiveEngine | EA games (C&C, FIFA) — `.big`, `.viv` |
+| POD | ✅ | ✅ | FlatArchiveEngine | Terminal Velocity / Fury3 |
 | **MPQ** | ✅ | ✅ | StormLib | Warcraft III, StarCraft II, Diablo III, WoW |
 
 ### Disk / CD Image Formats
@@ -78,6 +95,7 @@ Amiga Disk Files, and more.
 | NRG | ✅ | ❌ | Bit7z | Nero CD images |
 | BIN/CUE | ✅ | ❌ | Bit7z | Extension-based |
 | IMA/IMG/FLP/DSK | ✅ | ❌ | Bit7z | Floppy/disk images |
+| **CHD** | ✅ | ❌ | libchdr | MAME Compressed Hunks of Data; CD-ROM tracks, HDD/DVD images |
 
 ### Amiga Disk Files
 
@@ -120,12 +138,17 @@ It requires the 7-Zip shared library at runtime:
 
 The following are fetched automatically by CMake via `FetchContent`:
 
-- **zlib** — compression
+- **zlib** — gzip compression
+- **bzip2** — bzip2 compression
+- **liblzma** (xz-utils) — xz/lzma compression
+- **libzstd** — Zstandard compression
+- **liblz4** — LZ4 compression
 - **libzip** — ZIP read/write
-- **libarchive** — 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR
+- **libarchive** — 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR, WARC, compressed tars, standalone compression
 - **bit7z** — extended format support via 7-Zip engine
 - **ADFlib** — Amiga Disk File format (.adf)
 - **StormLib** — Blizzard MPQ archive format
+- **libchdr** — MAME Compressed Hunks of Data (.chd) disc images
 - **CLI11** — command-line interface
 
 ### Build steps
@@ -218,17 +241,23 @@ but all other engines continue to work normally.
 ArchiveEngine (pure virtual interface)
 ├── ZipEngine (libzip) — ZIP read/write, in-place modify
 ├── TarGzEngine (zlib + manual tar) — TAR.GZ read/write
-├── LibarchiveEngine — parameterized with format registration
-│   functions for 7z, RAR, RAR5, ISO, CAB, LHA, XAR, CPIO, AR
+├── LibarchiveEngine — parameterized with format/filter registration
+│   functions for 7z, RAR, RAR5, ISO, CAB, LHA, XAR, CPIO, AR,
+│   WARC, MTREE, compressed tars, standalone compression
 ├── Bit7zEngine (7-Zip DLL/SO) — extended formats,
 │   7z write with AES-256, fallback for exotic formats
+├── ChdEngine (libchdr) — MAME CHD disc images (CD-ROM/HDD/DVD)
 ├── AdfEngine (ADFlib) — Amiga Disk Files (read + write FFS)
 ├── FlatArchiveEngine (base class)
 │   ├── WadEngine — Doom IWAD/PWAD/WAD2/WAD3
 │   ├── PakEngine — Quake PACK
 │   ├── GrpEngine — Duke Nukem 3D GRP
 │   ├── HogEngine — Descent HOG
-│   └── VpkEngine — Valve VPK (multi-volume _dir/_001.vpk)
+│   ├── VpkEngine — Valve VPK (multi-volume _dir/_001.vpk)
+│   ├── GobEngine — Dark Forces / Jedi Knight GOB
+│   ├── RffEngine — Blood RFF
+│   ├── BigEngine — EA games BIG/VIV
+│   └── PodEngine — Terminal Velocity POD
 ├── MpqEngine (StormLib) — Blizzard MPQ
 │   (Warcraft III, StarCraft II, Diablo III, WoW)
 └── [Bit7z fallback] — last-resort auto-detect via 7z.dll
@@ -293,10 +322,16 @@ to the executable.
 - [libzip](https://libzip.org/) — ZIP archive library
 - [libarchive](https://www.libarchive.org/) — multi-format archive library
 - [zlib](https://zlib.net/) — compression library
+- [bzip2](https://sourceware.org/bzip2/) — bzip2 compression library
+- [xz-utils / liblzma](https://tukaani.org/xz/) — xz/lzma compression library
+- [Zstandard](https://facebook.github.io/zstd/) by Facebook — fast compression library
+- [LZ4](https://lz4.org/) by Yann Collet — extremely fast compression library
 - [Bit7z](https://github.com/rikyoz/bit7z) — 7-Zip engine C++ wrapper
 - [7-Zip](https://www.7-zip.org/) by Igor Pavlov — 7z compression engine
 - [p7zip](https://github.com/p7zip-project/p7zip) — 7-Zip port for POSIX systems
 - [ADFlib](https://github.com/adflib/ADFlib) — Amiga Disk File library
+- [StormLib](https://github.com/ladislav-zezula/StormLib) by Ladislav Zezula — Blizzard MPQ archive library
+- [libchdr](https://github.com/rtissera/libchdr) — MAME Compressed Hunks of Data library
 - [CLI11](https://github.com/CLIUtils/CLI11) — command-line parser
 
 ---
