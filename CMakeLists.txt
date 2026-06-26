@@ -357,6 +357,7 @@ set(ZIPFX_SOURCES
     src/engine/RffEngine.cpp
     src/engine/BigEngine.cpp
     src/engine/PodEngine.cpp
+    src/engine/CdiEngine.cpp
     src/engine/ChdEngine.cpp
     src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp

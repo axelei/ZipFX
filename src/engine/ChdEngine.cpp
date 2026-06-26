@@ -27,7 +27,7 @@ static uint32_t sectorSizeForType(const char* type)
 
 ChdEngine::~ChdEngine()
 {
-    Close();
+    ChdEngine::Close();
 }
 
 bool ChdEngine::Open(std::string_view path)

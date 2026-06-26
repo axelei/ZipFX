@@ -15,6 +15,7 @@
 #include "BigEngine.h"
 #include "PodEngine.h"
 #include "ChdEngine.h"
+#include "CdiEngine.h"
 #include "LibarchiveEngine.h"
 #include "RarEngine.h"
 #include "FileSignature.h"
@@ -203,7 +204,13 @@ static const FormatEntry kFormats[] = {
     { "MPQ",    ".mpq,.mpk,.w3x,.w3m",               ArchiveType::Mpq,
         []() { return std::make_unique<MpqEngine>(); },                  true  },
 
-    // ── Compressed disc images ─────────────────────────
+    // ── Disc images (compressed / raw) ────────────────
+    { "CDI",    ".cdi",                              ArchiveType::Cdi,
+        []() { return std::make_unique<CdiEngine>(); },               false },
+    { "ISO",    ".iso",                              ArchiveType::Iso,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{archive_read_support_format_iso9660},
+            "ISO"); },                                                    false },
     { "CHD",    ".chd",                              ArchiveType::Chd,
         []() { return std::make_unique<ChdEngine>(); },               false },
 

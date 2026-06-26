@@ -6,8 +6,10 @@ ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
 a wide range of archive formats through multiple backends: **libzip** for ZIP,
 **libarchive** for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, compressed tars, and
 standalone compression, **Bit7z** (7-Zip engine) for extended format support,
-**libchdr** for MAME CHD disc images, and native engines for game archive
-formats, Amiga Disk Files, and more.
+**libchdr** for MAME CHD disc images, **libarchive** for ISO-9660 filesystem
+browsing, a custom **CdiEngine** for DiscJuggler CDI images (with on-the-fly
+sector header/ECC stripping), and native engines for game archive formats,
+Amiga Disk Files, and more.
 
 ---
 
@@ -74,7 +76,7 @@ formats, Amiga Disk Files, and more.
 | 7z | ✅ | ✅ | Bit7z / libarchive | Full write via Bit7z (AES-256, header encrypt, solid, multi-volume), read via libarchive fallback |
 | RAR | ✅ | ❌ | Bit7z / libarchive | Multi-volume support via 7z.dll |
 | RAR5 | ✅ | ❌ | Bit7z / libarchive | |
-| ISO | ✅ | ❌ | libarchive | |
+| ISO | ✅ | ❌ | libarchive | ISO-9660 filesystem — shows files & folders directly in tree |
 | CAB | ✅ | ❌ | libarchive | |
 | LHA/LZH | ✅ | ❌ | libarchive | |
 | XAR | ✅ | ❌ | libarchive | |
@@ -120,6 +122,7 @@ formats, Amiga Disk Files, and more.
 | NRG | ✅ | ❌ | Bit7z | Nero CD images |
 | BIN/CUE | ✅ | ❌ | Bit7z | Extension-based |
 | IMA/IMG/FLP/DSK | ✅ | ❌ | Bit7z | Floppy/disk images |
+| **CDI** | ✅ | ❌ | CdiEngine | DiscJuggler CD images — auto-detects RAW/PQ/CD+G types; parses ISO-9660 or presents as raw `data.iso` |
 | **CHD** | ✅ | ❌ | libchdr | MAME Compressed Hunks of Data; CD-ROM tracks, HDD/DVD images |
 
 ### Amiga Disk Files
@@ -303,6 +306,9 @@ ArchiveEngine (pure virtual interface)
 │   WARC, MTREE, compressed tars, standalone compression
 ├── Bit7zEngine (7-Zip DLL/SO) — extended formats,
 │   7z write with AES-256, fallback for exotic formats
+├── CdiEngine (libarchive + custom callbacks) — DiscJuggler CDI
+│   disc images; on-the-fly sector header/ECC stripping, ISO-9660
+│   parsing via libarchive, raw fallback for non-ISO content
 ├── ChdEngine (libchdr) — MAME CHD disc images (CD-ROM/HDD/DVD)
 ├── AdfEngine (ADFlib) — Amiga Disk Files (read + write FFS)
 ├── FlatArchiveEngine (base class)

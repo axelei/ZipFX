@@ -54,7 +54,7 @@ public:
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }
 
     // Cancellation
-    void cancelExtract() { m_extractCancelled = true; }
+    void cancelExtract() override { m_extractCancelled = true; }
     bool isExtractCancelled() const { return m_extractCancelled; }
 
 private:
