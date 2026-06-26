@@ -213,6 +213,9 @@ set(ADFLIB_WARNINGS OFF CACHE BOOL "" FORCE)
 set(ADFLIB_ENABLE_TESTS OFF CACHE BOOL "" FORCE)
 set(ADFLIB_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(ADFLIB_DEV_NATIVE OFF CACHE BOOL "" FORCE)
+if(NOT WIN32)
+    set(BUILD_SHARED_LIBS OFF CACHE BOOL "" FORCE)
+endif()
 FetchContent_Declare(
     adflib
     GIT_REPOSITORY https://github.com/adflib/ADFlib.git
@@ -220,6 +223,9 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(adflib)
+if(NOT WIN32)
+    set(BUILD_SHARED_LIBS ON CACHE BOOL "" FORCE)
+endif()
 
 # ====================================================================
 # libchdr  –  MAME Compressed Hunks of Data (.chd) disc images
@@ -481,6 +487,8 @@ if(NOT APPLE)
     )
 endif()
 
+install(TARGETS ZipFX RUNTIME DESTINATION bin)
+
 # Install app icon next to the executable (Windows/macOS)
 install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
     DESTINATION ".")
@@ -665,7 +673,7 @@ if(UNIX AND NOT APPLE)
         RENAME "zipfx.png")
 
     # AppStream metainfo
-    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx.appdata.xml"
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/com.zipfx.app.metainfo.xml"
         DESTINATION "share/metainfo")
 
     # Post-install: update XDG databases
