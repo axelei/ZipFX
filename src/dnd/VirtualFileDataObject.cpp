@@ -292,12 +292,42 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return emptyStream(pSTM);
     }
 
-    // Indeterminate bar during extraction (file counted AFTER extraction)
-    m_progressDlg->updateProgress(0, 0,
-        QString::fromUtf8(entry.info.archivePath.c_str()));
+    QString filename = QString::fromUtf8(entry.info.archivePath.c_str());
+    uint64_t totalBytes = m_progressDlg->m_totalBytes;
+    uint64_t capturedBase = m_baseBytes;
 
-    // Extract to a temp file using Extract (streams to disk, no memory buffer),
-    // then let the shell read from the temp file via FileStream.
+    // Show filename immediately before the (potentially slow) extraction starts.
+    m_progressDlg->updateProgress(
+        totalBytes > 0 ? (int)(capturedBase * 1000 / totalBytes) : 0,
+        filename, m_progressDlg->etaString());
+
+    // Per-chunk streaming callback — gated to 100 ms to avoid flooding the
+    // event loop (ZipEngine fires every 256 KB; at high speeds that's thousands/s).
+    int64_t lastUpdateMs = -100;
+    entry.info.engine->setExtractProgressCb(
+        [&](const ArchiveEngine::ExtractProgressInfo& info)
+    {
+        if (m_cancelled) return;
+        int64_t now = m_progressDlg->m_pi.timer.elapsed();
+        if (now - lastUpdateMs < 100) return;
+        lastUpdateMs = now;
+
+        m_progressDlg->m_pi.bytesProcessed = capturedBase + info.bytesProcessed;
+        m_progressDlg->m_pi.updateRate();
+
+        int perMille = totalBytes > 0
+            ? (int)(m_progressDlg->m_pi.bytesProcessed * 1000 / totalBytes) : 0;
+        m_progressDlg->updateProgress(perMille, filename,
+                                      m_progressDlg->m_pi.etaString());
+
+        if (m_progressDlg->wasCancelled())
+        {
+            m_cancelled = true;
+            entry.info.engine->cancelExtract();
+        }
+    });
+
+    // Extract to a temp file (streams to disk, no large memory buffer).
     wchar_t tmpDir[MAX_PATH + 1] = {};
     GetTempPathW(MAX_PATH, tmpDir);
     wchar_t tmpFile[MAX_PATH + 1] = {};
@@ -323,8 +353,22 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         }
     }
 
+    entry.info.engine->setExtractProgressCb(nullptr);
+
     if (extractThread.joinable())
         extractThread.join();
+
+    // Snap to exact completed-bytes position after the file finishes.
+    m_baseBytes += entry.info.size;
+    m_progressDlg->m_pi.bytesProcessed = m_baseBytes;
+    m_progressDlg->m_pi.updateRate();
+    {
+        int perMille = totalBytes > 0
+            ? (int)(m_baseBytes * 1000 / totalBytes)
+            : (idx + 1) * 1000 / m_progressTotal;
+        m_progressDlg->updateProgress(perMille, filename,
+                                      m_progressDlg->m_pi.etaString());
+    }
 
     if (m_cancelled)
     {
@@ -345,7 +389,7 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return emptyStream(pSTM);
     }
 
-    // Open the temp file for the shell to read
+    // Open the temp file for the shell to read.
     HANDLE hFile = CreateFileW(tmpFile, GENERIC_READ, FILE_SHARE_READ, nullptr,
                                OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, nullptr);
     if (hFile == INVALID_HANDLE_VALUE)
@@ -354,16 +398,10 @@ HRESULT VirtualFileDataObject::GetFileContents(FORMATETC* pFE, STGMEDIUM* pSTM)
         return E_FAIL;
     }
 
-    LARGE_INTEGER fileSize = {};
-    GetFileSizeEx(hFile, &fileSize);
-
-    // Update progress AFTER successful extraction
-    m_progressDlg->finishProgress(
-        QString::fromUtf8(entry.info.archivePath.c_str()));
-
-    // Close on last file
+    // Close on last file.
     if (m_progressDlg && idx + 1 >= m_progressTotal)
     {
+        m_progressDlg->finishProgress();
         if (!m_progressDlg->wasCancelled())
         {
             AfterAction aa = m_progressDlg->afterAction();

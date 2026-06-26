@@ -60,7 +60,8 @@ private:
 
     CLIPFORMAT m_cfDescriptor = 0;
     CLIPFORMAT m_cfContents   = 0;
-    int m_progressTotal = 0;
+    int      m_progressTotal = 0;
+    uint64_t m_baseBytes     = 0;   // bytes completed by previous files
     DragProgressDialog* m_progressDlg = nullptr;
     bool m_cancelled = false;
 
