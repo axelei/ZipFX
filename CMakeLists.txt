@@ -333,6 +333,7 @@ set(ZIPFX_SOURCES
     src/engine/LibarchiveEngine.cpp
     src/engine/FileSignature.cpp
     src/engine/Bit7zEngine.cpp
+    src/engine/RarEngine.cpp
     src/engine/AdfEngine.cpp
     src/engine/FlatArchiveEngine.cpp
     src/engine/WadEngine.cpp

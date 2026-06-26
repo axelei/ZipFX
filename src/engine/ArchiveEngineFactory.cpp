@@ -16,6 +16,7 @@
 #include "PodEngine.h"
 #include "ChdEngine.h"
 #include "LibarchiveEngine.h"
+#include "RarEngine.h"
 #include "FileSignature.h"
 
 #include <archive.h>
@@ -134,19 +135,9 @@ static const FormatEntry kFormats[] = {
                     "7z", true, "LZMA2"));
         },                                                           true  },
     { "RAR",    ".rar",                              ArchiveType::Rar,
-        []() {
-            auto bit7z = std::make_unique<Bit7zEngine>();
-            if (bit7z->isLibraryLoaded())
-            {
-                bit7z->setReadOnly(true);  // 7-Zip can read RAR but cannot write it
-                return std::unique_ptr<ArchiveEngine>(std::move(bit7z));
-            }
-            return std::unique_ptr<ArchiveEngine>(
-                std::make_unique<LibarchiveEngine>(
-                    std::vector<LibarchiveEngine::FormatRegistrar>{
-                        archive_read_support_format_rar,
-                        archive_read_support_format_rar5 },
-                    "RAR")); },                                           false },
+        []() { return std::make_unique<RarEngine>(); },
+        // RarEngine::SupportsCreation() returns true only when rar.exe is found
+        true },
     { "ISO",    ".iso",                              ArchiveType::Iso,
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{

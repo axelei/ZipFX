@@ -1,4 +1,5 @@
 #include "CreateArchiveDialog.h"
+#include "../engine/RarEngine.h"
 
 #include <QVBoxLayout>
 #include <QHBoxLayout>
@@ -20,6 +21,8 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
         { "7z",      true,  true,  true  },
         { "TAR.GZ",  false, false, false },
     };
+    if (RarEngine::isAvailable())
+        m_formats.append({ "RAR", true, false, true });
 
     auto mainLayout = new QVBoxLayout(this);
 
