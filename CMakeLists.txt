@@ -489,7 +489,10 @@ if(NOT APPLE)
     )
 endif()
 
-install(TARGETS ZipFX RUNTIME DESTINATION bin)
+install(TARGETS ZipFX
+    RUNTIME DESTINATION bin
+    BUNDLE DESTINATION .
+)
 
 # Install app icons next to the executable (Windows/macOS)
 install(FILES
