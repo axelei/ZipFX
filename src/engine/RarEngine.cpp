@@ -127,6 +127,37 @@ std::string RarEngine::findRarExe()
 
 // ── Static: package manager auto-install ──────────────────────────────────
 
+namespace {
+
+#if !defined(_WIN32) && !defined(__APPLE__)
+// Ordered by preference; first binary found wins.
+struct LinuxPM {
+    const char* binary;
+    const char* installArgs[4]; // null-terminated list of args after the binary
+};
+
+static const LinuxPM kLinuxPMs[] = {
+    { "/usr/bin/apt-get", { "install", "-y",          "rar", nullptr } },
+    { "/usr/bin/apt",     { "install", "-y",          "rar", nullptr } },
+    { "/usr/bin/dnf",     { "install", "-y",          "rar", nullptr } },
+    { "/usr/bin/yum",     { "install", "-y",          "rar", nullptr } },
+    { "/usr/bin/zypper",  { "install", "--non-interactive", "rar", nullptr } },
+    { "/usr/bin/pacman",  { "-S",      "--noconfirm", "rar", nullptr } },
+    { "/usr/bin/apk",     { "add",     "rar",         nullptr, nullptr } },
+    { "/sbin/apk",        { "add",     "rar",         nullptr, nullptr } },
+};
+
+const LinuxPM* detectLinuxPM()
+{
+    for (const auto& pm : kLinuxPMs)
+        if (QFile::exists(QString::fromUtf8(pm.binary)))
+            return &pm;
+    return nullptr;
+}
+#endif
+
+} // namespace
+
 bool RarEngine::canAutoInstall()
 {
     static int cached = -1;
@@ -140,7 +171,8 @@ bool RarEngine::canAutoInstall()
     cached = (QFile::exists("/opt/homebrew/bin/brew") ||
               QFile::exists("/usr/local/bin/brew")) ? 1 : 0;
 #else
-    cached = 0;
+    // Need pkexec for privilege escalation and a known package manager
+    cached = (QFile::exists("/usr/bin/pkexec") && detectLinuxPM()) ? 1 : 0;
 #endif
     return cached == 1;
 }
@@ -152,7 +184,17 @@ std::string RarEngine::autoInstallDescription()
 #elif defined(__APPLE__)
     return "brew install rar";
 #else
-    return {};
+    const LinuxPM* pm = detectLinuxPM();
+    if (!pm) return {};
+    // Build display string: "pkexec apt-get install -y rar"
+    std::string desc = "pkexec ";
+    desc += pm->binary;
+    for (int i = 0; pm->installArgs[i]; ++i)
+    {
+        desc += ' ';
+        desc += pm->installArgs[i];
+    }
+    return desc;
 #endif
 }
 
@@ -162,13 +204,18 @@ std::vector<std::string> RarEngine::autoInstallArgs()
     return {"winget", "install", "RARLab.WinRAR",
             "--accept-source-agreements", "--accept-package-agreements"};
 #elif defined(__APPLE__)
-    // Use the full path so the brew binary is found even inside a .app bundle
+    // Use full path — GUI apps on macOS don't inherit the shell PATH
     const char* brew = QFile::exists("/opt/homebrew/bin/brew")
                        ? "/opt/homebrew/bin/brew"
                        : "/usr/local/bin/brew";
     return {brew, "install", "rar"};
 #else
-    return {};
+    const LinuxPM* pm = detectLinuxPM();
+    if (!pm) return {};
+    std::vector<std::string> args = {"/usr/bin/pkexec", pm->binary};
+    for (int i = 0; pm->installArgs[i]; ++i)
+        args.push_back(pm->installArgs[i]);
+    return args;
 #endif
 }
 
