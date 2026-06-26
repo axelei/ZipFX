@@ -76,7 +76,8 @@ private:
     bool                          m_isOpen     = false;
     std::string                   m_password;
     std::vector<PendingFile>      m_pending;
-    std::unique_ptr<ArchiveEngine> m_reader;    // Bit7z or LibarchiveEngine
+    std::unique_ptr<ArchiveEngine> m_reader;          // Bit7zEngine (primary)
+    std::unique_ptr<ArchiveEngine> m_fallbackReader;   // LibarchiveEngine (fallback)
 
     void initReader(std::string_view path);
     int  rarCompressionLevel() const; // translate 0-9 → rar 0-5

@@ -267,6 +267,16 @@ std::vector<std::string> RarEngine::autoInstallArgs()
 void RarEngine::initReader(std::string_view path)
 {
     m_reader.reset();
+    m_fallbackReader.reset();
+
+    auto lib = std::make_unique<LibarchiveEngine>(
+        std::vector<LibarchiveEngine::FormatRegistrar>{
+            archive_read_support_format_rar,
+            archive_read_support_format_rar5 },
+        "RAR");
+    if (!m_password.empty())
+        lib->setPassword(m_password);
+    bool libOk = lib->Open(path);
 
     auto bit7z = std::make_unique<Bit7zEngine>();
     if (bit7z->isLibraryLoaded())
@@ -277,18 +287,13 @@ void RarEngine::initReader(std::string_view path)
         if (bit7z->Open(path))
         {
             m_reader = std::move(bit7z);
+            if (libOk)
+                m_fallbackReader = std::move(lib);
             return;
         }
     }
 
-    auto lib = std::make_unique<LibarchiveEngine>(
-        std::vector<LibarchiveEngine::FormatRegistrar>{
-            archive_read_support_format_rar,
-            archive_read_support_format_rar5 },
-        "RAR");
-    if (!m_password.empty())
-        lib->setPassword(m_password);
-    if (lib->Open(path))
+    if (libOk)
         m_reader = std::move(lib);
 }
 
@@ -325,6 +330,7 @@ bool RarEngine::Create(std::string_view path)
 void RarEngine::Close()
 {
     m_reader.reset();
+    m_fallbackReader.reset();
     m_pending.clear();
     m_path.clear();
     m_isOpen = false;
@@ -336,28 +342,42 @@ const std::vector<ArchiveEntry>& RarEngine::ListContents()
     return kEmptyEntries;
 }
 
-bool RarEngine::Extract(std::string_view entryName, std::string_view destPath)
-{
-    if (!m_reader) return false;
-    return m_reader->Extract(entryName, destPath);
-}
-
-bool RarEngine::ExtractAll(std::string_view destPath)
-{
-    if (!m_reader) return false;
-    return m_reader->ExtractAll(destPath);
-}
-
 std::vector<uint8_t> RarEngine::ReadFile(std::string_view entryName)
 {
     if (!m_reader) return {};
-    return m_reader->ReadFile(entryName);
+    auto data = m_reader->ReadFile(entryName);
+    if (data.empty() && m_fallbackReader)
+        data = m_fallbackReader->ReadFile(entryName);
+    return data;
 }
 
 std::vector<uint8_t> RarEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
 {
     if (!m_reader) return {};
-    return m_reader->ReadFilePartial(entryName, maxBytes);
+    auto data = m_reader->ReadFilePartial(entryName, maxBytes);
+    if (data.empty() && m_fallbackReader)
+        data = m_fallbackReader->ReadFilePartial(entryName, maxBytes);
+    return data;
+}
+
+bool RarEngine::Extract(std::string_view entryName, std::string_view destPath)
+{
+    if (!m_reader) return false;
+    if (m_reader->Extract(entryName, destPath))
+        return true;
+    if (m_fallbackReader)
+        return m_fallbackReader->Extract(entryName, destPath);
+    return false;
+}
+
+bool RarEngine::ExtractAll(std::string_view destPath)
+{
+    if (!m_reader) return false;
+    if (m_reader->ExtractAll(destPath))
+        return true;
+    if (m_fallbackReader)
+        return m_fallbackReader->ExtractAll(destPath);
+    return false;
 }
 
 bool RarEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
