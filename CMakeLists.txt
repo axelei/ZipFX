@@ -684,7 +684,7 @@ if(UNIX AND NOT APPLE)
         RENAME "zipfx.png")
 
     # AppStream metainfo
-    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/zipfx.appdata.xml"
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/com.zipfx.app.metainfo.xml"
         DESTINATION "share/metainfo")
 
     # Post-install: update XDG databases
