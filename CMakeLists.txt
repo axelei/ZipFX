@@ -80,13 +80,6 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(liblzma)
 set(BUILD_SHARED_LIBS    ON  CACHE BOOL "" FORCE)
-# xz always builds xzdec/lzmadec/lzmainfo when decoders are on; mark them
-# EXCLUDE_FROM_ALL so they are neither compiled nor installed.
-foreach(_xztool xzdec lzmadec lzmainfo xz)
-    if(TARGET "${_xztool}")
-        set_target_properties("${_xztool}" PROPERTIES EXCLUDE_FROM_ALL TRUE)
-    endif()
-endforeach()
 set(BUILD_TESTING ON CACHE BOOL "" FORCE)
 
 # ====================================================================
