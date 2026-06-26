@@ -414,7 +414,7 @@ if(APPLE)
     )
     set_target_properties(ZipFX PROPERTIES
         MACOSX_BUNDLE TRUE
-        MACOSX_BUNDLE_GUI_IDENTIFIER "com.zipfx.app"
+        MACOSX_BUNDLE_GUI_IDENTIFIER "net.krusher.zipfx"
         MACOSX_BUNDLE_BUNDLE_NAME "ZipFX"
         MACOSX_BUNDLE_BUNDLE_VERSION "${PROJECT_VERSION}"
         MACOSX_BUNDLE_SHORT_VERSION_STRING "${PROJECT_VERSION}"
@@ -684,7 +684,7 @@ if(UNIX AND NOT APPLE)
         RENAME "zipfx.png")
 
     # AppStream metainfo
-    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/com.zipfx.app.metainfo.xml"
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/net.krusher.zipfx.metainfo.xml"
         DESTINATION "share/metainfo")
 
     # Post-install: update XDG databases

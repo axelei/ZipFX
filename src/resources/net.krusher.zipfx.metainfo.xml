@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <component type="desktop-application">
-  <id>com.zipfx.app</id>
+  <id>net.krusher.zipfx</id>
   <name>ZipFX</name>
   <summary>Multi-format archive manager for power users</summary>
   <description>
