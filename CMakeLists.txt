@@ -502,7 +502,7 @@ install(TARGETS ZipFX RUNTIME DESTINATION bin)
 install(FILES
     "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
     "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.ico"
-    DESTINATION ".")    DESTINATION ".")
+    DESTINATION ".")
 
 # ====================================================================
 # Platform settings
