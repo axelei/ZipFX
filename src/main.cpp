@@ -1,6 +1,11 @@
 #include "cli/CliHandler.h"
 #include "version.h"
 
+#ifdef _WIN32
+#  include <windows.h>
+#  include <cstdio>
+#endif
+
 #include <QApplication>
 #include <QDir>
 #include <QIcon>
@@ -100,6 +105,16 @@ int main(int argc, char* argv[])
 
     if (isCli)
     {
+#ifdef _WIN32
+        // GUI executables on Windows have no console attached.
+        // Attach to the parent console (cmd/PowerShell) so that stdout/stderr
+        // are visible. If there is no parent console, allocate a new one.
+        if (!AttachConsole(ATTACH_PARENT_PROCESS))
+            AllocConsole();
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+        freopen("CONIN$",  "r", stdin);
+#endif
         // Strip --cli from argv before passing to runCli
         int newArgc = 0;
         const char* newArgv[64];
