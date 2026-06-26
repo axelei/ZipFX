@@ -951,601 +951,625 @@ Overwrite?</source>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+
+
+... 잘렸습니다(%2바이트 중 첫 번째 %1 표시)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+
+
+먼저 파일을 추출한 다음 엽니다.</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+손상된 모든 블록이 성공적으로 복구되었습니다.</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+아카이브 무결성: 양호 — 손상이 감지되지 않았습니다.</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+손상이 감지되었습니다. '확인 &amp;amp;&amp;amp; 수리'를 선택하여 수리를 시도하세요.</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+완료. %1 성공, %2 실패.</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;
+
+오류: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; 오류: 열 수 없습니다.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt; 실패: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; FAILED: 추출에 실패했습니다.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; FAILED: 무결성 검사에 실패했습니다.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt; 확인: %1(으)로 추출되었습니다</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; OK: 무결성 검사를 통과했습니다.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt; 데이터 블록의 %</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;% 1
+
+%2바이트</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;%1B</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;%1GB</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;%1KB</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;%1MB</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;%1 파일이 선택되었습니다, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;%1% 저장됨</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;&amp;경로 복사</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;&amp;편집</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; 및 선택 반전</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;&amp;amp;추출 시 손상된 파일 유지</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;&amp;쉘 확장 제거</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;&amp;복구 기록으로 확인/복구...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;... 잘림(%2바이트 중 첫 번째 %1 표시)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;128KB</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;32KB</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;64KB</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구 기록 추가...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구 기록 추가</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;rar.exe를 통해 추가(설치된 경우)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;추가...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;이후:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;아카이브 파일 이름</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;보관 비밀번호:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;아카이브:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;손상된 아카이브에서 읽을 수 있는 파일을 복구하려고 시도합니다.</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;불량 블록: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;일괄 처리 및 작업...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;일괄 작업</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;블록 크기:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;찾아보기...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;압축:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;아카이브 변환...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;변환</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;아카이브 변환</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;성공적으로 변환되었습니다:
+
+% 1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;대상 아카이브를 생성할 수 없습니다.</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;임시 디렉터리를 만들 수 없습니다.</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;"%1"을(를) 추출할 수 없습니다.</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;사이드카(.rec) 생성</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;아카이브 생성 중...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구 기록을 생성하는 중...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;선택 항목 삭제</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;패턴 제외...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;오류: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;오류: 임시 디렉터리를 생성할 수 없습니다.</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;오류: 복구된 아카이브를 쓰지 못했습니다.</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;오류가 감지되었습니다. 복구 가능한 파일을 추출하는 중...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;패턴 제외</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;추출 및 여기</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;모든 아카이브 추출</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;경로 없이 추출...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;경로가 없는 추출</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;변환된 아카이브를 저장하지 못했습니다.</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;파일:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;파일 찾기... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;폴더: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;폴더:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;형식:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;%1개의 아카이브를 찾았습니다.</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;하위 폴더 포함</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;셸 및 확장 설치(탐색기 마우스 오른쪽 버튼 클릭)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;무결성 테스트 통과 — 아카이브가 손상되지 않은 것으로 나타납니다.</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;방법:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;기본 RAR 복구 레코드가 추가되었습니다.</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;아카이브가 열려 있지 않습니다.</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;파일을 복구할 수 없습니다.</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;선택 없음</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;이 아카이브에 대한 사이드카(.rec) 파일이 없습니다.</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;열기</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;다음으로 열기...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;다음으로 열기...</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;작업:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;출력 폴더:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;출력 경로:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;비밀번호</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;비밀번호 및 관리자...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;비밀번호 관리자</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;파일을 추가할 때 건너뛸 패턴(쉼표로 구분, 예: *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;유효한 소스 폴더를 선택하세요.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;출력 폴더를 선택해주세요.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;RAR 복구가 완료되었습니다.</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;RAR 팁: rar.exe는 기본 복구 레코드(rr N%)도 지원합니다.</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;비율:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;아카이브 수리 및 복구...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;%1개 파일을 복구했지만 실패: %2.</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;복구 기록</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구 크기:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구: 데이터 블록의 %1%(%2).</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;이 아카이브의 비밀번호를 기억하시나요?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;수리</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;수리 아카이브</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;수리됨: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;저장 &amp;amp;&amp;amp; 닫다</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;변환된 아카이브 저장</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;비밀번호 저장</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구된 파일 저장</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;저장된 비밀번호는 아카이브를 열 때 자동으로 적용됩니다.</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;저장됨: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;&amp;amp;모두 선택 Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;출력 폴더 선택</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;소스 폴더 선택</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;미리 볼 파일을 선택하세요</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;비밀번호 설정...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;비밀번호 설정</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;쉘 확장</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;셸 확장이 제거되었습니다.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;셸 확장은 Windows에서만 사용할 수 있습니다.</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;미리보기 창 표시</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;사이드카 생성됨: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;소스 폴더:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;수리 시작</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;쓰기가 지원되지 않는 대상 형식입니다.</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;대상 형식:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;모든 아카이브의 무결성 테스트</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;아카이브 무결성 테스트 중...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;"%1" 파일이 비어 있습니다.</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;총 블록 수: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;rar.exe(기본 RAR 복구 기록)로 복구해 볼까요?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;압축되지 않음:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구할 수 없음: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;확인 &amp;amp;&amp;amp; 수리하다</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;확인만</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;복구 기록으로 확인/복구</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;확인 중...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;이 아카이브(%1)에서는 개별 파일 보기가 지원되지 않습니다.</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;이 아카이브에서는 개별 파일 보기가 지원되지 않습니다.</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;archive.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;rar.exe를 찾을 수 없습니다.</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;rar.exe를 찾을 수 없습니다. WinRAR을 설치하거나 사이드카 방법을 사용하십시오.</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;rar.exe에서 %1 오류를 반환했습니다:
+
+% 2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;rar.exe 시간이 초과되었습니다.</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1604,40 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;%1 파일이 대상에 이미 존재합니다. 무엇을 하고 싶나요?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;취소</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;파일 추출 중...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;파일이 이미 존재합니다.</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;덮어쓰기</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;기존 건너뛰기</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>&lt;target state="translated"&gt;다음 파일이 대상에 이미 존재합니다.
+
+% 1
+
+
+
+덮어쓰시겠습니까?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1707,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;아무것도 하지 않음</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;최대 절전 모드</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;종료</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>&lt;출처&gt;수면</translation>
         </message>
     </context>
 </TS>
