@@ -42,7 +42,23 @@ std::string RarEngine::findRarExe()
     g_rarExeSearched = true;
 
 #ifdef _WIN32
-    // Well-known install paths (64-bit and 32-bit WinRAR)
+    // Scoop (CLI-only, user-space install) — check before system-wide WinRAR
+    {
+        auto checkScoop = [&](const QString& base) -> bool {
+            QString p = QDir::toNativeSeparators(base + "/scoop/apps/rar/current/rar.exe");
+            if (QFile::exists(p)) { g_rarExePath = p.toStdString(); return true; }
+            return false;
+        };
+        if (checkScoop(QDir::homePath())) return g_rarExePath;
+        QByteArray scoopEnv = qgetenv("SCOOP");
+        if (!scoopEnv.isEmpty())
+        {
+            QString p = QDir::toNativeSeparators(
+                QString::fromLocal8Bit(scoopEnv) + "/apps/rar/current/rar.exe");
+            if (QFile::exists(p)) { g_rarExePath = p.toStdString(); return g_rarExePath; }
+        }
+    }
+    // Well-known WinRAR install paths (64-bit and 32-bit)
     static const char* kPaths[] = {
         "C:\\Program Files\\WinRAR\\rar.exe",
         "C:\\Program Files\\WinRAR\\Rar.exe",
@@ -158,15 +174,34 @@ const LinuxPM* detectLinuxPM()
 
 } // namespace
 
+namespace {
+#ifdef _WIN32
+bool scoopAvailable()
+{
+    // Scoop puts its shims folder in %USERPROFILE%\scoop\shims (or %SCOOP%\shims)
+    QString home = QDir::homePath();
+    if (QDir(home + "/scoop/shims").exists()) return true;
+    QByteArray env = qgetenv("SCOOP");
+    if (!env.isEmpty() && QDir(QString::fromLocal8Bit(env) + "/shims").exists())
+        return true;
+    return false;
+}
+bool wingetAvailable()
+{
+    QProcess p;
+    p.start("winget", {"--version"});
+    return p.waitForFinished(4000) && p.exitCode() == 0;
+}
+#endif
+} // namespace
+
 bool RarEngine::canAutoInstall()
 {
     static int cached = -1;
     if (cached >= 0) return cached == 1;
 
 #ifdef _WIN32
-    QProcess p;
-    p.start("winget", {"--version"});
-    cached = (p.waitForFinished(4000) && p.exitCode() == 0) ? 1 : 0;
+    cached = (scoopAvailable() || wingetAvailable()) ? 1 : 0;
 #elif defined(__APPLE__)
     cached = (QFile::exists("/opt/homebrew/bin/brew") ||
               QFile::exists("/usr/local/bin/brew")) ? 1 : 0;
@@ -180,7 +215,7 @@ bool RarEngine::canAutoInstall()
 std::string RarEngine::autoInstallDescription()
 {
 #ifdef _WIN32
-    return "winget install RARLab.WinRAR";
+    return scoopAvailable() ? "scoop install rar" : "winget install RARLab.WinRAR";
 #elif defined(__APPLE__)
     return "brew install rar";
 #else
@@ -201,6 +236,14 @@ std::string RarEngine::autoInstallDescription()
 std::vector<std::string> RarEngine::autoInstallArgs()
 {
 #ifdef _WIN32
+    if (scoopAvailable())
+    {
+        // Scoop installs CLI-only rar.exe with no elevation required.
+        // Run via PowerShell since scoop itself is a PS script.
+        return {"powershell.exe", "-NoProfile", "-NonInteractive",
+                "-Command", "scoop install rar"};
+    }
+    // Fallback: full WinRAR (includes GUI + rar.exe)
     return {"winget", "install", "RARLab.WinRAR",
             "--accept-source-agreements", "--accept-package-agreements"};
 #elif defined(__APPLE__)
