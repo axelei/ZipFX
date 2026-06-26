@@ -125,18 +125,19 @@ bool DskEngine::readRaw(FILE* f, std::vector<uint8_t>& out)
     return !out.empty();
 }
 
-// ── Raw sector access (physical order — no skew) ─────────────────────────
-// In a .dsk file, sectors are stored sequentially: T0S0, T0S1, ..., T0S15,
-// T1S0, ... Apple DOS uses logical sector numbers internally, but in the
-// .dsk image file the sectors are arranged in physical order.
-static uint64_t physSectorOffset(int track, int sector)
+// ── Sector access ────────────────────────────────────────────────────────
+// In a standard Apple II .dsk (DOS-order) file, sectors within each track
+// are stored in logical (DOS) order: slot 0 = logical sector 0, slot 1 =
+// logical sector 1, etc. No skew translation is needed — the skew table
+// only applies to actual rotating-disk hardware, not to .dsk image files.
+static uint64_t sectorOffset(int track, int logicalSector)
 {
-    return static_cast<uint64_t>(track * kAppleSecPerTrack + sector) * kAppleSectorSize;
+    return static_cast<uint64_t>(track * kAppleSecPerTrack + logicalSector) * kAppleSectorSize;
 }
 
-static const uint8_t* physSectorPtr(const std::vector<uint8_t>& data, int track, int sector)
+static const uint8_t* sectorPtr(const std::vector<uint8_t>& data, int track, int logicalSector)
 {
-    uint64_t off = physSectorOffset(track, sector);
+    uint64_t off = sectorOffset(track, logicalSector);
     if (off + kAppleSectorSize > data.size())
         return nullptr;
     return data.data() + off;
@@ -189,211 +190,114 @@ bool DskEngine::parseApple2ImgHeader()
     return true;
 }
 
-// ── DOS 3.3 logical-to-physical sector skew ──────────────────────────────
-// DOS 3.3 uses a skew table (RWTS $B7E9) for rotational optimization.
-// In a .dsk file sectors are stored in physical order, so to find the
-// physical sector that contains DOS logical sector L, use kDos33LogToPhys[L].
-static const uint8_t kDos33LogToPhys[16] = {
-    0, 7, 14, 6, 13, 5, 12, 4, 11, 3, 10, 2, 9, 1, 8, 15
-};
-
-// Return file offset of a DOS logical sector (track, logicalSector)
-// accounting for the skew table.
-static uint64_t logicalSectorOffset(int track, int logicalSector)
-{
-    int physSector = kDos33LogToPhys[logicalSector & 0x0F];
-    return static_cast<uint64_t>(track * kAppleSecPerTrack + physSector) * kAppleSectorSize;
-}
-
-// Return pointer to the data of a DOS logical sector
-static const uint8_t* logicalSectorPtr(const std::vector<uint8_t>& data,
-                                        int track, int logicalSector)
-{
-    uint64_t off = logicalSectorOffset(track, logicalSector);
-    if (off + kAppleSectorSize > data.size())
-        return nullptr;
-    return data.data() + off;
-}
-
 // ── Apple DOS 3.3 parser ─────────────────────────────────────────────────
-// The VTOC and catalog are on track 17. The .dsk file stores all sectors
-// (including track 17) in physical order. The VTOC's catalog pointer
-// and catalog-chain pointers use LOGICAL sector numbers. Since logical 0
-// maps to physical 0 (kDos33LogToPhys[0]=0), the VTOC always appears at
-// the same physical position regardless of ordering convention. For other
-// logical sectors on track 17 we need the skew translation.
-//
-// File-data sectors referenced in catalog entries also use logical sector
-// numbers, so we translate them through the skew table when reading.
+// VTOC layout (track 17, sector 0):
+//   byte 0x00: reserved (not used)
+//   byte 0x01: track of first catalog sector
+//   byte 0x02: sector of first catalog sector
+// Catalog sector link (bytes 0x00-0x02):
+//   byte 0x00: reserved
+//   byte 0x01: track of next catalog sector (0x00 = last)
+//   byte 0x02: sector of next catalog sector
+// T/S list sector:
+//   byte 0x00: reserved
+//   byte 0x01: track of next T/S list sector
+//   byte 0x02: sector of next T/S list sector
+//   bytes 0x0C+: T/S pairs (track byte, then sector byte), 122 pairs max
 
 bool DskEngine::parseDos33()
 {
-    // VTOC at logical track 17, logical sector 0 (= physical sector 0)
-    const uint8_t* vtoc = physSectorPtr(m_diskData, 17, 0);
+    // VTOC: track 17, logical sector 0
+    const uint8_t* vtoc = sectorPtr(m_diskData, 17, 0);
     if (!vtoc) return false;
 
-    // VTOC signature: byte 1 should be 0x11 (track 17)
+    // Byte 0x01 = catalog track; must be 17 (0x11)
     if (vtoc[1] != 0x11) return false;
 
-    // Get catalog location from VTOC bytes $00 (sector) and $01 (track)
-    int catLogSec = vtoc[0];
-    int catTrack = vtoc[1];
+    int catTrack  = vtoc[1];  // always 17
+    int catLogSec = vtoc[2];  // catalog first sector
 
-    // Scan ALL physical sectors on track 17 for valid catalog entries.
-    // We do this because many real-world Apple II disk images have the
-    // VTOC catalog pointer pointing to logical sector 4, but the actual
-    // entries may be at different physical positions (various copying
-    // tools and disk utilities don't always maintain the catalog chain).
-    //
-    // We also need to handle the catalog-chain links: each catalog
-    // sector's bytes $00-$01 form a (sector, track) link to the next
-    // catalog sector. We follow the chain from the VTOC-designated start
-    // sector, but also scan all other sectors on track 17 for entries
-    // that might not be properly linked.
+    // Parse one 35-byte catalog entry; add to m_appleEntries if valid
+    auto parseEntry = [&](const uint8_t* e) {
+        if (e[0] == 0xFF || e[0] == 0x00) return;  // deleted / never-used
+        int ft = e[0], fs = e[1];
+        if (ft == 17 || ft > 34 || fs >= 16) return;
+        char nameBuf[31]; int nameLen = 0;
+        for (int c = 0; c < 30; c++) {
+            char ch = static_cast<char>(e[3 + c] & 0x7F);
+            if (ch == ' ' || ch == '\0') break;
+            nameBuf[nameLen++] = ch;
+        }
+        if (nameLen == 0) return;
+        nameBuf[nameLen] = '\0';
+        uint16_t numSec = static_cast<uint16_t>(e[0x21]) |
+                          (static_cast<uint16_t>(e[0x22]) << 8);
+        if (numSec == 0 || numSec > 560) return;
+        uint32_t fileSize = static_cast<uint32_t>(numSec > 1 ? numSec - 1 : 1) * kAppleSectorSize;
+        AppleEntry ae;
+        ae.name = nameBuf; ae.size = fileSize; ae.fileType = e[2];
+        ae.firstTrack = static_cast<uint8_t>(ft);
+        ae.firstSector = static_cast<uint8_t>(fs);
+        m_appleEntries.push_back(ae);
+    };
 
-    // Track which logical sectors we've already processed
-    bool visited[16] = {false};
+    bool visited[16] = {};
 
-    // First, try following the chain from the VTOC pointer
+    // Follow catalog chain
     int t = catTrack;
     int s = catLogSec;
-    int maxChain = 50;
-
-    while (maxChain-- > 0)
+    for (int guard = 0; guard < 20; guard++)
     {
         if (t != 17 || s < 0 || s >= 16) break;
         if (visited[s]) break;
         visited[s] = true;
 
-        const uint8_t* sec = logicalSectorPtr(m_diskData, t, s);
+        const uint8_t* sec = sectorPtr(m_diskData, t, s);
         if (!sec) break;
 
-        int nextS = sec[0];
         int nextT = sec[1];
+        int nextS = sec[2];
 
-        if (nextT == 0xFF || nextS == 0xFF || (nextT == 0 && nextS == 0))
-            nextT = nextS = 0xFF;
-
-        // Parse file entries (7 per sector, 35 bytes each, starting at $0B)
         for (int i = 0; i < 7; i++)
-        {
-            int entryOff = 0x0B + i * 35;
-            if (entryOff + 35 > kAppleSectorSize) break;
+            parseEntry(sec + 0x0B + i * 35);
 
-            const uint8_t* e = sec + entryOff;
-
-            if (e[0] == 0xFF || e[0] == 0x00) continue;
-
-            char nameBuf[31];
-            int nameLen = 0;
-            for (int c = 0; c < 30; c++) {
-                char ch = static_cast<char>(e[3 + c] & 0x7F);
-                if (ch == ' ' || ch == '\0') break;
-                nameBuf[nameLen++] = ch;
-            }
-            if (nameLen == 0) continue;
-            nameBuf[nameLen] = '\0';
-
-            uint8_t typeByte = e[2];
-            uint16_t numSectors = static_cast<uint16_t>(e[0x21]) |
-                                  (static_cast<uint16_t>(e[0x22]) << 8);
-
-            int ft = e[0];
-            int fs = e[1];
-            if (ft == 17 || ft > 34) continue;
-            if (fs < 0 || fs >= 16) continue;
-            if (numSectors == 0 || numSectors > 560) continue;
-
-            uint32_t fileSize = static_cast<uint32_t>(numSectors) * kAppleSectorSize;
-
-            AppleEntry ae;
-            ae.name = nameBuf;
-            ae.size = fileSize;
-            ae.fileType = typeByte;
-            ae.isDirectory = false;
-            ae.firstTrack = static_cast<uint8_t>(ft);
-            ae.firstSector = static_cast<uint8_t>(fs);
-
-            m_appleEntries.push_back(ae);
-        }
-
-        if (nextT == 0xFF || nextS == 0xFF) break;
-        if (nextT > 35 || nextS >= 16) break;
+        if (nextT == 0 || nextT > 34 || nextS >= 16) break;
         t = nextT;
         s = nextS;
-
-        if (visited[s]) break;
     }
 
-    for (int ps = 0; ps < 16; ps++)
+    // Fallback: scan all unvisited logical sectors on track 17
+    for (int ls = 0; ls < 16; ls++)
     {
-        int logS = -1;
-        for (int i = 0; i < 16; i++) {
-            if (kDos33LogToPhys[i] == ps) { logS = i; break; }
-        }
-        if (logS < 0 || logS >= 16) continue;
-        if (visited[logS]) continue;
-
-        const uint8_t* sec = physSectorPtr(m_diskData, 17, ps);
+        if (visited[ls]) continue;
+        const uint8_t* sec = sectorPtr(m_diskData, 17, ls);
         if (!sec) continue;
 
+        // Quick check: does this sector look like a catalog sector?
         bool hasEntries = false;
         for (int i = 0; i < 7; i++) {
             const uint8_t* e = sec + 0x0B + i * 35;
-            if (e[0] != 0xFF && e[0] != 0x00) {
+            if (e[0] != 0xFF && e[0] != 0x00 && e[0] <= 34) {
                 for (int c = 0; c < 30; c++) {
-                    if ((e[3 + c] & 0x7F) != ' ' && e[3 + c] != '\0') {
-                        hasEntries = true;
-                        break;
-                    }
+                    uint8_t ch = e[3 + c] & 0x7F;
+                    if (ch > ' ') { hasEntries = true; break; }
                 }
             }
             if (hasEntries) break;
         }
         if (!hasEntries) continue;
 
-        visited[logS] = true;
-
         for (int i = 0; i < 7; i++)
-        {
-            int entryOff = 0x0B + i * 35;
-            if (entryOff + 35 > kAppleSectorSize) break;
+            parseEntry(sec + 0x0B + i * 35);
+    }
 
-            const uint8_t* e = sec + entryOff;
-
-            if (e[0] == 0xFF || e[0] == 0x00) continue;
-
-            char nameBuf[31];
-            int nameLen = 0;
-            for (int c = 0; c < 30; c++) {
-                char ch = static_cast<char>(e[3 + c] & 0x7F);
-                if (ch == ' ' || ch == '\0') break;
-                nameBuf[nameLen++] = ch;
+    // Deduplicate by name
+    for (int i = static_cast<int>(m_appleEntries.size()) - 1; i > 0; i--) {
+        for (int j = 0; j < i; j++) {
+            if (m_appleEntries[j].name == m_appleEntries[i].name) {
+                m_appleEntries.erase(m_appleEntries.begin() + i);
+                break;
             }
-            if (nameLen == 0) continue;
-            nameBuf[nameLen] = '\0';
-
-            uint8_t typeByte = e[2];
-            uint16_t numSectors = static_cast<uint16_t>(e[0x21]) |
-                                  (static_cast<uint16_t>(e[0x22]) << 8);
-
-            int ft = e[0];
-            int fs = e[1];
-            if (ft == 17 || ft > 34) continue;
-            if (fs < 0 || fs >= 16) continue;
-            if (numSectors == 0 || numSectors > 560) continue;
-
-            uint32_t fileSize = static_cast<uint32_t>(numSectors) * kAppleSectorSize;
-
-            AppleEntry ae;
-            ae.name = nameBuf;
-            ae.size = fileSize;
-            ae.fileType = typeByte;
-            ae.isDirectory = false;
-            ae.firstTrack = static_cast<uint8_t>(ft);
-            ae.firstSector = static_cast<uint8_t>(fs);
-
-            m_appleEntries.push_back(ae);
         }
     }
 
@@ -403,85 +307,114 @@ bool DskEngine::parseDos33()
 }
 
 // ── Apple ProDOS parser ──────────────────────────────────────────────────
+// ProDOS block layout for directory blocks:
+//   bytes 0x00-0x01: backward link (prev dir block)
+//   bytes 0x02-0x03: forward link (next dir block)
+//   bytes 0x04+: directory entries (kProDOSEntrySize=39 bytes each)
+//
+// Volume directory header (first entry in block 2, at offset 0x04):
+//   e[0x00]: 0xFN (storage type F = volume dir, N = name length)
+//   e[0x01-0x0F]: volume name
+//   e[0x10-0x11]: reserved
+//   e[0x12-0x13]: creation date
+//   e[0x14-0x15]: creation time
+//   e[0x16]: version, e[0x17]: min_version, e[0x18]: access
+//   e[0x19]: entry_length (39), e[0x1A]: entries_per_block (13)
+//   e[0x1B-0x1C]: file_count
+//   e[0x1D-0x1E]: bitmap_pointer, e[0x1F-0x20]: total_blocks
+//
+// File entry:
+//   e[0x00]: storage_type (high nibble) + name_len (low nibble)
+//   e[0x01-0x0F]: file_name (name_len chars)
+//   e[0x10]: file_type
+//   e[0x11-0x12]: key_pointer (LE)
+//   e[0x13-0x14]: blocks_used (LE)
+//   e[0x15-0x17]: EOF / actual file size (3-byte LE)
+//
+// Index block format for sapling/tree files:
+//   bytes 0x000-0x0FF: low bytes of 256 block numbers
+//   bytes 0x100-0x1FF: high bytes of 256 block numbers
 
 bool DskEngine::parseProDos()
 {
-    int numBlocks = static_cast<int>(m_diskData.size()) / kProDOSBlockSize;
-    if (numBlocks < 3) return false;
+    int totalBlocks = static_cast<int>(m_diskData.size()) / kProDOSBlockSize;
+    if (totalBlocks < 3) return false;
 
-    auto blockPtr = [&](int bn) -> const uint8_t* {
-        int64_t off = static_cast<int64_t>(bn) * kProDOSBlockSize;
-        if (off + kProDOSBlockSize > static_cast<int64_t>(m_diskData.size()))
-            return nullptr;
-        return m_diskData.data() + off;
+    auto blockData = [&](int bn) -> const uint8_t* {
+        if (bn < 0 || bn >= totalBlocks) return nullptr;
+        return m_diskData.data() + static_cast<int64_t>(bn) * kProDOSBlockSize;
     };
 
-    const uint8_t* volBlock = blockPtr(kProDOSVolDirBlock);
-    if (!volBlock) return false;
+    // Block 2 = first volume directory block
+    const uint8_t* blk = blockData(kProDOSVolDirBlock);
+    if (!blk) return false;
 
-    uint8_t stNameLen = volBlock[0];
-    uint8_t storageType = stNameLen & 0xF0;
-    if (storageType != kProDosVolumeDir) return false;
+    // Volume directory header is the first entry at offset 4
+    const uint8_t* hdr = blk + 4;
+    if ((hdr[0] & 0xF0) != kProDosVolumeDir) return false;
 
-    int nameLen = stNameLen & 0x0F;
-    if (nameLen == 0) nameLen = 15;
-
-    uint16_t entryLen = static_cast<uint16_t>(volBlock[23]) |
-                        (static_cast<uint16_t>(volBlock[24]) << 8);
-    if (entryLen == 0) entryLen = kProDOSEntrySize;
-
-    uint16_t entriesPerBlock = static_cast<uint16_t>(volBlock[25]) |
-                                (static_cast<uint16_t>(volBlock[26]) << 8);
-    if (entriesPerBlock == 0) entriesPerBlock = 13;
-
-    int fileCount = static_cast<int>(volBlock[27]) |
-                    (static_cast<int>(volBlock[28]) << 8);
+    uint8_t entryLen       = hdr[0x19];  if (entryLen == 0) entryLen = kProDOSEntrySize;
+    uint8_t entriesPerBlk  = hdr[0x1A];  if (entriesPerBlk == 0) entriesPerBlk = 13;
+    int fileCount          = static_cast<int>(hdr[0x1B]) | (static_cast<int>(hdr[0x1C]) << 8);
     if (fileCount <= 0) return false;
 
-    int entryStart = 35;
-    int entryOff = entryStart;
     int found = 0;
+    int curBlock = kProDOSVolDirBlock;
 
-    while (entryOff + entryLen <= kProDOSBlockSize && found < fileCount)
+    while (curBlock != 0 && found < fileCount)
     {
-        const uint8_t* e = volBlock + entryOff;
-        uint8_t se = e[0];
-        if (se == 0x00) { entryOff += entryLen; continue; }
+        blk = blockData(curBlock);
+        if (!blk) break;
 
-        uint8_t st = se & 0xF0;
-        int fnameLen = se & 0x0F;
-        if (fnameLen == 0 || fnameLen > 15) { entryOff += entryLen; continue; }
+        // File entries start at offset 4 in the first block (after the header entry),
+        // or at offset 4 in subsequent blocks (after the first entry which is also the header).
+        // More precisely: 4 (link ptrs) + 39*0 = 4 for first block (skip the header).
+        // Actually the header occupies the first entry slot, so file entries start at:
+        //   offset 4 + entryLen  (skip link pointers, skip the header entry)
+        // For blocks after the first: entries start right at offset 4.
+        int startOff = (curBlock == kProDOSVolDirBlock) ? (4 + entryLen) : 4;
 
-        if (st != kProDosSeedling && st != kProDosSapling && st != kProDosTree &&
-            st != kProDosSubdir) { entryOff += entryLen; continue; }
+        for (int off = startOff; off + entryLen <= kProDOSBlockSize && found < fileCount;
+             off += entryLen)
+        {
+            const uint8_t* e = blk + off;
+            uint8_t se = e[0];
+            if (se == 0x00) continue;  // deleted or never-used slot
 
-        char nameBuf[16];
-        for (int c = 0; c < fnameLen; c++)
-            nameBuf[c] = static_cast<char>(e[1 + c]);
-        nameBuf[fnameLen] = '\0';
+            uint8_t st      = se & 0xF0;
+            int fnameLen    = se & 0x0F;
+            if (fnameLen == 0 || fnameLen > 15) continue;
 
-        if (nameBuf[0] == '\0') { entryOff += entryLen; continue; }
+            if (st != kProDosSeedling && st != kProDosSapling &&
+                st != kProDosTree    && st != kProDosSubdir)
+                continue;
 
-        bool isDir = (st == kProDosSubdir);
-        uint16_t fileType = static_cast<uint16_t>(e[16]) |
-                            (static_cast<uint16_t>(e[17]) << 8);
-        uint16_t keyBlock = static_cast<uint16_t>(e[18]) |
-                            (static_cast<uint16_t>(e[19]) << 8);
-        uint16_t numBlocks = static_cast<uint16_t>(e[20]) |
-                             (static_cast<uint16_t>(e[21]) << 8);
-        uint32_t fileSize = static_cast<uint32_t>(numBlocks) * kProDOSBlockSize;
+            char nameBuf[16];
+            for (int c = 0; c < fnameLen; c++)
+                nameBuf[c] = static_cast<char>(e[1 + c]);
+            nameBuf[fnameLen] = '\0';
 
-        AppleEntry ae;
-        ae.name = nameBuf;
-        ae.size = fileSize;
-        ae.fileType = static_cast<uint8_t>(fileType & 0xFF);
-        ae.isDirectory = isDir;
-        ae.keyBlock = keyBlock;
-        ae.storageType = st;
+            bool   isDir    = (st == kProDosSubdir);
+            uint8_t  ftype  = e[0x10];
+            uint16_t kblk   = static_cast<uint16_t>(e[0x11]) |
+                              (static_cast<uint16_t>(e[0x12]) << 8);
+            uint32_t fsize  = static_cast<uint32_t>(e[0x15]) |
+                              (static_cast<uint32_t>(e[0x16]) << 8) |
+                              (static_cast<uint32_t>(e[0x17]) << 16);
 
-        m_appleEntries.push_back(ae);
-        found++;
-        entryOff += entryLen;
+            AppleEntry ae;
+            ae.name        = nameBuf;
+            ae.size        = fsize;
+            ae.fileType    = ftype;
+            ae.isDirectory = isDir;
+            ae.keyBlock    = kblk;
+            ae.storageType = st;
+            m_appleEntries.push_back(ae);
+            found++;
+        }
+
+        // Follow forward link to next directory block
+        curBlock = static_cast<int>(blk[2]) | (static_cast<int>(blk[3]) << 8);
     }
 
     if (found == 0) return false;
@@ -548,10 +481,12 @@ bool DskEngine::tryParseApple()
 }
 
 // ── DOS 3.3 file reader ──────────────────────────────────────────────────
-// Catalog entries store the first file sector as (track, logicalSector).
-// The T/S list sectors and data sectors all use logical sector numbers.
-// We translate through the skew table to get the physical position in
-// the .dsk file.
+// firstTrack/firstSector = location of the first T/S list sector.
+// T/S list layout:
+//   byte 0x00: reserved
+//   byte 0x01: track of next T/S list sector (0 = last)
+//   byte 0x02: sector of next T/S list sector
+//   bytes 0x0C-0xFF: (track, sector) pairs of data sectors, 122 pairs max
 
 std::vector<uint8_t> DskEngine::readDos33File(
     uint8_t firstTrack, uint8_t firstSector, uint32_t totalSize) const
@@ -565,42 +500,38 @@ std::vector<uint8_t> DskEngine::readDos33File(
     int t = firstTrack;
     int s = firstSector;
 
-    while (result.size() < totalSize)
+    for (int tsGuard = 0; tsGuard < 100 && result.size() < totalSize; tsGuard++)
     {
-        const uint8_t* sec = logicalSectorPtr(m_diskData, t, s);
-        if (!sec) break;
+        if (t <= 0 || t >= m_appleTracks) break;
+        if (s < 0 || s >= kAppleSecPerTrack) break;
 
-        int nextS = sec[0];
-        int nextT = sec[1];
+        const uint8_t* tsSec = sectorPtr(m_diskData, t, s);
+        if (!tsSec) break;
 
-        for (int pairIdx = 0; pairIdx < 127; pairIdx++)
+        int nextT = tsSec[0x01];
+        int nextS = tsSec[0x02];
+
+        // Read the 122 (track, sector) pairs starting at offset 0x0C
+        for (int pairIdx = 0; pairIdx < 122 && result.size() < totalSize; pairIdx++)
         {
-            int pairOff = 2 + pairIdx * 2;
-            if (pairOff + 2 > kAppleSectorSize) break;
+            int pairOff = 0x0C + pairIdx * 2;
+            int dataT = tsSec[pairOff];
+            int dataS = tsSec[pairOff + 1];
 
-            int dataS = sec[pairOff];
-            int dataT = sec[pairOff + 1];
+            if (dataT == 0 && dataS == 0) break;  // end of list
+            if (dataT >= m_appleTracks || dataS >= kAppleSecPerTrack) break;
 
-            if ((dataS == 0 && dataT == 0) || (dataS == 0xFF && dataT == 0xFF))
-                break;
-
-            const uint8_t* dataSec = logicalSectorPtr(m_diskData, dataT, dataS);
+            const uint8_t* dataSec = sectorPtr(m_diskData, dataT, dataS);
             if (!dataSec) break;
 
             uint32_t remaining = totalSize - static_cast<uint32_t>(result.size());
             uint32_t toCopy = (remaining < kAppleSectorSize) ? remaining : kAppleSectorSize;
             result.insert(result.end(), dataSec, dataSec + toCopy);
-
-            if (result.size() >= totalSize) break;
         }
 
-        if (result.size() >= totalSize) break;
-
+        if (nextT == 0 || nextT >= m_appleTracks || nextS >= kAppleSecPerTrack) break;
         t = nextT;
         s = nextS;
-
-        if (t <= 0 || t >= m_appleTracks) break;
-        if (s < 0 || s >= kAppleSecPerTrack) break;
     }
 
     return result;
@@ -636,13 +567,15 @@ std::vector<uint8_t> DskEngine::readProDosFile(
 
     case kProDosSapling:
     {
+        // Index block: bytes 0x000-0x0FF are low bytes, 0x100-0x1FF are high bytes
         auto indexBlock = readBlock(keyBlock);
         if (indexBlock.empty()) break;
         for (int i = 0; i < 256; i++)
         {
-            uint16_t bn = static_cast<uint16_t>(indexBlock[i * 2]) |
-                          (static_cast<uint16_t>(indexBlock[i * 2 + 1]) << 8);
-            if (bn == 0 || bn >= numBlocks) break;
+            uint16_t bn = static_cast<uint16_t>(indexBlock[i]) |
+                          (static_cast<uint16_t>(indexBlock[i + 256]) << 8);
+            if (bn == 0) break;
+            if (bn >= numBlocks) continue;
             dataBlocks.push_back(bn);
         }
         break;
@@ -650,24 +583,25 @@ std::vector<uint8_t> DskEngine::readProDosFile(
 
     case kProDosTree:
     {
+        // Master index block: same split format as sapling index
         auto masterBlock = readBlock(keyBlock);
         if (masterBlock.empty()) break;
-        for (int i = 0; i < 128; i++)
+        for (int i = 0; i < 256; i++)
         {
-            uint32_t idxBn = static_cast<uint32_t>(masterBlock[i * 4]) |
-                             (static_cast<uint32_t>(masterBlock[i * 4 + 1]) << 8) |
-                             (static_cast<uint32_t>(masterBlock[i * 4 + 2]) << 16) |
-                             (static_cast<uint32_t>(masterBlock[i * 4 + 3]) << 24);
-            if (idxBn == 0 || idxBn >= static_cast<uint32_t>(numBlocks)) break;
+            uint16_t idxBn = static_cast<uint16_t>(masterBlock[i]) |
+                             (static_cast<uint16_t>(masterBlock[i + 256]) << 8);
+            if (idxBn == 0) break;
+            if (idxBn >= numBlocks) continue;
 
             auto indexBlock = readBlock(static_cast<int>(idxBn));
             if (indexBlock.empty()) break;
             for (int j = 0; j < 256; j++)
             {
-                uint16_t bn = static_cast<uint16_t>(indexBlock[j * 2]) |
-                              (static_cast<uint16_t>(indexBlock[j * 2 + 1]) << 8);
-                if (bn == 0 || bn >= numBlocks) break;
-                dataBlocks.push_back(bn);
+                uint16_t bn = static_cast<uint16_t>(indexBlock[j]) |
+                              (static_cast<uint16_t>(indexBlock[j + 256]) << 8);
+                if (bn == 0) break;
+                if (bn < numBlocks)
+                    dataBlocks.push_back(bn);
             }
         }
         break;
