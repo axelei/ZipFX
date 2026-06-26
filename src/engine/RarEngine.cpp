@@ -17,7 +17,11 @@ extern "C" {
     int archive_read_support_format_rar5(struct archive*);
 }
 
-static const std::vector<ArchiveEntry> kEmptyEntries;
+namespace {
+    const std::vector<ArchiveEntry> kEmptyEntries;
+    std::string g_rarExePath;
+    bool        g_rarExeSearched = false;
+}
 
 // ── Constructor / Destructor ───────────────────────────────────────────────
 
@@ -26,12 +30,16 @@ RarEngine::~RarEngine() = default;
 
 // ── Static: locate rar.exe / rar ──────────────────────────────────────────
 
+void RarEngine::resetFindCache()
+{
+    g_rarExeSearched = false;
+    g_rarExePath.clear();
+}
+
 std::string RarEngine::findRarExe()
 {
-    static std::string cached;
-    static bool        searched = false;
-    if (searched) return cached;
-    searched = true;
+    if (g_rarExeSearched) return g_rarExePath;
+    g_rarExeSearched = true;
 
 #ifdef _WIN32
     // Well-known install paths (64-bit and 32-bit WinRAR)
@@ -45,8 +53,8 @@ std::string RarEngine::findRarExe()
     {
         if (QFile::exists(QString::fromUtf8(p)))
         {
-            cached = p;
-            return cached;
+            g_rarExePath = p;
+            return g_rarExePath;
         }
     }
     // Registry: HKLM\SOFTWARE\WinRAR
@@ -58,8 +66,8 @@ std::string RarEngine::findRarExe()
             exe = reg.value("exe32").toString();
         if (!exe.isEmpty() && QFile::exists(exe))
         {
-            cached = exe.toStdString();
-            return cached;
+            g_rarExePath = exe.toStdString();
+            return g_rarExePath;
         }
     }
     // Fallback: look in PATH via where.exe
@@ -72,23 +80,96 @@ std::string RarEngine::findRarExe()
                 proc.readAllStandardOutput()).split('\n').first().trimmed();
             if (!line.isEmpty() && QFile::exists(line))
             {
-                cached = line.toStdString();
-                return cached;
+                g_rarExePath = line.toStdString();
+                return g_rarExePath;
             }
         }
     }
-#else
-    // Linux / macOS: check PATH
-    QProcess proc;
-    proc.start("which", {"rar"});
-    if (proc.waitForFinished(3000) && proc.exitCode() == 0)
+#elif defined(__APPLE__)
+    // Check Homebrew install locations before falling back to which
+    static const char* kMacPaths[] = {
+        "/opt/homebrew/bin/rar",   // Apple Silicon
+        "/usr/local/bin/rar",      // Intel
+    };
+    for (const char* p : kMacPaths)
     {
-        cached = QString::fromLocal8Bit(proc.readAllStandardOutput())
-                     .trimmed().toStdString();
+        if (QFile::exists(QString::fromUtf8(p)))
+        {
+            g_rarExePath = p;
+            return g_rarExePath;
+        }
+    }
+    // General PATH search
+    {
+        QProcess proc;
+        proc.start("which", {"rar"});
+        if (proc.waitForFinished(3000) && proc.exitCode() == 0)
+        {
+            g_rarExePath = QString::fromLocal8Bit(proc.readAllStandardOutput())
+                               .trimmed().toStdString();
+        }
+    }
+#else
+    // Linux: PATH search
+    {
+        QProcess proc;
+        proc.start("which", {"rar"});
+        if (proc.waitForFinished(3000) && proc.exitCode() == 0)
+        {
+            g_rarExePath = QString::fromLocal8Bit(proc.readAllStandardOutput())
+                               .trimmed().toStdString();
+        }
     }
 #endif
 
-    return cached;
+    return g_rarExePath;
+}
+
+// ── Static: package manager auto-install ──────────────────────────────────
+
+bool RarEngine::canAutoInstall()
+{
+    static int cached = -1;
+    if (cached >= 0) return cached == 1;
+
+#ifdef _WIN32
+    QProcess p;
+    p.start("winget", {"--version"});
+    cached = (p.waitForFinished(4000) && p.exitCode() == 0) ? 1 : 0;
+#elif defined(__APPLE__)
+    cached = (QFile::exists("/opt/homebrew/bin/brew") ||
+              QFile::exists("/usr/local/bin/brew")) ? 1 : 0;
+#else
+    cached = 0;
+#endif
+    return cached == 1;
+}
+
+std::string RarEngine::autoInstallDescription()
+{
+#ifdef _WIN32
+    return "winget install RARLab.WinRAR";
+#elif defined(__APPLE__)
+    return "brew install rar";
+#else
+    return {};
+#endif
+}
+
+std::vector<std::string> RarEngine::autoInstallArgs()
+{
+#ifdef _WIN32
+    return {"winget", "install", "RARLab.WinRAR",
+            "--accept-source-agreements", "--accept-package-agreements"};
+#elif defined(__APPLE__)
+    // Use the full path so the brew binary is found even inside a .app bundle
+    const char* brew = QFile::exists("/opt/homebrew/bin/brew")
+                       ? "/opt/homebrew/bin/brew"
+                       : "/usr/local/bin/brew";
+    return {brew, "install", "rar"};
+#else
+    return {};
+#endif
 }
 
 // ── Private helpers ────────────────────────────────────────────────────────

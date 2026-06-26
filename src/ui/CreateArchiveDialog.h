@@ -9,6 +9,9 @@
 #include <QPlainTextEdit>
 #include <QStringList>
 
+class QFrame;
+class QPushButton;
+
 struct CreateArchiveResult
 {
     QString path;
@@ -35,6 +38,7 @@ private slots:
     void onClearSources();
     void onFormatChanged(int index);
     void onAccept();
+    void onInstallRar();
 
 private:
     void updateSourceDisplay();
@@ -58,6 +62,9 @@ private:
         bool supportsVolumes;
     };
     QList<FormatInfo> m_formats;
+
+    QFrame*       m_rarWarning = nullptr;
+    QPushButton*  m_createBtn  = nullptr;
 };
 
 #endif

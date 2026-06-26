@@ -31,9 +31,16 @@ public:
 
     // ── Static helpers ─────────────────────────────────────────────────────
     // Returns the path to rar.exe / rar, or empty if not installed.
-    // Result is cached after the first call.
+    // Result is cached; call resetFindCache() after an auto-install.
     static std::string findRarExe();
     static bool        isAvailable() { return !findRarExe().empty(); }
+    static void        resetFindCache();
+
+    // Auto-install support (winget on Windows, brew on macOS).
+    static bool                     canAutoInstall();
+    static std::string              autoInstallDescription(); // e.g. "brew install rar"
+    // args[0] = program, args[1..] = arguments
+    static std::vector<std::string> autoInstallArgs();
 
     // ── ArchiveEngine interface ────────────────────────────────────────────
     bool Open(std::string_view path) override;

@@ -5,10 +5,13 @@
 #include <QHBoxLayout>
 #include <QFormLayout>
 #include <QGroupBox>
+#include <QFrame>
 #include <QLabel>
 #include <QPushButton>
 #include <QFileDialog>
 #include <QMessageBox>
+#include <QPlainTextEdit>
+#include <QProcess>
 
 CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     : QDialog(parent)
@@ -20,9 +23,8 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
         { "ZIP",     true,  false, false },
         { "7z",      true,  true,  true  },
         { "TAR.GZ",  false, false, false },
+        { "RAR",     true,  false, true  },
     };
-    if (RarEngine::isAvailable())
-        m_formats.append({ "RAR", true, false, true });
 
     auto mainLayout = new QVBoxLayout(this);
 
@@ -69,6 +71,28 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     mainLayout->addLayout(fmtLayout);
     connect(m_formatCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
             this, &CreateArchiveDialog::onFormatChanged);
+
+    // ── RAR not-found warning ──────────────────────────────
+    m_rarWarning = new QFrame(this);
+    m_rarWarning->setFrameStyle(QFrame::StyledPanel);
+    auto* rwLayout = new QHBoxLayout(m_rarWarning);
+    rwLayout->setContentsMargins(8, 4, 8, 4);
+    rwLayout->addWidget(new QLabel(
+        tr("RAR creation requires <b>rar</b> / WinRAR — not found on this system."),
+        m_rarWarning), 1);
+    if (RarEngine::canAutoInstall())
+    {
+        auto* installBtn = new QPushButton(
+            tr("Install via %1")
+                .arg(QString::fromStdString(RarEngine::autoInstallDescription())
+                         .section(' ', 0, 0)),
+            m_rarWarning);
+        rwLayout->addWidget(installBtn);
+        connect(installBtn, &QPushButton::clicked,
+                this, &CreateArchiveDialog::onInstallRar);
+    }
+    m_rarWarning->setVisible(false);
+    mainLayout->addWidget(m_rarWarning);
 
     // ── Compression ────────────────────────────────────────
     auto lvlLayout = new QHBoxLayout();
@@ -121,14 +145,14 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     // ── Buttons ────────────────────────────────────────────
     auto btnLayout = new QHBoxLayout();
     btnLayout->addStretch();
-    auto okBtn = new QPushButton(tr("Create"), this);
+    m_createBtn = new QPushButton(tr("Create"), this);
     auto cancelBtn = new QPushButton(tr("Cancel"), this);
-    btnLayout->addWidget(okBtn);
+    btnLayout->addWidget(m_createBtn);
     btnLayout->addWidget(cancelBtn);
     mainLayout->addLayout(btnLayout);
 
-    connect(okBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onAccept);
-    connect(cancelBtn, &QPushButton::clicked, this, &QDialog::reject);
+    connect(m_createBtn, &QPushButton::clicked, this, &CreateArchiveDialog::onAccept);
+    connect(cancelBtn,   &QPushButton::clicked, this, &QDialog::reject);
 
     updateFormatOptions();
 }
@@ -212,6 +236,10 @@ void CreateArchiveDialog::updateFormatOptions()
     m_passwordEdit->setEnabled(enc);
     m_encryptNamesCheck->setEnabled(enc && fmt.supportsEncryptNames);
     m_volumeSpin->setEnabled(fmt.supportsVolumes);
+
+    bool rarBlocked = (fmt.name == "RAR" && !RarEngine::isAvailable());
+    if (m_rarWarning) m_rarWarning->setVisible(rarBlocked);
+    if (m_createBtn)  m_createBtn->setEnabled(!rarBlocked);
 }
 
 // ── Accept ─────────────────────────────────────────────────
@@ -237,4 +265,77 @@ CreateArchiveResult CreateArchiveDialog::result() const
         m_volumeSpin->value(),
         m_commentEdit->toPlainText()
     };
+}
+
+// ── RAR auto-install ───────────────────────────────────────────────────────
+
+void CreateArchiveDialog::onInstallRar()
+{
+    auto args = RarEngine::autoInstallArgs();
+    if (args.empty()) return;
+
+    QString prog = QString::fromStdString(args[0]);
+    QStringList pargs;
+    for (size_t i = 1; i < args.size(); ++i)
+        pargs << QString::fromStdString(args[i]);
+
+    // Progress dialog
+    QDialog dlg(this);
+    dlg.setWindowTitle(tr("Install RAR"));
+    dlg.setMinimumWidth(500);
+    auto* vb = new QVBoxLayout(&dlg);
+    vb->addWidget(new QLabel(
+        tr("Running: <b>%1</b>")
+            .arg(QString::fromStdString(RarEngine::autoInstallDescription())),
+        &dlg));
+
+    auto* log = new QPlainTextEdit(&dlg);
+    log->setReadOnly(true);
+    log->setMinimumHeight(160);
+    vb->addWidget(log);
+
+    auto* closeBtn = new QPushButton(tr("Close"), &dlg);
+    closeBtn->setEnabled(false);
+    auto* hb = new QHBoxLayout();
+    hb->addStretch();
+    hb->addWidget(closeBtn);
+    vb->addLayout(hb);
+    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::accept);
+
+    auto* proc = new QProcess(&dlg);
+    proc->setProcessChannelMode(QProcess::MergedChannels);
+    connect(proc, &QProcess::readyRead, [&]() {
+        log->appendPlainText(QString::fromLocal8Bit(proc->readAll()));
+    });
+
+    bool installed = false;
+    connect(proc, QOverload<int, QProcess::ExitStatus>::of(&QProcess::finished),
+            [&](int code, QProcess::ExitStatus) {
+                installed = (code == 0);
+                closeBtn->setEnabled(true);
+                log->appendPlainText(installed
+                    ? tr("\nInstalled successfully.")
+                    : tr("\nFailed (exit %1). You can install manually:\n  %2")
+                          .arg(code)
+                          .arg(QString::fromStdString(RarEngine::autoInstallDescription())));
+            });
+
+    proc->start(prog, pargs);
+    if (!proc->waitForStarted(5000))
+    {
+        QMessageBox::warning(this, tr("Error"),
+            tr("Could not launch the package manager.\n"
+               "Install manually: %1")
+                .arg(QString::fromStdString(RarEngine::autoInstallDescription())));
+        return;
+    }
+
+    dlg.exec();
+
+    if (installed)
+    {
+        RarEngine::resetFindCache();
+        if (RarEngine::isAvailable())
+            updateFormatOptions(); // hides warning, re-enables Create
+    }
 }
