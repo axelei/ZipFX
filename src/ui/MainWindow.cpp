@@ -145,6 +145,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 #ifdef _WIN32
     registerFileAssociations();
+#elif defined(__APPLE__)
+    registerFileAssociationsMac();
 #endif
 }
 
@@ -3317,5 +3319,25 @@ void MainWindow::registerFileAssociations()
             fn(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
         FreeLibrary(shell32);
     }
+}
+#elif defined(__APPLE__)
+void MainWindow::registerFileAssociationsMac()
+{
+    QSettings s;
+    if (s.value("assoc/registered_mac", false).toBool())
+        return;
+
+    // Launch Services only auto-scans /Applications and ~/Applications.
+    // Force it to read our bundle's CFBundleDocumentTypes/UTExportedTypeDeclarations
+    // now, regardless of where the .app lives (dev build, Downloads, etc.).
+    QDir d(QApplication::applicationDirPath()); // .app/Contents/MacOS
+    d.cdUp(); d.cdUp();                          // → .app
+    const QString lsregister =
+        "/System/Library/Frameworks/CoreServices.framework"
+        "/Versions/A/Frameworks/LaunchServices.framework"
+        "/Versions/A/Support/lsregister";
+    QProcess::startDetached(lsregister, {"-f", d.absolutePath()});
+
+    s.setValue("assoc/registered_mac", true);
 }
 #endif

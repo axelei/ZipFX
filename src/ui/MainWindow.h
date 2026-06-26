@@ -104,6 +104,8 @@ private:
     void installShellExtension(bool install);
 #ifdef _WIN32
     void registerFileAssociations();
+#elif defined(__APPLE__)
+    void registerFileAssociationsMac();
 #endif
     void doExtract(const QString& destPath, bool all, bool stripPaths = false);
     void doExtractSelected(const QModelIndexList& selection);
