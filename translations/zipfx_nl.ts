@@ -947,6 +947,606 @@ Overschrijven?</translation>
             <source>Updating comment...</source>
             <translation>Commentaar bijwerken...</translation>
         </message>
+        <message>
+            <source>
+
+... truncated (showing first %1 of %2 bytes)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+
+Extract the file first, then open it.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+All corrupted blocks repaired successfully.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+Archive integrity: OK — no corruption detected.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+Done. %1 succeeded, %2 failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+ERROR: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  ERROR: could not open.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  FAILED: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  FAILED: extraction failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  FAILED: integrity check failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  OK: extracted to %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  OK: integrity check passed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>% of data blocks</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1
+%2 bytes</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 B</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 GB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 KB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 MB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 file(s) selected, %2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1% saved</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Copy Path</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Edit</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Invert Selection</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Keep Broken Files on Extraction</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Uninstall Shell Extension</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>&amp;Verify/Repair with Recovery Record...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>... truncated (showing first %1 of %2 bytes)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>128 KB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>32 KB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>64 KB</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add &amp;Recovery Record...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add Recovery Record</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add via rar.exe (if installed)...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>After:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Archive filename</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Archive password:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Archive:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Attempts to recover readable files from a corrupted archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Bad blocks   : %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Batch &amp;Operations...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Batch Operations</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Block size:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Browse...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Compressed:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Con&amp;vert Archive...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Convert</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Convert Archive</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Converted successfully:
+%1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Could not create target archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Could not create temporary directory.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Could not extract "%1".</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Create Sidecar (.rec)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Creating archive...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Creating recovery record...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Delete Selected</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>E&amp;xclude Patterns...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>ERROR: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>ERROR: Cannot create temporary directory.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>ERROR: Failed to write recovered archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Errors detected. Extracting recoverable files...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Exclude Patterns</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extract &amp;Here</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extract all archives</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extract without &amp;Paths...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extract without paths to</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Failed to save converted archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Files:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Find Fi&amp;les...	Ctrl+F</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Folder: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Folders:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Format:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Found %1 archive(s).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Include subfolders</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Install Shell &amp;Extension (Explorer right-click)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Integrity test PASSED — archive appears undamaged.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Native RAR recovery record added.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No archive open.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No files could be recovered.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No selection</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No sidecar (.rec) file found for this archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Open</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Open With...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Open with...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Operation:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Output folder:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Output path:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password &amp;Manager...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password Manager</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Please select a valid source folder.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Please select an output folder.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>RAR repair completed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Ratio:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Re&amp;pair Archive...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Recovered %1 file(s), failed: %2.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Recovery Record</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Recovery size:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Recovery: %1% of data blocks (%2).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Remember this password for this archive?</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Repair</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Repair Archive</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Repaired     : %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Save &amp;&amp; Close</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Save Converted Archive</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Save Password</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Save Recovered Files</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Saved passwords are applied automatically when opening archives.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Saved: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select &amp;All	Ctrl+A</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select Output Folder</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select Source Folder</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select a file to preview</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Set &amp;Password...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Set Password</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Shell Extension</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Shell extension uninstalled.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Shell extensions are only available on Windows.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Show &amp;Preview Pane</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Sidecar created: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Source folder:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Start Repair</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Target format not supported for writing.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Target format:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Test integrity of all archives</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Testing archive integrity...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>The file "%1" is empty.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Total blocks : %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Try repairing with rar.exe (native RAR recovery record)?</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Uncompressed:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Unrepairable : %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Verify &amp;&amp; Repair</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Verify Only</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Verify/Repair with Recovery Record</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Verifying...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Viewing individual files is not supported for this archive (%1).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Viewing individual files is not supported for this archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>archive.zip</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>rar.exe</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>rar.exe not found.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>rar.exe returned error %1:
+%2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>rar.exe timed out.</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -977,6 +1577,37 @@ Overschrijven?</translation>
         <message>
             <source>Start</source>
             <translation>Starten</translation>
+        </message>
+        <message>
+            <source>%1 files already exist at the destination. What would you like to do?</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Cancel</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extracting files...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Files Already Exist</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Overwrite</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Skip Existing</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>The following file already exists at the destination:
+%1
+
+Overwrite it?</source>
+            <translation type="unfinished" />
         </message>
     </context>
     <context>
@@ -1040,6 +1671,25 @@ Overschrijven?</translation>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 resultaat/resultaten</translation>
+        </message>
+    </context>
+    <context>
+        <name>AfterAction</name>
+        <message>
+            <source>Do nothing</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Hibernate</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Shut down</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Sleep</source>
+            <translation type="unfinished" />
         </message>
     </context>
 </TS>
