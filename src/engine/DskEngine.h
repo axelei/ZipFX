@@ -31,8 +31,6 @@ public:
     bool IsOpen() const override { return m_isOpen; }
 
 private:
-    bool detectFormat();
-    bool readRaw(FILE* f, std::vector<uint8_t>& out);
     void loadDiskData();
 
     // Apple DOS / ProDOS filesystem parsing

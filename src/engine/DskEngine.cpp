@@ -12,7 +12,6 @@ namespace fs = std::filesystem;
 static constexpr int kAppleSecPerTrack = 16;
 static constexpr int kAppleSectorSize = 256;
 static constexpr int kAppleTrackSize = kAppleSecPerTrack * kAppleSectorSize;
-static constexpr int kDos33Tracks = 35;
 
 // ── ProDOS constants ─────────────────────────────────────────────────────
 static constexpr int kProDOSBlockSize = 512;
@@ -25,82 +24,9 @@ static constexpr uint8_t kProDosTree      = 0x30;
 static constexpr uint8_t kProDosSubdir    = 0xD0;
 static constexpr uint8_t kProDosVolumeDir = 0xF0;
 
-// ── Format detection ─────────────────────────────────────────────────────
-
-enum class DskFormat { Unknown, Raw, D64, D71, D80, D82, CpcDsk, Apple2Img, AppleDc42 };
-
-struct DskProbe {
-    DskFormat fmt;
-    const char* name;
-    const char* desc;
-    bool (*match)(const uint8_t* hdr, size_t len, long fileSize);
-};
-
-static const DskProbe kProbes[] = {
-    { DskFormat::CpcDsk, "DSK (CPC)", "Amstrad CPC disk image",
-        [](const uint8_t* d, size_t len, long) -> bool {
-            if (len < 8) return false;
-            return (std::memcmp(d, "MV - CPC", 8) == 0) ||
-                   (std::memcmp(d, "EXTENDED", 8) == 0 &&
-                    len >= 16 && std::memcmp(d + 8, " CPC", 4) == 0);
-        }},
-    { DskFormat::Apple2Img, "DSK (2IMG)", "Apple II 2IMG disk image",
-        [](const uint8_t* d, size_t len, long) -> bool {
-            return len >= 4 && std::memcmp(d, "2IMG", 4) == 0;
-        }},
-    { DskFormat::AppleDc42, "DC42", "Apple Disk Copy 4.2",
-        [](const uint8_t* d, size_t len, long) -> bool {
-            return len >= 3 && d[0] == 0x01 && d[1] == 0x00 && d[2] == 'D';
-        }},
-    { DskFormat::D64, "D64", "Commodore 64 disk image",
-        [](const uint8_t* d, size_t len, long fileSize) -> bool {
-            if (fileSize != 174848 && fileSize != 175531 &&
-                fileSize != 196608 && fileSize != 197376 &&
-                fileSize != 201600 && fileSize != 205800)
-            {
-                if (len < 6) return false;
-                return d[0] == 0x00 && d[1] == 0x00 && d[2] == 0x00 &&
-                       d[3] == 0x00 && d[4] == 0x00 && d[5] != 0x00;
-            }
-            return true;
-        }},
-};
-
 DskEngine::~DskEngine()
 {
     DskEngine::Close();
-}
-
-bool DskEngine::detectFormat()
-{
-    FILE* f = std::fopen(m_path.c_str(), "rb");
-    if (!f) return false;
-
-    std::fseek(f, 0, SEEK_END);
-    long fileSize = std::ftell(f);
-
-    uint8_t header[64];
-    std::rewind(f);
-    size_t n = std::fread(header, 1, sizeof(header), f);
-    std::fclose(f);
-
-    for (const auto& p : kProbes)
-    {
-        if (p.match(header, n, fileSize))
-        {
-            m_formatName = p.name;
-            m_formatDesc = p.desc;
-            m_dataOffset = 0;
-            m_dataSize = static_cast<uint64_t>(fileSize);
-            return true;
-        }
-    }
-
-    m_formatName = "Raw Disk";
-    m_formatDesc = "Unrecognized disk image";
-    m_dataOffset = 0;
-    m_dataSize = static_cast<uint64_t>(fileSize);
-    return fileSize > 0;
 }
 
 void DskEngine::loadDiskData()
@@ -113,16 +39,6 @@ void DskEngine::loadDiskData()
     std::fclose(f);
     if (n != m_dataSize)
         m_diskData.resize(n);
-}
-
-bool DskEngine::readRaw(FILE* f, std::vector<uint8_t>& out)
-{
-    out.resize(m_dataSize);
-    std::fseek(f, static_cast<long>(m_dataOffset), SEEK_SET);
-    size_t n = std::fread(out.data(), 1, m_dataSize, f);
-    if (n != m_dataSize)
-        out.resize(n);
-    return !out.empty();
 }
 
 // ── Sector access ────────────────────────────────────────────────────────
@@ -630,16 +546,14 @@ bool DskEngine::Open(std::string_view path)
     Close();
     m_path = path;
 
-    if (!detectFormat())
     {
-        LOG_ERR("DSK: failed to open %s", m_path.c_str());
-        return false;
-    }
-
-    if (m_dataSize == 0)
-    {
-        LOG_ERR("DSK: empty file %s", m_path.c_str());
-        return false;
+        FILE* f = std::fopen(m_path.c_str(), "rb");
+        if (!f) { LOG_ERR("DSK: failed to open %s", m_path.c_str()); return false; }
+        std::fseek(f, 0, SEEK_END);
+        long sz = std::ftell(f);
+        std::fclose(f);
+        if (sz <= 0) { LOG_ERR("DSK: empty file %s", m_path.c_str()); return false; }
+        m_dataSize = static_cast<uint64_t>(sz);
     }
 
     loadDiskData();
@@ -765,9 +679,11 @@ std::vector<uint8_t> DskEngine::ReadFile(std::string_view entryName)
     {
         FILE* f = std::fopen(m_path.c_str(), "rb");
         if (!f) return {};
-        std::vector<uint8_t> data;
-        readRaw(f, data);
+        std::vector<uint8_t> data(m_dataSize);
+        std::fseek(f, static_cast<long>(m_dataOffset), SEEK_SET);
+        size_t n = std::fread(data.data(), 1, m_dataSize, f);
         std::fclose(f);
+        data.resize(n);
         return data;
     }
 
