@@ -84,8 +84,10 @@ if command -v linuxdeploy &>/dev/null; then
         cp "$LIB7Z" "${BUILD_DIR}/install/usr/lib/"
     fi
     # Copy shared dependency libs so linuxdeploy can bundle them
-    find "${BUILD_DIR}/_deps" -name "libzip.so*" -o -name "libstorm.so*" -o -name "liblzma.so*" \
-        | xargs -I{} cp -P {} "${BUILD_DIR}/install/usr/lib/" 2>/dev/null || true
+    find "${BUILD_DIR}/_deps" \( \
+        -name "libzip.so*" -o -name "libstorm.so*" -o -name "liblzma.so*" \
+        -o -name "libbrotli*.so*" \
+        \) | xargs -I{} cp -P {} "${BUILD_DIR}/install/usr/lib/" 2>/dev/null || true
     export QMAKE="${QT_DIR}/bin/qmake"
     # Let linuxdeploy resolve shared libs from build tree and AppDir
     DEPS_LIB_DIRS=$(find "${BUILD_DIR}/_deps" -name "*.so*" -printf "%h\n" 2>/dev/null | sort -u | tr '\n' ':')

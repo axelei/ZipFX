@@ -4,12 +4,12 @@ REM Requires: Qt 6.x MinGW, CMake, MinGW toolchain
 REM Optional: NSIS (makensis.exe) for installer
 REM
 REM Usage:  build_win.cmd [Qt_DIR]
-REM         default Qt_DIR = C:\Qt\6.8.3\mingw_64
+REM         default Qt_DIR = C:\Qt\6.11.1\mingw_64
 
 setlocal EnableDelayedExpansion
 
 set QT_DIR=%~1
-if "%QT_DIR%"=="" set QT_DIR=C:\Qt\6.8.3\mingw_64
+if "%QT_DIR%"=="" set QT_DIR=C:\Qt\6.11.1\mingw_64
 
 set MINGW_DIR=%QT_DIR%\..\..\Tools\mingw1310_64\bin
 set PATH=%QT_DIR%\bin;%MINGW_DIR%;%PATH%
