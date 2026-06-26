@@ -951,601 +951,613 @@ Overschrijven?</translation>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>
+
+... afgekapt (eerste %1 van %2 bytes getoond)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>
+
+Extraheer het bestand eerst en open het dan.</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>
+Alle beschadigde blokken zijn succesvol hersteld.</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>
+Archiefintegriteit: OK — geen beschadiging gevonden.</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>
+Beschadiging gevonden. Gebruik 'Controleer &amp;&amp; herstel' om te repareren.</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>
+Klaar. %1 geslaagd, %2 mislukt.</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>
+FOUT: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>  FOUT: kon niet openen.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>  MISLUKT: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>  MISLUKT: extractie mislukt.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>  MISLUKT: integriteitscontrole mislukt.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>  OK: geëxtraheerd naar %1</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>  OK: integriteitscontrole geslaagd.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>% van datablokken</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>%1
+%2 bytes</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>%1 B</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>%1 GB</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>%1 KB</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>%1 MB</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>%1 bestand(en) geselecteerd, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>%1% bespaard</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>Pad &amp;kopiëren</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&amp;Bewerken</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>Selectie &amp;omkeren</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>Beschadigde bestanden &amp;bewaren bij extractie</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>Shell-extensie &amp;verwijderen</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&amp;Controleer/herstel met herstelrecord...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>... afgekapt (eerste %1 van %2 bytes)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>128 KB</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>32 KB</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>64 KB</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&amp;Herstelrecord toevoegen...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>Herstelrecord toevoegen</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>Toevoegen via rar.exe (indien geïnstalleerd)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>Toevoegen...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>Na:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>Archief bestandsnaam</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>Archiefwachtwoord:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>Archief:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>Probeert leesbare bestanden te herstellen uit een beschadigd archief.</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>Slechte blokken: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&amp;Batchbewerkingen...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>Batchbewerkingen</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>Blokgrootte:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>Bladeren...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>Gecomprimeerd:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>Archief &amp;converteren...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>Converteren</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>Archief converteren</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>Succesvol geconverteerd:
+%1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>Kon doelarchief niet aanmaken.</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>Kon tijdelijke map niet aanmaken.</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>Kon "%1" niet extraheren.</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>Sidecarbestand aanmaken (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>Archief aanmaken...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>Herstelrecord aanmaken...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>Selectie verwijderen</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>Patronen &amp;uitsluiten...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>FOUT: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>FOUT: Kan tijdelijke map niet aanmaken.</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>FOUT: Hersteld archief kon niet worden geschreven.</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>Fouten gevonden. Herstelbare bestanden worden geëxtraheerd...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>Patronen uitsluiten</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&amp;Hier extraheren</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>Alle archieven extraheren</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>Extraheren zonder &amp;paden...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>Extraheren zonder paden naar</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>Geconverteerd archief kon niet worden opgeslagen.</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>Bestanden:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>Bestanden &amp;zoeken...	Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>Map: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>Mappen:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>Indeling:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>%1 archief(ven) gevonden.</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>Submappen opnemen</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>Shell-&amp;extensie installeren (Explorer rechtsklik)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>Integriteitstest GESLAAGD — archief lijkt onbeschadigd.</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>Methode:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>Native RAR-herstelrecord toegevoegd.</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>Geen archief geopend.</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>Geen bestanden konden worden hersteld.</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>Geen selectie</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>Geen sidecarbestand (.rec) gevonden voor dit archief.</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>Openen</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>Openen met...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>Openen met...</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>Bewerking:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>Uitvoermap:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>Uitvoerpad:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>Wachtwoord</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>Wachtwoord&amp;beheer...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>Wachtwoordbeheer</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>Patronen om over te slaan bij toevoegen (kommagescheiden, bijv. *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>Selecteer een geldige bronmap.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>Selecteer een uitvoermap.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>RAR-reparatie voltooid.</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>RAR-tip: rar.exe ondersteunt ook native herstelrecords (rr N%).</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>Verhouding:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>Archief &amp;repareren...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>%1 bestand(en) hersteld, mislukt: %2.</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>Herstelrecord</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>Herstelgrootte:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>Herstel: %1% van datablokken (%2).</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>Dit wachtwoord onthouden voor dit archief?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>Repareren</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>Archief repareren</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>Gerepareerd  : %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>Opslaan &amp;&amp; sluiten</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>Geconverteerd archief opslaan</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>Wachtwoord opslaan</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>Herstelde bestanden opslaan</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>Opgeslagen wachtwoorden worden automatisch toegepast bij het openen van archieven.</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>Opgeslagen: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&amp;Alles selecteren	Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>Uitvoermap selecteren</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>Bronmap selecteren</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>Selecteer een bestand om te bekijken</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&amp;Wachtwoord instellen...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>Wachtwoord instellen</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>Shell-extensie</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>Shell-extensie verwijderd.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>Shell-extensies zijn alleen beschikbaar op Windows.</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&amp;Voorbeeldvenster tonen</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>Sidecarbestand aangemaakt: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>Bronmap:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>Reparatie starten</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>Doelindeling wordt niet ondersteund voor schrijven.</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>Doelindeling:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>Integriteit van alle archieven testen</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>Archiefintegriteit wordt getest...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>Het bestand "%1" is leeg.</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>Totale blokken: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>Repareren met rar.exe (native RAR-herstelrecord)?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>Niet gecomprimeerd:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>Niet herstelbaar: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>Controleer &amp;&amp; herstel</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>Alleen controleren</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>Controleer/herstel met herstelrecord</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>Controleren...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>Afzonderlijke bestanden bekijken wordt niet ondersteund voor dit archief (%1).</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>Afzonderlijke bestanden bekijken wordt niet ondersteund voor dit archief.</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>archive.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>rar.exe niet gevonden.</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>rar.exe niet gevonden. Installeer WinRAR of gebruik de sidecarmethode.</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>rar.exe heeft fout %1 geretourneerd:
+%2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>rar.exe heeft een time-out.</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1592,37 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>%1 bestanden bestaan al op de bestemming. Wat wilt u doen?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>Annuleren</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>Bestanden extraheren...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>Bestanden bestaan al</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>Overschrijven</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>Bestaande overslaan</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>Het volgende bestand bestaat al op de bestemming:
+%1
+
+Overschrijven?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1692,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>Niets doen</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>Sluimerstand</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>Afsluiten</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>Slaapstand</translation>
         </message>
     </context>
 </TS>
