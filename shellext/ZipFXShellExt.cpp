@@ -11,21 +11,14 @@
 #include <string>
 #include <vector>
 
+#include "../src/engine/ArchiveExtensions.h"
+
 // ── DLL globals ────────────────────────────────────────────────────────────
 volatile LONG g_dllRefCount = 0;
 HMODULE       g_hModule     = nullptr;
 
 // ── Known archive extensions ───────────────────────────────────────────────
-static const wchar_t* kArchiveExts[] = {
-    L".zip", L".7z", L".rar", L".tar", L".gz", L".bz2", L".xz",
-    L".zst", L".lz4", L".tgz", L".tbz2", L".txz", L".tzst",
-    L".iso", L".cab", L".lha", L".lzh", L".arj", L".arc",
-    L".wad", L".pak", L".grp", L".hog", L".vpk", L".gob",
-    L".rff", L".big", L".viv", L".pod", L".mpq", L".adf",
-    L".chd", L".jar", L".apk", L".epub", L".war", L".ear",
-    L".docx", L".xlsx", L".pptx", L".odt", L".ods", L".odp",
-    nullptr
-};
+static const wchar_t* kArchiveExts[] = { ZIPFX_ARCHIVE_EXTS(ZIPFX_EXT_W) nullptr };
 
 // ── CLSID string ──────────────────────────────────────────────────────────
 static const wchar_t* kClsidStr = L"{4DC2B9E2-0A3F-4D27-8B3A-E1F2C3D4A5B6}";

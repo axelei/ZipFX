@@ -71,6 +71,7 @@
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
+#include "engine/ArchiveExtensions.h"
 #include "engine/ArchiveEntry.h"
 #include "engine/Bit7zEngine.h"
 
@@ -3263,14 +3264,11 @@ void MainWindow::registerFileAssociations()
         return;
 
     QString appPath = QDir::toNativeSeparators(QApplication::applicationFilePath());
-    QStringList exts = {
-        ".zip", ".7z", ".rar", ".tar", ".gz", ".gzip", ".bz2", ".bzip2",
-        ".xz", ".tgz", ".tbz2", ".txz", ".iso", ".cab", ".arj", ".lz",
-        ".lzma", ".rpm", ".deb", ".msi", ".wim", ".vhd", ".vmdk"
-    };
+    static const char* kExts[] = { ZIPFX_ARCHIVE_EXTS(ZIPFX_EXT_N) nullptr };
 
-    for (const QString& ext : exts)
+    for (const char* const* p = kExts; *p; ++p)
     {
+        const QString ext = QString::fromLatin1(*p);
         HKEY hKey;
         QString key = "ZipFX\\" + ext;
         if (RegCreateKeyExA(HKEY_CLASSES_ROOT, ("." + ext).toStdString().c_str(),
