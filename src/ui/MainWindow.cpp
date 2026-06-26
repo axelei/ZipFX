@@ -166,6 +166,11 @@ void MainWindow::setupMenus()
 {
     // File
     auto fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(tr("New &Window\tCtrl+Shift+N"), this, [this]() {
+        auto* w = new MainWindow({});
+        w->show();
+    });
+    fileMenu->addSeparator();
     fileMenu->addAction(tr("&New Archive...\tCtrl+N"), this, &MainWindow::onNewArchive);
     fileMenu->addAction(tr("&Open Archive...\tCtrl+O"), this, &MainWindow::onOpenArchive);
     fileMenu->addAction(tr("&Close Archive\tCtrl+C"), this, &MainWindow::onCloseArchive);
