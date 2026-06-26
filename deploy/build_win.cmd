@@ -28,7 +28,7 @@ cmake -S %REPO_DIR% -B %BUILD_DIR% -G "MinGW Makefiles" ^
 if errorlevel 1 exit /b 1
 
 echo === Building ===
-cmake --build %BUILD_DIR% --target ZipFX -j8
+cmake --build %BUILD_DIR% --target ZipFX ZipFXShellExt -j8
 if errorlevel 1 exit /b 1
 
 echo === Deploying Qt DLLs ===
@@ -123,6 +123,7 @@ powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
     "%BUILD_DIR%\libadf.dll",^
     "%BUILD_DIR%\libStormLib.dll",^
     "%BUILD_DIR%\7z.dll",^
+    "%BUILD_DIR%\ZipFXShellExt.dll",^
     "%BUILD_DIR%\opengl32sw.dll",^
     "%BUILD_DIR%\D3Dcompiler_47.dll",^
     "%BUILD_DIR%\platforms",^
