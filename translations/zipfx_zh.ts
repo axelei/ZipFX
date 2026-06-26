@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>可选档案注释</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>存档注释</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>创建 RAR 需要 &lt;b&gt;rar&lt;/b&gt; / WinRAR — 在此系统上未找到。</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>通过 %1 安装</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>安装 RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>正在运行：&lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>关闭</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+安装成功。</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+失败（退出代码 %1）。您可以手动安装：
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>无法启动包管理器。
+请手动安装：%1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overwrite?</source>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>关机</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>操作完成后:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>开始</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>在存档中查找文件</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>搜索条件</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>例如 *.txt 或 报告*（空白 = 所有文件）</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>名称模式：</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>大小介于</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>和</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>日期介于</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>名称</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>路径</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>大小</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>修改时间</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>查找</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>关闭</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 个结果</translation>
         </message>
     </context>
 </TS>

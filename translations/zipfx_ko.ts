@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>선택적 아카이브 댓글</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>아카이브 설명</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR 생성에는 &lt;b&gt;rar&lt;/b&gt; / WinRAR이 필요합니다 — 이 시스템에서 찾을 수 없습니다.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>%1을(를) 통해 설치</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>RAR 설치</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>실행 중: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>닫기</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+설치되었습니다.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+실패했습니다 (종료 코드 %1). 수동으로 설치할 수 있습니다:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>패키지 관리자를 실행할 수 없습니다.
+수동으로 설치하세요: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overwrite?</source>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>종료</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>작업 완료 후:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>시작</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>아카이브에서 파일 찾기</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>검색 조건</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>예: *.txt 또는 보고서* (빈 칸 = 모든 파일)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>이름 패턴:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>크기 범위</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>~</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>날짜 범위</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>이름</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>경로</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>크기</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>수정 날짜</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>찾기</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>닫기</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 개 결과</translation>
         </message>
     </context>
 </TS>

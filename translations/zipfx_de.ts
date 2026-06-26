@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Optionaler Archivkommentar</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Archivkommentar</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR-Erstellung erfordert &lt;b&gt;rar&lt;/b&gt; / WinRAR — nicht auf diesem System gefunden.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Installieren über %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>RAR installieren</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Wird ausgeführt: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Schließen</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Erfolgreich installiert.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Fehlgeschlagen (Beendigungscode %1). Sie können es manuell installieren:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Der Paketmanager konnte nicht gestartet werden.
+Manuell installieren: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overwrite?</source>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Herunterfahren</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>Nach Abschluss der Operation:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Start</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Dateien im Archiv suchen</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Suchkriterien</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>z.B. *.txt  oder  bericht*  (leer = alle Dateien)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Namensmuster:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Größe zwischen</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>und</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Datum zwischen</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Name</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Pfad</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Größe</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Geändert</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Suchen</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Schließen</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 Ergebnis(se)</translation>
         </message>
     </context>
 </TS>

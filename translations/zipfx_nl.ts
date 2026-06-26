@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Optioneel archiefcommentaar</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Archiefcommentaar</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR-aanmaak vereist &lt;b&gt;rar&lt;/b&gt; / WinRAR — niet gevonden op dit systeem.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Installeren via %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>RAR installeren</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Wordt uitgevoerd: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sluiten</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Succesvol geïnstalleerd.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Mislukt (afsluiting %1). U kunt het handmatig installeren:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Kan de pakketbeheerder niet starten.
+Handmatig installeren: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overschrijven?</translation>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Afsluiten</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>Na voltooiing van de bewerking:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Starten</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Bestanden zoeken in archief</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Zoekcriteria</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>bijv. *.txt  of  rapport*  (leeg = alle bestanden)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Naampatroon:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Grootte tussen</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>en</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Datum tussen</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Naam</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Pad</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Grootte</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Gewijzigd</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Zoeken</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sluiten</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 resultaat/resultaten</translation>
         </message>
     </context>
 </TS>

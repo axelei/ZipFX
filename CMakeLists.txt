@@ -74,6 +74,10 @@ set(XZ_BUILD_XZ          OFF CACHE BOOL "" FORCE)
 set(XZ_BUILD_LZMADEC     OFF CACHE BOOL "" FORCE)
 set(XZ_BUILD_LZMAINFO    OFF CACHE BOOL "" FORCE)
 set(XZ_BUILD_SCRIPTS     OFF CACHE BOOL "" FORCE)
+# Force static-only — ZipFX embeds all deps; a shared liblzma.dll would be
+# required at runtime on every target machine.
+set(BUILD_SHARED_LIBS    OFF CACHE BOOL "" FORCE)
+
 FetchContent_Declare(
     liblzma
     GIT_REPOSITORY https://github.com/tukaani-project/xz.git
