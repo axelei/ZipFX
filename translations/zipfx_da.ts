@@ -1583,28 +1583,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>Kunne ikke læse &quot;%1&quot;.
+
+Arkivet kan være krypteret, beskadiget eller bruge en komprimeringsmetode, der ikke understøttes til forhåndsvisning på stedet.
+
+Prøv først at udpakke filen.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>Opretter en .rec sidecar-fil, der indeholder XOR-paritetsblokke.
+Sidevognen tillader korrupte bytes at blive rekonstrueret
+hvis individuelle datablokke er beskadiget.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>Shell-udvidelsen er installeret. Højreklik på en fil i Stifinder for at bruge den.
+Du skal muligvis genstarte Explorer (eller logge ud), for at menuen vises.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>ZipFXShellExt.dll ikke fundet i programbiblioteket.
+Byg venligst shell-udvidelsesmålet først.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>regsvr32 mislykkedes (afslut %1).
+Du skal muligvis køre ZipFX som administrator for denne handling.</translation>
         </message>
     </context>
     <context>

@@ -1583,28 +1583,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>Ei voitu lukea &quot;% 1&quot;.
+
+Arkisto voi olla salattu, vioittunut tai käyttää pakkausmenetelmää, jota ei tueta esikatselussa.
+
+Yritä purkaa tiedosto ensin.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>Luo .rec sidecar -tiedoston, joka sisältää XOR-pariteettilohkot.
+Sivuvaunu mahdollistaa vioittuneiden tavujen rekonstruoinnin
+jos yksittäiset tietolohkot ovat vaurioituneet.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>Shell-laajennus asennettu. Napsauta mitä tahansa tiedostoa hiiren kakkospainikkeella Explorerissa käyttääksesi sitä.
+Sinun on ehkä käynnistettävä Explorer uudelleen (tai kirjauduttava ulos), jotta valikko tulee näkyviin.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>ZipFXShellExt.dll ei löydy sovellushakemistosta.
+Rakenna ensin komentotulkin laajennuskohde.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>regsvr32 epäonnistui (poistu %1).
+Saatat joutua suorittamaan ZipFX:n järjestelmänvalvojana tätä toimintoa varten.</translation>
         </message>
     </context>
     <context>

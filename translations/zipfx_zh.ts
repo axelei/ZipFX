@@ -1571,28 +1571,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>无法读取“%1”。
+
+存档可能已加密、损坏或使用了就地预览不支持的压缩方法。
+
+首先尝试提取文件。</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>创建包含 XOR 奇偶校验块的 .rec sidecar 文件。
+sidecar 允许重建损坏的字节
+如果个别数据块损坏。</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>安装了外壳扩展。右键单击资源管理器中的任何文件即可使用它。
+您可能需要重新启动资源管理器（或注销）才能显示菜单。</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>在应用程序目录中找不到 ZipFXShellExt.dll。
+请首先构建 shell 扩展目标。</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>regsvr32 失败（退出 %1）。
+您可能需要以管理员身份运行 ZipFX 才能执行此操作。</translation>
         </message>
     </context>
     <context>

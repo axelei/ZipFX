@@ -1583,28 +1583,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>تعذرت قراءة &quot;%1&quot;.
+
+قد يكون الأرشيف مشفرًا أو تالفًا أو يستخدم طريقة ضغط غير مدعومة للمعاينة الموضعية.
+
+حاول استخراج الملف أولاً.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>ينشئ ملفًا جانبيًا بتنسيق ‎.rec يحتوي على كتل تماثل XOR.
+يسمح الجانب الجانبي بإعادة بناء البايتات التالفة
+في حالة تلف كتل البيانات الفردية.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>تم تثبيت ملحق Shell. انقر بزر الماوس الأيمن فوق أي ملف في Explorer لاستخدامه.
+قد تحتاج إلى إعادة تشغيل Explorer (أو تسجيل الخروج) حتى تظهر القائمة.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>لم يتم العثور على ZipFXShellExt.dll في دليل التطبيق.
+الرجاء إنشاء هدف ملحق Shell أولاً.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>فشل regsvr32 (الخروج %1).
+قد تحتاج إلى تشغيل ZipFX كمسؤول لهذه العملية.</translation>
         </message>
     </context>
     <context>

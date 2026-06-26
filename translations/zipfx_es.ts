@@ -1615,28 +1615,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>No se pudo leer &quot;%1&quot;.
+
+Es posible que el archivo esté cifrado, dañado o que utilice un método de compresión que no sea compatible con la vista previa local.
+
+Intente extraer el archivo primero.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>Crea un archivo sidecar .rec que contiene bloques de paridad XOR.
+El sidecar permite reconstruir bytes corruptos
+si los bloques de datos individuales están dañados.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>Extensión de Shell instalada. Haga clic derecho en cualquier archivo en el Explorador para usarlo.
+Es posible que tengas que reiniciar Explorer (o cerrar sesión) para que aparezca el menú.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>ZipFXShellExt.dll no se encuentra en el directorio de la aplicación.
+Primero cree el destino de la extensión de shell.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>regsvr32 falló (salida %1).
+Es posible que necesites ejecutar ZipFX como administrador para esta operación.</translation>
         </message>
     </context>
     <context>

@@ -1571,28 +1571,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>Не удалось прочитать &quot;%1&quot;.
+
+Архив может быть зашифрован, поврежден или использовать метод сжатия, который не поддерживается для предварительного просмотра на месте.
+
+Попробуйте сначала извлечь файл.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>Создает дополнительный файл .rec, содержащий блоки четности XOR.
+Sidecar позволяет восстанавливать поврежденные байты.
+если отдельные блоки данных повреждены.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>Установлено расширение оболочки. Щелкните правой кнопкой мыши любой файл в проводнике, чтобы использовать его.
+Возможно, вам придется перезапустить Explorer (или выйти из системы), чтобы меню появилось.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>ZipFXShellExt.dll не найден в каталоге приложения.
+Пожалуйста, сначала создайте цель расширения оболочки.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>Ошибка regsvr32 (выход %1).
+Для этой операции вам может потребоваться запустить ZipFX от имени администратора.</translation>
         </message>
     </context>
     <context>

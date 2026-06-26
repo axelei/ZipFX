@@ -1583,28 +1583,37 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation type="unfinished" />
+            <translation>&quot;%1&quot;을(를) 읽을 수 없습니다.
+
+아카이브가 암호화되었거나 손상되었거나 내부 미리 보기에 지원되지 않는 압축 방법을 사용했을 수 있습니다.
+
+먼저 파일을 추출해 보세요.</translation>
         </message>
         <message>
             <source>Creates a .rec sidecar file containing XOR parity blocks.
 The sidecar allows corrupted bytes to be reconstructed
 if individual data blocks are damaged.</source>
-            <translation type="unfinished" />
+            <translation>XOR 패리티 블록을 포함하는 .rec 사이드카 파일을 생성합니다.
+사이드카를 사용하면 손상된 바이트를 재구성할 수 있습니다.
+개별 데이터 블록이 손상된 경우.</translation>
         </message>
         <message>
             <source>Shell extension installed. Right-click any file in Explorer to use it.
 You may need to restart Explorer (or sign out) for the menu to appear.</source>
-            <translation type="unfinished" />
+            <translation>쉘 확장이 설치되었습니다. 탐색기에서 파일을 마우스 오른쪽 버튼으로 클릭하여 사용하세요.
+메뉴를 표시하려면 Explorer를 다시 시작하거나 로그아웃해야 할 수도 있습니다.</translation>
         </message>
         <message>
             <source>ZipFXShellExt.dll not found in the application directory.
 Please build the shell extension target first.</source>
-            <translation type="unfinished" />
+            <translation>응용 프로그램 디렉터리에서 ZipFXShellExt.dll을 찾을 수 없습니다.
+먼저 셸 확장 대상을 빌드하세요.</translation>
         </message>
         <message>
             <source>regsvr32 failed (exit %1).
 You may need to run ZipFX as administrator for this operation.</source>
-            <translation type="unfinished" />
+            <translation>regsvr32가 실패했습니다(%1 종료).
+이 작업을 위해서는 관리자 권한으로 ZipFX를 실행해야 할 수도 있습니다.</translation>
         </message>
     </context>
     <context>
