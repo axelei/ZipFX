@@ -33,9 +33,11 @@ FetchContent_Declare(
 )
 set(ZLIB_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
 set(ZLIB_INSTALL        OFF CACHE BOOL "" FORCE)
+set(SKIP_INSTALL_ALL    ON  CACHE BOOL "" FORCE)
 set(BUILD_SHARED_LIBS   OFF CACHE BOOL "" FORCE)
 FetchContent_MakeAvailable(zlib)
 set(BUILD_SHARED_LIBS   ON  CACHE BOOL "" FORCE)
+set(SKIP_INSTALL_ALL    OFF CACHE BOOL "" FORCE)
 
 # Custom Find modules that alias FetchContent targets for downstream deps
 list(INSERT CMAKE_MODULE_PATH 0 "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
@@ -76,13 +78,6 @@ FetchContent_Declare(
     GIT_SHALLOW    TRUE
 )
 FetchContent_MakeAvailable(liblzma)
-# xz always builds xzdec/lzmadec/lzmainfo when decoders are on; mark them
-# EXCLUDE_FROM_ALL so they are neither compiled nor installed.
-foreach(_xztool xzdec lzmadec lzmainfo xz)
-    if(TARGET "${_xztool}")
-        set_target_properties("${_xztool}" PROPERTIES EXCLUDE_FROM_ALL TRUE)
-    endif()
-endforeach()
 set(BUILD_TESTING ON CACHE BOOL "" FORCE)
 
 # ====================================================================

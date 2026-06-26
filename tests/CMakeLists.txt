@@ -19,6 +19,7 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/RffEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/BigEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/PodEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/RarEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/ChdEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
