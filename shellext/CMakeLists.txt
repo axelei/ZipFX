@@ -38,3 +38,5 @@ add_custom_command(TARGET ZipFXShellExt POST_BUILD
     COMMENT "Copying ZipFXShellExt.dll to ZipFX output directory"
     DEPENDS ZipFX
 )
+
+install(TARGETS ZipFXShellExt RUNTIME DESTINATION ".")
