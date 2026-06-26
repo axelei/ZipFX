@@ -67,6 +67,9 @@ target_include_directories(bz2_static PUBLIC ${bzip2_SOURCE_DIR})
 set(BUILD_TESTING        OFF CACHE BOOL "" FORCE)
 set(CREATE_XZ_SYMLINKS   OFF CACHE BOOL "" FORCE)
 set(CREATE_LZMA_SYMLINKS OFF CACHE BOOL "" FORCE)
+# Force static-only — ZipFX embeds all deps; a shared liblzma.dll would be
+# required at runtime on every target machine.
+set(BUILD_SHARED_LIBS    OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     liblzma
     GIT_REPOSITORY https://github.com/tukaani-project/xz.git
