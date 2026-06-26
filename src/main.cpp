@@ -9,6 +9,7 @@
 #include <QApplication>
 #include <QCoreApplication>
 #include <QDir>
+#include <QFile>
 #include <QIcon>
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -162,7 +163,19 @@ int main(int argc, char* argv[])
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
     app.setApplicationVersion(ZIPFX_VERSION);
-    app.setWindowIcon(QIcon(app.applicationDirPath() + "/AppIcon.png"));
+    {
+        // Prefer .ico on Windows (higher resolution, already installed next to exe).
+        // Fall back to .png for other platforms.
+        const QString dir = app.applicationDirPath();
+        QIcon icon;
+#ifdef _WIN32
+        if (QFile::exists(dir + "/AppIcon.ico"))
+            icon = QIcon(dir + "/AppIcon.ico");
+#endif
+        if (icon.isNull())
+            icon = QIcon(dir + "/AppIcon.png");
+        app.setWindowIcon(icon);
+    }
 
     // Create shared memory to own the instance
     auto* sharedMem = new QSharedMemory(kSharedMemKey);

@@ -490,8 +490,10 @@ if(NOT APPLE)
     )
 endif()
 
-# Install app icon next to the executable (Windows/macOS)
-install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+# Install app icons next to the executable (Windows/macOS)
+install(FILES
+    "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+    "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.ico"
     DESTINATION ".")
 
 # ====================================================================
