@@ -247,11 +247,17 @@ std::vector<std::string> RarEngine::autoInstallArgs()
     return {"winget", "install", "RARLab.WinRAR",
             "--accept-source-agreements", "--accept-package-agreements"};
 #elif defined(__APPLE__)
-    // Use full path — GUI apps on macOS don't inherit the shell PATH
+    // Use full path — GUI apps on macOS don't inherit the shell PATH.
+    // Chain xattr to strip Gatekeeper quarantine from the installed rar binary,
+    // otherwise macOS blocks execution of the freshly-downloaded binary.
     const char* brew = QFile::exists("/opt/homebrew/bin/brew")
                        ? "/opt/homebrew/bin/brew"
                        : "/usr/local/bin/brew";
-    return {brew, "install", "rar"};
+    // brew exit code is preserved via &&
+    std::string cmd = std::string(brew) + " install rar && { "
+        "xattr -d com.apple.quarantine /opt/homebrew/bin/rar 2>/dev/null || true; "
+        "xattr -d com.apple.quarantine /usr/local/bin/rar 2>/dev/null || true; }";
+    return {"/bin/bash", "-c", cmd};
 #else
     const LinuxPM* pm = detectLinuxPM();
     if (!pm) return {};
