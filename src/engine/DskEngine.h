@@ -33,6 +33,34 @@ public:
 private:
     bool detectFormat();
     bool readRaw(FILE* f, std::vector<uint8_t>& out);
+    void loadDiskData();
+
+    // Apple DOS / ProDOS filesystem parsing
+    bool tryParseApple();
+    bool parseApple2ImgHeader();
+    bool parseDos33();
+    bool parseProDos();
+
+    std::vector<uint8_t> readDos33File(uint8_t firstTrack, uint8_t firstSector,
+                                        uint32_t totalSize) const;
+    std::vector<uint8_t> readProDosFile(uint16_t keyBlock, uint8_t storageType,
+                                         uint32_t totalSize) const;
+
+    struct AppleEntry {
+        std::string name;
+        uint32_t size = 0;
+        uint8_t fileType = 0;
+        bool isDirectory = false;
+        uint8_t firstTrack = 0;
+        uint8_t firstSector = 0;
+        uint16_t keyBlock = 0;
+        uint8_t storageType = 0;
+    };
+
+    std::vector<AppleEntry> m_appleEntries;
+    std::vector<uint8_t> m_diskData;
+    bool m_isAppleDisk = false;
+    int m_appleTracks = 0;
 
     std::string m_path;
     bool m_isOpen = false;
