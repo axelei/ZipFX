@@ -196,7 +196,6 @@
                                 if (!cancelFlag->load()) {
                                     prog->setValue(perMille);
                                     prog->setLabelText(label);
-                                    QApplication::processEvents();
                                 }
                             });
                         });
@@ -210,7 +209,9 @@
                         // a 0-byte file on GCD background threads.  Fall back to
                         // ReadFile() + manual write, which is how the engine was
                         // always called before this change and is known to work.
-                        if (!extracted) {
+                        // Skip the fallback if cancelled — Extract() also returns false
+                        // on cancel, but we don't want to retry a cancelled operation.
+                        if (!extracted && !cancelFlag->load()) {
                             auto data = engine->ReadFile((*archPaths)[i]);
                             if (!data.empty()) {
                                 std::ofstream out(destStr, std::ios::binary);
@@ -238,15 +239,18 @@
                                 if (!cancelFlag->load()) {
                                     prog->setValue(perMille);
                                     prog->setLabelText(label);
-                                    QApplication::processEvents();
                                 }
                             });
                         }
                     }
 
                     // ── Phase 3: cleanup ──────────────────────────────────────
+                    // Set the flag before deleting prog so any in-flight main-queue
+                    // blocks that slipped past the FIFO ordering via processEvents()
+                    // do not touch the deleted widget.
                     dispatch_async(dispatch_get_main_queue(), ^{
                         @autoreleasepool {
+                            cancelFlag->store(true);
                             prog->setValue(1000);
                             delete prog;
                             hHeap(nil);
