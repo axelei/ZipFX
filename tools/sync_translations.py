@@ -65,6 +65,9 @@ def collect_tr_strings(src_root: Path) -> dict[str, set[str]]:
             continue
 
         text = path.read_text(encoding="utf-8", errors="replace")
+        # Join adjacent C++ string literals split across lines:
+        #   "foo"\n    "bar"  →  "foobar"
+        text = re.sub(r'"\s*\n\s*"', '', text)
         matches = list(TR_RE.finditer(text))
         if not matches:
             continue

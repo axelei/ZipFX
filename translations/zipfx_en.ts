@@ -1563,6 +1563,52 @@ ERROR: %1</translation>
             <source>rar.exe timed out.</source>
             <translation>rar.exe timed out.</translation>
         </message>
+        <message>
+            <source>Checks the archive against its .rec sidecar file.
+If corruption is detected and is within recovery capacity,
+the archive will be repaired in-place.</source>
+            <translation>Checks the archive against its .rec sidecar file.
+If corruption is detected and is within recovery capacity,
+the archive will be repaired in-place.</translation>
+        </message>
+        <message>
+            <source>Could not read "%1".
+
+The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
+
+Try extracting the file first.</source>
+            <translation>Could not read "%1".
+
+The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
+
+Try extracting the file first.</translation>
+        </message>
+        <message>
+            <source>Creates a .rec sidecar file containing XOR parity blocks.
+The sidecar allows corrupted bytes to be reconstructed
+if individual data blocks are damaged.</source>
+            <translation>Creates a .rec sidecar file containing XOR parity blocks.
+The sidecar allows corrupted bytes to be reconstructed
+if individual data blocks are damaged.</translation>
+        </message>
+        <message>
+            <source>Shell extension installed. Right-click any file in Explorer to use it.
+You may need to restart Explorer (or sign out) for the menu to appear.</source>
+            <translation>Shell extension installed. Right-click any file in Explorer to use it.
+You may need to restart Explorer (or sign out) for the menu to appear.</translation>
+        </message>
+        <message>
+            <source>ZipFXShellExt.dll not found in the application directory.
+Please build the shell extension target first.</source>
+            <translation>ZipFXShellExt.dll not found in the application directory.
+Please build the shell extension target first.</translation>
+        </message>
+        <message>
+            <source>regsvr32 failed (exit %1).
+You may need to run ZipFX as administrator for this operation.</source>
+            <translation>regsvr32 failed (exit %1).
+You may need to run ZipFX as administrator for this operation.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
