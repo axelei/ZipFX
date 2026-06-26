@@ -95,9 +95,9 @@ void D64Engine::parseSide(const uint8_t* base, size_t len, const std::string& pr
             fname[fnLen] = '\0';
             if (fnLen == 0) continue;
 
-            // File size in blocks (bytes 28-29, LE)
-            uint16_t blocks = static_cast<uint16_t>(entry[28]) |
-                              (static_cast<uint16_t>(entry[29]) << 8);
+            // File size in blocks (bytes 30-31 = $1E/$1F, LE)
+            uint16_t blocks = static_cast<uint16_t>(entry[30]) |
+                              (static_cast<uint16_t>(entry[31]) << 8);
 
             std::string entryName = prefix.empty() ? fname
                                                    : prefix + "/" + fname;
