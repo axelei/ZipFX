@@ -162,6 +162,12 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<RarEngine>(); },
         // RarEngine::SupportsCreation() returns true only when rar.exe is found
         true },
+    { "ARJ",    ".arj",                              ArchiveType::Arj,
+        []() {
+            auto e = std::make_unique<Bit7zEngine>();
+            e->setReadOnly(true);
+            return std::unique_ptr<ArchiveEngine>(std::move(e));
+        },                                                                false },
     { "ISO",    ".iso",                              ArchiveType::Iso,
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{

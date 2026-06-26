@@ -102,6 +102,8 @@ static const SigEntry kSignatures[] =
         return d[0] == 'L' && d[1] == 'Z' && d[2] == 'I' && d[3] == 'P'; }},
     { ArchiveType::Bsa,      4, [](const uint8_t* d, size_t) {
         return d[0] == 'B' && d[1] == 'S' && d[2] == 'A' && d[3] == '\0'; }},
+    { ArchiveType::Arj,      2, [](const uint8_t* d, size_t) {
+        return d[0] == 0x60 && d[1] == 0xEA; }},
     { ArchiveType::Dsk,      8, [](const uint8_t* d, size_t) {
         return (d[0] == 'M' && d[1] == 'V' && d[2] == ' ' && d[3] == '-' &&
                 d[4] == ' ' && d[5] == 'C' && d[6] == 'P' && d[7] == 'C') ||

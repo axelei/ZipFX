@@ -51,7 +51,8 @@ enum class ArchiveType
     Fat,
     UnixCompress,
     Lzip,
-    Bsa
+    Bsa,
+    Arj
 };
 
 struct FileSignature
