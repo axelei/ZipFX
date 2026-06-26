@@ -65,9 +65,7 @@ public:
     void updateProgress(int perMille, const QString& filename, const QString& eta)
     {
         m_bar->setValue(perMille);
-        QString label = filename;
-        if (!eta.isEmpty()) label += "\n" + eta;
-        m_fileLabel->setText(label);
+        m_fileLabel->setText(filename);
         m_etaLabel->setText(eta);
         QApplication::processEvents();
     }
