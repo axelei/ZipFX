@@ -7,6 +7,7 @@
 #endif
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QDir>
 #include <QIcon>
 #include <QLocalServer>
@@ -122,6 +123,9 @@ int main(int argc, char* argv[])
         for (int i = 0; i < argc && newArgc < 64; ++i)
             if (std::string(argv[i]) != "--cli")
                 newArgv[newArgc++] = argv[i];
+        // QCoreApplication gives Qt internals (e.g. applicationDirPath) a
+        // valid app object without initialising any GUI subsystem.
+        QCoreApplication coreApp(newArgc, const_cast<char**>(newArgv));
         int result = runCli(newArgc, const_cast<char**>(newArgv));
 #ifdef _WIN32
         // When attached to a parent console (cmd/PowerShell), the shell's
