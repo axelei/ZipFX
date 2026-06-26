@@ -1118,6 +1118,7 @@ void MainWindow::onCloseArchive()
     m_model->clear();
     m_addrBox->clearEditText();
     m_treeView->setEnabled(false);
+    setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     statusBar()->showMessage(tr("No archive open"));
 }
 
