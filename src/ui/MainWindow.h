@@ -146,6 +146,9 @@ private:
     // Translation
     QTranslator* m_currentTranslator = nullptr;
 
+    // Menu actions that need dynamic enable/disable
+    QAction* m_archiveCommentAct = nullptr;
+
     // Extraction
     QProgressDialog* m_progressDlg = nullptr;
     bool m_extractCancelled = false;

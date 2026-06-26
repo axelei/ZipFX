@@ -250,7 +250,8 @@ void MainWindow::setupMenus()
     });
 
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
-    cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
+    m_archiveCommentAct = cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
+    m_archiveCommentAct->setEnabled(false); // enabled when a supporting format is open
     cmdMenu->addSeparator();
     cmdMenu->addAction(tr("Find Fi&les...\tCtrl+F"), this, &MainWindow::onFindFiles);
     cmdMenu->addAction(tr("Con&vert Archive..."),    this, &MainWindow::onConvertArchive);
@@ -1120,6 +1121,7 @@ void MainWindow::onCloseArchive()
     m_model->clear();
     m_addrBox->clearEditText();
     m_treeView->setEnabled(false);
+    m_archiveCommentAct->setEnabled(false);
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     statusBar()->showMessage(tr("No archive open"));
 }
@@ -1761,23 +1763,18 @@ void MainWindow::onInfo()
 
 void MainWindow::onArchiveComment()
 {
-    if (!m_engine) return;
+    if (!m_engine || !m_engine->supportsArchiveComment()) return;
 
     std::string current = m_engine->archiveComment();
     bool ok = false;
     QString text = QInputDialog::getMultiLineText(this, tr("Archive Comment"),
         tr("Comment:"), QString::fromUtf8(current.c_str()), &ok);
-    if (!ok) return;
+    if (!ok || text.toStdString() == current) return;
 
     if (m_engine->setArchiveComment(text.toStdString()))
     {
         runSave(tr("Updating comment..."));
         statusBar()->showMessage(tr("Archive comment updated."), 3000);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Error"),
-            tr("This format does not support archive comments."));
     }
 }
 
@@ -2263,6 +2260,8 @@ void MainWindow::refreshFileList()
     autoHide(FileListModel::ColCRC,         hasCRC);
     autoHide(FileListModel::ColPermissions, hasPerms);
     autoHide(FileListModel::ColComment,     hasComment);
+
+    m_archiveCommentAct->setEnabled(m_engine && m_engine->supportsArchiveComment());
 
     updateStatusBar();
     setWindowTitle(tr("ZipFX — %1").arg(

@@ -61,6 +61,7 @@ public:
     virtual std::string archiveComment() const { return {}; }
     virtual bool setArchiveComment(std::string_view comment) { return false; }
     virtual bool setEntryComment(std::string_view entryName, std::string_view comment) { return false; }
+    virtual bool supportsArchiveComment() const { return false; }
 
     virtual void setCompressionLevel(int level) { m_compressionLevel = level; }
     virtual int compressionLevel() const { return m_compressionLevel; }
