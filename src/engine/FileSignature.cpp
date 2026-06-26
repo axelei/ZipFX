@@ -103,6 +103,8 @@ static const SigEntry kSignatures[] =
                 d[4] == 'N' && d[5] == 'D' && d[6] == 'E' && d[7] == 'D'); }},
     { ArchiveType::Dsk,      4, [](const uint8_t* d, size_t) {
         return d[0] == '2' && d[1] == 'I' && d[2] == 'M' && d[3] == 'G'; }},
+    { ArchiveType::Atr,      2, [](const uint8_t* d, size_t) {
+        return d[0] == 0x96 && d[1] == 0x02; }},
     { ArchiveType::Cdi,     12, [](const uint8_t* d, size_t) {
         return d[0] == 0x00 && d[1] == 0xFF && d[2] == 0xFF && d[3] == 0xFF &&
                d[4] == 0xFF && d[5] == 0xFF && d[6] == 0xFF && d[7] == 0xFF &&
@@ -116,6 +118,8 @@ ArchiveType FileSignature::Detect(std::string_view path)
 
     uint8_t header[32];
     size_t n = std::fread(header, 1, sizeof(header), f);
+    std::fseek(f, 0, SEEK_END);
+    long fileSize = std::ftell(f);
     std::fclose(f);
 
     for (const auto& sig : kSignatures)
@@ -123,5 +127,29 @@ ArchiveType FileSignature::Detect(std::string_view path)
         if (n >= sig.minBytes && sig.match(header, n))
             return sig.type;
     }
+
+    // Commodore D64/D71 detection by exact image size
+    // D64: 174848 (standard) or 175531 (with error bytes)
+    // D71: 349696 (two D64 sides)
+    if (fileSize == 174848 || fileSize == 175531 || fileSize == 349696)
+        return ArchiveType::D64;
+
+    // FAT12 floppy detection: valid BPB (jump opcode + known fields) + small file
+    if (n >= 22 && fileSize > 0 && fileSize <= 3 * 1024 * 1024)
+    {
+        uint16_t bps       = static_cast<uint16_t>(header[11]) |
+                             (static_cast<uint16_t>(header[12]) << 8);
+        uint8_t  numFats   = header[16];
+        uint8_t  spc       = header[13];
+        uint8_t  mediaDesc = header[21];
+        bool validJump  = (header[0] == 0xEB || header[0] == 0xE9);
+        bool validBps   = (bps == 512);
+        bool validFats  = (numFats == 1 || numFats == 2);
+        bool validSpc   = (spc >= 1 && (spc & (spc - 1)) == 0);
+        bool validMedia = (mediaDesc == 0xF0 || mediaDesc >= 0xF8);
+        if (validJump && validBps && validFats && validSpc && validMedia)
+            return ArchiveType::Fat;
+    }
+
     return ArchiveType::Unknown;
 }

@@ -18,6 +18,10 @@
 #include "CdiEngine.h"
 #include "GdiEngine.h"
 #include "DskEngine.h"
+#include "SsdEngine.h"
+#include "AtrEngine.h"
+#include "D64Engine.h"
+#include "FatEngine.h"
 #include "LibarchiveEngine.h"
 #include "RarEngine.h"
 #include "FileSignature.h"
@@ -215,7 +219,14 @@ static const FormatEntry kFormats[] = {
             "ISO"); },                                                    false },
     { "GDI",    ".gdi",                              ArchiveType::Gdi,
         []() { return std::make_unique<GdiEngine>(); },               false },
-    { "DSK",    ".dsk,.d64,.d71,.d80,.d82,.td0,.imd,.dc42,.2mg",
+    // ── Retro disk image formats ──────────────────────────────
+    { "SSD",    ".ssd,.dsd",                         ArchiveType::Unknown,
+        []() { return std::make_unique<SsdEngine>(); },               false },
+    { "ATR",    ".atr",                              ArchiveType::Atr,
+        []() { return std::make_unique<AtrEngine>(); },               false },
+    { "D64",    ".d64,.d71",                         ArchiveType::D64,
+        []() { return std::make_unique<D64Engine>(); },               false },
+    { "DSK",    ".dsk,.d80,.d82,.td0,.imd,.dc42,.2mg",
                                                      ArchiveType::Dsk,
         []() { return std::make_unique<DskEngine>(); },               false },
     { "CHD",    ".chd",                              ArchiveType::Chd,
@@ -258,7 +269,9 @@ static const FormatEntry kFormats[] = {
             return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
                 std::vector<LibarchiveEngine::FormatRegistrar>{}, "BIN/CUE"));
         },                                                                false },
-    { "Disk",   ".ima,.img,.flp",                      ArchiveType::Unknown,
+    { "FAT12 Floppy", ".st,.vfd,.img,.ima",             ArchiveType::Fat,
+        []() { return std::make_unique<FatEngine>(); },               false },
+    { "Disk",   ".flp",                               ArchiveType::Unknown,
         []() { return std::make_unique<Bit7zEngine>(); },                   false },
 
     // ── Bit7z fallback (last resort) ──────────────────

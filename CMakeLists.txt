@@ -360,6 +360,10 @@ set(ZIPFX_SOURCES
     src/engine/CdiEngine.cpp
     src/engine/GdiEngine.cpp
     src/engine/DskEngine.cpp
+    src/engine/SsdEngine.cpp
+    src/engine/AtrEngine.cpp
+    src/engine/D64Engine.cpp
+    src/engine/FatEngine.cpp
     src/engine/ChdEngine.cpp
     src/engine/MpqEngine.cpp
     src/cli/CliHandler.cpp

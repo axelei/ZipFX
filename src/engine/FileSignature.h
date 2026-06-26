@@ -42,7 +42,13 @@ enum class ArchiveType
     Chd,
     Cdi,
     Gdi,
-    Dsk
+    Dsk,
+    Atr,
+    Ssd,
+    Dsd,
+    D64,
+    D71,
+    Fat
 };
 
 struct FileSignature

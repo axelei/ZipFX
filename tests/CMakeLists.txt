@@ -23,6 +23,10 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/CdiEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/GdiEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/DskEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/SsdEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/AtrEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/D64Engine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/FatEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/ChdEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
