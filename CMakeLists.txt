@@ -459,8 +459,14 @@ if(BUILD_TESTING)
 endif()
 
 # ====================================================================
-# Translations  –  generate .qm from .ts at build time
+# Translations
 # ====================================================================
+# Copy pre-committed .qm files to build output (for macOS bundling and dev)
+file(COPY ${CMAKE_SOURCE_DIR}/translations DESTINATION ${CMAKE_BINARY_DIR})
+# Install next to the executable
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/translations/ DESTINATION translations
+    FILES_MATCHING PATTERN "*.qm")
+# Optionally regenerate .qm from .ts at build time
 find_program(QT_LRELEASE lrelease PATHS "${Qt6_DIR}/../../bin" "${Qt6_DIR}/../../../bin")
 if(QT_LRELEASE)
     file(GLOB TS_FILES "${CMAKE_SOURCE_DIR}/translations/*.ts")
@@ -472,11 +478,6 @@ if(QT_LRELEASE)
             COMMENT "Generating ${QM_FILE}.qm"
         )
     endforeach()
-    # Copy .qm files to build output (for development)
-    file(COPY ${CMAKE_SOURCE_DIR}/translations DESTINATION ${CMAKE_BINARY_DIR})
-    # Also install next to the executable
-    install(DIRECTORY ${CMAKE_SOURCE_DIR}/translations/ DESTINATION translations
-        FILES_MATCHING PATTERN "*.qm")
 endif()
 
 # Copy app icon to build output (for development — not on macOS bundles)
