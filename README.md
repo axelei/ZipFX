@@ -371,6 +371,10 @@ The `.qm` files are generated at build time via CMake's `file(GLOB *.ts)`
 + `lrelease` pipeline, and loaded at startup from several paths relative
 to the executable.
 
+> **Note:** Most translations are machine-generated and may contain
+> inaccuracies. If you spot an error or want to improve a translation,
+> please open a pull request — human contributions are very welcome!
+
 ---
 
 ## Acknowledgements
