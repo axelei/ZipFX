@@ -205,11 +205,14 @@ int main(int argc, char* argv[])
     if (appTranslator)
         app.installTranslator(appTranslator);
 
-    MainWindow w(fileToOpen);
-    w.show();
+    // Heap-allocate so WA_DeleteOnClose (set in the constructor) can safely
+    // free the window when it's closed while other windows are still open.
+    // A stack-allocated window would be double-freed in that case (SIGABRT).
+    auto* w = new MainWindow(fileToOpen);
+    w->show();
 
     if (isShellAdd && !shellAddFiles.isEmpty())
-        QTimer::singleShot(0, [&]() { w.shellAdd(shellAddFiles); });
+        QTimer::singleShot(0, [w, shellAddFiles]() { w->shellAdd(shellAddFiles); });
 
     // Handle file paths forwarded from other instances — open each in a new window
     QObject::connect(localServer, &QLocalServer::newConnection, [&]() {
