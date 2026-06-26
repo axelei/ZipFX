@@ -253,9 +253,24 @@ bool FlatArchiveEngine::Save()
         fileIdx++;
     }
 
-    std::ofstream f(m_path, std::ios::binary);
-    if (!f) return false;
-    return doSave(f);
+    if (m_saveCancelled) return false;
+
+    std::string tmpPath = m_path + ".zipfx_tmp";
+    {
+        std::ofstream f(tmpPath, std::ios::binary);
+        if (!f) return false;
+        if (!doSave(f)) { fs::remove(tmpPath); return false; }
+    }
+
+    std::error_code ec;
+    fs::rename(tmpPath, m_path, ec);
+    if (ec)
+    {
+        LOG_ERR("FlatArchiveEngine: failed to rename temp file: %s", ec.message().c_str());
+        fs::remove(tmpPath);
+        return false;
+    }
+    return true;
 }
 
 bool FlatArchiveEngine::TestIntegrity(

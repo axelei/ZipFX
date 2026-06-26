@@ -612,10 +612,11 @@ bool TarGzEngine::Save()
         if (!ec) totalTarBytes += sz;
     }
 
-    gzFile out = gzopen(m_path.c_str(), "wb");
+    std::string tmpPath = m_path + ".zipfx_tmp";
+    gzFile out = gzopen(tmpPath.c_str(), "wb");
     if (!out)
     {
-        LOG_ERR("TarGzEngine: cannot write %s", m_path.c_str());
+        LOG_ERR("TarGzEngine: cannot write %s", tmpPath.c_str());
         return false;
     }
 
@@ -694,13 +695,18 @@ bool TarGzEngine::Save()
         }
     };
 
+    auto cancelAndClean = [&]() {
+        gzclose(out);
+        fs::remove(tmpPath);
+        LOG_DBG("TarGzEngine: save cancelled, temp file removed");
+    };
+
     // Write preserved existing entries
     for (const auto& me : merged)
     {
         if (m_saveCancelled)
         {
-            gzclose(out);
-            LOG_DBG("TarGzEngine: save cancelled");
+            cancelAndClean();
             return false;
         }
 
@@ -713,8 +719,7 @@ bool TarGzEngine::Save()
     {
         if (m_saveCancelled)
         {
-            gzclose(out);
-            LOG_DBG("TarGzEngine: save cancelled");
+            cancelAndClean();
             return false;
         }
 
@@ -749,6 +754,15 @@ bool TarGzEngine::Save()
     gzwrite(out, endBlock.data(), static_cast<unsigned int>(endBlock.size()));
 
     gzclose(out);
+
+    std::error_code ec;
+    fs::rename(tmpPath, m_path, ec);
+    if (ec)
+    {
+        LOG_ERR("TarGzEngine: failed to rename temp file: %s", ec.message().c_str());
+        fs::remove(tmpPath);
+        return false;
+    }
 
     // Re-open to refresh entry list
     Open(m_path);
