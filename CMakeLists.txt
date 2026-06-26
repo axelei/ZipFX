@@ -67,6 +67,11 @@ target_include_directories(bz2_static PUBLIC ${bzip2_SOURCE_DIR})
 set(BUILD_TESTING        OFF CACHE BOOL "" FORCE)
 set(CREATE_XZ_SYMLINKS   OFF CACHE BOOL "" FORCE)
 set(CREATE_LZMA_SYMLINKS OFF CACHE BOOL "" FORCE)
+set(XZ_BUILD_XZDEC       OFF CACHE BOOL "" FORCE)
+set(XZ_BUILD_XZ          OFF CACHE BOOL "" FORCE)
+set(XZ_BUILD_LZMADEC     OFF CACHE BOOL "" FORCE)
+set(XZ_BUILD_LZMAINFO    OFF CACHE BOOL "" FORCE)
+set(XZ_BUILD_SCRIPTS     OFF CACHE BOOL "" FORCE)
 FetchContent_Declare(
     liblzma
     GIT_REPOSITORY https://github.com/tukaani-project/xz.git
