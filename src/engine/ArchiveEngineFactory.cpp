@@ -24,6 +24,8 @@
 #include "FatEngine.h"
 #include "LibarchiveEngine.h"
 #include "RarEngine.h"
+#include "BsaEngine.h"
+#include "BrotliEngine.h"
 #include "FileSignature.h"
 
 #include <archive.h>
@@ -94,6 +96,21 @@ static const FormatEntry kFormats[] = {
                 archive_read_support_format_raw,
                 archive_read_support_filter_lzma },
             "TAR.LZMA", false, "lzma"); },                           false },
+
+    // ── Unix compress / Lzip (via libarchive) ────────
+    { "COMPRESS", ".Z",                              ArchiveType::UnixCompress,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_compress },
+            "COMPRESS", false, "LZW"); },                              false },
+    { "LZIP",   ".lz",                               ArchiveType::Lzip,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_lzip },
+            "LZIP", false, "lzip"); },                                 false },
 
     // ── Standalone compression (single-file) ─────────
     { "BZ2",    ".bz2",                              ArchiveType::Unknown,
@@ -209,6 +226,10 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<PodEngine>(); },               false },
     { "MPQ",    ".mpq,.mpk,.w3x,.w3m",               ArchiveType::Mpq,
         []() { return std::make_unique<MpqEngine>(); },                  true  },
+    { "BSA",    ".bsa",                              ArchiveType::Bsa,
+        []() { return std::make_unique<BsaEngine>(); },                  false },
+    { "Brotli", ".br",                               ArchiveType::Unknown,
+        []() { return std::make_unique<BrotliEngine>(); },               false },
 
     // ── Disc images (compressed / raw) ────────────────
     { "CDI",    ".cdi",                              ArchiveType::Cdi,

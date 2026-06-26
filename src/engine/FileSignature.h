@@ -48,7 +48,10 @@ enum class ArchiveType
     Dsd,
     D64,
     D71,
-    Fat
+    Fat,
+    UnixCompress,
+    Lzip,
+    Bsa
 };
 
 struct FileSignature

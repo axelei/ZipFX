@@ -30,6 +30,8 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/ChdEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/BsaEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/BrotliEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
 )
 
@@ -43,6 +45,8 @@ set(TEST_LIBS
     chdr-static
     bit7z
     storm
+    brotlidec
+    brotlicommon
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Test
 )
@@ -85,6 +89,7 @@ macro(add_zipfx_test TEST_NAME)
         ${adflib_SOURCE_DIR}
         ${storm_SOURCE_DIR}/src
         ${libchdr_SOURCE_DIR}/include
+        ${brotli_SOURCE_DIR}/c/include
         ${CLI11_SOURCE_DIR}/include
     )
     target_compile_definitions(${TEST_NAME} PRIVATE
