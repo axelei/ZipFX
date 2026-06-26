@@ -40,7 +40,9 @@ enum class ArchiveType
     Big,
     Pod,
     Chd,
-    Cdi
+    Cdi,
+    Gdi,
+    Dsk
 };
 
 struct FileSignature

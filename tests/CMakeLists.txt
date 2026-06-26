@@ -21,6 +21,8 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/PodEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/RarEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/CdiEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/GdiEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/DskEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/ChdEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/MpqEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp

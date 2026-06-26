@@ -96,6 +96,13 @@ static const SigEntry kSignatures[] =
     { ArchiveType::Chd,      8, [](const uint8_t* d, size_t) {
         return d[0] == 'M' && d[1] == 'C' && d[2] == 'o' && d[3] == 'm' &&
                d[4] == 'p' && d[5] == 'r' && d[6] == 'H' && d[7] == 'D'; }},
+    { ArchiveType::Dsk,      8, [](const uint8_t* d, size_t) {
+        return (d[0] == 'M' && d[1] == 'V' && d[2] == ' ' && d[3] == '-' &&
+                d[4] == ' ' && d[5] == 'C' && d[6] == 'P' && d[7] == 'C') ||
+               (d[0] == 'E' && d[1] == 'X' && d[2] == 'T' && d[3] == 'E' &&
+                d[4] == 'N' && d[5] == 'D' && d[6] == 'E' && d[7] == 'D'); }},
+    { ArchiveType::Dsk,      4, [](const uint8_t* d, size_t) {
+        return d[0] == '2' && d[1] == 'I' && d[2] == 'M' && d[3] == 'G'; }},
     { ArchiveType::Cdi,     12, [](const uint8_t* d, size_t) {
         return d[0] == 0x00 && d[1] == 0xFF && d[2] == 0xFF && d[3] == 0xFF &&
                d[4] == 0xFF && d[5] == 0xFF && d[6] == 0xFF && d[7] == 0xFF &&

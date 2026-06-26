@@ -16,6 +16,8 @@
 #include "PodEngine.h"
 #include "ChdEngine.h"
 #include "CdiEngine.h"
+#include "GdiEngine.h"
+#include "DskEngine.h"
 #include "LibarchiveEngine.h"
 #include "RarEngine.h"
 #include "FileSignature.h"
@@ -211,6 +213,11 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{archive_read_support_format_iso9660},
             "ISO"); },                                                    false },
+    { "GDI",    ".gdi",                              ArchiveType::Gdi,
+        []() { return std::make_unique<GdiEngine>(); },               false },
+    { "DSK",    ".dsk,.d64,.d71,.d80,.d82,.td0,.imd,.dc42,.2mg",
+                                                     ArchiveType::Dsk,
+        []() { return std::make_unique<DskEngine>(); },               false },
     { "CHD",    ".chd",                              ArchiveType::Chd,
         []() { return std::make_unique<ChdEngine>(); },               false },
 
@@ -251,7 +258,7 @@ static const FormatEntry kFormats[] = {
             return std::unique_ptr<ArchiveEngine>(std::make_unique<LibarchiveEngine>(
                 std::vector<LibarchiveEngine::FormatRegistrar>{}, "BIN/CUE"));
         },                                                                false },
-    { "Disk",   ".ima,.img,.flp,.dsk",                 ArchiveType::Unknown,
+    { "Disk",   ".ima,.img,.flp",                      ArchiveType::Unknown,
         []() { return std::make_unique<Bit7zEngine>(); },                   false },
 
     // ── Bit7z fallback (last resort) ──────────────────
