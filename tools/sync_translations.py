@@ -141,9 +141,17 @@ def indent_tree(elem: ET.Element, level: int = 0) -> None:
         elem.tail = pad
 
 
+def count_unfinished(root: ET.Element) -> int:
+    """Count messages with type="unfinished" across all contexts."""
+    return sum(
+        1 for tr in root.iter("translation")
+        if tr.get("type") == "unfinished"
+    )
+
+
 def sync_file(ts_path: Path, tr_map: dict[str, set[str]], is_english: bool,
-              dry_run: bool) -> int:
-    """Insert missing messages. Returns count of messages added."""
+              dry_run: bool) -> tuple[int, int]:
+    """Insert missing messages. Returns (added, pending_unfinished)."""
     tree = ET.parse(ts_path)
     root = tree.getroot()
     added = 0
@@ -166,7 +174,6 @@ def sync_file(ts_path: Path, tr_map: dict[str, set[str]], is_english: bool,
     if added and not dry_run:
         # Re-indent and write back preserving XML declaration.
         indent_tree(root)
-        lang = ts_path.name  # keep original declaration
         xml_bytes = ET.tostring(root, encoding="unicode", xml_declaration=False)
         ts_path.write_text(
             "<?xml version='1.0' encoding='utf-8'?>\n"
@@ -175,7 +182,8 @@ def sync_file(ts_path: Path, tr_map: dict[str, set[str]], is_english: bool,
             encoding="utf-8"
         )
 
-    return added
+    pending = count_unfinished(root)
+    return added, pending
 
 
 def main() -> None:
@@ -195,18 +203,19 @@ def main() -> None:
         sys.exit(1)
 
     grand_total = 0
+    print(f"{'File':<22} {'Added':>7}  {'Pending':>7}")
+    print("-" * 40)
     for ts_path in ts_files:
         is_english = ts_path.name == "zipfx_en.ts"
-        label = ts_path.name
-        added = sync_file(ts_path, tr_map, is_english, args.dry_run)
-        if added:
-            action = "would add" if args.dry_run else "added"
-            print(f"{label}: {action} {added} message(s)")
-        else:
-            print(f"{label}: up to date")
+        added, pending = sync_file(ts_path, tr_map, is_english, args.dry_run)
         grand_total += added
+        added_col = f"+{added}" if added else "-"
+        pending_col = str(pending) if not is_english else "n/a"
+        print(f"{ts_path.name:<22} {added_col:>7}  {pending_col:>7}")
 
-    print(f"\nDone. {'Would add' if args.dry_run else 'Added'} {grand_total} message(s) total.")
+    print("-" * 40)
+    action = "would add" if args.dry_run else "added"
+    print(f"\n{action.capitalize()} {grand_total} message(s) total.")
     if args.dry_run:
         print("(dry-run — no files written)")
 
