@@ -187,11 +187,17 @@ cmake --build build
 
 #### Windows (MinGW)
 
+**Prerequisites:**
+
+1. Install [Qt6](https://www.qt.io/download-qt-installer) — select the **MinGW 64-bit** component and the matching **MinGW toolchain** under *Qt → Tools*.
+2. Install [CMake](https://cmake.org/download/) and ensure it is on your `PATH`.
+3. *(Optional)* Install [7-Zip](https://www.7-zip.org/) if you want Bit7z support at runtime.
+
 Use Qt's MinGW toolchain, not the one bundled with CLion (CLion's
 bundled MinGW has incompatible `off_t`/`mode_t` definitions that
 break libarchive and libzip).
 
-```bash
+```bat
 set PATH=C:\Qt\6.x.x\mingw_64\bin;C:\Qt\Tools\mingw1310_64\bin;%PATH%
 
 cmake -B build -G "MinGW Makefiles" ^
@@ -207,16 +213,42 @@ still picks Gow's `make.exe`, set Environment in CMake settings to
 
 #### macOS
 
+**Prerequisites:**
+
+1. Install [Homebrew](https://brew.sh/) if not already present.
+2. Install Qt6 and the Xcode Command Line Tools:
+
 ```bash
-brew install qt
+xcode-select --install
+brew install qt cmake
+```
+
+```bash
 cmake -B build -DCMAKE_PREFIX_PATH=$(brew --prefix qt)
 cmake --build build
 ```
 
 #### Linux
 
+**Prerequisites (Debian/Ubuntu):**
+
 ```bash
-sudo apt install qt6-base-dev
+sudo apt install cmake build-essential qt6-base-dev libgl1-mesa-dev
+```
+
+**Prerequisites (Fedora/RHEL):**
+
+```bash
+sudo dnf install cmake gcc-c++ qt6-qtbase-devel mesa-libGL-devel
+```
+
+**Prerequisites (Arch Linux):**
+
+```bash
+sudo pacman -S cmake base-devel qt6-base mesa
+```
+
+```bash
 cmake -B build
 cmake --build build
 ```
