@@ -951,601 +951,625 @@ Overwrite?</source>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+
+
+...切り詰められました (%2 バイトの最初の %1 を表示)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+
+
+まずファイルを抽出してから開きます。</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+破損したブロックはすべて正常に修復されました。</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+アーカイブの整合性: OK — 破損は検出されませんでした。</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+破損が検出されました。 「検証&amp;amp;&amp;amp;」を使用します。 「修復」を実行して修復を試みます。</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+完了しました。 %1 は成功しましたが、%2 は失敗しました。</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;
+
+エラー: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; エラー: 開けませんでした。</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; 失敗しました: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; 失敗: 抽出に失敗しました。</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; 失敗: 整合性チェックに失敗しました。</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; OK: %1 に抽出されました</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; OK: 整合性チェックに合格しました。</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>データ ブロックの &lt;source&gt;%</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1
+
+%2バイト</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 B</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 GB</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 KB</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 MB</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 ファイルが選択されました、%2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1% が保存されました</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt; パスをコピー(&amp;amp;Copy Path)</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;&amp;amp;編集</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;選択範囲を反転(&amp;amp;I)</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; 解凍時に壊れたファイルを保持する(&amp;amp;E)</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt; シェル拡張機能をアンインストール(&amp;amp;A)</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;リカバリ レコードで検証/修復(&amp;amp;R)...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;... 切り詰められました (%2 バイトの最初の %1 を表示)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;128 KB</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;32 KB</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;64 KB</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;リカバリ レコードの追加と...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;リカバリレコードの追加</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe 経由で追加 (インストールされている場合)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;追加...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;後:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブファイル名</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブパスワード:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブ:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;破損したアーカイブから読み取り可能なファイルの回復を試みます。</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;不良ブロック : %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;バッチとオペレーション...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;バッチ操作</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ブロックサイズ:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;参照...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;圧縮:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;アーカイブを変換(&amp;amp;vert)...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;変換</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブの変換</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;正常に変換されました:
+
+%1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ターゲット アーカイブを作成できませんでした。</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;一時ディレクトリを作成できませんでした。</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;「%1」を抽出できませんでした。</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;サイドカーの作成 (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;アーカイブを作成しています...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;リカバリレコードを作成しています...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;選択項目を削除</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;パターンを除外する(&amp;amp;X)...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;エラー: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;エラー: 一時ディレクトリを作成できません。</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;エラー: 回復されたアーカイブの書き込みに失敗しました。</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;エラーが検出されました。回復可能なファイルを抽出しています...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;除外パターン</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;抜粋してここに</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;すべてのアーカイブを抽出する</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;パスを使用せずに抽出...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;パスを指定せずに抽出します</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;変換されたアーカイブの保存に失敗しました。</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ファイル:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ファイルを検索... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;フォルダ: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;フォルダー:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;形式:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;%1 個のアーカイブが見つかりました。</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;サブフォルダーを含める</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;シェルと拡張機能のインストール (エクスプローラーを右クリック)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;整合性テストに合格しました — アーカイブは損傷していないように見えます。</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;メソッド:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ネイティブ RAR リカバリ レコードが追加されました。</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;アーカイブが開いていません。</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ファイルを回復できませんでした。</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;選択なし</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;このアーカイブにはサイドカー (.rec) ファイルが見つかりません。</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;開く</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;プログラムから開く...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;...で開く</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;操作:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;出力フォルダー:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;出力パス:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;パスワード</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;パスワードとマネージャー...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;パスワードマネージャー</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ファイルを追加するときにスキップするパターン (カンマ区切り、例: *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;有効なソース フォルダーを選択してください。</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;出力フォルダーを選択してください。</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;RAR の修復が完了しました。</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;RAR ヒント: rar.exe はネイティブ リカバリ レコード (rr N%) もサポートしています。</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;比率:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブを修復(&amp;amp;P)...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;%1 ファイルをリカバリしましたが、失敗しました: %2。</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;回復記録</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;回復サイズ:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;リカバリ: データ ブロックの %1% (%2)。</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;このアーカイブのパスワードを覚えていますか?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;修理</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;修復アーカイブ</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;修復済み: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;保存&amp;amp;近い</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;変換されたアーカイブを保存する</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;パスワードの保存</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;回復したファイルを保存する</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;保存されたパスワードは、アーカイブを開くときに自動的に適用されます。</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;保存済み: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;すべてを選択(&amp;amp;A) Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;出力フォルダーの選択</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ソースフォルダーの選択</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;プレビューするファイルを選択してください</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;パスワードを設定して...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;パスワードの設定</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;シェル拡張機能</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;シェル拡張機能がアンインストールされました。</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;シェル拡張機能は Windows でのみ使用できます。</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;「表示とプレビュー」ペイン</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;サイドカーが作成されました: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ソースフォルダー:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;修復の開始</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ターゲット形式は書き込みがサポートされていません。</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ターゲット形式:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;すべてのアーカイブの整合性をテストする</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;アーカイブの整合性をテストしています...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;ファイル "%1" は空です。</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;総ブロック数 : %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe (ネイティブ RAR リカバリ レコード) で修復してみますか?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;非圧縮:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;修復不可能: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;検証&amp;amp;&amp;amp;修理</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;検証のみ</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;リカバリレコードによる検証/修復</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;検証中...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;このアーカイブ (%1) では、個々のファイルの表示はサポートされていません。</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;このアーカイブでは、個々のファイルの表示はサポートされていません。</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;アーカイブ.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;rar.exe が見つかりません。</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;rar.exe が見つかりません。 WinRAR をインストールするか、サイドカー方式を使用します。</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;rar.exe がエラー %1 を返しました:
+
+%2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;rar.exe がタイムアウトしました。</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1604,40 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;%1 ファイルは宛先にすでに存在します。何をしたいですか?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;キャンセル</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ファイルを抽出しています...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;ファイルはすでに存在します</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;上書き</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;既存をスキップ</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;次のファイルは宛先にすでに存在します:
+
+%1
+
+
+
+上書きしますか?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1707,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;何もしない</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;休止状態</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;シャットダウン</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>&lt;ソース&gt;睡眠</translation>
         </message>
     </context>
 </TS>

@@ -951,601 +951,613 @@ Skriva över?</translation>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+
+... trunkerad (visar första %1 av %2 byte)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+
+Extrahera filen först och öppna den sedan.</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+Alla skadade block har reparerats framgångsrikt.</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+Arkivintegritet: OK — ingen korruption upptäckt.</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+Korruption upptäckt. Använd 'Verifiera &amp;amp;&amp;amp; Reparera' för att försöka reparera.</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+Klart. %1 lyckades, %2 misslyckades.</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;
+FEL: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; FEL: kunde inte öppnas.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; MISSLYCKADES: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; FAILED: extrahering misslyckades.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; FAILED: integritetskontrollen misslyckades.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; OK: extraherad till %1</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; OK: integritetskontrollen godkänd.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt; % av datablocken</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1
+%2 byte</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 B</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 GB</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 kB</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 MB</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 fil(er) har valts, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1% sparat</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Kopiera sökväg</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Redigera</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Invertera urval</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Behåll trasiga filer vid extraktion</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Avinstallera Shell Extension</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;&amp;amp;Verifiera/Reparera med återställningspost...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;... trunkerad (visar första %1 av %2 byte)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;128 kB</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;32 KB</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;64 KB</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lägg till &amp;amp;återställningspost...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lägg till återställningspost</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lägg till via rar.exe (om installerat)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lägg till...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Efter:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Arkivfilnamn</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Arkivlösenord:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Arkiv:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Försök att återställa läsbara filer från ett skadat arkiv.</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Dåliga blockeringar: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Batch &amp;amp;operationer...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Batchoperationer</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Blockstorlek:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Bläddra...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Komprimerad:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Kon&amp;amp;vertera arkiv...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Konvertera</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Konvertera arkiv</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Konverterat framgångsrikt:
+%1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Kunde inte skapa målarkiv.</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Kunde inte skapa en tillfällig katalog.</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Kunde inte extrahera "%1".</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Skapa sidovagn (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Skapar arkiv...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Skapar återställningspost...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Ta bort markerade</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;E&amp;amp;xkludera mönster...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;FEL: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;FEL: Kan inte skapa en tillfällig katalog.</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;FEL: Det gick inte att skriva återställt arkiv.</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Fel upptäcktes. Extraherar återställningsbara filer...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Uteslut mönster</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Extrahera &amp;amp;här</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Extrahera alla arkiv</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Extrahera utan &amp;amp;sökvägar...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Extrahera utan sökvägar till</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Det gick inte att spara konverterat arkiv.</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Filer:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Hitta filer... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Mapp: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Mappar:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Format:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Hittade %1 arkiv(er).</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Inkludera undermappar</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Installera Shell &amp;amp;Extension (Utforskaren högerklicka)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Integritetstest GÅR – arkivet verkar oskadat.</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Metod:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Native RAR-återställningspost har lagts till.</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Inget arkiv öppet.</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Inga filer kunde återställas.</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Inget val</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Ingen sidovagnsfil (.rec) hittades för detta arkiv.</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Öppna</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Öppna med...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Öppna med...</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Funktion:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Utdatamapp:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Utdatasökväg:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lösenord</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lösenord &amp;amp;hanterare...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Lösenordshanteraren</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Mönster att hoppa över när du lägger till filer (kommaseparerade, t.ex. *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj en giltig källmapp.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj en utdatamapp.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;RAR-reparation slutförd.</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;RAR-tips: rar.exe stöder även inbyggda återställningsposter (rr N%).</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Förhållande:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Re&amp;amp;pair Arkiv...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Återställda %1 fil(er), misslyckades: %2.</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Återställningspost</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Återställningsstorlek:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Återställning: %1% av datablocken (%2).</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Kommer du ihåg det här lösenordet för det här arkivet?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Reparation</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Reparationsarkiv</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Reparerad: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Spara &amp;amp;&amp;amp; Nära</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Spara konverterat arkiv</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Spara lösenord</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Spara återställda filer</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Sparade lösenord tillämpas automatiskt när arkiv öppnas.</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Sparat: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj &amp;amp;Alla Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj Utdatamapp</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj källmapp</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Välj en fil att förhandsgranska</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Ange &amp;amp;lösenord...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Ange lösenord</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Shell Extension</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Shell-tillägget har avinstallerats.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Shell-tillägg är endast tillgängliga på Windows.</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Visa &amp;amp;förhandsgranskningsfönstret</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Sidvagn skapad: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Källmapp:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Starta reparation</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Målformat stöds inte för skrivning.</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Målformat:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Testa integriteten för alla arkiv</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Testar arkivintegritet...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Filen "%1" är tom.</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Totalt antal block: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Testa att reparera med rar.exe (native RAR-återställningspost)?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Okomprimerad:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Ej reparerbar : %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Verifiera &amp;amp;&amp;amp; Reparera</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Endast verifiera</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Verifiera/Reparera med återställningspost</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Verifierar...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Visning av enskilda filer stöds inte för detta arkiv (%1).</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Visning av enskilda filer stöds inte för detta arkiv.</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;archive.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;rar.exe hittades inte.</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;rar.exe hittades inte. Installera WinRAR eller använd sidovagnsmetoden.</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe returnerade felet %1:
+%2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;rar.exe tog en timeout.</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1592,37 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;%1 filer finns redan på destinationen. Vad skulle du vilja göra?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Avbryt</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Extraherar filer...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Filer finns redan</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Skriv över</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Hoppa över existerande</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Följande fil finns redan på destinationen:
+%1
+
+Vill du skriva över det?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1692,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Gör ingenting</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Viloläge</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Stäng av</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>&lt;källa&gt;Sömn</translation>
         </message>
     </context>
 </TS>

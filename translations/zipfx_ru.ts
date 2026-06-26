@@ -951,601 +951,613 @@ Overwrite?</source>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+
+... усечено (показаны первые %1 из %2 байтов)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+
+Сначала извлеките файл, а затем откройте его.</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+Все поврежденные блоки успешно восстановлены.</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+Целостность архива: ОК — повреждений не обнаружено.</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+Обнаружена коррупция. Используйте «Проверить &amp;amp;&amp;amp; Ремонт», чтобы попытаться выполнить ремонт.</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+Готово. %1 удалось, %2 не удалось.</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;
+ОШИБКА: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; ОШИБКА: не удалось открыть.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; ОШИБКА: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; FAILED: извлечение не удалось.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; FAILED: проверка целостности не удалась.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; ОК: извлечено в %1</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt; ОК: проверка целостности пройдена.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;% блоков данных</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1
+%2 байта</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1 Б</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1 ГБ</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1 КБ</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1 МБ</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выбран файл(ы) %1, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;%1% сохранено</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;amp;Копировать путь</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;Редактировать</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;Инвертировать выделение</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;amp;Сохранять поврежденные файлы при извлечении</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;amp;Удалить расширение оболочки</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;&amp;amp;Проверка/восстановление с помощью записи восстановления...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;... усечено (показаны первые %1 из %2 байтов)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;128 КБ</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;32 КБ</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;64 КБ</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Добавить запись восстановления...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Добавить запись восстановления</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Добавить через rar.exe (если установлен)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Добавить...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;После:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Имя файла архива</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пароль от архива:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Архив:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пытается восстановить читаемые файлы из поврежденного архива.</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Плохие блоки: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пакетные операции...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пакетные операции</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Размер блока:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Просмотреть...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сжатый:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Конвертировать архив...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Конвертировать</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Конвертировать архив</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Успешно преобразовано:
+%1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Не удалось создать целевой архив.</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Не удалось создать временный каталог.</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Не удалось извлечь «%1».</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Создать Sidecar (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Создание архива...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Создание записи восстановления...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Удалить выбранное</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Исключить шаблоны...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;ОШИБКА: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;ОШИБКА: невозможно создать временный каталог.</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;ОШИБКА: Не удалось записать восстановленный архив.</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Обнаружены ошибки. Извлечение восстанавливаемых файлов...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Исключить шаблоны</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Извлечь &amp;amp;здесь</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Извлечь все архивы</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Извлечь без &amp;amp;Paths...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Извлечь без путей к</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Не удалось сохранить преобразованный архив.</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Файлы:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Найти файлы... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Папка: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Папки:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Формат:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Найдено %1 архивов.</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Включить подпапки</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Установить оболочку и расширение (щелкнуть правой кнопкой мыши в Проводнике)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверка целостности ПРОЙДЕНА — архив выглядит неповрежденным.</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Метод:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Добавлена ​​собственная запись восстановления RAR.</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Ни один архив не открыт.</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Ни один файл не может быть восстановлен.</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Нет выбора</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Для этого архива не найден дополнительный файл (.rec).</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Открыть</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Открыть с помощью...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Открыть с помощью...</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Операция:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выходная папка:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Путь вывода:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пароль</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пароль и менеджер...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Менеджер паролей</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Шаблоны для пропуска при добавлении файлов (через запятую, например *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Пожалуйста, выберите правильную исходную папку.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пожалуйста, выберите выходную папку.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Восстановление RAR завершено.</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Совет по RAR: rar.exe также поддерживает собственные записи восстановления (rr N%).</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Соотношение:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Архив восстановления...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Восстановлен %1 файлов, ошибка: %2.</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Запись восстановления</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Размер восстановления:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Восстановление: %1% блоков данных (%2).</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Помните этот пароль для этого архива?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Ремонт</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Архив ремонта</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Отремонтировано: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохранить &amp;amp;&amp;amp; Закрывать</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохранить преобразованный архив</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохранить пароль</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохранить восстановленные файлы</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохраненные пароли применяются автоматически при открытии архивов.</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сохранено: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выбрать &amp;Все Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выбрать выходную папку</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Выбрать исходную папку</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выберите файл для предварительного просмотра</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Установить &amp;пароль...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Установить пароль</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Расширение оболочки</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Расширение оболочки удалено.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Расширения оболочки доступны только в Windows.</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Показать панель предварительного просмотра</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Создан коляска: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Исходная папка:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Начать ремонт</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Целевой формат не поддерживается для записи.</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Целевой формат:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверить целостность всех архивов</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверка целостности архива...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Файл «%1» пуст.</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Всего блоков: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Попробуйте восстановить с помощью rar.exe (собственная запись восстановления RAR)?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Несжатый:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Не подлежит ремонту: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверить &amp;amp;&amp;amp; Ремонт</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Только проверка</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверка/восстановление с помощью записи восстановления</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Проверка...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Просмотр отдельных файлов для этого архива (%1) не поддерживается.</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Просмотр отдельных файлов для этого архива не поддерживается.</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;archive.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;rar.exe не найден.</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;rar.exe не найден. Установите WinRAR или используйте метод Sidecar.</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;rar.exe вернул ошибку %1:
+%2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>Время ожидания &lt;источника&gt;rar.exe истекло.</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1592,37 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>Файлы &lt;source&gt;%1 уже существуют в месте назначения. Что бы вы хотели сделать?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Отмена</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Извлечение файлов...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Файлы уже существуют</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Перезаписать</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Пропустить существующие</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Следующий файл уже существует в месте назначения:
+%1
+
+Перезаписать?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1692,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Ничего не делать</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Спящий режим</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Выключить</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>&lt;источник&gt;Сон</translation>
         </message>
     </context>
 </TS>

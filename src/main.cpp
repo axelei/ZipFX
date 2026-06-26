@@ -1,7 +1,13 @@
 #include "cli/CliHandler.h"
 #include "version.h"
 
+#ifdef _WIN32
+#  include <windows.h>
+#  include <cstdio>
+#endif
+
 #include <QApplication>
+#include <QCoreApplication>
 #include <QDir>
 #include <QIcon>
 #include <QLocalServer>
@@ -100,13 +106,48 @@ int main(int argc, char* argv[])
 
     if (isCli)
     {
+#ifdef _WIN32
+        // GUI executables on Windows have no console attached.
+        // Attach to the parent console (cmd/PowerShell) so that stdout/stderr
+        // are visible. If there is no parent console, allocate a new one.
+        bool attachedToParent = AttachConsole(ATTACH_PARENT_PROCESS);
+        if (!attachedToParent)
+            AllocConsole();
+        freopen("CONOUT$", "w", stdout);
+        freopen("CONOUT$", "w", stderr);
+        freopen("CONIN$",  "r", stdin);
+#endif
         // Strip --cli from argv before passing to runCli
         int newArgc = 0;
         const char* newArgv[64];
         for (int i = 0; i < argc && newArgc < 64; ++i)
             if (std::string(argv[i]) != "--cli")
                 newArgv[newArgc++] = argv[i];
-        return runCli(newArgc, const_cast<char**>(newArgv));
+        // QCoreApplication gives Qt internals (e.g. applicationDirPath) a
+        // valid app object without initialising any GUI subsystem.
+        QCoreApplication coreApp(newArgc, const_cast<char**>(newArgv));
+        int result = runCli(newArgc, const_cast<char**>(newArgv));
+#ifdef _WIN32
+        // When attached to a parent console (cmd/PowerShell), the shell's
+        // prompt was already printed before our output. Inject a synthetic
+        // Enter so the shell redraws the prompt without requiring user input.
+        if (attachedToParent)
+        {
+            HANDLE hIn = GetStdHandle(STD_INPUT_HANDLE);
+            INPUT_RECORD ir[2] = {};
+            ir[0].EventType = KEY_EVENT;
+            ir[0].Event.KeyEvent.bKeyDown          = TRUE;
+            ir[0].Event.KeyEvent.wVirtualKeyCode   = VK_RETURN;
+            ir[0].Event.KeyEvent.wVirtualScanCode  = MapVirtualKey(VK_RETURN, MAPVK_VK_TO_VSC);
+            ir[0].Event.KeyEvent.uChar.UnicodeChar = L'\r';
+            ir[0].Event.KeyEvent.dwControlKeyState = 0;
+            ir[1]                                  = ir[0];
+            ir[1].Event.KeyEvent.bKeyDown          = FALSE;
+            DWORD written = 0;
+            WriteConsoleInputW(hIn, ir, 2, &written);
+        }
+#endif
+        return result;
     }
 
     // Shell-add always opens a new instance (no single-instance redirect)

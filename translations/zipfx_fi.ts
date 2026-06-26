@@ -951,601 +951,625 @@ Korvataanko?</translation>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+
+
+... katkaistu (näytetään ensimmäinen % 1 / % 2 tavua)</translation>
         </message>
         <message>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+
+
+Pura tiedosto ensin ja avaa se sitten.</translation>
         </message>
         <message>
             <source>
 All corrupted blocks repaired successfully.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+Kaikki vioittuneet lohkot korjattu onnistuneesti.</translation>
         </message>
         <message>
             <source>
 Archive integrity: OK — no corruption detected.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+Arkiston eheys: OK – vioittumista ei havaittu.</translation>
         </message>
         <message>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+Korruptio havaittu. Käytä Vahvista &amp;amp;&amp;amp; Korjaa' yrittääksesi korjata.</translation>
         </message>
         <message>
             <source>
 Done. %1 succeeded, %2 failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+Valmis. %1 onnistui, %2 epäonnistui.</translation>
         </message>
         <message>
             <source>
 ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;
+
+VIRHE: %1</translation>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; VIRHE: ei voitu avata.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; Epäonnistunut: %1</translation>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; FAILED: purkaminen epäonnistui.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; FAILED: eheyden tarkistus epäonnistui.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; OK: purettu kohteeseen %1</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt; OK: eheystarkastus läpäissyt.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;% tietolohkoista</translation>
         </message>
         <message>
             <source>%1
 %2 bytes</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1
+
+%2 tavua</translation>
         </message>
         <message>
             <source>%1 B</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 B</translation>
         </message>
         <message>
             <source>%1 GB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 Gt</translation>
         </message>
         <message>
             <source>%1 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 kt</translation>
         </message>
         <message>
             <source>%1 MB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 Mt</translation>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 tiedosto(a) valittu, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1% tallennettu</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;kopioi polku</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;Muokkaa</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;Käännä valinta</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;Pidä rikkinäiset tiedostot purkamisen aikana</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;Poista Shell Extension</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;&amp;amp;Vahvista/korjaa palautustietueen avulla...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;... katkaistu (näytetään ensimmäinen %1/%2 tavua)</translation>
         </message>
         <message>
             <source>128 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;128 kt</translation>
         </message>
         <message>
             <source>32 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;32 kt</translation>
         </message>
         <message>
             <source>64 KB</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;64 kt</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lisää &amp;amp;palautustietue...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lisää palautustietue</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lisää rar.exe-tiedoston kautta (jos asennettu)...</translation>
         </message>
         <message>
             <source>Add...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lisää...</translation>
         </message>
         <message>
             <source>After:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Jälkeen:</translation>
         </message>
         <message>
             <source>Archive filename</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;Arkiston tiedostonimi</translation>
         </message>
         <message>
             <source>Archive password:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Arkistoi salasana:</translation>
         </message>
         <message>
             <source>Archive:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Arkisto:</translation>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Yrittää palauttaa luettavissa olevia tiedostoja vioittuneesta arkistosta.</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Huonot lohkot: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Erä &amp;amp;toiminnot...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Erätoiminnot</translation>
         </message>
         <message>
             <source>Block size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lohkon koko:</translation>
         </message>
         <message>
             <source>Browse...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Selaa...</translation>
         </message>
         <message>
             <source>Compressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pakattu:</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muunna arkisto...</translation>
         </message>
         <message>
             <source>Convert</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muunna</translation>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muunna arkisto</translation>
         </message>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muunnettu onnistuneesti:
+
+%1</translation>
         </message>
         <message>
             <source>Could not create target archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Kohdearkistoa ei voitu luoda.</translation>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Ei voitu luoda väliaikaista hakemistoa.</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Ei voitu purkaa "%1".</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Luo sivuvaunu (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Luodaan arkistoa...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Luodaan palautustietuetta...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Poista valitut</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Sulje mallit pois...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;VIRHE: %1</translation>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;VIRHE: Väliaikaista hakemistoa ei voi luoda.</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;VIRHE: Palautetun arkiston kirjoittaminen epäonnistui.</translation>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Virheitä havaittu. Puretaan palautettavia tiedostoja...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Sulje mallit pois</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pura &amp;amp;täällä</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pura kaikki arkistot</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pura ilman &amp;amp;polkuja...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pura ilman polkuja kohteeseen</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Käännetyn arkiston tallentaminen epäonnistui.</translation>
         </message>
         <message>
             <source>Files:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tiedostot:</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;Etsi fi&amp;amp;les... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Kansio: %1</translation>
         </message>
         <message>
             <source>Folders:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Kansiot:</translation>
         </message>
         <message>
             <source>Format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muoto:</translation>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Löytyi %1 arkisto(a).</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Sisällytä alikansiot</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Asenna Shell &amp; Extension (Explorer napsauta hiiren kakkospainikkeella)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Eheystesti LÄPISTETTY – arkisto näyttää vahingoittumattomalta.</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Menetelmä:</translation>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Natiivi RAR-palautustietue lisätty.</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Arkistoa ei ole auki.</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tiedostoja ei voitu palauttaa.</translation>
         </message>
         <message>
             <source>No selection</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Ei valintaa</translation>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tästä arkistosta ei löytynyt sivuvaunutiedostoa (.rec).</translation>
         </message>
         <message>
             <source>Open</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Avaa</translation>
         </message>
         <message>
             <source>Open With...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Avaa...</translation>
         </message>
         <message>
             <source>Open with...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Avaa...</translation>
         </message>
         <message>
             <source>Operation:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Toiminta:</translation>
         </message>
         <message>
             <source>Output folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tuloskansio:</translation>
         </message>
         <message>
             <source>Output path:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tulospolku:</translation>
         </message>
         <message>
             <source>Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Salasana</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Salasana ja ylläpitäjä...</translation>
         </message>
         <message>
             <source>Password Manager</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Salasanojen hallinta</translation>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tietoja lisättäessä ohitettavat mallit (pilkuilla erotettuina, esim. *.tmp, thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Valitse kelvollinen lähdekansio.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;Valitse tulostuskansio.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;RAR-korjaus valmis.</translation>
         </message>
         <message>
             <source>RAR tip: rar.exe also supports native recovery records (rr N%).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;RAR-vinkki: rar.exe tukee myös alkuperäisiä palautustietueita (rr N%).</translation>
         </message>
         <message>
             <source>Ratio:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Suhde:</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Uudelleen&amp;amp;liitä arkisto...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Palautettu %1 tiedosto(a), epäonnistui: %2.</translation>
         </message>
         <message>
             <source>Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Palautustietue</translation>
         </message>
         <message>
             <source>Recovery size:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Palautuskoko:</translation>
         </message>
         <message>
             <source>Recovery: %1% of data blocks (%2).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Palautus: %1% tietolohkoista (%2).</translation>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Muistatko tämän arkiston salasanan?</translation>
         </message>
         <message>
             <source>Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Korjaus</translation>
         </message>
         <message>
             <source>Repair Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Korjaa arkisto</translation>
         </message>
         <message>
             <source>Repaired     : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Korjattu: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallenna &amp;amp;&amp;amp; Lähellä</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallenna muunnettu arkisto</translation>
         </message>
         <message>
             <source>Save Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallenna salasana</translation>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallenna palautetut tiedostot</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallennetut salasanat otetaan käyttöön automaattisesti, kun arkistoja avataan.</translation>
         </message>
         <message>
             <source>Saved: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tallennettu: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Valitse &amp;amp;kaikki Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Valitse Tulostuskansio</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Valitse lähdekansio</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Valitse esikatselutiedosto</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Aseta &amp;amp;salasana...</translation>
         </message>
         <message>
             <source>Set Password</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Aseta salasana</translation>
         </message>
         <message>
             <source>Shell Extension</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Shell-laajennus</translation>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Shell-laajennus poistettu.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Shell-laajennukset ovat saatavilla vain Windowsissa.</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Näytä &amp;amp;esikatseluruutu</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Sivuvaunu luotu: %1</translation>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lähdekansio:</translation>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Aloita korjaus</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Kohdemuotoa ei tueta kirjoittamiseen.</translation>
         </message>
         <message>
             <source>Target format:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Kohdemuoto:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Testaa kaikkien arkistojen eheys</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Testataan arkiston eheyttä...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tiedosto "%1" on tyhjä.</translation>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lohkot yhteensä: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Try repairing with rar.exe (native RAR recovery record)?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Pakkaamaton:</translation>
         </message>
         <message>
             <source>Unrepairable : %1</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Korjaamaton: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Vahvista &amp;amp;&amp;amp; Korjaus</translation>
         </message>
         <message>
             <source>Verify Only</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Vain vahvista</translation>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Vahvista/korjaa palautustietueen avulla</translation>
         </message>
         <message>
             <source>Verifying...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Vahvistetaan...</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tämä arkisto (%1) ei tue yksittäisten tiedostojen katselua.</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tämä arkisto ei tue yksittäisten tiedostojen katselua.</translation>
         </message>
         <message>
             <source>archive.zip</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;archive.zip</translation>
         </message>
         <message>
             <source>rar.exe</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;rar.exe</translation>
         </message>
         <message>
             <source>rar.exe not found.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe ei löydy.</translation>
         </message>
         <message>
             <source>rar.exe not found. Install WinRAR or use the sidecar method.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe ei löydy. Asenna WinRAR tai käytä sivuvaunumenetelmää.</translation>
         </message>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe palautti virheen %1:
+
+%2</translation>
         </message>
         <message>
             <source>rar.exe timed out.</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;rar.exe aikakatkaistiin.</translation>
         </message>
     </context>
     <context>
@@ -1580,34 +1604,40 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation type="unfinished" />
+            <translation>&lt;lähde&gt;%1 tiedostoa on jo kohteessa. Mitä haluaisit tehdä?</translation>
         </message>
         <message>
             <source>Cancel</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Peruuta</translation>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Purataan tiedostoja...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Tiedostot ovat jo olemassa</translation>
         </message>
         <message>
             <source>Overwrite</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Korvaa</translation>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Ohita olemassa oleva</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Seuraava tiedosto on jo olemassa kohteessa:
+
+%1
+
+
+
+Korvaako se?</translation>
         </message>
     </context>
     <context>
@@ -1677,19 +1707,19 @@ Overwrite it?</source>
         <name>AfterAction</name>
         <message>
             <source>Do nothing</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Älä tee mitään</translation>
         </message>
         <message>
             <source>Hibernate</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Lepotila</translation>
         </message>
         <message>
             <source>Shut down</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Sammuta</translation>
         </message>
         <message>
             <source>Sleep</source>
-            <translation type="unfinished" />
+            <translation>&lt;source&gt;Nuku</translation>
         </message>
     </context>
 </TS>
