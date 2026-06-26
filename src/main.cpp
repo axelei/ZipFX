@@ -211,14 +211,16 @@ int main(int argc, char* argv[])
     if (isShellAdd && !shellAddFiles.isEmpty())
         QTimer::singleShot(0, [&]() { w.shellAdd(shellAddFiles); });
 
-    // Handle file paths forwarded from other instances
+    // Handle file paths forwarded from other instances — open each in a new window
     QObject::connect(localServer, &QLocalServer::newConnection, [&]() {
         QLocalSocket* client = localServer->nextPendingConnection();
         if (!client) return;
         client->waitForReadyRead(1000);
         QString path = QString::fromUtf8(client->readAll());
-        if (!path.isEmpty())
-            w.openArchive(path);
+        if (!path.isEmpty()) {
+            auto* w2 = new MainWindow(path);
+            w2->show();
+        }
         client->deleteLater();
     });
 

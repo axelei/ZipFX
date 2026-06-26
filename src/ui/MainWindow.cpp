@@ -126,6 +126,7 @@ static QTranslator* loadTranslator(const QString& locale)
 MainWindow::MainWindow(QWidget* parent)
     : QMainWindow(parent)
 {
+    setAttribute(Qt::WA_DeleteOnClose);
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     resize(960, 640);
 
