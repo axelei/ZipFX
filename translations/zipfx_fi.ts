@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Valinnainen arkistokommentti</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Arkistokommentti</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR-luominen vaatii &lt;b&gt;rar&lt;/b&gt; / WinRAR — ei löydy tästä järjestelmästä.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Asenna kautta %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>Asenna RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Käynnistetään: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sulje</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Asennettu onnistuneesti.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Epäonnistui (lopetus %1). Voit asentaa manuaalisesti:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Paketinhallintaa ei voitu käynnistää.
+Asenna manuaalisesti: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Korvataanko?</translation>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Sammuta</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>Toiminnon valmistuttua:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Aloita</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Etsi tiedostoja arkistosta</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Hakuehdot</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>esim. *.txt  tai  raportti*  (tyhjä = kaikki tiedostot)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Nimikaava:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Koko välillä</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> Kt</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>ja</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Päivämäärä välillä</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Nimi</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Polku</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Koko</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Muokattu</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Etsi</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Sulje</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 tulos(ta)</translation>
         </message>
     </context>
 </TS>

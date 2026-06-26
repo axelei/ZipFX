@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Commento archivio opzionale</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Commento archivio</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>La creazione RAR richiede &lt;b&gt;rar&lt;/b&gt; / WinRAR — non trovato su questo sistema.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Installa tramite %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>Installa RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Avvio in corso: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Chiudi</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Installato con successo.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Non riuscito (uscita %1). Puoi installarlo manualmente:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Impossibile avviare il gestore di pacchetti.
+Installa manualmente: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Sovrascrivere?</translation>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Spegni</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>Al termine dell'operazione:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Avvia</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Trova file nell'archivio</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Criteri di ricerca</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>es. *.txt  oppure  report*  (vuoto = tutti i file)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Pattern nome:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Dimensione tra</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>e</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Data tra</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Nome</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Percorso</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Dimensione</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Modificato</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Trova</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Chiudi</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 risultato/i</translation>
         </message>
     </context>
 </TS>

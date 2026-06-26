@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Valfri arkivkommentar</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Arkivkommentar</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR-skapande kräver &lt;b&gt;rar&lt;/b&gt; / WinRAR — hittades inte på detta system.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Installera via %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>Installera RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Kör: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Stäng</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Installerades.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Misslyckades (avslutningskod %1). Du kan installera manuellt:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Det gick inte att starta pakethanteraren.
+Installera manuellt: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Skriva över?</translation>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Stäng av</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>När åtgärden är klar:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Starta</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Sök filer i arkiv</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Sökkriterier</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>t.ex. *.txt  eller  rapport*  (tom = alla filer)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Namnmönster:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Storlek mellan</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>och</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Datum mellan</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Namn</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Sökväg</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Storlek</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Ändrad</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Sök</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Stäng</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 resultat</translation>
         </message>
     </context>
 </TS>

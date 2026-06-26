@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Valgfri arkivkommentar</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Arkivkommentar</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>RAR-oprettelse kræver &lt;b&gt;rar&lt;/b&gt; / WinRAR — ikke fundet på dette system.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Installer via %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>Installer RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Kører: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Luk</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Installeret.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Fejl (afsluttede med %1). Du kan installere manuelt:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Pakkehåndteringen kunne ikke startes.
+Installer manuelt: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overskriv?</translation>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Sluk</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>Når handlingen er færdig:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Start</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Søg efter filer i arkiv</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Søgekriterier</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>f.eks. *.txt  eller  rapport*  (tom = alle filer)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Navnemønster:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Størrelse mellem</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> KB</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>og</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Dato mellem</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Navn</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Sti</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Størrelse</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Ændret</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Søg</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Luk</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 resultat(er)</translation>
         </message>
     </context>
 </TS>

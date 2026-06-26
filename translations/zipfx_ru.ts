@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>Необязательный комментарий архива</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>Комментарий архива</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>Создание RAR требует &lt;b&gt;rar&lt;/b&gt; / WinRAR — не найден в этой системе.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>Установить через %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>Установить RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>Выполняется: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Закрыть</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+Успешно установлено.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+Ошибка (код %1). Можно установить вручную:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>Не удалось запустить менеджер пакетов.
+Установите вручную: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overwrite?</source>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>Выключить</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>После завершения операции:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>Начать</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>Найти файлы в архиве</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>Критерии поиска</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>напр. *.txt  или  отчёт*  (пусто = все файлы)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>Маска имени:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>Размер между</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> КБ</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>и</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>Дата между</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>Имя</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>Путь</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Размер</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>Изменён</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>Найти</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Закрыть</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 результат(ов)</translation>
         </message>
     </context>
 </TS>

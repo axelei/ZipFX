@@ -163,6 +163,50 @@
             <source>Optional archive comment</source>
             <translation>تعليق اختياري للأرشيف</translation>
         </message>
+        <message>
+            <source>Archive Comment</source>
+            <translation>تعليق الأرشيف</translation>
+        </message>
+        <message>
+            <source>RAR creation requires &lt;b&gt;rar&lt;/b&gt; / WinRAR — not found on this system.</source>
+            <translation>يتطلب إنشاء RAR وجود &lt;b&gt;rar&lt;/b&gt; / WinRAR — غير موجود على هذا النظام.</translation>
+        </message>
+        <message>
+            <source>Install via %1</source>
+            <translation>تثبيت عبر %1</translation>
+        </message>
+        <message>
+            <source>Install RAR</source>
+            <translation>تثبيت RAR</translation>
+        </message>
+        <message>
+            <source>Running: &lt;b&gt;%1&lt;/b&gt;</source>
+            <translation>جارٍ التشغيل: &lt;b&gt;%1&lt;/b&gt;</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>إغلاق</translation>
+        </message>
+        <message>
+            <source>
+Installed successfully.</source>
+            <translation>
+تم التثبيت بنجاح.</translation>
+        </message>
+        <message>
+            <source>
+Failed (exit %1). You can install manually:
+  %2</source>
+            <translation>
+فشل (الخروج %1). يمكنك التثبيت يدوياً:
+  %2</translation>
+        </message>
+        <message>
+            <source>Could not launch the package manager.
+Install manually: %1</source>
+            <translation>تعذّر تشغيل مدير الحزم.
+ثبّت يدوياً: %1</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -925,6 +969,77 @@ Overwrite?</source>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
             <translation>إيقاف التشغيل</translation>
+        </message>
+        <message>
+            <source>After the operation completes:</source>
+            <translation>بعد اكتمال العملية:</translation>
+        </message>
+        <message>
+            <source>Start</source>
+            <translation>بدء</translation>
+        </message>
+    </context>
+    <context>
+        <name>FindFilesDialog</name>
+        <message>
+            <source>Find Files in Archive</source>
+            <translation>بحث عن ملفات في الأرشيف</translation>
+        </message>
+        <message>
+            <source>Search Criteria</source>
+            <translation>معايير البحث</translation>
+        </message>
+        <message>
+            <source>e.g. *.txt  or  report*  (blank = all files)</source>
+            <translation>مثال: *.txt  أو  تقرير*  (فارغ = كل الملفات)</translation>
+        </message>
+        <message>
+            <source>Name pattern:</source>
+            <translation>نمط الاسم:</translation>
+        </message>
+        <message>
+            <source>Size between</source>
+            <translation>الحجم بين</translation>
+        </message>
+        <message>
+            <source> KB</source>
+            <translation> كيلوبايت</translation>
+        </message>
+        <message>
+            <source>and</source>
+            <translation>و</translation>
+        </message>
+        <message>
+            <source>Date between</source>
+            <translation>التاريخ بين</translation>
+        </message>
+        <message>
+            <source>Name</source>
+            <translation>الاسم</translation>
+        </message>
+        <message>
+            <source>Path</source>
+            <translation>المسار</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>الحجم</translation>
+        </message>
+        <message>
+            <source>Modified</source>
+            <translation>تاريخ التعديل</translation>
+        </message>
+        <message>
+            <source>Find</source>
+            <translation>بحث</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>إغلاق</translation>
+        </message>
+        <message>
+            <source>%1 result(s)</source>
+            <translation>%1 نتيجة</translation>
         </message>
     </context>
 </TS>
