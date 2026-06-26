@@ -194,6 +194,7 @@ void FileListModel::rebuild()
                 item->size = e.size;
                 item->packedSize = e.packedSize;
                 item->crc = e.crc;
+                item->permissions = e.permissions;
                 item->modified = std::chrono::system_clock::to_time_t(e.modified);
                 item->hasEntry = true;
                 item->comment = QString::fromUtf8(e.comment.c_str());
