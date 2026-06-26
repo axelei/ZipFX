@@ -1,0 +1,481 @@
+name: Release
+
+# Triggered on version tags like v0.3.0
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+
+env:
+  QT_VERSION: '6.11.1'
+
+# Needed to create the GitHub Release
+permissions:
+  contents: write
+
+jobs:
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Windows  ·  MinGW  ·  NSIS installer  +  ZIP
+  #
+  # Build directory is deploy/build_win/ so installer.nsi can reference
+  # "build_win\…" relative paths without modification.
+  #
+  # Qt cache  : jurplel/install-qt-action handles this automatically.
+  #             Key = Qt version + OS + arch — shared across all runs on
+  #             the same Qt version (~3 GB, persists for 7 days of inactivity).
+  #
+  # Deps cache: all FetchContent sources + built .a/.dll artifacts live in
+  #             _deps/.  Keyed by hash of CMakeLists.txt so a version bump
+  #             in any dep triggers a full rebuild; restore-keys allow a
+  #             partial hit so only changed deps are rebuilt.
+  #
+  # ccache    : MinGW + ccache has path/AR interception problems on Windows;
+  #             the FetchContent artifact cache is sufficient there.
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── Qt 6 + MinGW toolchain ─────────────────────────────────────────────
+      # tools_mingw1310 installs MinGW 13.1.0 alongside Qt and adds its
+      # bin/ directory to PATH so cmake -G "MinGW Makefiles" finds gcc/g++
+      # and mingw32-make automatically.
+      - name: Install Qt
+        id: qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version:            ${{ env.QT_VERSION }}
+          arch:               win64_mingw
+          tools:              tools_mingw1310
+          add-tools-to-path:  true
+          cache:              true
+          cache-key-prefix:   Qt-Windows-
+
+      # ── FetchContent dependency cache ─────────────────────────────────────
+      # Restoring before configure lets CMake skip downloads and rebuilds
+      # for deps whose source + build artifacts are already present.
+      # FETCHCONTENT_UPDATES_DISCONNECTED=ON (passed to cmake below) prevents
+      # CMake from running "git fetch" on cached source trees.
+      - name: Restore FetchContent cache
+        uses: actions/cache@v4
+        with:
+          path: deploy/build_win/_deps
+          key:  fetchcontent-win-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: fetchcontent-win-
+
+      # ── Configure ──────────────────────────────────────────────────────────
+      # Run from deploy/ so the NSIS installer's relative paths work.
+      # QT_ROOT_DIR is exported by jurplel/install-qt-action.
+      - name: Configure
+        working-directory: deploy
+        shell: pwsh
+        run: |
+          cmake -S .. -B build_win -G "MinGW Makefiles" `
+            -DCMAKE_PREFIX_PATH="$env:QT_ROOT_DIR" `
+            -DCMAKE_BUILD_TYPE=Release `
+            -DBUILD_TESTING=OFF `
+            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON
+
+      # ── Build main exe + shell extension ──────────────────────────────────
+      - name: Build
+        working-directory: deploy
+        shell: pwsh
+        run: cmake --build build_win --target ZipFX ZipFXShellExt -j4
+
+      # ── Collect Qt runtime DLLs next to the executable ────────────────────
+      # --no-translations skips Qt's own large i18n files (our .qm files
+      # are copied separately below).
+      - name: Deploy Qt runtime
+        working-directory: deploy
+        shell: pwsh
+        run: windeployqt --no-translations build_win\ZipFX.exe
+
+      # ── Copy our translation .qm files ────────────────────────────────────
+      - name: Copy translations
+        shell: pwsh
+        run: |
+          New-Item -ItemType Directory -Force deploy\build_win\translations | Out-Null
+          $qms = Get-ChildItem translations -Filter *.qm -ErrorAction SilentlyContinue
+          if ($qms) { Copy-Item $qms.FullName deploy\build_win\translations\ }
+
+      # ── 7z.dll for Bit7z ──────────────────────────────────────────────────
+      - name: Copy 7z.dll
+        shell: pwsh
+        run: |
+          $src = "lib\win\x64\7z.dll"
+          if (Test-Path $src) {
+            Copy-Item $src deploy\build_win\
+          } else {
+            Write-Warning "7z.dll not found at $src — Bit7z will be unavailable"
+          }
+
+      # ── Extract semver from the tag (v0.3.0 → 0.3.0) ─────────────────────
+      - name: Extract version
+        id: version
+        shell: pwsh
+        run: |
+          $v = "${{ github.ref_name }}" -replace '^v', ''
+          "version=$v" | Out-File -FilePath $env:GITHUB_OUTPUT -Append
+
+      # ── NSIS installer ────────────────────────────────────────────────────
+      # Chocolatey installs NSIS to Program Files and adds makensis to PATH.
+      - name: Install NSIS
+        run: choco install nsis --yes --no-progress
+
+      - name: Build NSIS installer
+        working-directory: deploy
+        shell: cmd
+        run: makensis /DVERSION=${{ steps.version.outputs.version }} installer.nsi
+
+      # ── ZIP package (always produced — useful without NSIS) ───────────────
+      - name: Build ZIP package
+        working-directory: deploy
+        shell: pwsh
+        run: |
+          $items = @(
+            "build_win\ZipFX.exe",
+            "build_win\Qt6Core.dll",
+            "build_win\Qt6Gui.dll",
+            "build_win\Qt6Network.dll",
+            "build_win\Qt6Svg.dll",
+            "build_win\Qt6Widgets.dll",
+            "build_win\libzip.dll",
+            "build_win\libadf.dll",
+            "build_win\libStormLib.dll",
+            "build_win\opengl32sw.dll",
+            "build_win\D3Dcompiler_47.dll",
+            "build_win\platforms",
+            "build_win\styles",
+            "build_win\imageformats",
+            "build_win\iconengines",
+            "build_win\networkinformation",
+            "build_win\generic",
+            "build_win\tls",
+            "build_win\translations"
+          )
+          foreach ($opt in @("build_win\7z.dll","build_win\ZipFXShellExt.dll")) {
+            if (Test-Path $opt) { $items += $opt }
+          }
+          $existing = $items | Where-Object { Test-Path $_ }
+          Compress-Archive -Path $existing `
+            -DestinationPath "ZipFX-${{ steps.version.outputs.version }}-win64.zip" `
+            -Force
+
+      - name: Rename NSIS output
+        working-directory: deploy
+        shell: pwsh
+        run: |
+          if (Test-Path "ZipFX-Setup.exe") {
+            Rename-Item "ZipFX-Setup.exe" `
+              "ZipFX-${{ steps.version.outputs.version }}-Setup.exe"
+          }
+
+      - name: Upload Windows artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: |
+            deploy/ZipFX-*-Setup.exe
+            deploy/ZipFX-*-win64.zip
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # macOS  ·  clang_64 (universal fat binary, Intel + ARM64)  ·  DMG
+  #
+  # macos-latest is currently an M1 runner.  Qt 6.5+ clang_64 packages are
+  # universal binaries so the resulting .app runs natively on both
+  # Apple Silicon and Intel — no Rosetta required.
+  #
+  # Code signing: ad-hoc only (no Apple Developer certificate in CI).
+  # Notarization is skipped; users can override with secrets if desired.
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-macos:
+    runs-on: macos-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # create-dmg produces the final disk image; hdiutil is the fallback.
+      - name: Install tools
+        run: brew install create-dmg
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version:          ${{ env.QT_VERSION }}
+          arch:             clang_64
+          cache:            true
+          cache-key-prefix: Qt-macOS-
+
+      - name: Restore FetchContent cache
+        uses: actions/cache@v4
+        with:
+          path: deploy/build_mac/_deps
+          key:  fetchcontent-macos-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: fetchcontent-macos-
+
+      # ccache works well with Clang and Objective-C++ on macOS.
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key:      macos-ccache-${{ env.QT_VERSION }}
+          max-size: 600M
+
+      - name: Configure
+        working-directory: deploy
+        run: |
+          cmake -S .. -B build_mac \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_OBJCXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        working-directory: deploy
+        run: cmake --build build_mac --target ZipFX -j$(sysctl -n hw.logicalcpu)
+
+      # macdeployqt is added to PATH by jurplel/install-qt-action.
+      # Tolerate warnings (exit 1) from macdeployqt — it often warns about
+      # missing debug symbols but still produces a working bundle.
+      - name: Deploy Qt runtime
+        working-directory: deploy
+        run: macdeployqt build_mac/ZipFX.app -verbose=1 || true
+
+      # Optional: bundle lib7z.so if present in the repo for full Bit7z support.
+      - name: Copy lib7z.so
+        run: |
+          for p in lib/macos/arm64/lib7z.so lib/macos/lib7z.so; do
+            if [ -f "$p" ]; then
+              cp "$p" deploy/build_mac/ZipFX.app/Contents/MacOS/
+              echo "Copied $p"
+              break
+            fi
+          done
+
+      # CMake sometimes misplaces AppIcon.png — move it if needed.
+      - name: Fix AppIcon location
+        run: |
+          src=deploy/build_mac/ZipFX.app/Contents/MacOS/AppIcon.png
+          dst=deploy/build_mac/ZipFX.app/Contents/Resources/AppIcon.png
+          [ -f "$src" ] && mv "$src" "$dst" || true
+
+      - name: Ad-hoc code sign
+        run: codesign --force --deep --sign - deploy/build_mac/ZipFX.app
+
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # create-dmg exits non-zero on some macOS versions even on success;
+      # fall back to hdiutil if it fails.
+      - name: Create DMG
+        run: |
+          set +e
+          create-dmg \
+            --volname "ZipFX" \
+            --window-pos 200 120 \
+            --window-size 600 400 \
+            --icon-size 100 \
+            --icon "ZipFX.app" 175 150 \
+            --hide-extension "ZipFX.app" \
+            --app-drop-link 425 150 \
+            "deploy/ZipFX-${{ steps.version.outputs.version }}-macOS.dmg" \
+            "deploy/build_mac/ZipFX.app"
+          rc=$?
+          set -e
+          if [ $rc -ne 0 ] && [ ! -f "deploy/ZipFX-${{ steps.version.outputs.version }}-macOS.dmg" ]; then
+            echo "create-dmg failed, falling back to hdiutil"
+            hdiutil create -volname "ZipFX" \
+              -srcfolder deploy/build_mac/ZipFX.app \
+              -ov -format UDZO \
+              "deploy/ZipFX-${{ steps.version.outputs.version }}-macOS.dmg"
+          fi
+
+      - name: Upload macOS artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: macos
+          path: deploy/ZipFX-*-macOS.dmg
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Linux  ·  GCC  ·  AppImage  +  tar.gz
+  #
+  # Pinned to ubuntu-22.04 because:
+  #   • libfuse2 is the correct package name there (24.04 renames it libfuse2t64)
+  #   • linuxdeploy x86_64 AppImages run natively (no ARM runner needed yet)
+  #   • stable ABI baseline for the produced AppImage
+  #
+  # linuxdeploy is downloaded fresh each run (tiny binary, ~10 MB) rather
+  # than cached — its "continuous" release tracks breaking changes and a
+  # stale cached version can produce broken AppImages.
+  # ═══════════════════════════════════════════════════════════════════════════
+  build-linux:
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # ── System libraries required by Qt XCB + AppImage tooling ───────────
+      - name: Install system dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y \
+            libfuse2 \
+            libglu1-mesa-dev \
+            libxcb-cursor0 \
+            libxcb-icccm4 \
+            libxcb-keysyms1 \
+            libxcb-xinerama0 \
+            libxcb-xkb1 \
+            libxkbcommon-x11-0 \
+            patchelf
+
+      - name: Install Qt
+        uses: jurplel/install-qt-action@v4
+        with:
+          version:          ${{ env.QT_VERSION }}
+          arch:             gcc_64
+          cache:            true
+          cache-key-prefix: Qt-Linux-
+
+      - name: Restore FetchContent cache
+        uses: actions/cache@v4
+        with:
+          path: deploy/build_linux/_deps
+          key:  fetchcontent-linux-${{ hashFiles('CMakeLists.txt') }}
+          restore-keys: fetchcontent-linux-
+
+      - name: Set up ccache
+        uses: hendrikmuhs/ccache-action@v1.2
+        with:
+          key:      linux-ccache-${{ env.QT_VERSION }}
+          max-size: 600M
+
+      # CMAKE_INSTALL_PREFIX must be set at configure time so that
+      # install() rules bake the correct paths into desktop/metainfo files.
+      - name: Configure
+        working-directory: deploy
+        run: |
+          cmake -S .. -B build_linux \
+            -DCMAKE_BUILD_TYPE=Release \
+            -DBUILD_TESTING=OFF \
+            -DFETCHCONTENT_UPDATES_DISCONNECTED=ON \
+            -DCMAKE_INSTALL_PREFIX=build_linux/install/usr \
+            -DCMAKE_C_COMPILER_LAUNCHER=ccache \
+            -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
+
+      - name: Build
+        working-directory: deploy
+        run: cmake --build build_linux -j$(nproc)
+
+      - name: Install into AppDir
+        working-directory: deploy
+        run: cmake --install build_linux
+
+      # ── Optional: lib7z.so for Bit7z support ─────────────────────────────
+      - name: Copy lib7z.so
+        run: |
+          for p in lib/linux/x64/lib7z.so lib/linux/lib7z.so; do
+            if [ -f "$p" ]; then
+              cp "$p" deploy/build_linux/install/usr/lib/
+              echo "Copied $p"
+              break
+            fi
+          done
+
+      # ── Bundle shared FetchContent libs that aren't statically linked ─────
+      # Most deps are static; libzip and (on some distros) libadf are shared.
+      # Brotli is forced static in our CMake setup, but included in the glob
+      # defensively in case a downstream distro package overrides it.
+      - name: Bundle shared dep libs
+        run: |
+          LIBDIR=deploy/build_linux/install/usr/lib
+          mkdir -p "$LIBDIR"
+          find deploy/build_linux/_deps \( \
+            -name "libzip.so*"     -o \
+            -name "libadf*.so*"    -o \
+            -name "libstorm*.so*"  -o \
+            -name "libbrotli*.so*" \
+          \) -exec cp -Pn {} "$LIBDIR/" \; 2>/dev/null || true
+
+      # ── linuxdeploy + Qt plugin ───────────────────────────────────────────
+      # Downloaded to a temp location; not cached because the "continuous"
+      # release can change and a stale binary breaks AppImage creation.
+      - name: Download linuxdeploy
+        run: |
+          curl -fsSL -o /tmp/linuxdeploy \
+            https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous/linuxdeploy-x86_64.AppImage
+          curl -fsSL -o /tmp/linuxdeploy-plugin-qt \
+            https://github.com/linuxdeploy/linuxdeploy-plugin-qt/releases/download/continuous/linuxdeploy-plugin-qt-x86_64.AppImage
+          chmod +x /tmp/linuxdeploy /tmp/linuxdeploy-plugin-qt
+          # Expose plugin where linuxdeploy can find it
+          sudo ln -sf /tmp/linuxdeploy-plugin-qt /usr/local/bin/linuxdeploy-plugin-qt
+
+      - name: Extract version
+        id: version
+        run: echo "version=${GITHUB_REF_NAME#v}" >> "$GITHUB_OUTPUT"
+
+      # ── AppImage ──────────────────────────────────────────────────────────
+      # QMAKE must point to qmake so the Qt plugin resolves Qt library paths.
+      # OUTPUT controls the AppImage filename.
+      # LD_LIBRARY_PATH lets linuxdeploy find Qt + dep shared libs.
+      - name: Create AppImage
+        env:
+          QMAKE:           ${{ env.QT_ROOT_DIR }}/bin/qmake
+          OUTPUT:          ZipFX-${{ steps.version.outputs.version }}-Linux-x86_64.AppImage
+          LD_LIBRARY_PATH: ${{ env.QT_ROOT_DIR }}/lib:deploy/build_linux/install/usr/lib
+        run: |
+          /tmp/linuxdeploy \
+            --appdir deploy/build_linux/install \
+            --desktop-file deploy/build_linux/install/usr/share/applications/zipfx.desktop \
+            --icon-file deploy/build_linux/install/usr/share/icons/hicolor/256x256/apps/zipfx.png \
+            --plugin qt \
+            --output appimage
+
+      # ── tar.gz (portable fallback without FUSE) ───────────────────────────
+      - name: Create tar.gz
+        run: |
+          tar czf "ZipFX-${{ steps.version.outputs.version }}-Linux-x86_64.tar.gz" \
+            -C deploy/build_linux/install/usr \
+            --exclude='./share/man' \
+            --exclude='./include' \
+            --exclude='./lib/pkgconfig' \
+            --exclude='./lib/cmake' \
+            .
+
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: linux
+          path: |
+            ZipFX-*-Linux-x86_64.AppImage
+            ZipFX-*-Linux-x86_64.tar.gz
+
+  # ═══════════════════════════════════════════════════════════════════════════
+  # Release  ·  collect all artifacts  ·  publish GitHub Release
+  # ═══════════════════════════════════════════════════════════════════════════
+  release:
+    needs: [build-windows, build-macos, build-linux]
+    runs-on: ubuntu-latest
+
+    steps:
+      # merge-multiple flattens the three artifact directories into one.
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path:           dist
+          merge-multiple: true
+
+      - name: List artifacts
+        run: find dist -type f | sort
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files:                   dist/**
+          generate_release_notes:  true
+          fail_on_unmatched_files: false
