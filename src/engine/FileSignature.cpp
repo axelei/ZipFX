@@ -2,6 +2,7 @@
 
 #include <cstdio>
 #include <string>
+#include <filesystem>
 
 struct SigEntry
 {
@@ -136,11 +137,18 @@ ArchiveType FileSignature::Detect(std::string_view path)
             return sig.type;
     }
 
-    // Commodore D64/D71 detection by exact image size
-    // D64: 174848 (standard) or 175531 (with error bytes)
-    // D71: 349696 (two D64 sides)
-    if (fileSize == 174848 || fileSize == 175531 || fileSize == 349696)
-        return ArchiveType::D64;
+    // Commodore D64/D71 detection: size alone is insufficient (false positives
+    // on any 174 KB file that doesn't match a magic signature above), so also
+    // require the extension.  The factory's extension fallback covers .d64/.d71
+    // files whose size doesn't match these exact values.
+    {
+        std::string ext = std::filesystem::path(path).extension().string();
+        for (auto& c : ext) c = static_cast<char>(std::tolower(static_cast<unsigned char>(c)));
+        bool d64Ext = (ext == ".d64" || ext == ".d71");
+        bool d64Size = (fileSize == 174848 || fileSize == 175531 || fileSize == 349696);
+        if (d64Ext && d64Size)
+            return ArchiveType::D64;
+    }
 
     // FAT12 floppy detection: valid BPB (jump opcode + known fields) + small file
     if (n >= 22 && fileSize > 0 && fileSize <= 3 * 1024 * 1024)
