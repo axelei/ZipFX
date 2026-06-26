@@ -249,6 +249,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
     {
         return {};
     }
+    m_extractCancelled = false;
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
@@ -295,7 +296,10 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
             std::array<uint8_t, 65536> buf;
             la_ssize_t bytesRead;
             while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
+            {
+                if (m_extractCancelled) return {};
                 data.insert(data.end(), buf.begin(), buf.begin() + bytesRead);
+            }
             if (bytesRead < 0)
             {
                 LOG_WARN("%s: archive_read_data failed: %s",
