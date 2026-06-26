@@ -18,7 +18,7 @@ cmake -S .. -B "${BUILD_DIR}" \
     -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install"
 
 echo "=== Building ==="
-cmake --build "${BUILD_DIR}" --target ZipFX -j"$(nproc)"
+cmake --build "${BUILD_DIR}" -j"$(nproc)"
 
 echo "=== Installing to prefix ==="
 cmake --install "${BUILD_DIR}"
