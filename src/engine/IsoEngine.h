@@ -3,9 +3,11 @@
 
 #include "ArchiveEngine.h"
 #include "Iso9660Reader.h"
+#include "LibarchiveEngine.h"
 
 #include <atomic>
 #include <cstdio>
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -43,9 +45,10 @@ private:
     uint32_t     m_sectorSize = 2048;
     uint32_t     m_headerOff  = 0;
 
-    Iso9660Reader          m_iso;
-    std::vector<ArchiveEntry> m_entries;
-    std::atomic<bool>      m_extractCancelled{false};
+    Iso9660Reader                      m_iso;
+    std::unique_ptr<LibarchiveEngine>  m_udfFallback; // used when no ISO 9660 VD is found
+    std::vector<ArchiveEntry>          m_entries;
+    std::atomic<bool>                  m_extractCancelled{false};
 };
 
 #endif

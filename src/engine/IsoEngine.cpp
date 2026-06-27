@@ -1,6 +1,8 @@
 #include "IsoEngine.h"
 #include "Logging.h"
 
+#include <archive.h>
+
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -37,6 +39,40 @@ bool IsoEngine::buildSectorReader()
     return m_iso.open(sectorFn);
 }
 
+// ── UDF fallback via libarchive ───────────────────────────────────────────────
+
+static bool probeUdf(const std::string& path)
+{
+    // Quick check: scan sectors 256-512 for a UDF Volume Recognition Area
+    // NSR02 or NSR03 descriptor at sector 256 (0x800 bytes) is the canonical signal.
+    // Also check the standard VRA range (16-18) for BEA01/NSR/TEA01.
+    FILE* f = std::fopen(path.c_str(), "rb");
+    if (!f) return false;
+
+    bool found = false;
+    uint8_t buf[8];
+    // Sectors 16..32 at 2048 bytes each: look for NSR02 or NSR03 at bytes 1-5
+    for (int s = 16; s <= 32 && !found; ++s)
+    {
+        if (std::fseek(f, s * 2048, SEEK_SET) != 0) break;
+        if (std::fread(buf, 1, sizeof(buf), f) < 6) break;
+        // UDF VRS identifiers start at byte 1; can be "NSR02" or "NSR03"
+        if (std::memcmp(buf + 1, "NSR0", 4) == 0 && (buf[5] == '2' || buf[5] == '3'))
+            found = true;
+    }
+    // Also probe sector 256 (used by some DVD/BD mastering tools)
+    if (!found)
+    {
+        if (std::fseek(f, 256 * 2048, SEEK_SET) == 0
+            && std::fread(buf, 1, sizeof(buf), f) >= 6
+            && std::memcmp(buf + 1, "NSR0", 4) == 0
+            && (buf[5] == '2' || buf[5] == '3'))
+            found = true;
+    }
+    std::fclose(f);
+    return found;
+}
+
 // ── ArchiveEngine interface ───────────────────────────────────────────────────
 
 bool IsoEngine::Open(std::string_view path)
@@ -51,40 +87,58 @@ bool IsoEngine::Open(std::string_view path)
         return false;
     }
 
-    if (!buildSectorReader())
+    if (buildSectorReader())
     {
-        LOG_ERR("ISO: no valid ISO 9660 filesystem in %s", m_path.c_str());
-        std::fclose(m_file);
-        m_file = nullptr;
-        return false;
+        // Build ArchiveEntry list from ISO 9660 filesystem
+        for (const auto& e : m_iso.entries())
+        {
+            ArchiveEntry ae;
+            ae.name        = e.path;
+            ae.path        = e.path;
+            ae.size        = e.size;
+            ae.packedSize  = e.size;
+            ae.isDirectory = e.isDir;
+            if (e.mtime != 0)
+                ae.modified = std::chrono::system_clock::from_time_t(e.mtime);
+            m_entries.push_back(std::move(ae));
+        }
+        m_isOpen = true;
+        LOG_DBG("ISO: opened %s (%zu entries, sectorSize=%u)",
+                m_path.c_str(), m_entries.size(), m_sectorSize);
+        return true;
     }
 
-    // Build ArchiveEntry list from the ISO filesystem
-    m_entries.clear();
-    for (const auto& e : m_iso.entries())
+    // No ISO 9660 VD found — try UDF via libarchive
+    std::fclose(m_file);
+    m_file = nullptr;
+
+    if (probeUdf(m_path))
     {
-        ArchiveEntry ae;
-        ae.name        = e.path;
-        ae.path        = e.path;
-        ae.size        = e.size;
-        ae.packedSize  = e.size;
-        ae.isDirectory = e.isDir;
-        if (e.mtime != 0)
-            ae.modified = std::chrono::system_clock::from_time_t(e.mtime);
-        m_entries.push_back(std::move(ae));
+        m_udfFallback = std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_iso9660 },
+            "ISO/UDF");
+        if (m_udfFallback->Open(m_path))
+        {
+            m_entries = m_udfFallback->ListContents();
+            m_isOpen  = true;
+            LOG_DBG("ISO: UDF fallback opened %s (%zu entries)",
+                    m_path.c_str(), m_entries.size());
+            return true;
+        }
+        m_udfFallback.reset();
     }
 
-    m_isOpen = true;
-    LOG_DBG("ISO: opened %s (%zu entries, sectorSize=%u)", m_path.c_str(),
-            m_entries.size(), m_sectorSize);
-    return true;
+    LOG_ERR("ISO: no ISO 9660 or UDF filesystem found in %s", m_path.c_str());
+    return false;
 }
 
 void IsoEngine::Close()
 {
     m_isOpen = false;
     m_entries.clear();
-    m_iso    = Iso9660Reader{};
+    m_iso         = Iso9660Reader{};
+    m_udfFallback.reset();
     if (m_file) { std::fclose(m_file); m_file = nullptr; }
     m_path.clear();
 }
@@ -99,10 +153,7 @@ const std::vector<ArchiveEntry>& IsoEngine::ListContents()
 const Iso9660Reader::Entry* IsoEngine::findEntry(std::string_view path) const
 {
     for (const auto& e : m_iso.entries())
-    {
-        if (e.path == path)
-            return &e;
-    }
+        if (e.path == path) return &e;
     return nullptr;
 }
 
@@ -112,19 +163,18 @@ std::vector<uint8_t> IsoEngine::ReadFile(std::string_view entryName)
 {
     if (!m_isOpen) return {};
     m_extractCancelled = false;
+    if (m_udfFallback) return m_udfFallback->ReadFile(entryName);
 
     const auto* e = findEntry(entryName);
     if (!e || e->isDir) return {};
 
     std::vector<uint8_t> result;
     result.reserve(e->size);
-
     m_iso.readData(e->lba, e->size, [&](const uint8_t* data, size_t len) -> bool
     {
         result.insert(result.end(), data, data + len);
         return !m_extractCancelled.load();
     });
-
     return result;
 }
 
@@ -132,21 +182,19 @@ std::vector<uint8_t> IsoEngine::ReadFilePartial(std::string_view entryName, size
 {
     if (!m_isOpen) return {};
     m_extractCancelled = false;
+    if (m_udfFallback) return m_udfFallback->ReadFilePartial(entryName, maxBytes);
 
     const auto* e = findEntry(entryName);
     if (!e || e->isDir) return {};
 
     uint32_t readSize = static_cast<uint32_t>(std::min<uint64_t>(e->size, maxBytes));
-
     std::vector<uint8_t> result;
     result.reserve(readSize);
-
     m_iso.readData(e->lba, readSize, [&](const uint8_t* data, size_t len) -> bool
     {
         result.insert(result.end(), data, data + len);
         return !m_extractCancelled.load();
     });
-
     return result;
 }
 
@@ -154,13 +202,13 @@ bool IsoEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_isOpen) return false;
     m_extractCancelled = false;
+    if (m_udfFallback) return m_udfFallback->Extract(entryName, destPath);
 
     const auto* e = findEntry(entryName);
     if (!e || e->isDir) return false;
 
     fs::path dest(destPath);
     fs::create_directories(dest.parent_path());
-
     std::ofstream out(dest, std::ios::binary);
     if (!out) return false;
 
@@ -169,7 +217,6 @@ bool IsoEngine::Extract(std::string_view entryName, std::string_view destPath)
         out.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(len));
         return out.good() && !m_extractCancelled.load();
     });
-
     return ok && out.good();
 }
 
@@ -177,6 +224,7 @@ bool IsoEngine::ExtractAll(std::string_view destPath)
 {
     if (!m_isOpen) return false;
     m_extractCancelled = false;
+    if (m_udfFallback) return m_udfFallback->ExtractAll(destPath);
 
     for (const auto& ae : m_entries)
     {
@@ -186,8 +234,7 @@ bool IsoEngine::ExtractAll(std::string_view destPath)
             fs::create_directories(fs::path(destPath) / ae.path);
             continue;
         }
-        fs::path outPath = fs::path(destPath) / ae.path;
-        if (!Extract(ae.path, outPath.string())) return false;
+        if (!Extract(ae.path, (fs::path(destPath) / ae.path).string())) return false;
     }
     return true;
 }
@@ -197,6 +244,7 @@ bool IsoEngine::TestIntegrity(
     std::function<bool()> cancelFlag)
 {
     if (!m_isOpen) return false;
+    if (m_udfFallback) return m_udfFallback->TestIntegrity(progressCallback, cancelFlag);
 
     const auto& entries = m_iso.entries();
     int total = static_cast<int>(entries.size());
@@ -207,19 +255,8 @@ bool IsoEngine::TestIntegrity(
         if (cancelFlag && cancelFlag()) return false;
         if (progressCallback) progressCallback(cur++, total);
         if (e.isDir) continue;
-
-        uint8_t sector[2048];
-        uint32_t remaining = e.size;
-        uint32_t lba       = e.lba;
-        while (remaining > 0)
-        {
-            if (!m_iso.readData(lba, std::min(remaining, 2048u),
-                [](const uint8_t*, size_t) { return true; }))
-                return false;
-            uint32_t chunk = std::min(remaining, 2048u);
-            remaining -= chunk;
-            ++lba;
-        }
+        if (!m_iso.readData(e.lba, e.size, [](const uint8_t*, size_t) { return true; }))
+            return false;
     }
     return true;
 }
