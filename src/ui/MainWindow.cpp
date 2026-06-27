@@ -306,7 +306,6 @@ void MainWindow::setupMenus()
     cmdMenu->addAction(tr("&Verify/Repair with Recovery Record..."), this, &MainWindow::onVerifyRecoveryRecord);
     cmdMenu->addSeparator();
     m_passwordAct = cmdMenu->addAction(tr("Password &Manager..."), this, &MainWindow::onPasswordManager);
-    m_passwordAct->setEnabled(false);
 
     // Options
     auto optsMenu = menuBar()->addMenu(tr("&Options"));
@@ -1257,7 +1256,6 @@ void MainWindow::onCloseArchive()
     m_addrBox->clearEditText();
     m_treeView->setEnabled(false);
     m_archiveCommentAct->setEnabled(false);
-    m_passwordAct->setEnabled(false);
     m_setPasswordAct->setEnabled(false);
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     statusBar()->showMessage(tr("No archive open"));
