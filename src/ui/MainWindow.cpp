@@ -224,13 +224,46 @@ void MainWindow::setupMenus()
     cmdMenu->addAction(tr("&View\tAlt+V"), this, &MainWindow::onView);
     cmdMenu->addAction(tr("&Delete\tDel"), this, &MainWindow::onDelete);
     cmdMenu->addSeparator();
-    cmdMenu->addAction(tr("Set &Password..."), this, [this]() {
+    m_setPasswordAct = cmdMenu->addAction(tr("Set &Password..."), this, [this]() {
         if (!m_engine) return;
-        bool ok;
-        QString pwd = QInputDialog::getText(this, tr("Set Password"),
-            tr("Archive password:"), QLineEdit::Password,
-            QString::fromStdString(m_archivePassword), &ok);
-        if (!ok) return;
+
+        QDialog dlg(this);
+        dlg.setWindowTitle(tr("Set Password"));
+        dlg.setMinimumWidth(320);
+        auto* lay = new QFormLayout(&dlg);
+        lay->setContentsMargins(12, 12, 12, 12);
+        lay->setSpacing(8);
+
+        auto* pwdEdit     = new QLineEdit(&dlg);
+        pwdEdit->setEchoMode(QLineEdit::Password);
+        pwdEdit->setText(QString::fromStdString(m_archivePassword));
+        auto* confirmEdit = new QLineEdit(&dlg);
+        confirmEdit->setEchoMode(QLineEdit::Password);
+        auto* matchLabel  = new QLabel(&dlg);
+        matchLabel->setStyleSheet(QStringLiteral("color: red; font-size: 10px;"));
+        matchLabel->hide();
+
+        lay->addRow(tr("Password:"),         pwdEdit);
+        lay->addRow(tr("Confirm password:"), confirmEdit);
+        lay->addRow(QString(), matchLabel);
+
+        auto* btns = new QDialogButtonBox(
+            QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &dlg);
+        lay->addRow(btns);
+
+        connect(btns, &QDialogButtonBox::accepted, &dlg, [&]() {
+            if (pwdEdit->text() != confirmEdit->text()) {
+                matchLabel->setText(tr("Passwords do not match."));
+                matchLabel->show();
+                return;
+            }
+            dlg.accept();
+        });
+        connect(btns, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+
+        if (dlg.exec() != QDialog::Accepted) return;
+
+        QString pwd = pwdEdit->text();
         m_archivePassword = pwd.toStdString();
         m_engine->setPassword(m_archivePassword);
         if (!pwd.isEmpty() && !m_currentPath.empty())
@@ -242,6 +275,7 @@ void MainWindow::setupMenus()
                 savePassword(QFileInfo(QString::fromStdString(m_currentPath)).fileName(), pwd);
         }
     });
+    m_setPasswordAct->setEnabled(false);
     cmdMenu->addAction(tr("E&xclude Patterns..."), this, [this]() {
         bool ok;
         QString pats = QInputDialog::getText(this, tr("Exclude Patterns"),
@@ -1224,6 +1258,7 @@ void MainWindow::onCloseArchive()
     m_treeView->setEnabled(false);
     m_archiveCommentAct->setEnabled(false);
     m_passwordAct->setEnabled(false);
+    m_setPasswordAct->setEnabled(false);
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     statusBar()->showMessage(tr("No archive open"));
 }
@@ -2526,7 +2561,9 @@ void MainWindow::refreshFileList()
     }
 
     m_archiveCommentAct->setEnabled(m_engine && m_engine->supportsArchiveComment());
-    m_passwordAct->setEnabled(m_engine && m_engine->SupportsEncryption());
+    const bool canEncrypt = m_engine && m_engine->SupportsEncryption();
+    m_passwordAct->setEnabled(canEncrypt);
+    m_setPasswordAct->setEnabled(canEncrypt);
 
     updateStatusBar();
     setWindowTitle(tr("ZipFX — %1").arg(
