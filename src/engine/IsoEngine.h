@@ -24,6 +24,7 @@ public:
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
     std::vector<uint8_t> ReadFilePartial(std::string_view entryName, size_t maxBytes) override;
+    bool ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer) override;
 
     bool TestIntegrity(
         std::function<void(int current, int total)> progressCallback = nullptr,

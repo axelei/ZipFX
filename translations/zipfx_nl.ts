@@ -243,6 +243,18 @@ Handmatig installeren: %1</translation>
             <source>Word size:</source>
             <translation>Woordgrootte:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Bevestig wachtwoord</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Bevestigen:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Wachtwoorden komen niet overeen. Voer alstublieft opnieuw in.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Handmatig installeren: %1</translation>
         <message>
             <source>Comment</source>
             <translation>Commentaar</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Methode</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Verhouding</translation>
         </message>
     </context>
     <context>
@@ -1649,6 +1669,95 @@ Mogelijk moet u ZipFX als beheerder uitvoeren voor deze bewerking.</translation>
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Nieuw &amp;Venster Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Geannuleerd door gebruiker.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 bestanden — %3 → %4 (%5% opgeslagen)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 bytes</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Uittreksel hier</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Geëxtraheerd: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>Kan "%1" niet extraheren.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Bestand</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Map</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Gewijzigd:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Naam:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Nieuw</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Open de bestemmingsmap na extractie</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Verpakt:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Pad:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Machtigingen:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Eigenschappen — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Eigenschappen...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Maat:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Type:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Alle bestanden (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Wachtwoorden worden in platte tekst opgeslagen in de applicatie-instellingen.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1836,6 +1945,14 @@ Overschrijven?</translation>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 resultaat/resultaten</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Extract...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Navigeer naar Invoer</translation>
         </message>
     </context>
     <context>

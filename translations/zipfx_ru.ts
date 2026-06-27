@@ -243,6 +243,18 @@ Install manually: %1</source>
             <source>Word size:</source>
             <translation>Размер слова:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Подтвердите пароль</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Подтверждать:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Пароли не совпадают. Пожалуйста, войдите еще раз.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Install manually: %1</source>
         <message>
             <source>Comment</source>
             <translation>Комментарий</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Метод</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Соотношение</translation>
         </message>
     </context>
     <context>
@@ -1649,6 +1669,95 @@ You may need to run ZipFX as administrator for this operation.</source>
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Новое окно Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Отменено пользователем.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 файлов — %3 → %4 (%5% сохранено)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 байт</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Извлечь здесь</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Извлечено: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>Не удалось извлечь «%1».</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Файл</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Папка</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Изменено:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Имя:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Новый</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Открыть папку назначения после извлечения</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Упаковано:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Путь:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Разрешения:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Свойства — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Характеристики...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Размер:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Тип:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Все файлы (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Пароли хранятся в открытом виде в настройках приложения.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1836,6 +1945,14 @@ Overwrite it?</source>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 результат(ов)</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Извлекать...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Перейдите к входу</translation>
         </message>
     </context>
     <context>

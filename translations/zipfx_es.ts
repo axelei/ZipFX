@@ -253,6 +253,18 @@ Instale manualmente: %1</translation>
             <source>Word size:</source>
             <translation>Tamaño de palabra:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Confirmar Contraseña</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Confirmar:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Las contraseñas no coinciden. Por favor vuelva a ingresar.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -323,6 +335,14 @@ Instale manualmente: %1</translation>
         <message>
             <source>Comment</source>
             <translation>Comentario</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Método</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Relación</translation>
         </message>
     </context>
     <context>
@@ -1693,6 +1713,95 @@ Es posible que necesites ejecutar ZipFX como administrador para esta operación.
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Nuevo &amp;amp;Ventana Ctrl+Mayús+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Cancelado por el usuario.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 archivos — %3 → %4 (%5% guardados)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1bytes</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CDN32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Extraer aquí</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Extraído: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>No se pudo extraer "%1".</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Archivo</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Carpeta</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Modificado:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Nombre:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Nuevo</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Abrir carpeta de destino después de la extracción</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Lleno:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Camino:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Permisos:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Propiedades: %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Propiedades...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Tamaño:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Tipo:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Todos los archivos (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Las contraseñas se almacenan en texto sin formato en la configuración de la aplicación.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1880,6 +1989,14 @@ Overwrite it?</source>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 resultado(s)</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Extracto...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Navegar a la entrada</translation>
         </message>
     </context>
     <context>

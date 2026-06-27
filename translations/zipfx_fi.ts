@@ -243,6 +243,18 @@ Asenna manuaalisesti: %1</translation>
             <source>Word size:</source>
             <translation>Sanan koko:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Vahvista salasana</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Vahvistaa:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Salasanat eivät täsmää. Syötä uudelleen.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Asenna manuaalisesti: %1</translation>
         <message>
             <source>Comment</source>
             <translation>Kommentti</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Menetelmä</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Suhde</translation>
         </message>
     </context>
     <context>
@@ -1661,6 +1681,95 @@ Saatat joutua suorittamaan ZipFX:n järjestelmänvalvojana tätä toimintoa vart
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Uusi &amp;amp;ikkuna Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Käyttäjä peruutti.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>% 1 — % 2 tiedostoa — % 3 → % 4 (% 5 % tallennettu)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 tavua</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Poimi tästä</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Purettu: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>"%1":n purkaminen epäonnistui.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Tiedosto</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Kansio</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Muokattu:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Nimi:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Uusi</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Avaa &amp;amp;kohdekansio purkamisen jälkeen</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Pakattu:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Polku:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Käyttöoikeudet:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Ominaisuudet — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Ominaisuudet...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Koko:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Tyyppi:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Kaikki tiedostot (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Salasanat tallennetaan selkeänä tekstinä sovelluksen asetuksiin.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1851,6 +1960,14 @@ Korvaako se?</translation>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 tulos(ta)</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Ote...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Siirry kohtaan Entry</translation>
         </message>
     </context>
     <context>

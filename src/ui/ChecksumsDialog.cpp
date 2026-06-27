@@ -94,27 +94,16 @@ void ChecksumsDialog::compute()
 
         if (m_cancelled) break;
 
-        static constexpr uint64_t kMaxHash = 256ULL * 1024 * 1024;
-        const ArchiveEntry* entry = m_entries[i];
-        if (entry->size > kMaxHash)
-        {
-            m_table->item(i, 3)->setText(tr("File too large"));
-            m_table->item(i, 4)->setText(tr("File too large"));
-            m_progress->setValue(i + 1);
-            QApplication::processEvents(QEventLoop::AllEvents);
-            continue;
-        }
-
-        auto data = m_engine->ReadFile(m_names[i]);
-
         uLong crc = crc32(0, nullptr, 0);
-        if (!data.empty())
-            crc = crc32(crc, data.data(), static_cast<uInt>(data.size()));
-
         QCryptographicHash sha256hash(QCryptographicHash::Sha256);
-        if (!data.empty())
-            sha256hash.addData(reinterpret_cast<const char*>(data.data()),
-                               static_cast<qsizetype>(data.size()));
+
+        m_engine->ReadFileStreamed(m_names[i],
+            [&](const uint8_t* data, size_t len) -> bool {
+                crc = crc32(crc, data, static_cast<uInt>(len));
+                sha256hash.addData(reinterpret_cast<const char*>(data),
+                                   static_cast<qsizetype>(len));
+                return !m_cancelled;
+            });
 
         m_table->item(i, 3)->setText(QString::asprintf("%08X", static_cast<uint32_t>(crc)));
         m_table->item(i, 4)->setText(sha256hash.result().toHex().toUpper());

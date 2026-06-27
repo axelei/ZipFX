@@ -569,6 +569,59 @@ std::vector<uint8_t> TarGzEngine::ReadFilePartial(std::string_view entryName, si
     return {};
 }
 
+bool TarGzEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    if (!m_isOpen) return false;
+
+    std::string name(entryName);
+    auto linkIt = m_linkTargets.find(name);
+    if (linkIt != m_linkTargets.end())
+        name = linkIt->second;
+
+    gzclose(m_gzFile);
+    m_gzFile = gzopen(m_path.c_str(), "rb");
+    if (!m_gzFile) return false;
+
+    std::string gnuLongName;
+    TarHeader hdr;
+    while (true)
+    {
+        int bytesRead = gzread(m_gzFile, &hdr, TAR_BLOCK_SIZE);
+        if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE)) break;
+        if (IsEndOfArchive(&hdr)) break;
+        if (!ValidateChecksum(&hdr)) break;
+
+        uint64_t fileSize = ParseOctal(hdr.size, 12);
+
+        if (hdr.typeflag == 'L') { gnuLongName = ReadTarDataAsString(m_gzFile, fileSize); continue; }
+        if (hdr.typeflag == 'x' || hdr.typeflag == 'g' || hdr.typeflag == 'K')
+            { SkipTarData(m_gzFile, fileSize); continue; }
+
+        std::string currentName = gnuLongName.empty() ? TarName(&hdr) : gnuLongName;
+        currentName = StripDotSlash(currentName);
+        gnuLongName.clear();
+
+        if (currentName == name && fileSize > 0)
+        {
+            constexpr size_t kChunk = 65536;
+            uint8_t buf[kChunk];
+            uint64_t remaining = fileSize;
+            while (remaining > 0)
+            {
+                size_t toRead = static_cast<size_t>(std::min<uint64_t>(remaining, kChunk));
+                int r = gzread(m_gzFile, buf, static_cast<unsigned int>(toRead));
+                if (r <= 0) return false;
+                if (!consumer(buf, static_cast<size_t>(r))) return false;
+                remaining -= static_cast<uint64_t>(r);
+            }
+            return true;
+        }
+
+        SkipTarData(m_gzFile, fileSize);
+    }
+    return false;
+}
+
 // ── Writing ────────────────────────────────────────────────────────────
 bool TarGzEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {

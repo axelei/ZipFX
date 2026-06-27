@@ -26,6 +26,12 @@ public:
     virtual std::vector<uint8_t> ReadFile(std::string_view entryName) = 0;
     virtual std::vector<uint8_t> ReadFilePartial(std::string_view entryName, size_t maxBytes);
 
+    // Stream file data to consumer without loading the whole file into memory.
+    // consumer(data, len) is called for each chunk; return false to abort early.
+    // Default implementation falls back to ReadFile for engines that don't override.
+    using StreamConsumer = std::function<bool(const uint8_t* data, size_t len)>;
+    virtual bool ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer);
+
     virtual bool AddFile(std::string_view srcPath, std::string_view archivePath) { return false; }
     virtual bool RemoveEntry(std::string_view entryName) { return false; }
     virtual bool RenameEntry(std::string_view entryName, std::string_view newName);

@@ -178,6 +178,20 @@ std::vector<uint8_t> IsoEngine::ReadFile(std::string_view entryName)
     return result;
 }
 
+bool IsoEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    if (!m_isOpen) return false;
+    m_extractCancelled = false;
+    if (m_udfFallback) return m_udfFallback->ReadFileStreamed(entryName, consumer);
+
+    const auto* e = findEntry(entryName);
+    if (!e || e->isDir) return false;
+
+    return m_iso.readData(e->lba, e->size, [&](const uint8_t* data, size_t len) -> bool {
+        return consumer(data, len) && !m_extractCancelled.load();
+    });
+}
+
 std::vector<uint8_t> IsoEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
 {
     if (!m_isOpen) return {};

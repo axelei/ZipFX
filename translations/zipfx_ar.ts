@@ -243,6 +243,18 @@ Install manually: %1</source>
             <source>Word size:</source>
             <translation>حجم الكلمة:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>تأكيد كلمة المرور</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>يتأكد:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>كلمات المرور غير متطابقة. الرجاء إعادة الإدخال.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Install manually: %1</source>
         <message>
             <source>Comment</source>
             <translation>تعليق</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>طريقة</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>نسبة</translation>
         </message>
     </context>
     <context>
@@ -1661,6 +1681,95 @@ You may need to run ZipFX as administrator for this operation.</source>
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>جديد ونافذة Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>تم الإلغاء بواسطة المستخدم.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 ملفات — %3 ← %4 (تم حفظ %5%)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 بايت</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>استخراج هنا</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>المستخرج: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>فشل استخراج "%1".</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>ملف</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>مجلد</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>معدل:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>اسم:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>جديد</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>افتح المجلد الوجهة بعد الاستخراج</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>معبأة:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>طريق:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>الأذونات:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>الخصائص — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>ملكيات...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>مقاس:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>يكتب:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;جميع الملفات (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ يتم تخزين كلمات المرور في نص عادي في إعدادات التطبيق.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1851,6 +1960,14 @@ Overwrite it?</source>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 نتيجة</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>يستخرج...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>انتقل إلى الدخول</translation>
         </message>
     </context>
     <context>

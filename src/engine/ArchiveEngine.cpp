@@ -39,6 +39,13 @@ std::vector<uint8_t> ArchiveEngine::ReadFilePartial(std::string_view entryName, 
     return data;
 }
 
+bool ArchiveEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    auto data = ReadFile(entryName);
+    if (data.empty()) return true;
+    return consumer(data.data(), data.size());
+}
+
 bool ArchiveEngine::RenameEntry(std::string_view entryName, std::string_view newName)
 {
     // Default implementation: read, add new, remove old, save

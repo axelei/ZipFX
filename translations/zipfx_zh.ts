@@ -243,6 +243,18 @@ Install manually: %1</source>
             <source>Word size:</source>
             <translation>字大小：</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>确认密码</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>确认：</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>密码不匹配。请重新输入。</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Install manually: %1</source>
         <message>
             <source>Comment</source>
             <translation>注释</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>方法</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>比率</translation>
         </message>
     </context>
     <context>
@@ -1649,6 +1669,95 @@ You may need to run ZipFX as administrator for this operation.</source>
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>新建窗口(&amp;amp;Window) Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>已被用户取消。</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 个文件 — %3 → %4（已保存 %5%）</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 字节</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32：</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>在这里提取</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>已提取：%1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>无法提取“%1”。</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>文件</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>文件夹</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>修改的：</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>姓名：</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>新的</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>解压后打开目标文件夹</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>包装：</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>小路：</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>权限：</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>属性 — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>特性...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>尺寸：</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>类型：</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;所有文件 (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ 密码以明文形式存储在应用程序设置中。</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1836,6 +1945,14 @@ Overwrite it?</source>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 个结果</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>提炼...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>导航至条目</translation>
         </message>
     </context>
     <context>

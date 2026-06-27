@@ -165,6 +165,33 @@ std::vector<uint8_t> FlatArchiveEngine::ReadFilePartial(std::string_view entryNa
     return data;
 }
 
+bool FlatArchiveEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    int idx = findEntry(entryName);
+    if (idx < 0) return false;
+
+    const auto& e = m_entries[idx];
+    if (e.size == 0) return true;
+
+    std::ifstream f(m_path, std::ios::binary);
+    if (!f) return false;
+    f.seekg(e.offset);
+
+    constexpr size_t kChunk = 65536;
+    std::array<uint8_t, kChunk> buf;
+    uint32_t remaining = e.size;
+    while (remaining > 0)
+    {
+        size_t toRead = std::min<uint32_t>(remaining, kChunk);
+        f.read(reinterpret_cast<char*>(buf.data()), static_cast<std::streamsize>(toRead));
+        auto got = static_cast<size_t>(f.gcount());
+        if (got == 0) return false;
+        if (!consumer(buf.data(), got)) return false;
+        remaining -= static_cast<uint32_t>(got);
+    }
+    return true;
+}
+
 bool FlatArchiveEngine::Create(std::string_view path)
 {
     m_path = path;

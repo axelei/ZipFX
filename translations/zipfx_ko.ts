@@ -243,6 +243,18 @@ Install manually: %1</source>
             <source>Word size:</source>
             <translation>단어 크기:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>비밀번호 확인</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>확인하다:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>비밀번호가 일치하지 않습니다. 다시 입력해 주세요.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Install manually: %1</source>
         <message>
             <source>Comment</source>
             <translation>댓글</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>방법</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>비율</translation>
         </message>
     </context>
     <context>
@@ -1661,6 +1681,95 @@ You may need to run ZipFX as administrator for this operation.</source>
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>새 창(&amp;amp;Window) Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>사용자가 취소했습니다.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2개 파일 — %3 → %4(%5% 저장됨)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1바이트</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>여기서 추출하세요</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>추출됨: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>"%1"을(를) 추출하지 못했습니다.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>파일</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>접는 사람</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>수정됨:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>이름:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>새로운</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>추출 후 대상 폴더 열기(&amp;amp;Destination Folder)</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>포장:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>길:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>권한:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>속성 — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>속성...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>크기:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>유형:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP(*.zip);;7-Zip(*.7z);;TAR.GZ(*.tar.gz);;모든 파일(*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ 비밀번호는 애플리케이션 설정에 일반 텍스트로 저장됩니다.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1851,6 +1960,14 @@ Overwrite it?</source>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 개 결과</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>발췌...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>항목으로 이동</translation>
         </message>
     </context>
     <context>

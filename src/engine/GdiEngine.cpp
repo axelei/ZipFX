@@ -266,6 +266,45 @@ std::vector<uint8_t> GdiEngine::ReadFile(std::string_view entryName)
     return data;
 }
 
+bool GdiEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    if (!m_isOpen) return false;
+    m_extractCancelled = false;
+
+    if (m_hasFilesystem)
+    {
+        for (const auto& e : m_iso.entries())
+        {
+            if (e.isDir || e.path != entryName) continue;
+            return m_iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                return consumer(data, len) && !m_extractCancelled.load();
+            });
+        }
+        return false;
+    }
+
+    // Track-level fallback — read from disk in chunks
+    int idx = -1;
+    for (size_t i = 0; i < m_entries.size(); ++i)
+        if (m_entries[i].name == entryName || m_entries[i].path == entryName)
+            { idx = static_cast<int>(i); break; }
+    if (idx < 0) return false;
+
+    const auto& t = m_tracks[idx];
+    FILE* f = std::fopen(t.resolvedPath.c_str(), "rb");
+    if (!f) return false;
+    std::fseek(f, t.extOffset, SEEK_SET);
+
+    std::array<uint8_t, 65536> buf;
+    size_t n;
+    while ((n = std::fread(buf.data(), 1, buf.size(), f)) > 0)
+    {
+        if (!consumer(buf.data(), n) || m_extractCancelled) { std::fclose(f); return false; }
+    }
+    std::fclose(f);
+    return true;
+}
+
 bool GdiEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_isOpen) return false;

@@ -243,6 +243,18 @@ Installera manuellt: %1</translation>
             <source>Word size:</source>
             <translation>Ordstorlek:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Bekräfta lösenord</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Bekräfta:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Lösenord stämmer inte överens. Vänligen ange igen.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Installera manuellt: %1</translation>
         <message>
             <source>Comment</source>
             <translation>Kommentar</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Metod</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Förhållande</translation>
         </message>
     </context>
     <context>
@@ -1649,6 +1669,95 @@ Du kan behöva köra ZipFX som administratör för denna operation.</translation
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Nytt &amp;amp;fönster Ctrl+Skift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Avbruten av användaren.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 filer — %3 → %4 (%5% sparat)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 byte</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Extrahera här</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Extraherat: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>Det gick inte att extrahera "%1".</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Fil</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Mapp</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Ändrad:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Namn:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Ny</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Öppna &amp;amp;Destinationsmapp efter extrahering</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Packad:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Väg:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Behörigheter:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Egenskaper — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Egenskaper...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Storlek:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Typ:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Alla filer (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Lösenord lagras i klartext i programinställningarna.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1836,6 +1945,14 @@ Vill du skriva över det?</translation>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 resultat</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Extrahera...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Navigera till Entry</translation>
         </message>
     </context>
     <context>

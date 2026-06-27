@@ -373,6 +373,46 @@ std::vector<uint8_t> ZipEngine::ReadFilePartial(std::string_view entryName, size
     return data;
 }
 
+bool ZipEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    if (!m_zip) return false;
+
+    std::string name(entryName);
+    zip_int64_t idx = zip_name_locate(m_zip, name.c_str(), 0);
+    if (idx < 0) return false;
+
+    struct zip_stat st;
+    zip_stat_init(&st);
+    if (zip_stat_index(m_zip, idx, 0, &st) != 0) return false;
+    if (st.size == 0) return true;
+
+    zip_file_t* zf = nullptr;
+    if (st.encryption_method != ZIP_EM_NONE && !m_password.empty())
+        zf = zip_fopen_index_encrypted(m_zip, idx, 0, m_password.c_str());
+    else
+        zf = zip_fopen_index(m_zip, idx, 0);
+    if (!zf)
+    {
+        if (m_bit7zFallback
+            && (st.valid & ZIP_STAT_COMP_METHOD) && st.comp_method == 9)
+            return m_bit7zFallback->ReadFileStreamed(entryName, consumer);
+        return false;
+    }
+
+    std::array<uint8_t, 65536> buf;
+    zip_int64_t n;
+    while ((n = zip_fread(zf, buf.data(), buf.size())) > 0)
+    {
+        if (!consumer(buf.data(), static_cast<size_t>(n)))
+        {
+            zip_fclose(zf);
+            return false;
+        }
+    }
+    zip_fclose(zf);
+    return n >= 0;
+}
+
 // ── Writing ────────────────────────────────────────────────────────────
 bool ZipEngine::AddFile(std::string_view srcPath, std::string_view archivePath)
 {

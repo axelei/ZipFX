@@ -31,6 +31,7 @@ public:
     bool Extract(std::string_view entryName, std::string_view destPath) override;
     bool ExtractAll(std::string_view destPath) override;
     std::vector<uint8_t> ReadFile(std::string_view entryName) override;
+    bool ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer) override;
     bool TestIntegrity(
         std::function<void(int current, int total)> progressCallback = nullptr,
         std::function<bool()> cancelFlag = nullptr) override;

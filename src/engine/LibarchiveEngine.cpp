@@ -367,6 +367,47 @@ std::vector<uint8_t> LibarchiveEngine::ReadFilePartial(std::string_view entryNam
     return {};
 }
 
+bool LibarchiveEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
+{
+    if (!m_isOpen) return false;
+
+    archive_read_free(m_archive);
+    m_archive = archive_read_new();
+    registerFormat(m_archive);
+    if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
+    {
+        LOG_ERR("%s: failed to re-open for ReadFileStreamed", m_formatName.c_str());
+        archive_read_free(m_archive);
+        m_archive = nullptr;
+        m_isOpen = false;
+        return false;
+    }
+
+    std::string name(entryName);
+    bool singleEntry = (m_entries.size() == 1);
+    struct archive_entry* entry;
+    while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
+    {
+        const char* currentName = archive_entry_pathname(entry);
+        if (!currentName) continue;
+
+        if (name == currentName || (singleEntry && m_entries[0].name == name))
+        {
+            std::array<uint8_t, 65536> buf;
+            la_ssize_t n;
+            while ((n = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
+            {
+                if (!consumer(buf.data(), static_cast<size_t>(n))) return false;
+                if (m_extractCancelled) return false;
+            }
+            return n >= 0;
+        }
+
+        archive_read_data_skip(m_archive);
+    }
+    return false;
+}
+
 // ── Testing ────────────────────────────────────────────────────────────
 bool LibarchiveEngine::TestIntegrity(
     std::function<void(int, int)> progressCallback,

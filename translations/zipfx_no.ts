@@ -243,6 +243,18 @@ Installer manuelt: %1</translation>
             <source>Word size:</source>
             <translation>Ordstørrelse:</translation>
         </message>
+        <message>
+            <source>Confirm password</source>
+            <translation>Bekreft passord</translation>
+        </message>
+        <message>
+            <source>Confirm:</source>
+            <translation>Bekrefte:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match. Please re-enter.</source>
+            <translation>Passord stemmer ikke. Vennligst skriv inn på nytt.</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -313,6 +325,14 @@ Installer manuelt: %1</translation>
         <message>
             <source>Comment</source>
             <translation>Kommentar</translation>
+        </message>
+        <message>
+            <source>Method</source>
+            <translation>Metode</translation>
+        </message>
+        <message>
+            <source>Ratio</source>
+            <translation>Forhold</translation>
         </message>
     </context>
     <context>
@@ -1661,6 +1681,95 @@ Du må kanskje kjøre ZipFX som administrator for denne operasjonen.</translatio
             <source>New &amp;Window	Ctrl+Shift+N</source>
             <translation>Nytt &amp;amp;vindu Ctrl+Shift+N</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>Kansellert av bruker.</translation>
+        </message>
+        <message>
+            <source>%1  —  %2 files  —  %3 → %4  (%5% saved)</source>
+            <translation>%1 — %2 filer — %3 → %4 (%5% lagret)</translation>
+        </message>
+        <message>
+            <source>%1 bytes</source>
+            <translation>%1 byte</translation>
+        </message>
+        <message>
+            <source>CRC32:</source>
+            <translation>CRC32:</translation>
+        </message>
+        <message>
+            <source>Extract Here</source>
+            <translation>Trekk ut her</translation>
+        </message>
+        <message>
+            <source>Extracted: %1</source>
+            <translation>Uttrukket: %1</translation>
+        </message>
+        <message>
+            <source>Failed to extract "%1".</source>
+            <translation>Kunne ikke pakke ut "%1".</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Fil</translation>
+        </message>
+        <message>
+            <source>Folder</source>
+            <translation>Mappe</translation>
+        </message>
+        <message>
+            <source>Modified:</source>
+            <translation>Endret:</translation>
+        </message>
+        <message>
+            <source>Name:</source>
+            <translation>Navn:</translation>
+        </message>
+        <message>
+            <source>New</source>
+            <translation>Ny</translation>
+        </message>
+        <message>
+            <source>Open &amp;Destination Folder After Extraction</source>
+            <translation>Åpne &amp;amp;destinasjonsmappe etter utpakking</translation>
+        </message>
+        <message>
+            <source>Packed:</source>
+            <translation>Pakket:</translation>
+        </message>
+        <message>
+            <source>Path:</source>
+            <translation>Sti:</translation>
+        </message>
+        <message>
+            <source>Permissions:</source>
+            <translation>Tillatelser:</translation>
+        </message>
+        <message>
+            <source>Properties — %1</source>
+            <translation>Egenskaper — %1</translation>
+        </message>
+        <message>
+            <source>Properties...</source>
+            <translation>Egenskaper...</translation>
+        </message>
+        <message>
+            <source>Size:</source>
+            <translation>Størrelse:</translation>
+        </message>
+        <message>
+            <source>Type:</source>
+            <translation>Type:</translation>
+        </message>
+        <message>
+            <source>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)</source>
+            <translation>ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;Alle filer (*.*)</translation>
+        </message>
+        <message>
+            <source>⚠ Passwords are stored in plaintext in application settings.</source>
+            <translation>⚠ Passord lagres i ren tekst i applikasjonsinnstillingene.</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1851,6 +1960,14 @@ Vil du overskrive det?</translation>
         <message>
             <source>%1 result(s)</source>
             <translation>%1 resultat(er)</translation>
+        </message>
+        <message>
+            <source>Extract...</source>
+            <translation>Trekk ut...</translation>
+        </message>
+        <message>
+            <source>Navigate to Entry</source>
+            <translation>Naviger til Entry</translation>
         </message>
     </context>
     <context>
