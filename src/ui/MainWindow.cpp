@@ -150,6 +150,9 @@ MainWindow::MainWindow(QWidget* parent)
     registerFileAssociations();
 #elif defined(__APPLE__)
     registerFileAssociationsMac();
+    // QFileOpenEvent is dispatched to qApp, not to windows — install a filter
+    // so Finder "Open With" / double-click reaches this window.
+    qApp->installEventFilter(this);
 #endif
 }
 
@@ -162,6 +165,7 @@ MainWindow::MainWindow(const QString& fileToOpen, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    qApp->removeEventFilter(this);
     onCloseArchive();
     delete m_icons;
 }
@@ -2436,16 +2440,27 @@ void MainWindow::onBeginDrag()
 }
 
 // ── macOS: handle "Open with" / double-click in Finder ─────────────
-bool MainWindow::event(QEvent* event)
+// QFileOpenEvent is dispatched to qApp, not to individual windows.
+// We install this window as an event filter on qApp (in the constructor)
+// so Finder open events reach us here.
+bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 {
-    if (event->type() == QEvent::FileOpen)
+    if (obj == qApp && event->type() == QEvent::FileOpen)
     {
         auto* foe = static_cast<QFileOpenEvent*>(event);
         if (foe && !foe->file().isEmpty())
-            openArchive(foe->file());
+        {
+            if (m_currentPath.empty())
+                openArchive(foe->file());
+            else
+            {
+                auto* w = new MainWindow(foe->file());
+                w->show();
+            }
+        }
         return true;
     }
-    return QMainWindow::event(event);
+    return QMainWindow::eventFilter(obj, event);
 }
 
 // ── Drag & Drop ────────────────────────────────────────────────────────
