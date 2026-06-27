@@ -28,19 +28,27 @@ echo "=== Building ==="
 "${CMAKE}" --build "${BUILD_DIR}" --target ZipFX -j"$(sysctl -n hw.logicalcpu)"
 
 echo "=== Bundling storm.framework ==="
-# macdeployqt cannot resolve @rpath references that point at CMake build
-# directories; it only searches standard framework locations.  Copy the
-# framework into the bundle first so the existing @executable_path/../Frameworks
-# rpath (already embedded by CMake) resolves it, then strip the absolute
-# build-dir rpath so macdeployqt doesn't error on the dangling entry.
+# macdeployqt cannot resolve @rpath references pointing at CMake build dirs,
+# and it also does not expand @executable_path when building its rpath search
+# list — so leaving the reference as @rpath/storm... causes the ERROR even
+# after the framework is copied into the bundle.
+# Fix: copy the framework, rewrite the app's LC_LOAD_DYLIB entry and the
+# framework's own install name to @executable_path/../Frameworks/..., and
+# remove the dangling absolute build-dir rpath.  macdeployqt skips
+# @executable_path references entirely (treats them as already bundled).
 STORM_SRC="${BUILD_DIR}/_deps/stormlib-build/storm.framework"
 FRAMEWORKS_DIR="${BUILD_DIR}/ZipFX.app/Contents/Frameworks"
+APP_BIN="${BUILD_DIR}/ZipFX.app/Contents/MacOS/ZipFX"
+STORM_RPATH="@rpath/storm.framework/Versions/9.30.0/storm"
+STORM_BUNDLED="@executable_path/../Frameworks/storm.framework/Versions/9.30.0/storm"
 if [ -d "$STORM_SRC" ]; then
     mkdir -p "$FRAMEWORKS_DIR"
     cp -R "$STORM_SRC" "$FRAMEWORKS_DIR/"
+    install_name_tool -id "$STORM_BUNDLED" \
+        "$FRAMEWORKS_DIR/storm.framework/Versions/9.30.0/storm"
+    install_name_tool -change "$STORM_RPATH" "$STORM_BUNDLED" "$APP_BIN"
     STORM_BUILD_RPATH="$(cd "${BUILD_DIR}/_deps/stormlib-build" && pwd)"
-    install_name_tool -delete_rpath "$STORM_BUILD_RPATH" \
-        "${BUILD_DIR}/ZipFX.app/Contents/MacOS/ZipFX" 2>/dev/null || true
+    install_name_tool -delete_rpath "$STORM_BUILD_RPATH" "$APP_BIN" 2>/dev/null || true
 fi
 
 echo "=== Running macdeployqt ==="
