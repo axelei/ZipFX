@@ -207,42 +207,6 @@ Install manually: %1</source>
             <translation>패키지 관리자를 실행할 수 없습니다.
 수동으로 설치하세요: %1</translation>
         </message>
-        <message>
-            <source>Advanced</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Auto</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Auto (LZMA2)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Copy (Store)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Dictionary:</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Method:</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Solid archive</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Threads:</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Word size:</source>
-            <translation type="unfinished" />
-        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1619,7 +1583,7 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>"%1"을(를) 읽을 수 없습니다.
+            <translation>&quot;%1&quot;을(를) 읽을 수 없습니다.
 
 아카이브가 암호화되었거나 손상되었거나 내부 미리 보기에 지원되지 않는 압축 방법을 사용했을 수 있습니다.
 
@@ -1650,14 +1614,6 @@ Please build the shell extension target first.</source>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32가 실패했습니다(%1 종료).
 이 작업을 위해서는 관리자 권한으로 ZipFX를 실행해야 할 수도 있습니다.</translation>
-        </message>
-        <message>
-            <source>Checksums...</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation type="unfinished" />
         </message>
     </context>
     <context>
@@ -1726,66 +1682,6 @@ Overwrite it?</source>
 
 
 덮어쓰시겠습니까?</translation>
-        </message>
-        <message>
-            <source>CRC32 (computed)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>CRC32 (stored)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>CRC32(c)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>CRC32(s)</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Checksums</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Close</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Computing %1 of %2: %3</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Computing checksums...</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Computing...</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Copy to Clipboard</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Done.</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>File</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>N/A</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>SHA-256</source>
-            <translation type="unfinished" />
-        </message>
-        <message>
-            <source>Size</source>
-            <translation type="unfinished" />
         </message>
     </context>
     <context>
