@@ -46,6 +46,19 @@ private slots:
         m_nrg5File = write("test.nrg5", {'N', 'e', 'r', 'o', '5'});
         m_adfFile  = write("test.adf",  {'D', 'O', 'S'});
 
+        // D64/D71 Commodore disk images — detected by file size alone (no magic bytes)
+        // Naming these .bin to confirm the new size-only detection (no extension required)
+        auto writeZeros = [](const std::string& name, size_t size) {
+            auto path = baseTempDir() / name;
+            std::ofstream out(path, std::ios::binary);
+            std::vector<char> zeros(size, 0);
+            out.write(zeros.data(), zeros.size());
+            return path;
+        };
+        m_d64File    = writeZeros("d64_standard.bin", 174848); // standard D64
+        m_d64ErrFile = writeZeros("d64_errinfo.bin",  175531); // D64 + error info bytes
+        m_d71File    = writeZeros("d71.bin",           349696); // D71 (two D64 sides)
+
         // Game archive magic bytes
         m_wadIWAD  = write("iwad.wad", {'I', 'W', 'A', 'D'});
         m_wadPWAD  = write("pwad.wad", {'P', 'W', 'A', 'D'});
@@ -125,6 +138,20 @@ private slots:
         QCOMPARE(FileSignature::Detect(m_adfFile.string()), ArchiveType::Adf);
     }
 
+    // D64/D71 — detected by file size alone, no magic bytes needed, extension irrelevant
+    void testD64Standard()
+    {
+        QCOMPARE(FileSignature::Detect(m_d64File.string()), ArchiveType::D64);
+    }
+    void testD64WithErrorInfo()
+    {
+        QCOMPARE(FileSignature::Detect(m_d64ErrFile.string()), ArchiveType::D64);
+    }
+    void testD71()
+    {
+        QCOMPARE(FileSignature::Detect(m_d71File.string()), ArchiveType::D64);
+    }
+
     // ── Game archive formats ──────────────────────────────────────────
     void testWadIWAD() { QCOMPARE(FileSignature::Detect(m_wadIWAD.string()),  ArchiveType::Wad); }
     void testWadPWAD() { QCOMPARE(FileSignature::Detect(m_wadPWAD.string()),  ArchiveType::Wad); }
@@ -163,6 +190,7 @@ private:
     fs::path m_arjFile, m_lzipFile;
     fs::path m_cpioFile, m_lhaFile, m_arFile, m_chdFile;
     fs::path m_vhdFile, m_vmdkFile, m_qcowFile, m_nrgFile, m_nrg5File, m_adfFile;
+    fs::path m_d64File, m_d64ErrFile, m_d71File;
     fs::path m_wadIWAD, m_wadPWAD, m_wadWAD2, m_wadWAD3;
     fs::path m_pakFile, m_grpFile, m_hogFile, m_vpkFile, m_mpqFile;
 };
