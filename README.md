@@ -4,12 +4,14 @@
 
 ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
 a wide range of archive formats through multiple backends: **libzip** for ZIP,
-**libarchive** for 7z, RAR, ISO, CAB, LHA, XAR, CPIO, compressed tars, and
+**libarchive** for 7z, RAR, CAB, LHA, XAR, CPIO, compressed tars, and
 standalone compression, **Bit7z** (7-Zip engine) for extended format support,
-**libchdr** for MAME CHD disc images, a custom **CdiEngine** for DiscJuggler
-CDI images (with on-the-fly sector header/ECC stripping), **BSA** for
-Bethesda game archives, **Brotli** for `.br` files, and native engines for
-game archive formats, Amiga Disk Files, retro disk images, and more.
+a custom **Iso9660Reader** for ISO and GDI disc images (with optional UDF
+fallback via libarchive), **libchdr** for MAME CHD disc images, a custom
+**CdiEngine** for DiscJuggler CDI images (with on-the-fly sector
+header/ECC stripping), **BSA** for Bethesda game archives, **Brotli** for
+`.br` files, and native engines for game archive formats, Amiga Disk Files,
+retro disk images, and more.
 
 ---
 
@@ -27,7 +29,9 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 ### Extraction & Creation
 - **Create, extract, view, and test** archives across dozens of formats
 - **In-place ZIP modification** (add/delete files without full rewrite)
+- **Deflate64 ZIP support** — ZipEngine detects Deflate64-compressed entries (method 9) and transparently routes reads to the 7-Zip engine
 - **Recursive folder add** from filesystem (drag & drop or dialog)
+- **Extract…** toolbar button and menu — the folder picker opens in the same directory as the archive
 - **Extract Here** — extract to the same directory as the archive
 - **Extract without Paths** — strips directory structure on extraction
 - **Exclude patterns** — glob-based patterns to skip files when adding
@@ -36,6 +40,15 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 - **Overwrite confirmation** with apply-to-all
 - **Archive conversion** — convert any supported format to another (ZIP, 7z, TAR.GZ, TAR.BZ2, TAR.XZ) via extract-and-repack
 - **Archive repair** — test integrity, extract what can be recovered, save as a new archive
+- **Symlink support in TAR.GZ** — symlinks are read, preserved on re-save, and recreated on extract (non-Windows); GNU long link records (typeflag `K`) are handled
+
+### 7z Advanced Compression Options
+When creating a 7z archive, the Create Archive dialog exposes:
+- **Compression method** — Copy, Deflate, Deflate64, BZip2, LZMA, LZMA2, PPMd
+- **Dictionary size** — 256 KB → 1 GB
+- **Word size** — fine-tune match length
+- **Thread count** — override auto-detected CPU count
+- **Solid mode** — toggle solid block compression (on by default); solid archives cannot be randomly accessed entry-by-entry
 
 ### Batch & Automation
 - **Batch operations** — test or extract all archives in a folder (recursive optional); live log per archive
@@ -54,9 +67,12 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 - **Set Password** — prompts to save the password for next time
 - **AES-256 encryption** for 7z archives (with optional header encryption)
 
+### Checksums
+- **Checksums dialog** (right-click → Checksums…) — shows CRC32 stored in the archive, CRC32 computed from extracted bytes, and SHA-256 for each selected file; computes on-the-fly with a progress bar and a Copy to Clipboard button
+
 ### UI & UX
 - **Select All / Invert Selection** (Edit menu, `Ctrl+A`)
-- **Right-click context menu** with Open, Open With, Copy Path, Rename, Delete, Properties
+- **Right-click context menu** with Open, Open With, Copy Path, Rename, Delete, Properties, Checksums
 - **File rename** (right-click context menu; in-place for ZIP)
 - **16 languages**: English, Spanish, French, German, Italian, Portuguese,
   Dutch, Swedish, Norwegian, Danish, Finnish, Russian, Japanese, Chinese,
@@ -75,12 +91,11 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
-| ZIP | ✅ | ✅ | libzip | In-place modify |
+| ZIP | ✅ | ✅ | libzip | In-place modify; Deflate64 entries transparently re-read via 7z engine |
 | JAR, APK, DOCX, XLSX, PPTX, ODT, ODS, ODP, EPUB, WAR, EAR | ✅ | ✅ | libzip | ZIP-based formats |
-| 7z | ✅ | ✅ | Bit7z / libarchive | Full write via Bit7z (AES-256, header encrypt, solid, multi-volume), read via libarchive fallback |
+| 7z | ✅ | ✅ | Bit7z / libarchive | Full write via Bit7z (AES-256, header encrypt, solid, multi-volume, method/dict/threads); read via libarchive fallback |
 | RAR / RAR5 | ✅ | ✅ | RarEngine / Bit7z / libarchive | Write via `rar.exe` when installed; read via Bit7z or libarchive |
 | ARJ | ✅ | ❌ | Bit7z | Read-only via 7z.dll |
-| ISO | ✅ | ❌ | libarchive | ISO-9660 filesystem |
 | CAB | ✅ | ❌ | libarchive | |
 | LHA / LZH | ✅ | ❌ | libarchive | `.lzh`, `.lha` |
 | XAR | ✅ | ❌ | libarchive | |
@@ -93,7 +108,7 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 
 | Format | Read | Write | Backend | Extensions |
 |--------|------|-------|---------|------------|
-| TAR.GZ | ✅ | ✅ | zlib + manual tar | `.tar.gz`, `.tgz` |
+| TAR.GZ | ✅ | ✅ | zlib + manual tar | `.tar.gz`, `.tgz`; symlink read/write/extract |
 | TAR.BZ2 | ✅ | ❌ | libarchive | `.tar.bz2`, `.tbz2`, `.tbz` |
 | TAR.XZ | ✅ | ❌ | libarchive | `.tar.xz`, `.txz` |
 | TAR.ZST | ✅ | ❌ | libarchive | `.tar.zst`, `.tzst` |
@@ -135,9 +150,9 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
-| ISO | ✅ | ❌ | libarchive | ISO-9660; shows files & folders in tree |
+| ISO | ✅ | ❌ | IsoEngine | Self-contained ISO 9660 reader; Joliet (Unicode names); UDF fallback via libarchive; cooked (2048-byte) and raw (2352-byte) sector support |
 | CDI | ✅ | ❌ | CdiEngine | DiscJuggler; auto-detects RAW/PQ/CD+G sector types; ISO-9660 parsing or raw `data.iso` fallback |
-| GDI | ✅ | ❌ | GdiEngine | Dreamcast GDI disc images |
+| GDI | ✅ | ❌ | GdiEngine + IsoEngine | Dreamcast GDI; mounts the ISO 9660 filesystem from the main data track and exposes actual files; falls back to raw track view if no filesystem found |
 | CHD | ✅ | ❌ | libchdr | MAME Compressed Hunks of Data; CD-ROM, HDD, DVD |
 | NRG | ✅ | ❌ | Bit7z | Nero CD images |
 | BIN/CUE | ✅ | ❌ | Bit7z | |
@@ -150,7 +165,7 @@ game archive formats, Amiga Disk Files, retro disk images, and more.
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
 | ADF | ✅ | ✅ | AdfEngine (ADFlib) | Amiga floppy; create 880 KB FFS images |
-| D64 / D71 | ✅ | ❌ | D64Engine | Commodore 64/128 disk images; C64 DOS directory parsing |
+| D64 / D71 | ✅ | ❌ | D64Engine | Commodore 64/128 disk images; detected by file size (174848 / 175531 / 349696 bytes); C64 DOS directory parsing |
 | ATR | ✅ | ❌ | AtrEngine | Atari 8-bit disk images; SIO2PC format |
 | SSD / DSD | ✅ | ❌ | SsdEngine | BBC Micro / Acorn disk images |
 | DSK | ✅ | ❌ | DskEngine | Multi-format retro disks: Apple DOS 3.3, ProDOS, TeleDisk `.td0`, IMD `.imd`, DC42 `.dc42`, 2MG `.2mg`, generic `.d80`, `.d82` |
@@ -166,9 +181,18 @@ RPM, SquashFS, UDF, UEFI, VDI, WIM, and many more formats that 7-Zip supports.
 ## 7-Zip Engine (Bit7z)
 
 The Bit7z backend handles formats not covered by libarchive (ARJ, DMG,
-MSI, NRG, VHD, VMDK, etc.) and provides full **7z creation** with AES-256
-encryption, header encryption, solid compression, dictionary tuning, and
-multi-volume support.
+MSI, NRG, VHD, VMDK, etc.) and provides full **7z creation** with:
+
+- **AES-256 encryption** with optional header encryption
+- **Compression method** — Copy, Deflate, Deflate64, BZip2, LZMA, LZMA2, PPMd
+- **Dictionary size** — 256 KB → 1 GB
+- **Word size** and **thread count** tuning
+- **Solid mode** toggle
+- **Multi-volume** output
+
+It also provides transparent **Deflate64 fallback for ZIP** files: if
+libzip encounters an entry compressed with method 9 (Deflate64), it
+automatically delegates the read to Bit7z.
 
 It requires the 7-Zip shared library at runtime:
 
@@ -179,6 +203,29 @@ It requires the 7-Zip shared library at runtime:
 | macOS | `lib7z.so` | Build from [p7zip source](https://github.com/p7zip-project/p7zip) (`CPP/7zip/Bundles/Format7zF/makefile.gcc`) |
 
 If the library is not found, Bit7z-based formats will be unavailable but all other engines continue to work normally.
+
+---
+
+## ISO 9660 / UDF / GDI Filesystem Support
+
+ZipFX includes a self-contained **ISO 9660 reader** (`Iso9660Reader`) used
+by both `IsoEngine` (`.iso` files) and `GdiEngine` (Dreamcast `.gdi`
+images):
+
+- Scans Volume Descriptors from LBA 16; prefers a **Joliet** Supplementary
+  Volume Descriptor (Unicode filenames, UCS-2 BE → UTF-8) over the
+  standard PVD (ASCII, `;1` version suffix stripped)
+- Handles both **2048-byte cooked** sectors and **2352-byte raw** sectors
+  (Mode 1 header=16 bytes, Mode 2 Form 1 header=24 bytes), detected at
+  open time from the sync pattern
+- **UDF fallback**: if no ISO 9660 VD is found, scans sectors 16–32 (and
+  sector 256) for an `NSR02`/`NSR03` Volume Recognition Area descriptor. On
+  a hit, opens the image through libarchive's ISO/UDF handler, which covers
+  UDF 1.02 through 2.60 (DVD-Video, BD-ROM, etc.)
+- **GDI**: picks the data track with the highest LBA (the main data area on
+  Dreamcast discs), mounts its ISO 9660 filesystem, and exposes actual
+  files. Falls back to the raw-track view for audio-only discs or
+  unrecognised sector formats
 
 ---
 
@@ -200,7 +247,7 @@ The following are fetched automatically by CMake via `FetchContent`:
 - **libzstd** — Zstandard compression
 - **liblz4** — LZ4 compression
 - **libzip** — ZIP read/write
-- **libarchive** — 7z, RAR, ISO, CAB, LHA, XAR, CPIO, AR, WARC, compressed tars, standalone compression
+- **libarchive** — 7z, RAR, CAB, LHA, XAR, CPIO, AR, WARC, compressed tars, standalone compression; UDF fallback for ISO images
 - **bit7z** — extended format support via 7-Zip engine
 - **ADFlib** — Amiga Disk File format (.adf)
 - **StormLib** — Blizzard MPQ archive format
@@ -347,21 +394,30 @@ lib/
 ```
 ArchiveEngine (pure virtual interface)
 ├── ZipEngine (libzip) — ZIP read/write, in-place modify
-├── TarGzEngine (zlib + manual tar) — TAR.GZ read/write
-├── LibarchiveEngine — parameterized with format/filter registration
-│   functions for 7z, RAR, RAR5, ISO, CAB, LHA, XAR, CPIO, AR,
+│   └── [Bit7zEngine fallback for Deflate64 entries]
+├── TarGzEngine (zlib + manual tar) — TAR.GZ read/write; symlink support
+├── LibarchiveEngine — parameterised with format/filter registration
+│   functions for 7z, RAR, RAR5, CAB, LHA, XAR, CPIO, AR,
 │   WARC, MTREE, compressed tars, standalone compression,
 │   Unix compress (.Z), Lzip (.lz)
 ├── Bit7zEngine (7-Zip DLL/SO) — ARJ, DMG, NRG, VHD, VMDK, QCOW2,
-│   and many more; 7z write with AES-256; fallback for exotic formats
+│   and many more; 7z write with AES-256, method/dict/threads/solid;
+│   Deflate64 ZIP fallback; gracefully absent if DLL not found
 ├── RarEngine — RAR creation via rar.exe; libarchive/Bit7z read fallback
-├── BsaEngine — Bethesda BSA v104/v105 with optional zlib decompression
-├── BrotliEngine (libbrotli) — .br decompression (streaming)
+├── IsoEngine — .iso disc images
+│   ├── Iso9660Reader — self-contained ISO 9660 + Joliet parser;
+│   │   sector-level I/O via SectorFn callback; handles 2048-byte
+│   │   cooked and 2352-byte raw sectors
+│   └── [LibarchiveEngine fallback for UDF images]
 ├── CdiEngine (libarchive + custom callbacks) — DiscJuggler CDI
 │   disc images; on-the-fly sector header/ECC stripping, ISO-9660
 │   parsing via libarchive, raw fallback for non-ISO content
 ├── GdiEngine — Dreamcast GDI disc images
+│   └── Iso9660Reader — mounts filesystem from main data track;
+│       falls back to raw-track view if no filesystem found
 ├── ChdEngine (libchdr) — MAME CHD disc images (CD-ROM/HDD/DVD)
+├── BsaEngine — Bethesda BSA v104/v105 with optional zlib decompression
+├── BrotliEngine (libbrotli) — .br decompression (streaming)
 ├── AdfEngine (ADFlib) — Amiga Disk Files (read + write FFS)
 ├── D64Engine — Commodore 64/128 disk images (D64/D71, C64 DOS)
 ├── AtrEngine — Atari 8-bit disk images (SIO2PC ATR format)
