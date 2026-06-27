@@ -52,6 +52,11 @@ public:
     void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }
+    void setCompressionMethod(int method) { m_compressionMethod = method; }
+    void setSolidMode(bool solid) { m_solidMode = solid; m_solidModeSet = true; }
+    void setDictionarySize(uint32_t bytes) { m_dictionarySize = bytes; }
+    void setWordSize(uint32_t ws) { m_wordSize = ws; }
+    void setThreadsCount(uint32_t n) { m_threadsCount = n; }
 
     // Cancellation
     void cancelExtract() override { m_extractCancelled = true; }
@@ -76,6 +81,14 @@ private:
     uint64_t m_volumeSize = 0;
 
     bool m_readOnly = false;
+
+    // Compression options
+    int m_compressionMethod = -1;   // -1=default; cast to BitCompressionMethod
+    uint32_t m_dictionarySize = 0;  // 0=default
+    uint32_t m_wordSize = 0;        // 0=default
+    uint32_t m_threadsCount = 0;    // 0=auto
+    bool m_solidMode = true;
+    bool m_solidModeSet = false;
 
     // Extraction cancellation
     std::atomic<bool> m_extractCancelled{false};

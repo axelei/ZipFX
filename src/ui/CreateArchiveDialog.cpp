@@ -20,10 +20,10 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     resize(500, 400);
 
     m_formats = {
-        { "ZIP",     true,  false, false },
-        { "7z",      true,  true,  true  },
-        { "TAR.GZ",  false, false, false },
-        { "RAR",     true,  false, true  },
+        { "ZIP",     true,  false, false, false },
+        { "7z",      true,  true,  true,  true  },
+        { "TAR.GZ",  false, false, false, false },
+        { "RAR",     true,  false, true,  false },
     };
 
     auto mainLayout = new QVBoxLayout(this);
@@ -105,6 +105,19 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     lvlLayout->addStretch();
     mainLayout->addLayout(lvlLayout);
 
+    auto methodLayout = new QHBoxLayout();
+    methodLayout->addWidget(new QLabel(tr("Method:"), this));
+    m_methodCombo = new QComboBox(this);
+    m_methodCombo->addItem(tr("Auto (LZMA2)"),   -1);
+    m_methodCombo->addItem("LZMA2",              5);
+    m_methodCombo->addItem("LZMA",               4);
+    m_methodCombo->addItem("PPMd",               6);
+    m_methodCombo->addItem("BZip2",              3);
+    m_methodCombo->addItem("Deflate",            1);
+    m_methodCombo->addItem(tr("Copy (Store)"),   0);
+    methodLayout->addWidget(m_methodCombo, 1);
+    mainLayout->addLayout(methodLayout);
+
     // ── Encryption group ──────────────────────────────────
     auto encGroup = new QGroupBox(tr("Encryption"), this);
     auto encLayout = new QFormLayout(encGroup);
@@ -132,6 +145,48 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     volLayout->addWidget(m_volumeSpin);
     volLayout->addStretch();
     mainLayout->addWidget(volGroup);
+
+    // ── Advanced (7z only) ─────────────────────────────────
+    m_advancedGroup = new QGroupBox(tr("Advanced"), this);
+    auto advLayout = new QFormLayout(m_advancedGroup);
+
+    m_dictCombo = new QComboBox(m_advancedGroup);
+    const struct { const char* label; uint32_t bytes; } kDictSizes[] = {
+        { "Auto",    0 },
+        { "64 KB",   64*1024 },
+        { "256 KB",  256*1024 },
+        { "1 MB",    1*1024*1024 },
+        { "4 MB",    4*1024*1024 },
+        { "8 MB",    8*1024*1024 },
+        { "16 MB",   16*1024*1024 },
+        { "32 MB",   32*1024*1024 },
+        { "64 MB",   64*1024*1024 },
+        { "128 MB",  128u*1024*1024 },
+        { "256 MB",  256u*1024*1024 },
+        { "512 MB",  512u*1024*1024 },
+        { "1 GB",    1024u*1024*1024 },
+    };
+    for (const auto& d : kDictSizes)
+        m_dictCombo->addItem(QString::fromLatin1(d.label), static_cast<uint>(d.bytes));
+    advLayout->addRow(tr("Dictionary:"), m_dictCombo);
+
+    m_wordSpin = new QSpinBox(m_advancedGroup);
+    m_wordSpin->setRange(0, 273);
+    m_wordSpin->setValue(0);
+    m_wordSpin->setSpecialValueText(tr("Auto"));
+    advLayout->addRow(tr("Word size:"), m_wordSpin);
+
+    m_threadsSpin = new QSpinBox(m_advancedGroup);
+    m_threadsSpin->setRange(0, 64);
+    m_threadsSpin->setValue(0);
+    m_threadsSpin->setSpecialValueText(tr("Auto"));
+    advLayout->addRow(tr("Threads:"), m_threadsSpin);
+
+    m_solidCheck = new QCheckBox(tr("Solid archive"), m_advancedGroup);
+    m_solidCheck->setChecked(true);
+    advLayout->addRow(QString(), m_solidCheck);
+
+    mainLayout->addWidget(m_advancedGroup);
 
     // ── Comment ────────────────────────────────────────────
     auto commentGroup = new QGroupBox(tr("Archive Comment"), this);
@@ -237,6 +292,10 @@ void CreateArchiveDialog::updateFormatOptions()
     m_encryptNamesCheck->setEnabled(enc && fmt.supportsEncryptNames);
     m_volumeSpin->setEnabled(fmt.supportsVolumes);
 
+    bool adv = fmt.supportsAdvanced;
+    if (m_methodCombo)     m_methodCombo->setEnabled(adv);
+    if (m_advancedGroup)   m_advancedGroup->setEnabled(adv);
+
     bool rarBlocked = (fmt.name == "RAR" && !RarEngine::isAvailable());
     if (m_rarWarning) m_rarWarning->setVisible(rarBlocked);
     if (m_createBtn)  m_createBtn->setEnabled(!rarBlocked);
@@ -255,15 +314,23 @@ void CreateArchiveDialog::onAccept()
 
 CreateArchiveResult CreateArchiveDialog::result() const
 {
+    int idx = m_formatCombo->currentIndex();
+    bool adv = (idx >= 0 && idx < m_formats.size()) && m_formats[idx].supportsAdvanced;
     return {
         m_pathEdit->text(),
-        m_formats[m_formatCombo->currentIndex()].name,
+        m_formats[idx].name,
         m_levelSpin->value(),
         m_sourcePaths,
         m_passwordEdit->text(),
         m_encryptNamesCheck->isChecked(),
         m_volumeSpin->value(),
-        m_commentEdit->toPlainText()
+        m_commentEdit->toPlainText(),
+        adv ? m_methodCombo->currentData().toInt() : -1,
+        adv ? static_cast<uint32_t>(m_dictCombo->currentData().toUInt()) : 0u,
+        adv ? static_cast<uint32_t>(m_wordSpin->value()) : 0u,
+        adv ? static_cast<uint32_t>(m_threadsSpin->value()) : 0u,
+        adv && m_solidCheck->isChecked(),
+        adv  // solidModeSet
     };
 }
 

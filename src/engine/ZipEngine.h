@@ -5,6 +5,7 @@
 
 #include <zip.h>
 
+#include <memory>
 #include <string>
 #include <vector>
 
@@ -63,6 +64,7 @@ private:
     };
     std::vector<PendingAdd> m_pendingAdds;
 
+    std::unique_ptr<ArchiveEngine> m_bit7zFallback; // for Deflate64 entries
 
     void LoadEntries();
 };

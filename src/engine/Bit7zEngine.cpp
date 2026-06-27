@@ -387,6 +387,17 @@ bool Bit7zEngine::Save()
 
             editor->setCompressionLevel(
                 static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
+            if (m_compressionMethod >= 0)
+                editor->setCompressionMethod(
+                    static_cast<bit7z::BitCompressionMethod>(m_compressionMethod));
+            if (m_dictionarySize > 0)
+                editor->setDictionarySize(m_dictionarySize);
+            if (m_wordSize > 0)
+                editor->setWordSize(m_wordSize);
+            if (m_threadsCount > 0)
+                editor->setThreadsCount(m_threadsCount);
+            if (m_solidModeSet)
+                editor->setSolidMode(m_solidMode);
 
             for (const auto& name : m_pendingDeletes)
                 editor->deleteItem(name);
@@ -407,6 +418,17 @@ bool Bit7zEngine::Save()
 
             writer->setCompressionLevel(
                 static_cast<bit7z::BitCompressionLevel>(m_compressionLevel));
+            if (m_compressionMethod >= 0)
+                writer->setCompressionMethod(
+                    static_cast<bit7z::BitCompressionMethod>(m_compressionMethod));
+            if (m_dictionarySize > 0)
+                writer->setDictionarySize(m_dictionarySize);
+            if (m_wordSize > 0)
+                writer->setWordSize(m_wordSize);
+            if (m_threadsCount > 0)
+                writer->setThreadsCount(m_threadsCount);
+            if (m_solidModeSet)
+                writer->setSolidMode(m_solidMode);
 
             if (m_volumeSize > 0)
                 writer->setVolumeSize(m_volumeSize);

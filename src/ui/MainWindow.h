@@ -101,6 +101,7 @@ private:
     QString loadPassword(const QString& archive);
     void onAddRecoveryRecord();
     void onVerifyRecoveryRecord();
+    void onChecksums();
     void installShellExtension(bool install);
 #ifdef _WIN32
     void registerFileAssociations();

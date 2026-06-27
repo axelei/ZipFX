@@ -352,6 +352,7 @@ set(ZIPFX_SOURCES
     src/ui/MainWindow.cpp
     src/ui/FileListModel.cpp
     src/ui/CreateArchiveDialog.cpp
+    src/ui/ChecksumsDialog.cpp
     src/ui/FindFilesDialog.cpp
     src/engine/ArchiveEngine.cpp
     src/engine/ArchiveEngineFactory.cpp

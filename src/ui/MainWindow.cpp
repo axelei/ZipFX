@@ -1,6 +1,7 @@
 #include "MainWindow.h"
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
+#include "ChecksumsDialog.h"
 #include "FindFilesDialog.h"
 #include "recovery/RecoveryRecord.h"
 #include "icons.h"
@@ -857,6 +858,16 @@ void MainWindow::onNewArchive()
             bit7z->setEncryptHeaders(true);
         if (result.volumeSize > 0)
             bit7z->setVolumeSize(static_cast<uint64_t>(result.volumeSize) * 1024 * 1024);
+        if (result.compressionMethod >= 0)
+            bit7z->setCompressionMethod(result.compressionMethod);
+        if (result.dictionarySize > 0)
+            bit7z->setDictionarySize(result.dictionarySize);
+        if (result.wordSize > 0)
+            bit7z->setWordSize(result.wordSize);
+        if (result.threadsCount > 0)
+            bit7z->setThreadsCount(result.threadsCount);
+        if (result.solidModeSet)
+            bit7z->setSolidMode(result.solidMode);
     }
 
     if (!engine->Create(result.path.toStdString()))
@@ -1951,6 +1962,8 @@ void MainWindow::onContextMenu(const QPoint& pos)
             if (!paths.isEmpty())
                 QApplication::clipboard()->setText(paths.join('\n'));
         });
+        QAction* checksumsAct = menu.addAction(tr("Checksums..."), this, &MainWindow::onChecksums);
+        checksumsAct->setEnabled(hasEngine);
     }
 
     if (hasEngine && m_engine->SupportsCreation())
@@ -3315,3 +3328,38 @@ void MainWindow::registerFileAssociations()
     }
 }
 #endif
+
+void MainWindow::onChecksums()
+{
+    if (!m_engine) return;
+
+    auto sel = m_treeView->selectionModel()->selectedRows(0);
+    if (sel.isEmpty()) return;
+
+    auto paths = m_model->selectedEntryPaths(sel);
+    const auto& entries = m_engine->ListContents();
+
+    std::vector<std::string> names;
+    std::vector<const ArchiveEntry*> entryPtrs;
+    for (const auto& p : paths)
+    {
+        std::string key = p.toStdString();
+        for (const auto& e : entries)
+        {
+            if (e.name == key || e.path == key)
+            {
+                if (!e.isDirectory)
+                {
+                    names.push_back(key);
+                    entryPtrs.push_back(&e);
+                }
+                break;
+            }
+        }
+    }
+
+    if (names.empty()) return;
+
+    ChecksumsDialog dlg(m_engine.get(), names, entryPtrs, this);
+    dlg.exec();
+}

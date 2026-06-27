@@ -1,4 +1,5 @@
 #include "ZipEngine.h"
+#include "Bit7zEngine.h"
 
 #include "Logging.h"
 
@@ -35,6 +36,26 @@ bool ZipEngine::Open(std::string_view path)
     m_modified = false;
     LoadEntries();
     LOG_DBG("ZipEngine: opened %s (%zu entries)", m_path.c_str(), m_entries.size());
+
+    // Create Bit7zEngine fallback for Deflate64 entries (comp_method == 9)
+    m_bit7zFallback.reset();
+    zip_int64_t n64 = zip_get_num_entries(m_zip, 0);
+    for (zip_int64_t i = 0; i < n64; ++i)
+    {
+        struct zip_stat st2;
+        zip_stat_init(&st2);
+        if (zip_stat_index(m_zip, i, 0, &st2) == 0
+            && (st2.valid & ZIP_STAT_COMP_METHOD)
+            && st2.comp_method == 9)
+        {
+            auto b7 = std::make_unique<Bit7zEngine>();
+            if (b7->Open(m_path))
+                m_bit7zFallback = std::move(b7);
+            LOG_DBG("ZipEngine: Deflate64 detected, bit7z fallback %s",
+                    m_bit7zFallback ? "active" : "unavailable");
+            break;
+        }
+    }
     return true;
 }
 
@@ -68,6 +89,7 @@ void ZipEngine::Close()
     m_entries.clear();
     m_pendingAdds.clear();
     m_modified = false;
+    m_bit7zFallback.reset();
 }
 
 // ── Entry cache ────────────────────────────────────────────────────────
@@ -108,6 +130,18 @@ void ZipEngine::LoadEntries()
 
         if (st.mtime > 0)
             entry.modified = std::chrono::system_clock::from_time_t(st.mtime);
+
+        if (st.valid & ZIP_STAT_COMP_METHOD)
+        {
+            static const char* kMethods[] = {
+                "Stored", "Shrunk", "Reduce1", "Reduce2", "Reduce3", "Reduce4",
+                "Implode", nullptr, "Deflate", "Deflate64", nullptr, nullptr, "BZip2",
+                nullptr, "LZMA", nullptr, nullptr, nullptr, "ZStandard",
+            };
+            uint16_t m = st.comp_method;
+            if (m < sizeof(kMethods)/sizeof(kMethods[0]) && kMethods[m])
+                entry.compressionMethod = kMethods[m];
+        }
 
         // Read per-file comment
         zip_uint32_t commentLen = 0;
@@ -202,6 +236,13 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         zf = zip_fopen_index(m_zip, idx, 0);
     if (!zf)
     {
+        // Try Deflate64 fallback
+        if (m_bit7zFallback
+            && (st.valid & ZIP_STAT_COMP_METHOD) && st.comp_method == 9)
+        {
+            LOG_DBG("ZipEngine: using bit7z fallback for Deflate64 entry '%s'", name.c_str());
+            return m_bit7zFallback->Extract(entryName, destPath);
+        }
         qWarning("ZipEngine: zip_fopen_index failed for '%s'", name.c_str());
         return false;
     }
@@ -279,7 +320,16 @@ std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
         zf = zip_fopen_index_encrypted(m_zip, idx, 0, m_password.c_str());
     else
         zf = zip_fopen_index(m_zip, idx, 0);
-    if (!zf) return {};
+    if (!zf)
+    {
+        if (m_bit7zFallback
+            && (st.valid & ZIP_STAT_COMP_METHOD) && st.comp_method == 9)
+        {
+            LOG_DBG("ZipEngine: using bit7z fallback for Deflate64 entry '%s'", name.c_str());
+            return m_bit7zFallback->ReadFile(entryName);
+        }
+        return {};
+    }
 
     std::vector<uint8_t> data(static_cast<size_t>(st.size));
     zip_int64_t n = zip_fread(zf, data.data(), data.size());

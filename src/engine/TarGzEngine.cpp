@@ -268,6 +268,9 @@ bool TarGzEngine::Open(std::string_view path)
         if (isHardlink && !linkTarget.empty())
             m_linkTargets[entryName] = linkTarget;
 
+        if (isSymlink && !linkTarget.empty())
+            m_symlinkTargets[entryName] = linkTarget;
+
         // For hardlinks, resolve the size from the link target
         uint64_t displaySize = fileSize;
         if (isHardlink && fileSize == 0 && !linkTarget.empty())
@@ -314,6 +317,7 @@ void TarGzEngine::Close()
     m_entryQueue.clear();
     m_removedEntries.clear();
     m_linkTargets.clear();
+    m_symlinkTargets.clear();
 }
 
 // ── Reading ────────────────────────────────────────────────────────────
@@ -337,6 +341,7 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (!m_gzFile) return false;
 
     std::string gnuLongName;
+    std::string gnuLongName_link;
     TarHeader hdr;
     while (true)
     {
@@ -348,12 +353,32 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
         uint64_t fileSize = ParseOctal(hdr.size, 12);
 
         if (hdr.typeflag == 'L') { gnuLongName = ReadTarDataAsString(m_gzFile, fileSize); continue; }
-        if (hdr.typeflag == 'x' || hdr.typeflag == 'g' || hdr.typeflag == 'K')
+        if (hdr.typeflag == 'K') { gnuLongName_link = ReadTarDataAsString(m_gzFile, fileSize); continue; }
+        if (hdr.typeflag == 'x' || hdr.typeflag == 'g')
         { SkipTarData(m_gzFile, fileSize); continue; }
 
         std::string currentName = gnuLongName.empty() ? TarName(&hdr) : gnuLongName;
         currentName = StripDotSlash(currentName);
         gnuLongName.clear();
+
+        if (currentName == name && hdr.typeflag == '2')
+        {
+            std::string target = gnuLongName_link.empty() ? TarLinkName(&hdr) : gnuLongName_link;
+            gnuLongName_link.clear();
+            fs::path dest(destPath);
+            fs::create_directories(dest.parent_path());
+            std::error_code ec;
+#ifndef _WIN32
+            fs::create_symlink(target, dest, ec);
+            if (ec)
+                LOG_WARN("TarGzEngine: symlink %s -> %s: %s",
+                         std::string(destPath).c_str(), target.c_str(), ec.message().c_str());
+#else
+            LOG_WARN("TarGzEngine: symlink extraction skipped on Windows: %s -> %s",
+                     std::string(destPath).c_str(), target.c_str());
+#endif
+            return true;
+        }
 
         if (currentName == name && fileSize > 0)
         {
@@ -576,6 +601,8 @@ bool TarGzEngine::Save()
         std::vector<uint8_t> data;
         uint32_t permissions;
         uint64_t mtime;
+        bool isSymlink = false;
+        std::string symlinkTarget;
     };
     std::vector<MergedEntry> merged;
 
@@ -591,13 +618,22 @@ bool TarGzEngine::Save()
         if (m_removedEntries.count(entry.name)) continue;
         if (newNames.count(entry.name)) continue;
 
-        auto data = ReadFile(entry.name);
         MergedEntry me;
         me.archivePath = entry.name;
-        me.data = std::move(data);
         me.permissions = entry.permissions;
         me.mtime = static_cast<uint64_t>(
             std::chrono::system_clock::to_time_t(entry.modified));
+
+        auto symIt = m_symlinkTargets.find(entry.name);
+        if (symIt != m_symlinkTargets.end())
+        {
+            me.isSymlink = true;
+            me.symlinkTarget = symIt->second;
+        }
+        else
+        {
+            me.data = ReadFile(entry.name);
+        }
         merged.push_back(std::move(me));
     }
 
@@ -701,6 +737,52 @@ bool TarGzEngine::Save()
         LOG_DBG("TarGzEngine: save cancelled, temp file removed");
     };
 
+    auto writeSymlinkTarEntry = [&](const std::string& archivePath,
+                                    const std::string& target,
+                                    uint32_t perms, uint64_t mtime)
+    {
+        if (target.size() >= TAR_NAME_SIZE)
+        {
+            // GNU long link header
+            TarHeader lhdr = {};
+            std::memcpy(lhdr.name, "././@LongLink", 13);
+            FormatOctal(lhdr.size, 12, target.size() + 1);
+            lhdr.typeflag = 'K';
+            std::memcpy(lhdr.magic, "ustar", 5);
+            std::memcpy(lhdr.version, "00", 2);
+            FormatOctal(lhdr.chksum, 8, ComputeChecksum(&lhdr));
+            writeBlock(&lhdr, sizeof(lhdr));
+            std::string padded = target + '\0';
+            writeBlock(padded.c_str(), padded.size());
+        }
+
+        std::string name = archivePath;
+        std::string prefix;
+        size_t slash = name.rfind('/');
+        if (slash != std::string::npos && slash < TAR_PREFIX_SIZE)
+        {
+            prefix = name.substr(0, slash);
+            name = name.substr(slash + 1);
+        }
+        if (name.size() >= TAR_NAME_SIZE) name.resize(TAR_NAME_SIZE - 1);
+        if (prefix.size() >= TAR_PREFIX_SIZE) prefix.resize(TAR_PREFIX_SIZE - 1);
+
+        TarHeader hdr = {};
+        std::memcpy(hdr.name, name.c_str(), name.size());
+        std::memcpy(hdr.prefix, prefix.c_str(), prefix.size());
+        std::string lnk = target;
+        if (lnk.size() >= TAR_NAME_SIZE) lnk.resize(TAR_NAME_SIZE - 1);
+        std::memcpy(hdr.linkname, lnk.c_str(), lnk.size());
+        FormatOctal(hdr.mode, 8, perms ? perms : 0777);
+        FormatOctal(hdr.size, 12, 0);
+        FormatOctal(hdr.mtime, 12, mtime);
+        hdr.typeflag = '2';
+        std::memcpy(hdr.magic, "ustar", 5);
+        std::memcpy(hdr.version, "00", 2);
+        FormatOctal(hdr.chksum, 8, ComputeChecksum(&hdr));
+        writeBlock(&hdr, sizeof(hdr));
+    };
+
     // Write preserved existing entries
     for (const auto& me : merged)
     {
@@ -710,8 +792,12 @@ bool TarGzEngine::Save()
             return false;
         }
 
-        writeTarEntry(me.archivePath, me.data.data(), me.data.size(),
-                      me.permissions, me.mtime);
+        if (me.isSymlink)
+            writeSymlinkTarEntry(me.archivePath, me.symlinkTarget,
+                                 me.permissions, me.mtime);
+        else
+            writeTarEntry(me.archivePath, me.data.data(), me.data.size(),
+                          me.permissions, me.mtime);
     }
 
     // Write newly added entries from queue
@@ -721,6 +807,26 @@ bool TarGzEngine::Save()
         {
             cancelAndClean();
             return false;
+        }
+
+        auto now = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(
+            std::chrono::system_clock::now()));
+
+        // Check if this source is a symlink
+        std::error_code statusEc;
+        auto symlinkSt = fs::symlink_status(qe.srcPath, statusEc);
+        if (!statusEc && symlinkSt.type() == fs::file_type::symlink)
+        {
+            std::error_code linkEc;
+            auto target = fs::read_symlink(qe.srcPath, linkEc);
+            if (!linkEc)
+            {
+                uint32_t perms = 0777;
+                auto p = static_cast<uint32_t>(symlinkSt.permissions()) & 0777;
+                if (p) perms = p;
+                writeSymlinkTarEntry(qe.archivePath, target.string(), perms, now);
+                continue;
+            }
         }
 
         std::ifstream in(qe.srcPath, std::ios::binary | std::ios::ate);
@@ -742,9 +848,6 @@ bool TarGzEngine::Save()
             if (!ec && srcPerms != fs::perms::unknown)
                 perms = static_cast<uint32_t>(srcPerms) & 0777;
         }
-
-        auto now = static_cast<uint64_t>(std::chrono::system_clock::to_time_t(
-            std::chrono::system_clock::now()));
 
         writeTarEntry(qe.archivePath, fileData.data(), fileSize, perms, now);
     }
