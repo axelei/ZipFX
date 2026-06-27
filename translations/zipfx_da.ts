@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Pakkehåndteringen kunne ikke startes.
 Installer manuelt: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Fremskreden</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Auto (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Kopi (butik)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Ordbog:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Metode:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Solidt arkiv</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Tråde:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Ordstørrelse:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1585,7 +1621,7 @@ arkivet vil blive repareret på stedet.</translation>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Kunne ikke læse &quot;%1&quot;.
+            <translation>Kunne ikke læse "%1".
 
 Arkivet kan være krypteret, beskadiget eller bruge en komprimeringsmetode, der ikke understøttes til forhåndsvisning på stedet.
 
@@ -1616,6 +1652,14 @@ Byg venligst shell-udvidelsesmålet først.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 mislykkedes (afslut %1).
 Du skal muligvis køre ZipFX som administrator for denne handling.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Kontrolsummer...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Nyt &amp;amp;vindue Ctrl+Shift+N</translation>
         </message>
     </context>
     <context>
@@ -1684,6 +1728,66 @@ Overwrite it?</source>
 
 
 Vil du overskrive det?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (beregnet)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (gemt)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(er)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>Kontrolsummer</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Tæt</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>Beregner %1 af %2: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Beregner kontrolsummer...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Beregner...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Kopiér til udklipsholder</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Færdig.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Fil</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>N/A</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Størrelse</translation>
         </message>
     </context>
     <context>

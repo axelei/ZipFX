@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>تعذّر تشغيل مدير الحزم.
 ثبّت يدوياً: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>متقدم</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>آلي</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>تلقائي (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>نسخ (متجر)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>قاموس:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>طريقة:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>أرشيف متين</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>المواضيع:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>حجم الكلمة:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1585,7 +1621,7 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>تعذرت قراءة &quot;%1&quot;.
+            <translation>تعذرت قراءة "%1".
 
 قد يكون الأرشيف مشفرًا أو تالفًا أو يستخدم طريقة ضغط غير مدعومة للمعاينة الموضعية.
 
@@ -1616,6 +1652,14 @@ Please build the shell extension target first.</source>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>فشل regsvr32 (الخروج %1).
 قد تحتاج إلى تشغيل ZipFX كمسؤول لهذه العملية.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>المجموع الاختباري...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>جديد ونافذة Ctrl+Shift+N</translation>
         </message>
     </context>
     <context>
@@ -1684,6 +1728,66 @@ Overwrite it?</source>
 
 
 الكتابة فوقه؟</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (محسوب)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (مخزنة)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(ج)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(ق)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>المجاميع الاختبارية</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>يغلق</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>حساب %1 من %2: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>حساب المجموع الاختباري...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>الحوسبة...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>نسخ إلى الحافظة</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>منتهي.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>ملف</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>لا يوجد</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>شا-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>مقاس</translation>
         </message>
     </context>
     <context>

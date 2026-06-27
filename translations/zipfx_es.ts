@@ -217,6 +217,42 @@ Install manually: %1</source>
             <translation>No se pudo iniciar el gestor de paquetes.
 Instale manualmente: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Avanzado</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Automático (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Copiar (Tienda)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Diccionario:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Método:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Archivo sólido</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Trapos:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Tamaño de palabra:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1617,7 +1653,7 @@ el archivo se reparará en el lugar.</translation>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>No se pudo leer &quot;%1&quot;.
+            <translation>No se pudo leer "%1".
 
 Es posible que el archivo esté cifrado, dañado o que utilice un método de compresión que no sea compatible con la vista previa local.
 
@@ -1648,6 +1684,14 @@ Primero cree el destino de la extensión de shell.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 falló (salida %1).
 Es posible que necesites ejecutar ZipFX como administrador para esta operación.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Sumas de control...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Nuevo &amp;amp;Ventana Ctrl+Mayús+N</translation>
         </message>
     </context>
     <context>
@@ -1713,6 +1757,66 @@ Overwrite it?</source>
 %1
 
 ¿Sobrescribirlo?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (calculado)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (almacenado)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CDN32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(s)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>sumas de control</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Cerca</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>Calculando %1 de %2: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Calcular sumas de control...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Computación...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Copiar al portapapeles</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Hecho.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Archivo</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>N / A</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Tamaño</translation>
         </message>
     </context>
     <context>

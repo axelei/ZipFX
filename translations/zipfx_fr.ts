@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Impossible de lancer le gestionnaire de paquets.
 Installez manuellement : %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Avancé</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Automatique (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Copier (Store)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Dictionnaire:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Méthode:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Archives solides</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Sujets :</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Taille des mots :</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1573,7 +1609,7 @@ les archives seront réparées sur place.</translation>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Impossible de lire &quot;%1&quot;.
+            <translation>Impossible de lire "%1".
 
 L'archive peut être chiffrée, corrompue ou utiliser une méthode de compression qui n'est pas prise en charge pour l'aperçu sur place.
 
@@ -1604,6 +1640,14 @@ Veuillez d'abord créer la cible de l'extension Shell.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 a échoué (sortie %1).
 Vous devrez peut-être exécuter ZipFX en tant qu'administrateur pour cette opération.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Sommes de contrôle...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Nouvelle et fenêtre Ctrl+Maj+N</translation>
         </message>
     </context>
     <context>
@@ -1669,6 +1713,66 @@ Overwrite it?</source>
 %1
 
 L'écraser ?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (calculé)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (stocké)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(s)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>Sommes de contrôle</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Fermer</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>Calcul de %1 sur %2 : %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Calcul des sommes de contrôle...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Informatique...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Copier dans le Presse-papiers</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Fait.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Déposer</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>N / A</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Taille</translation>
         </message>
     </context>
     <context>

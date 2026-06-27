@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>パッケージマネージャーを起動できませんでした。
 手動でインストールしてください: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>高度な</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>自動</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>オート(LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>コピー（保存）</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>辞書：</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>方法：</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>充実したアーカイブ</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>スレッド:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>ワードサイズ:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1617,6 +1653,14 @@ You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 が失敗しました (終了 %1)。
 この操作を行うには、管理者として ZipFX を実行する必要がある場合があります。</translation>
         </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>チェックサム...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>新規ウィンドウ(&amp;amp;Window) Ctrl+Shift+N</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1684,6 +1728,66 @@ Overwrite it?</source>
 
 
 上書きしますか?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (計算済み)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32（格納）</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>チェックサム</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>近い</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>%2/%1 を計算中: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>チェックサムを計算しています...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>コンピューティング中...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>クリップボードにコピー</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>終わり。</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>ファイル</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>該当なし</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>サイズ</translation>
         </message>
     </context>
     <context>

@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Не удалось запустить менеджер пакетов.
 Установите вручную: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Передовой</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Авто</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Авто (ЛЗМА2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Копировать (Магазин)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Словарь:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Метод:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Солидный архив</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Темы:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Размер слова:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1573,7 +1609,7 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Не удалось прочитать &quot;%1&quot;.
+            <translation>Не удалось прочитать "%1".
 
 Архив может быть зашифрован, поврежден или использовать метод сжатия, который не поддерживается для предварительного просмотра на месте.
 
@@ -1604,6 +1640,14 @@ Please build the shell extension target first.</source>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>Ошибка regsvr32 (выход %1).
 Для этой операции вам может потребоваться запустить ZipFX от имени администратора.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Контрольные суммы...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Новое окно Ctrl+Shift+N</translation>
         </message>
     </context>
     <context>
@@ -1669,6 +1713,66 @@ Overwrite it?</source>
 %1
 
 Перезаписать?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (вычисленный)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (сохранено)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(с)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(а)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>Контрольные суммы</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Закрывать</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>Вычисление %1 из %2: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Вычисление контрольных сумм...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Вычисление...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Копировать в буфер обмена</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Сделанный.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Файл</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>Н/Д</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>ША-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Размер</translation>
         </message>
     </context>
     <context>

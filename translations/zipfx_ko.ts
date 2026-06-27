@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>패키지 관리자를 실행할 수 없습니다.
 수동으로 설치하세요: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>고급의</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>자동</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>자동(LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>복사(저장)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>사전:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>방법:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>견고한 아카이브</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>스레드:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>단어 크기:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1585,7 +1621,7 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>&quot;%1&quot;을(를) 읽을 수 없습니다.
+            <translation>"%1"을(를) 읽을 수 없습니다.
 
 아카이브가 암호화되었거나 손상되었거나 내부 미리 보기에 지원되지 않는 압축 방법을 사용했을 수 있습니다.
 
@@ -1616,6 +1652,14 @@ Please build the shell extension target first.</source>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32가 실패했습니다(%1 종료).
 이 작업을 위해서는 관리자 권한으로 ZipFX를 실행해야 할 수도 있습니다.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>체크섬...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>새 창(&amp;amp;Window) Ctrl+Shift+N</translation>
         </message>
     </context>
     <context>
@@ -1684,6 +1728,66 @@ Overwrite it?</source>
 
 
 덮어쓰시겠습니까?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32(계산됨)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32(저장됨)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(들)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>체크섬</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>닫다</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>%2/%1 계산 중: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>체크섬 계산 중...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>컴퓨팅 중...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>클립보드에 복사</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>완료.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>파일</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>해당 없음</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>크기</translation>
         </message>
     </context>
     <context>

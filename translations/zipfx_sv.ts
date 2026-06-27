@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Det gick inte att starta pakethanteraren.
 Installera manuellt: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Avancerad</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Bil</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Auto (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Kopiera (butik)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Ordbok:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Metod:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Gediget arkiv</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Trådar:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Ordstorlek:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1573,7 +1609,7 @@ Arkivet kommer att repareras på plats.</translation>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Kunde inte läsa &quot;%1&quot;.
+            <translation>Kunde inte läsa "%1".
 
 Arkivet kan vara krypterat, skadat eller använda en komprimeringsmetod som inte stöds för förhandsgranskning på plats.
 
@@ -1604,6 +1640,14 @@ Bygg först skalförlängningsmålet.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 misslyckades (avsluta %1).
 Du kan behöva köra ZipFX som administratör för denna operation.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Kontrollsummor...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Nytt &amp;amp;fönster Ctrl+Skift+N</translation>
         </message>
     </context>
     <context>
@@ -1669,6 +1713,66 @@ Overwrite it?</source>
 %1
 
 Vill du skriva över det?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (beräknad)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (lagrat)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(s)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>Kontrollsummor</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Nära</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>Beräknar %1 av %2: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Beräknar kontrollsummor...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Datoranvändning...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Kopiera till Urklipp</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Gjort.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Fil</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>N/A</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Storlek</translation>
         </message>
     </context>
     <context>

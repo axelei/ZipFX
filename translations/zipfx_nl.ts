@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Kan de pakketbeheerder niet starten.
 Handmatig installeren: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>Geavanceerd</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>Auto</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>Automatisch (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>Kopiëren (winkel)</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>Woordenboek:</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>Methode:</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>Solide archief</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>Onderwerpen:</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>Woordgrootte:</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1573,7 +1609,7 @@ het archief wordt ter plaatse gerepareerd.</translation>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Kon &quot;%1&quot; niet lezen.
+            <translation>Kon "%1" niet lezen.
 
 Het archief is mogelijk gecodeerd of beschadigd of gebruikt een compressiemethode die niet wordt ondersteund voor in-place preview.
 
@@ -1604,6 +1640,14 @@ Bouw eerst het shell-extensiedoel.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 is mislukt (afsluiten %1).
 Mogelijk moet u ZipFX als beheerder uitvoeren voor deze bewerking.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>Controlesommen...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>Nieuw &amp;Venster Ctrl+Shift+N</translation>
         </message>
     </context>
     <context>
@@ -1669,6 +1713,66 @@ Overwrite it?</source>
 %1
 
 Overschrijven?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32 (berekend)</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32 (opgeslagen)</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32('s)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>Controlesommen</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>Dichtbij</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>%1 van %2 berekenen: %3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>Controlesommen berekenen...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>Computergebruik...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>Kopiëren naar Klembord</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>Klaar.</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>Bestand</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>N.v.t</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>Maat</translation>
         </message>
     </context>
     <context>

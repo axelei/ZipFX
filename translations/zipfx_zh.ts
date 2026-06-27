@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>无法启动包管理器。
 请手动安装：%1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation>先进的</translation>
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation>汽车</translation>
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation>自动 (LZMA2)</translation>
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation>复制（存储）</translation>
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation>字典：</translation>
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation>方法：</translation>
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation>扎实的档案</translation>
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation>主题：</translation>
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation>字大小：</translation>
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1605,6 +1641,14 @@ You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 失败（退出 %1）。
 您可能需要以管理员身份运行 ZipFX 才能执行此操作。</translation>
         </message>
+        <message>
+            <source>Checksums...</source>
+            <translation>校验和...</translation>
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation>新建窗口(&amp;amp;Window) Ctrl+Shift+N</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1669,6 +1713,66 @@ Overwrite it?</source>
 %1
 
 覆盖它吗？</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation>CRC32（计算）</translation>
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation>CRC32（已存储）</translation>
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation>CRC32(c)</translation>
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation>CRC32(s)</translation>
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation>校验和</translation>
+        </message>
+        <message>
+            <source>Close</source>
+            <translation>关闭</translation>
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation>计算 %2 的 %1：%3</translation>
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation>计算校验和...</translation>
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation>计算...</translation>
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation>复制到剪贴板</translation>
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation>完毕。</translation>
+        </message>
+        <message>
+            <source>File</source>
+            <translation>文件</translation>
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation>不适用</translation>
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation>SHA-256</translation>
+        </message>
+        <message>
+            <source>Size</source>
+            <translation>尺寸</translation>
         </message>
     </context>
     <context>
