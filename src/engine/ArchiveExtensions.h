@@ -31,7 +31,7 @@
     /* ── Standalone compression ───────────────────── */ \
     X(".gz")    X(".bz2")   X(".xz") \
     X(".zst")   X(".zstd")  X(".lz4")   X(".lzma") \
-    X(".lz")    X(".Z") \
+    X(".lz")    X(".Z")    X(".lzo") \
     X(".br") \
     /* ── 7-Zip / RAR / ARJ ────────────────────────── */ \
     X(".7z")    X(".rar")   X(".arj") \

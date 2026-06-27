@@ -98,7 +98,7 @@ static const FormatEntry kFormats[] = {
                 archive_read_support_filter_lzma },
             "TAR.LZMA", false, "lzma"); },                           false },
 
-    // ── Unix compress / Lzip (via libarchive) ────────
+    // ── Unix compress / Lzip / Lzop (via libarchive) ─
     { "COMPRESS", ".Z",                              ArchiveType::UnixCompress,
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{
@@ -112,6 +112,19 @@ static const FormatEntry kFormats[] = {
                 archive_read_support_format_raw,
                 archive_read_support_filter_lzip },
             "LZIP", false, "lzip"); },                                 false },
+    { "LZOP",   ".lzo",                              ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_raw,
+                archive_read_support_filter_lzop },
+            "LZOP", false, "LZO"); },                                  false },
+    { "TAR.LZO", ".tar.lzo,.tzo",                   ArchiveType::Unknown,
+        []() { return std::make_unique<LibarchiveEngine>(
+            std::vector<LibarchiveEngine::FormatRegistrar>{
+                archive_read_support_format_tar,
+                archive_read_support_format_raw,
+                archive_read_support_filter_lzop },
+            "TAR.LZO", false, "LZO"); },                               false },
 
     // ── Standalone compression (single-file) ─────────
     { "BZ2",    ".bz2",                              ArchiveType::Unknown,
@@ -409,6 +422,7 @@ std::unique_ptr<ArchiveEngine> ArchiveEngineFactory::CreateForFile(
         { ".tar.zst",  "TAR.ZST"  },
         { ".tar.lz4",  "TAR.LZ4"  },
         { ".tar.lzma", "TAR.LZMA" },
+        { ".tar.lzo",  "TAR.LZO"  },
     };
     for (const auto& de : kDoubleExts)
     {
