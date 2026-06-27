@@ -1563,7 +1563,9 @@ FEL: %1</translation>
             <source>Checks the archive against its .rec sidecar file.
 If corruption is detected and is within recovery capacity,
 the archive will be repaired in-place.</source>
-            <translation type="unfinished" />
+            <translation>Kontrollerar arkivet mot dess .rec-sidecar-fil.
+Om korruption upptäcks och är inom återställningskapacitet,
+Arkivet kommer att repareras på plats.</translation>
         </message>
         <message>
             <source>Could not read "%1".

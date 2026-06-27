@@ -1575,7 +1575,9 @@ FEIL: %1</translation>
             <source>Checks the archive against its .rec sidecar file.
 If corruption is detected and is within recovery capacity,
 the archive will be repaired in-place.</source>
-            <translation type="unfinished" />
+            <translation>Sjekker arkivet mot dets .rec sidecar-fil.
+Hvis korrupsjon oppdages og er innenfor gjenopprettingskapasiteten,
+arkivet vil bli reparert på stedet.</translation>
         </message>
         <message>
             <source>Could not read "%1".

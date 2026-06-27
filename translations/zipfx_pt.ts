@@ -1563,7 +1563,9 @@ ERRO: %1</translation>
             <source>Checks the archive against its .rec sidecar file.
 If corruption is detected and is within recovery capacity,
 the archive will be repaired in-place.</source>
-            <translation type="unfinished" />
+            <translation>Verifica o arquivo em relação ao arquivo secundário .rec.
+Se a corrupção for detectada e estiver dentro da capacidade de recuperação,
+o arquivo será reparado no local.</translation>
         </message>
         <message>
             <source>Could not read "%1".

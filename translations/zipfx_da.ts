@@ -1575,7 +1575,9 @@ FEJL: %1</translation>
             <source>Checks the archive against its .rec sidecar file.
 If corruption is detected and is within recovery capacity,
 the archive will be repaired in-place.</source>
-            <translation type="unfinished" />
+            <translation>Kontrollerer arkivet mod dets .rec sidecar-fil.
+Hvis korruption opdages og er inden for genopretningskapaciteten,
+arkivet vil blive repareret på stedet.</translation>
         </message>
         <message>
             <source>Could not read "%1".

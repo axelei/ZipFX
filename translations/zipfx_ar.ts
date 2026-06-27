@@ -1575,7 +1575,9 @@ ERROR: %1</source>
             <source>Checks the archive against its .rec sidecar file.
 If corruption is detected and is within recovery capacity,
 the archive will be repaired in-place.</source>
-            <translation type="unfinished" />
+            <translation>يتحقق من الأرشيف مقابل ملف .rec Sidecar الخاص به.
+إذا تم اكتشاف الفساد وكان ضمن القدرة على الاسترداد،
+سيتم إصلاح الأرشيف في مكانه.</translation>
         </message>
         <message>
             <source>Could not read "%1".
