@@ -2562,7 +2562,7 @@ void MainWindow::refreshFileList()
 
     m_archiveCommentAct->setEnabled(m_engine && m_engine->supportsArchiveComment());
     const bool canEncrypt = m_engine && m_engine->SupportsEncryption();
-    m_passwordAct->setEnabled(canEncrypt);
+    m_passwordAct->setEnabled(true);
     m_setPasswordAct->setEnabled(canEncrypt);
 
     updateStatusBar();
