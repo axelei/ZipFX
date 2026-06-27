@@ -346,87 +346,87 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;ملف</translation>
+            <translation>&amp;ملف</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;أرشيف جديد...	Ctrl+N</translation>
+            <translation>&amp;أرشيف جديد...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;فتح أرشيف...	Ctrl+O</translation>
+            <translation>&amp;فتح أرشيف...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;إغلاق الأرشيف	Ctrl+C</translation>
+            <translation>&amp;إغلاق الأرشيف	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>&amp;amp;خروج	Alt+F4</translation>
+            <translation>&amp;خروج	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;أوامر</translation>
+            <translation>&amp;أوامر</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;إضافة ملفات...	Alt+A</translation>
+            <translation>&amp;إضافة ملفات...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;استخراج...	Alt+E</translation>
+            <translation>&amp;استخراج...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;اختبار	Alt+T</translation>
+            <translation>&amp;اختبار	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;عرض	Alt+V</translation>
+            <translation>&amp;عرض	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;حذف	Del</translation>
+            <translation>&amp;حذف	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;بحث...	F3</translation>
+            <translation>&amp;بحث...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;معلومات...	Ctrl+I</translation>
+            <translation>&amp;معلومات...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;خيارات</translation>
+            <translation>&amp;خيارات</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;قائمة ملفات مسطحة</translation>
+            <translation>&amp;قائمة ملفات مسطحة</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;مساعدة</translation>
+            <translation>&amp;مساعدة</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;حول ZipFX</translation>
+            <translation>&amp;حول ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>إضافة &amp;amp;مجلد...	Alt+D</translation>
+            <translation>إضافة &amp;مجلد...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;اللغة</translation>
+            <translation>&amp;اللغة</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1042,7 +1042,7 @@ Archive integrity: OK — no corruption detected.</source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;المصدر&gt;
 
-تم الكشف عن الفساد. استخدم "التحقق &amp;amp;&amp;amp;" إصلاح" لمحاولة الإصلاح.</translation>
+تم الكشف عن الفساد. استخدم "التحقق &amp;&amp;" إصلاح" لمحاولة الإصلاح.</translation>
         </message>
         <message>
             <source>
@@ -1119,7 +1119,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;المصدر&gt;&amp;amp;نسخ المسار</translation>
+            <translation>&lt;المصدر&gt;&amp;نسخ المسار</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
@@ -1127,19 +1127,19 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;المصدر&gt;&amp;amp;عكس التحديد</translation>
+            <translation>&lt;المصدر&gt;&amp;عكس التحديد</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;المصدر&gt;&amp;amp;الاحتفاظ بالملفات المعطلة عند الاستخراج</translation>
+            <translation>&lt;المصدر&gt;&amp;الاحتفاظ بالملفات المعطلة عند الاستخراج</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;المصدر&gt;&amp;amp;إلغاء تثبيت ملحق Shell</translation>
+            <translation>&lt;المصدر&gt;&amp;إلغاء تثبيت ملحق Shell</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;المصدر&gt;&amp;amp;التحقق/الإصلاح باستخدام سجل الاسترداد...</translation>
+            <translation>&lt;المصدر&gt;&amp;التحقق/الإصلاح باستخدام سجل الاسترداد...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1266,7 +1266,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>&lt;المصدر&gt;&amp;amp;استبعاد الأنماط...</translation>
+            <translation>&lt;المصدر&gt;&amp;استبعاد الأنماط...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1290,7 +1290,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;المصدر&gt;استخرج &amp;amp;هنا</translation>
+            <translation>&lt;المصدر&gt;استخرج &amp;هنا</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1298,7 +1298,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;المصدر&gt;استخراج بدون &amp;amp;مسارات...</translation>
+            <translation>&lt;المصدر&gt;استخراج بدون &amp;مسارات...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1314,7 +1314,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation>&lt;المصدر&gt;بحث&amp;amp;الملفات... Ctrl+F</translation>
+            <translation>&lt;المصدر&gt;بحث&amp;الملفات... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
@@ -1466,7 +1466,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;المصدر&gt;حفظ&amp;amp;&amp;amp; يغلق</translation>
+            <translation>&lt;المصدر&gt;حفظ&amp;&amp; يغلق</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1490,7 +1490,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;المصدر&gt;حدد &amp;amp;الكل Ctrl+A</translation>
+            <translation>&lt;المصدر&gt;حدد &amp;الكل Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1578,7 +1578,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;المصدر&gt;التحقق &amp;amp;&amp;amp; بصلح</translation>
+            <translation>&lt;المصدر&gt;التحقق &amp;&amp; بصلح</translation>
         </message>
         <message>
             <source>Verify Only</source>

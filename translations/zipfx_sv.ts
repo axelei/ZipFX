@@ -346,87 +346,87 @@ Installera manuellt: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;Arkiv</translation>
+            <translation>&amp;Arkiv</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Nytt arkiv...	Ctrl+N</translation>
+            <translation>&amp;Nytt arkiv...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Öppna arkiv...	Ctrl+O</translation>
+            <translation>&amp;Öppna arkiv...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Stäng arkiv	Ctrl+C</translation>
+            <translation>&amp;Stäng arkiv	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>A&amp;amp;vsluta	Alt+F4</translation>
+            <translation>A&amp;vsluta	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Kommandon</translation>
+            <translation>&amp;Kommandon</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Lägg till filer...	Alt+A</translation>
+            <translation>&amp;Lägg till filer...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>E&amp;amp;xtrahera...	Alt+E</translation>
+            <translation>E&amp;xtrahera...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Testa	Alt+T</translation>
+            <translation>&amp;Testa	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Visa	Alt+V</translation>
+            <translation>&amp;Visa	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Ta bort	Del</translation>
+            <translation>&amp;Ta bort	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Sök...	F3</translation>
+            <translation>&amp;Sök...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Information...	Ctrl+I</translation>
+            <translation>&amp;Information...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Alternativ</translation>
+            <translation>&amp;Alternativ</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Platt filista</translation>
+            <translation>&amp;Platt filista</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Hjälp</translation>
+            <translation>&amp;Hjälp</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;Om ZipFX</translation>
+            <translation>&amp;Om ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Installera manuellt: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Lägg till &amp;amp;mapp...	Alt+D</translation>
+            <translation>Lägg till &amp;mapp...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Språk</translation>
+            <translation>&amp;Språk</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1035,7 +1035,7 @@ Arkivintegritet: OK — ingen korruption upptäckt.</translation>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;källa&gt;
-Korruption upptäckt. Använd 'Verifiera &amp;amp;&amp;amp; Reparera' för att försöka reparera.</translation>
+Korruption upptäckt. Använd 'Verifiera &amp;&amp; Reparera' för att försöka reparera.</translation>
         </message>
         <message>
             <source>
@@ -1109,27 +1109,27 @@ FEL: %1</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;källa&gt;&amp;amp;Kopiera sökväg</translation>
+            <translation>&lt;källa&gt;&amp;Kopiera sökväg</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation>&lt;källa&gt;&amp;amp;Redigera</translation>
+            <translation>&lt;källa&gt;&amp;Redigera</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;källa&gt;&amp;amp;Invertera urval</translation>
+            <translation>&lt;källa&gt;&amp;Invertera urval</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;källa&gt;&amp;amp;Behåll trasiga filer vid extraktion</translation>
+            <translation>&lt;källa&gt;&amp;Behåll trasiga filer vid extraktion</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;källa&gt;&amp;amp;Avinstallera Shell Extension</translation>
+            <translation>&lt;källa&gt;&amp;Avinstallera Shell Extension</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;källa&gt;&amp;amp;Verifiera/Reparera med återställningspost...</translation>
+            <translation>&lt;källa&gt;&amp;Verifiera/Reparera med återställningspost...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1149,7 +1149,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation>&lt;källa&gt;Lägg till &amp;amp;återställningspost...</translation>
+            <translation>&lt;källa&gt;Lägg till &amp;återställningspost...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
@@ -1189,7 +1189,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation>&lt;källa&gt;Batch &amp;amp;operationer...</translation>
+            <translation>&lt;källa&gt;Batch &amp;operationer...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
@@ -1209,7 +1209,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation>&lt;källa&gt;Kon&amp;amp;vertera arkiv...</translation>
+            <translation>&lt;källa&gt;Kon&amp;vertera arkiv...</translation>
         </message>
         <message>
             <source>Convert</source>
@@ -1255,7 +1255,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>&lt;källa&gt;E&amp;amp;xkludera mönster...</translation>
+            <translation>&lt;källa&gt;E&amp;xkludera mönster...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1279,7 +1279,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;källa&gt;Extrahera &amp;amp;här</translation>
+            <translation>&lt;källa&gt;Extrahera &amp;här</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1287,7 +1287,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;källa&gt;Extrahera utan &amp;amp;sökvägar...</translation>
+            <translation>&lt;källa&gt;Extrahera utan &amp;sökvägar...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1327,7 +1327,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation>&lt;källa&gt;Installera Shell &amp;amp;Extension (Utforskaren högerklicka)</translation>
+            <translation>&lt;källa&gt;Installera Shell &amp;Extension (Utforskaren högerklicka)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
@@ -1387,7 +1387,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation>&lt;källa&gt;Lösenord &amp;amp;hanterare...</translation>
+            <translation>&lt;källa&gt;Lösenord &amp;hanterare...</translation>
         </message>
         <message>
             <source>Password Manager</source>
@@ -1419,7 +1419,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation>&lt;källa&gt;Re&amp;amp;pair Arkiv...</translation>
+            <translation>&lt;källa&gt;Re&amp;pair Arkiv...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
@@ -1455,7 +1455,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;källa&gt;Spara &amp;amp;&amp;amp; Nära</translation>
+            <translation>&lt;källa&gt;Spara &amp;&amp; Nära</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1479,7 +1479,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;källa&gt;Välj &amp;amp;Alla Ctrl+A</translation>
+            <translation>&lt;källa&gt;Välj &amp;Alla Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1495,7 +1495,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation>&lt;källa&gt;Ange &amp;amp;lösenord...</translation>
+            <translation>&lt;källa&gt;Ange &amp;lösenord...</translation>
         </message>
         <message>
             <source>Set Password</source>
@@ -1515,7 +1515,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation>&lt;källa&gt;Visa &amp;amp;förhandsgranskningsfönstret</translation>
+            <translation>&lt;källa&gt;Visa &amp;förhandsgranskningsfönstret</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
@@ -1567,7 +1567,7 @@ FEL: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;källa&gt;Verifiera &amp;amp;&amp;amp; Reparera</translation>
+            <translation>&lt;källa&gt;Verifiera &amp;&amp; Reparera</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1667,7 +1667,7 @@ Du kan behöva köra ZipFX som administratör för denna operation.</translation
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>Nytt &amp;amp;fönster Ctrl+Skift+N</translation>
+            <translation>Nytt &amp;fönster Ctrl+Skift+N</translation>
         </message>
         <message>
             <source>
@@ -1720,7 +1720,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Open &amp;Destination Folder After Extraction</source>
-            <translation>Öppna &amp;amp;Destinationsmapp efter extrahering</translation>
+            <translation>Öppna &amp;Destinationsmapp efter extrahering</translation>
         </message>
         <message>
             <source>Packed:</source>

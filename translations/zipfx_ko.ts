@@ -346,87 +346,87 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;파일</translation>
+            <translation>&amp;파일</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;새 아카이브...	Ctrl+N</translation>
+            <translation>&amp;새 아카이브...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;아카이브 열기...	Ctrl+O</translation>
+            <translation>&amp;아카이브 열기...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;아카이브 닫기	Ctrl+C</translation>
+            <translation>&amp;아카이브 닫기	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>종&amp;amp;료	Alt+F4</translation>
+            <translation>종&amp;료	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;명령</translation>
+            <translation>&amp;명령</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;파일 추가...	Alt+A</translation>
+            <translation>&amp;파일 추가...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;추출...	Alt+E</translation>
+            <translation>&amp;추출...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;테스트	Alt+T</translation>
+            <translation>&amp;테스트	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;보기	Alt+V</translation>
+            <translation>&amp;보기	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;삭제	Del</translation>
+            <translation>&amp;삭제	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;찾기...	F3</translation>
+            <translation>&amp;찾기...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;정보...	Ctrl+I</translation>
+            <translation>&amp;정보...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;옵션</translation>
+            <translation>&amp;옵션</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;플랫 파일 목록</translation>
+            <translation>&amp;플랫 파일 목록</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;도움말</translation>
+            <translation>&amp;도움말</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;ZipFX 정보</translation>
+            <translation>&amp;ZipFX 정보</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>&amp;amp;폴더 추가...	Alt+D</translation>
+            <translation>&amp;폴더 추가...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;언어</translation>
+            <translation>&amp;언어</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1042,7 +1042,7 @@ Archive integrity: OK — no corruption detected.</source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;출처&gt;
 
-손상이 감지되었습니다. '확인 &amp;amp;&amp;amp; 수리'를 선택하여 수리를 시도하세요.</translation>
+손상이 감지되었습니다. '확인 &amp;&amp; 수리'를 선택하여 수리를 시도하세요.</translation>
         </message>
         <message>
             <source>
@@ -1131,7 +1131,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&amp;amp;추출 시 손상된 파일 유지</translation>
+            <translation>&amp;추출 시 손상된 파일 유지</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
@@ -1466,7 +1466,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;target state="translated"&gt;저장 &amp;amp;&amp;amp; 닫다</translation>
+            <translation>&lt;target state="translated"&gt;저장 &amp;&amp; 닫다</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1490,7 +1490,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&amp;amp;모두 선택 Ctrl+A</translation>
+            <translation>&amp;모두 선택 Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1578,7 +1578,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;target state="translated"&gt;확인 &amp;amp;&amp;amp; 수리하다</translation>
+            <translation>&lt;target state="translated"&gt;확인 &amp;&amp; 수리하다</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1679,7 +1679,7 @@ You may need to run ZipFX as administrator for this operation.</source>
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>새 창(&amp;amp;Window) Ctrl+Shift+N</translation>
+            <translation>새 창(&amp;Window) Ctrl+Shift+N</translation>
         </message>
         <message>
             <source>
@@ -1732,7 +1732,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Open &amp;Destination Folder After Extraction</source>
-            <translation>추출 후 대상 폴더 열기(&amp;amp;Destination Folder)</translation>
+            <translation>추출 후 대상 폴더 열기(&amp;Destination Folder)</translation>
         </message>
         <message>
             <source>Packed:</source>

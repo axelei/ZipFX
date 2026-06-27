@@ -346,87 +346,87 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;Файл</translation>
+            <translation>&amp;Файл</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Новый архив...	Ctrl+N</translation>
+            <translation>&amp;Новый архив...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Открыть архив...	Ctrl+O</translation>
+            <translation>&amp;Открыть архив...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Закрыть архив	Ctrl+C</translation>
+            <translation>&amp;Закрыть архив	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>В&amp;amp;ыход	Alt+F4</translation>
+            <translation>В&amp;ыход	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Команды</translation>
+            <translation>&amp;Команды</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Добавить файлы...	Alt+A</translation>
+            <translation>&amp;Добавить файлы...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;Извлечь...	Alt+E</translation>
+            <translation>&amp;Извлечь...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Тест	Alt+T</translation>
+            <translation>&amp;Тест	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Просмотр	Alt+V</translation>
+            <translation>&amp;Просмотр	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Удалить	Del</translation>
+            <translation>&amp;Удалить	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Найти...	F3</translation>
+            <translation>&amp;Найти...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Информация...	Ctrl+I</translation>
+            <translation>&amp;Информация...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Параметры</translation>
+            <translation>&amp;Параметры</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Плоский список файлов</translation>
+            <translation>&amp;Плоский список файлов</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Помощь</translation>
+            <translation>&amp;Помощь</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;О ZipFX</translation>
+            <translation>&amp;О ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Добавить &amp;amp;папку...	Alt+D</translation>
+            <translation>Добавить &amp;папку...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Язык</translation>
+            <translation>&amp;Язык</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1035,7 +1035,7 @@ Archive integrity: OK — no corruption detected.</source>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;источник&gt;
-Обнаружена коррупция. Используйте «Проверить &amp;amp;&amp;amp; Ремонт», чтобы попытаться выполнить ремонт.</translation>
+Обнаружена коррупция. Используйте «Проверить &amp;&amp; Ремонт», чтобы попытаться выполнить ремонт.</translation>
         </message>
         <message>
             <source>
@@ -1109,7 +1109,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;источник&gt;&amp;amp;Копировать путь</translation>
+            <translation>&lt;источник&gt;&amp;Копировать путь</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
@@ -1121,15 +1121,15 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;источник&gt;&amp;amp;Сохранять поврежденные файлы при извлечении</translation>
+            <translation>&lt;источник&gt;&amp;Сохранять поврежденные файлы при извлечении</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;источник&gt;&amp;amp;Удалить расширение оболочки</translation>
+            <translation>&lt;источник&gt;&amp;Удалить расширение оболочки</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;источник&gt;&amp;amp;Проверка/восстановление с помощью записи восстановления...</translation>
+            <translation>&lt;источник&gt;&amp;Проверка/восстановление с помощью записи восстановления...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1279,7 +1279,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>Извлечь &amp;amp;здесь</translation>
+            <translation>Извлечь &amp;здесь</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1287,7 +1287,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>Извлечь без &amp;amp;Paths...</translation>
+            <translation>Извлечь без &amp;Paths...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1455,7 +1455,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;источник&gt;Сохранить &amp;amp;&amp;amp; Закрывать</translation>
+            <translation>&lt;источник&gt;Сохранить &amp;&amp; Закрывать</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1567,7 +1567,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;источник&gt;Проверить &amp;amp;&amp;amp; Ремонт</translation>
+            <translation>&lt;источник&gt;Проверить &amp;&amp; Ремонт</translation>
         </message>
         <message>
             <source>Verify Only</source>

@@ -346,87 +346,87 @@ Instale manualmente: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;Ficheiro</translation>
+            <translation>&amp;Ficheiro</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Nova archive...	Ctrl+N</translation>
+            <translation>&amp;Nova archive...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Abrir archive...	Ctrl+O</translation>
+            <translation>&amp;Abrir archive...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Fechar archive	Ctrl+C</translation>
+            <translation>&amp;Fechar archive	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>&amp;amp;Sair	Alt+F4</translation>
+            <translation>&amp;Sair	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Comandos</translation>
+            <translation>&amp;Comandos</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Adicionar ficheiros...	Alt+A</translation>
+            <translation>&amp;Adicionar ficheiros...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>E&amp;amp;xtrair...	Alt+E</translation>
+            <translation>E&amp;xtrair...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Testar	Alt+T</translation>
+            <translation>&amp;Testar	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Ver	Alt+V</translation>
+            <translation>&amp;Ver	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Eliminar	Del</translation>
+            <translation>&amp;Eliminar	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Procurar...	F3</translation>
+            <translation>&amp;Procurar...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Informações...	Ctrl+I</translation>
+            <translation>&amp;Informações...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Opções</translation>
+            <translation>&amp;Opções</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Lista plana</translation>
+            <translation>&amp;Lista plana</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Ajuda</translation>
+            <translation>&amp;Ajuda</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;Sobre o ZipFX</translation>
+            <translation>&amp;Sobre o ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Instale manualmente: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Adicionar &amp;amp;pasta...	Alt+D</translation>
+            <translation>Adicionar &amp;pasta...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Idioma</translation>
+            <translation>&amp;Idioma</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1113,23 +1113,23 @@ ERRO: %1</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation>&lt;fonte&gt;&amp;amp;Editar</translation>
+            <translation>&lt;fonte&gt;&amp;Editar</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;target&gt;&amp;amp;Inverter seleção</translation>
+            <translation>&lt;target&gt;&amp;Inverter seleção</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;target&gt;&amp;amp;Manter arquivos quebrados na extração</translation>
+            <translation>&lt;target&gt;&amp;Manter arquivos quebrados na extração</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;target&gt;&amp;amp;Desinstalar extensão Shell</translation>
+            <translation>&lt;target&gt;&amp;Desinstalar extensão Shell</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;target&gt;&amp;amp;Verificar/Reparar com registro de recuperação...</translation>
+            <translation>&lt;target&gt;&amp;Verificar/Reparar com registro de recuperação...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1209,7 +1209,7 @@ ERRO: %1</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation>&lt;target&gt;Con&amp;amp;vertar arquivo...</translation>
+            <translation>&lt;target&gt;Con&amp;vertar arquivo...</translation>
         </message>
         <message>
             <source>Convert</source>
@@ -1287,7 +1287,7 @@ ERRO: %1</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;target&gt;Extrair sem &amp;amp;Caminhos...</translation>
+            <translation>&lt;target&gt;Extrair sem &amp;Caminhos...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1567,7 +1567,7 @@ ERRO: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;target&gt;Verificar &amp;amp;&amp;amp; Reparar</translation>
+            <translation>&lt;target&gt;Verificar &amp;&amp; Reparar</translation>
         </message>
         <message>
             <source>Verify Only</source>

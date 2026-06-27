@@ -346,87 +346,87 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;文件</translation>
+            <translation>&amp;文件</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;新建归档...	Ctrl+N</translation>
+            <translation>&amp;新建归档...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;打开归档...	Ctrl+O</translation>
+            <translation>&amp;打开归档...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;关闭归档	Ctrl+C</translation>
+            <translation>&amp;关闭归档	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>退&amp;amp;出	Alt+F4</translation>
+            <translation>退&amp;出	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;命令</translation>
+            <translation>&amp;命令</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;添加文件...	Alt+A</translation>
+            <translation>&amp;添加文件...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;提取...	Alt+E</translation>
+            <translation>&amp;提取...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;测试	Alt+T</translation>
+            <translation>&amp;测试	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;查看	Alt+V</translation>
+            <translation>&amp;查看	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;删除	Del</translation>
+            <translation>&amp;删除	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;查找...	F3</translation>
+            <translation>&amp;查找...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;信息...	Ctrl+I</translation>
+            <translation>&amp;信息...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;选项</translation>
+            <translation>&amp;选项</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;平面文件列表</translation>
+            <translation>&amp;平面文件列表</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;帮助</translation>
+            <translation>&amp;帮助</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;关于 ZipFX</translation>
+            <translation>&amp;关于 ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>添加&amp;amp;文件夹...	Alt+D</translation>
+            <translation>添加&amp;文件夹...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;语言</translation>
+            <translation>&amp;语言</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1035,7 +1035,7 @@ Archive integrity: OK — no corruption detected.</source>
             <source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;来源&gt;
-检测到腐败。使用“验证&amp;amp;&amp;amp;” Repair' 尝试修复。</translation>
+检测到腐败。使用“验证&amp;&amp;” Repair' 尝试修复。</translation>
         </message>
         <message>
             <source>
@@ -1117,11 +1117,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;translation&gt;&amp;amp;反转选择</translation>
+            <translation>&lt;translation&gt;&amp;反转选择</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;translation&gt;&amp;amp;在提取时保留损坏的文件</translation>
+            <translation>&lt;translation&gt;&amp;在提取时保留损坏的文件</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
@@ -1129,7 +1129,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;translation&gt;&amp;amp;使用恢复记录验证/修复...</translation>
+            <translation>&lt;translation&gt;&amp;使用恢复记录验证/修复...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1303,7 +1303,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation>&lt;translation&gt;查找文件(&amp;amp;les)... Ctrl+F</translation>
+            <translation>&lt;translation&gt;查找文件(&amp;les)... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
@@ -1455,7 +1455,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;translation&gt;保存&amp;amp;&amp;amp;关闭</translation>
+            <translation>&lt;translation&gt;保存&amp;&amp;关闭</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1479,7 +1479,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;translation&gt;选择全部(&amp;amp;All) Ctrl+A</translation>
+            <translation>&lt;translation&gt;选择全部(&amp;All) Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1567,7 +1567,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;translation&gt;验证&amp;amp;&amp;amp;维修</translation>
+            <translation>&lt;translation&gt;验证&amp;&amp;维修</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1667,7 +1667,7 @@ You may need to run ZipFX as administrator for this operation.</source>
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>新建窗口(&amp;amp;Window) Ctrl+Shift+N</translation>
+            <translation>新建窗口(&amp;Window) Ctrl+Shift+N</translation>
         </message>
         <message>
             <source>

@@ -346,87 +346,87 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;ファイル</translation>
+            <translation>&amp;ファイル</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;新しいアーカイブ...	Ctrl+N</translation>
+            <translation>&amp;新しいアーカイブ...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;アーカイブを開く...	Ctrl+O</translation>
+            <translation>&amp;アーカイブを開く...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;アーカイブを閉じる	Ctrl+C</translation>
+            <translation>&amp;アーカイブを閉じる	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>終&amp;amp;了	Alt+F4</translation>
+            <translation>終&amp;了	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;コマンド</translation>
+            <translation>&amp;コマンド</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;ファイルを追加...	Alt+A</translation>
+            <translation>&amp;ファイルを追加...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;展開...	Alt+E</translation>
+            <translation>&amp;展開...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;テスト	Alt+T</translation>
+            <translation>&amp;テスト	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;表示	Alt+V</translation>
+            <translation>&amp;表示	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;削除	Del</translation>
+            <translation>&amp;削除	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;検索...	F3</translation>
+            <translation>&amp;検索...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;情報...	Ctrl+I</translation>
+            <translation>&amp;情報...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;オプション</translation>
+            <translation>&amp;オプション</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;フラットファイルリスト</translation>
+            <translation>&amp;フラットファイルリスト</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;ヘルプ</translation>
+            <translation>&amp;ヘルプ</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;ZipFXについて</translation>
+            <translation>&amp;ZipFXについて</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Install manually: %1</source>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>&amp;amp;フォルダを追加...	Alt+D</translation>
+            <translation>&amp;フォルダを追加...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;言語</translation>
+            <translation>&amp;言語</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1042,7 +1042,7 @@ Archive integrity: OK — no corruption detected.</source>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;ソース&gt;
 
-破損が検出されました。 「検証&amp;amp;&amp;amp;」を使用します。 「修復」を実行して修復を試みます。</translation>
+破損が検出されました。 「検証&amp;&amp;」を使用します。 「修復」を実行して修復を試みます。</translation>
         </message>
         <message>
             <source>
@@ -1119,27 +1119,27 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;ソース&gt; パスをコピー(&amp;amp;Copy Path)</translation>
+            <translation>&lt;ソース&gt; パスをコピー(&amp;Copy Path)</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation>&lt;ソース&gt;&amp;amp;編集</translation>
+            <translation>&lt;ソース&gt;&amp;編集</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;ソース&gt;選択範囲を反転(&amp;amp;I)</translation>
+            <translation>&lt;ソース&gt;選択範囲を反転(&amp;I)</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation> 解凍時に壊れたファイルを保持する(&amp;amp;E)</translation>
+            <translation> 解凍時に壊れたファイルを保持する(&amp;E)</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation> シェル拡張機能をアンインストール(&amp;amp;A)</translation>
+            <translation> シェル拡張機能をアンインストール(&amp;A)</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;ソース&gt;リカバリ レコードで検証/修復(&amp;amp;R)...</translation>
+            <translation>&lt;ソース&gt;リカバリ レコードで検証/修復(&amp;R)...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1219,7 +1219,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation>アーカイブを変換(&amp;amp;vert)...</translation>
+            <translation>アーカイブを変換(&amp;vert)...</translation>
         </message>
         <message>
             <source>Convert</source>
@@ -1266,7 +1266,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>パターンを除外する(&amp;amp;X)...</translation>
+            <translation>パターンを除外する(&amp;X)...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1430,7 +1430,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation>&lt;ソース&gt;アーカイブを修復(&amp;amp;P)...</translation>
+            <translation>&lt;ソース&gt;アーカイブを修復(&amp;P)...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
@@ -1466,7 +1466,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>保存&amp;amp;近い</translation>
+            <translation>保存&amp;近い</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1490,7 +1490,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>すべてを選択(&amp;amp;A) Ctrl+A</translation>
+            <translation>すべてを選択(&amp;A) Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1578,7 +1578,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>検証&amp;amp;&amp;amp;修理</translation>
+            <translation>検証&amp;&amp;修理</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1679,7 +1679,7 @@ You may need to run ZipFX as administrator for this operation.</source>
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>新規ウィンドウ(&amp;amp;Window) Ctrl+Shift+N</translation>
+            <translation>新規ウィンドウ(&amp;Window) Ctrl+Shift+N</translation>
         </message>
         <message>
             <source>
@@ -1732,7 +1732,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Open &amp;Destination Folder After Extraction</source>
-            <translation>解凍後に宛先フォルダを開く(&amp;amp;D)</translation>
+            <translation>解凍後に宛先フォルダを開く(&amp;D)</translation>
         </message>
         <message>
             <source>Packed:</source>

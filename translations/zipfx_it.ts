@@ -346,87 +346,87 @@ Installa manualmente: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;File</translation>
+            <translation>&amp;File</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Nuovo archivio...	Ctrl+N</translation>
+            <translation>&amp;Nuovo archivio...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Apri archivio...	Ctrl+O</translation>
+            <translation>&amp;Apri archivio...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Chiudi archivio	Ctrl+C</translation>
+            <translation>&amp;Chiudi archivio	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>E&amp;amp;sci	Alt+F4</translation>
+            <translation>E&amp;sci	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Comandi</translation>
+            <translation>&amp;Comandi</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Aggiungi file...	Alt+A</translation>
+            <translation>&amp;Aggiungi file...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>E&amp;amp;strai...	Alt+E</translation>
+            <translation>E&amp;strai...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Test	Alt+T</translation>
+            <translation>&amp;Test	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Visualizza	Alt+V</translation>
+            <translation>&amp;Visualizza	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Elimina	Canc</translation>
+            <translation>&amp;Elimina	Canc</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Cerca...	F3</translation>
+            <translation>&amp;Cerca...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Informazioni...	Ctrl+I</translation>
+            <translation>&amp;Informazioni...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Opzioni</translation>
+            <translation>&amp;Opzioni</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Elenco piatto</translation>
+            <translation>&amp;Elenco piatto</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Aiuto</translation>
+            <translation>&amp;Aiuto</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;Informazioni su ZipFX</translation>
+            <translation>&amp;Informazioni su ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Installa manualmente: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Aggiungi &amp;amp;cartella...	Alt+D</translation>
+            <translation>Aggiungi &amp;cartella...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Lingua</translation>
+            <translation>&amp;Lingua</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />

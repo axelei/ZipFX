@@ -346,87 +346,87 @@ Installer manuelt: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;Arkiv</translation>
+            <translation>&amp;Arkiv</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Nyt arkiv...	Ctrl+N</translation>
+            <translation>&amp;Nyt arkiv...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Åbn arkiv...	Ctrl+O</translation>
+            <translation>&amp;Åbn arkiv...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Luk arkiv	Ctrl+C</translation>
+            <translation>&amp;Luk arkiv	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>A&amp;amp;fslut	Alt+F4</translation>
+            <translation>A&amp;fslut	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Kommandoer</translation>
+            <translation>&amp;Kommandoer</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Tilføj filer...	Alt+A</translation>
+            <translation>&amp;Tilføj filer...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;Udpak...	Alt+E</translation>
+            <translation>&amp;Udpak...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Test	Alt+T</translation>
+            <translation>&amp;Test	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Vis	Alt+V</translation>
+            <translation>&amp;Vis	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Slet	Del</translation>
+            <translation>&amp;Slet	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Søg...	F3</translation>
+            <translation>&amp;Søg...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Information...	Ctrl+I</translation>
+            <translation>&amp;Information...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Indstillinger</translation>
+            <translation>&amp;Indstillinger</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Flad filliste</translation>
+            <translation>&amp;Flad filliste</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Hjælp</translation>
+            <translation>&amp;Hjælp</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;Om ZipFX</translation>
+            <translation>&amp;Om ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Installer manuelt: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Tilføj &amp;amp;mappe...	Alt+D</translation>
+            <translation>Tilføj &amp;mappe...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Sprog</translation>
+            <translation>&amp;Sprog</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1042,7 +1042,7 @@ Arkivintegritet: OK — ingen korruption registreret.</translation>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;kilde&gt;
 
-Korruption opdaget. Brug 'Bekræft &amp;amp;&amp;amp; Reparer' for at forsøge at reparere.</translation>
+Korruption opdaget. Brug 'Bekræft &amp;&amp; Reparer' for at forsøge at reparere.</translation>
         </message>
         <message>
             <source>
@@ -1119,27 +1119,27 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;kilde&gt;&amp;amp;Kopiér sti</translation>
+            <translation>&lt;kilde&gt;&amp;Kopiér sti</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation>&lt;kilde&gt;&amp;amp;Rediger</translation>
+            <translation>&lt;kilde&gt;&amp;Rediger</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;kilde&gt;&amp;amp;Inverter markering</translation>
+            <translation>&lt;kilde&gt;&amp;Inverter markering</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;kilde&gt;&amp;amp;Behold ødelagte filer ved udpakning</translation>
+            <translation>&lt;kilde&gt;&amp;Behold ødelagte filer ved udpakning</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;kilde&gt;&amp;amp;Afinstaller Shell Extension</translation>
+            <translation>&lt;kilde&gt;&amp;Afinstaller Shell Extension</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;kilde&gt;&amp;amp;Bekræft/Reparer med gendannelsespost...</translation>
+            <translation>&lt;kilde&gt;&amp;Bekræft/Reparer med gendannelsespost...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1159,7 +1159,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation>&lt;kilde&gt;Tilføj &amp;amp;gendannelsespost...</translation>
+            <translation>&lt;kilde&gt;Tilføj &amp;gendannelsespost...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
@@ -1199,7 +1199,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation>&lt;kilde&gt;Batch &amp;amp;operationer...</translation>
+            <translation>&lt;kilde&gt;Batch &amp;operationer...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
@@ -1219,7 +1219,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation>&lt;kilde&gt;Kont&amp;amp;vertér arkiv...</translation>
+            <translation>&lt;kilde&gt;Kont&amp;vertér arkiv...</translation>
         </message>
         <message>
             <source>Convert</source>
@@ -1266,7 +1266,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>&lt;kilde&gt;E&amp;amp;ekskluder mønstre...</translation>
+            <translation>&lt;kilde&gt;E&amp;ekskluder mønstre...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1290,7 +1290,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;kilde&gt;Udtræk &amp;amp;her</translation>
+            <translation>&lt;kilde&gt;Udtræk &amp;her</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1298,7 +1298,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;kilde&gt;Udtræk uden &amp;amp;stier...</translation>
+            <translation>&lt;kilde&gt;Udtræk uden &amp;stier...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1338,7 +1338,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation>&lt;kilde&gt;Installer Shell &amp;amp;Extension (Explorer højreklik)</translation>
+            <translation>&lt;kilde&gt;Installer Shell &amp;Extension (Explorer højreklik)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
@@ -1430,7 +1430,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation>&lt;kilde&gt;Re&amp;amp;par arkiv...</translation>
+            <translation>&lt;kilde&gt;Re&amp;par arkiv...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
@@ -1466,7 +1466,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;kilde&gt;Gem &amp;amp;&amp;amp; Tæt</translation>
+            <translation>&lt;kilde&gt;Gem &amp;&amp; Tæt</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1490,7 +1490,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;kilde&gt;Vælg &amp;amp;Alle Ctrl+A</translation>
+            <translation>&lt;kilde&gt;Vælg &amp;Alle Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1506,7 +1506,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation>&lt;kilde&gt;Indstil &amp;amp;adgangskode...</translation>
+            <translation>&lt;kilde&gt;Indstil &amp;adgangskode...</translation>
         </message>
         <message>
             <source>Set Password</source>
@@ -1526,7 +1526,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation>&lt;kilde&gt;Vis &amp;amp;eksempelruden</translation>
+            <translation>&lt;kilde&gt;Vis &amp;eksempelruden</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
@@ -1578,7 +1578,7 @@ FEJL: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;kilde&gt;Bekræft &amp;amp;&amp;amp; Reparation</translation>
+            <translation>&lt;kilde&gt;Bekræft &amp;&amp; Reparation</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1679,7 +1679,7 @@ Du skal muligvis køre ZipFX som administrator for denne handling.</translation>
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>Nyt &amp;amp;vindue Ctrl+Shift+N</translation>
+            <translation>Nyt &amp;vindue Ctrl+Shift+N</translation>
         </message>
         <message>
             <source>
@@ -1732,7 +1732,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Open &amp;Destination Folder After Extraction</source>
-            <translation>Åbn &amp;amp;destinationsmappe efter udtrækning</translation>
+            <translation>Åbn &amp;destinationsmappe efter udtrækning</translation>
         </message>
         <message>
             <source>Packed:</source>

@@ -346,87 +346,87 @@ Asenna manuaalisesti: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&amp;amp;Tiedosto</translation>
+            <translation>&amp;Tiedosto</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&amp;amp;Uusi arkisto...	Ctrl+N</translation>
+            <translation>&amp;Uusi arkisto...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&amp;amp;Avaa arkisto...	Ctrl+O</translation>
+            <translation>&amp;Avaa arkisto...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&amp;amp;Sulje arkisto	Ctrl+C</translation>
+            <translation>&amp;Sulje arkisto	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>L&amp;amp;opeta	Alt+F4</translation>
+            <translation>L&amp;opeta	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&amp;amp;Komennot</translation>
+            <translation>&amp;Komennot</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&amp;amp;Lisää tiedostoja...	Alt+A</translation>
+            <translation>&amp;Lisää tiedostoja...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&amp;amp;Pura...	Alt+E</translation>
+            <translation>&amp;Pura...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&amp;amp;Testaa	Alt+T</translation>
+            <translation>&amp;Testaa	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&amp;amp;Näytä	Alt+V</translation>
+            <translation>&amp;Näytä	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&amp;amp;Poista	Del</translation>
+            <translation>&amp;Poista	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&amp;amp;Etsi...	F3</translation>
+            <translation>&amp;Etsi...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&amp;amp;Tiedot...	Ctrl+I</translation>
+            <translation>&amp;Tiedot...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&amp;amp;Asetukset</translation>
+            <translation>&amp;Asetukset</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&amp;amp;Tasoinen tiedostoluettelo</translation>
+            <translation>&amp;Tasoinen tiedostoluettelo</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&amp;amp;Ohje</translation>
+            <translation>&amp;Ohje</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&amp;amp;Tietoja ZipFX:stä</translation>
+            <translation>&amp;Tietoja ZipFX:stä</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
@@ -593,12 +593,12 @@ Asenna manuaalisesti: %1</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>Lisää &amp;amp;kansio...	Alt+D</translation>
+            <translation>Lisää &amp;kansio...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&amp;amp;Kieli</translation>
+            <translation>&amp;Kieli</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
@@ -1042,7 +1042,7 @@ Arkiston eheys: OK – vioittumista ei havaittu.</translation>
 Corruption detected. Use 'Verify &amp;&amp; Repair' to attempt repair.</source>
             <translation>&lt;lähde&gt;
 
-Korruptio havaittu. Käytä Vahvista &amp;amp;&amp;amp; Korjaa' yrittääksesi korjata.</translation>
+Korruptio havaittu. Käytä Vahvista &amp;&amp; Korjaa' yrittääksesi korjata.</translation>
         </message>
         <message>
             <source>
@@ -1119,27 +1119,27 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;lähde&gt;&amp;amp;kopioi polku</translation>
+            <translation>&lt;lähde&gt;&amp;kopioi polku</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
-            <translation>&lt;lähde&gt;&amp;amp;Muokkaa</translation>
+            <translation>&lt;lähde&gt;&amp;Muokkaa</translation>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;lähde&gt;&amp;amp;Käännä valinta</translation>
+            <translation>&lt;lähde&gt;&amp;Käännä valinta</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;lähde&gt;&amp;amp;Pidä rikkinäiset tiedostot purkamisen aikana</translation>
+            <translation>&lt;lähde&gt;&amp;Pidä rikkinäiset tiedostot purkamisen aikana</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;lähde&gt;&amp;amp;Poista Shell Extension</translation>
+            <translation>&lt;lähde&gt;&amp;Poista Shell Extension</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;lähde&gt;&amp;amp;Vahvista/korjaa palautustietueen avulla...</translation>
+            <translation>&lt;lähde&gt;&amp;Vahvista/korjaa palautustietueen avulla...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
@@ -1159,7 +1159,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation>Lisää &amp;amp;palautustietue...</translation>
+            <translation>Lisää &amp;palautustietue...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
@@ -1199,7 +1199,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation>Erä &amp;amp;toiminnot...</translation>
+            <translation>Erä &amp;toiminnot...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
@@ -1290,7 +1290,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>Pura &amp;amp;täällä</translation>
+            <translation>Pura &amp;täällä</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1298,7 +1298,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>Pura ilman &amp;amp;polkuja...</translation>
+            <translation>Pura ilman &amp;polkuja...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1314,7 +1314,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation>&lt;lähde&gt;Etsi fi&amp;amp;les... Ctrl+F</translation>
+            <translation>&lt;lähde&gt;Etsi fi&amp;les... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
@@ -1430,7 +1430,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Re&amp;pair Archive...</source>
-            <translation>Uudelleen&amp;amp;liitä arkisto...</translation>
+            <translation>Uudelleen&amp;liitä arkisto...</translation>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
@@ -1466,7 +1466,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>Tallenna &amp;amp;&amp;amp; Lähellä</translation>
+            <translation>Tallenna &amp;&amp; Lähellä</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1490,7 +1490,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>Valitse &amp;amp;kaikki Ctrl+A</translation>
+            <translation>Valitse &amp;kaikki Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1506,7 +1506,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation>Aseta &amp;amp;salasana...</translation>
+            <translation>Aseta &amp;salasana...</translation>
         </message>
         <message>
             <source>Set Password</source>
@@ -1526,7 +1526,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation>Näytä &amp;amp;esikatseluruutu</translation>
+            <translation>Näytä &amp;esikatseluruutu</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
@@ -1578,7 +1578,7 @@ VIRHE: %1</translation>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>Vahvista &amp;amp;&amp;amp; Korjaus</translation>
+            <translation>Vahvista &amp;&amp; Korjaus</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1679,7 +1679,7 @@ Saatat joutua suorittamaan ZipFX:n järjestelmänvalvojana tätä toimintoa vart
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>Uusi &amp;amp;ikkuna Ctrl+Shift+N</translation>
+            <translation>Uusi &amp;ikkuna Ctrl+Shift+N</translation>
         </message>
         <message>
             <source>
@@ -1732,7 +1732,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Open &amp;Destination Folder After Extraction</source>
-            <translation>Avaa &amp;amp;kohdekansio purkamisen jälkeen</translation>
+            <translation>Avaa &amp;kohdekansio purkamisen jälkeen</translation>
         </message>
         <message>
             <source>Packed:</source>
