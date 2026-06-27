@@ -505,7 +505,7 @@ void MainWindow::setupUI()
     m_treeView->setContextMenuPolicy(Qt::CustomContextMenu);
     m_treeView->setEnabled(false);
     m_treeView->header()->setStretchLastSection(false);
-    m_treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
+    m_treeView->header()->setMinimumSectionSize(40);
 
     connect(m_treeView, &QTreeView::activated, this, &MainWindow::onItemDoubleClicked);
     connect(m_treeView, &ArchiveTreeView::backspacePressed, this, [this]() {
@@ -2498,15 +2498,28 @@ void MainWindow::refreshFileList()
         autoHide(FileListModel::ColMethod, hasMethod);
     }
 
-    // Restore saved column widths
+    // Restore saved column widths (or apply defaults on first run)
     {
+        static const int kDefaultWidths[FileListModel::ColCount] = {
+            250,  // Name
+            80,   // Size
+            80,   // Packed
+            55,   // Ratio
+            80,   // Method
+            60,   // Type
+            130,  // Modified
+            90,   // CRC
+            80,   // Permissions
+            120,  // Comment
+        };
         QSettings s;
-        for (int col = 1; col < FileListModel::ColCount; ++col)
+        for (int col = 0; col < FileListModel::ColCount; ++col)
         {
+            if (m_treeView->isColumnHidden(col)) continue;
             QString name = m_model->headerData(col, Qt::Horizontal, Qt::DisplayRole).toString();
             QString key  = "columns/" + name + "/width";
-            if (!name.isEmpty() && s.contains(key))
-                m_treeView->setColumnWidth(col, s.value(key).toInt());
+            int w = s.contains(key) ? s.value(key).toInt() : kDefaultWidths[col];
+            m_treeView->setColumnWidth(col, w);
         }
     }
 
