@@ -27,6 +27,22 @@ echo "=== Configuring ${BUILD_DIR} ==="
 echo "=== Building ==="
 "${CMAKE}" --build "${BUILD_DIR}" --target ZipFX -j"$(sysctl -n hw.logicalcpu)"
 
+echo "=== Bundling storm.framework ==="
+# macdeployqt cannot resolve @rpath references that point at CMake build
+# directories; it only searches standard framework locations.  Copy the
+# framework into the bundle first so the existing @executable_path/../Frameworks
+# rpath (already embedded by CMake) resolves it, then strip the absolute
+# build-dir rpath so macdeployqt doesn't error on the dangling entry.
+STORM_SRC="${BUILD_DIR}/_deps/stormlib-build/storm.framework"
+FRAMEWORKS_DIR="${BUILD_DIR}/ZipFX.app/Contents/Frameworks"
+if [ -d "$STORM_SRC" ]; then
+    mkdir -p "$FRAMEWORKS_DIR"
+    cp -R "$STORM_SRC" "$FRAMEWORKS_DIR/"
+    STORM_BUILD_RPATH="$(cd "${BUILD_DIR}/_deps/stormlib-build" && pwd)"
+    install_name_tool -delete_rpath "$STORM_BUILD_RPATH" \
+        "${BUILD_DIR}/ZipFX.app/Contents/MacOS/ZipFX" 2>/dev/null || true
+fi
+
 echo "=== Running macdeployqt ==="
 if command -v macdeployqt &>/dev/null; then
     if ! macdeployqt "${BUILD_DIR}/ZipFX.app" -verbose=1; then
