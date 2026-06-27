@@ -1060,7 +1060,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>  ERROR: could not open.</source>
-            <translation>&lt;source&gt; 오류: 열 수 없습니다.</translation>
+            <translation> 오류: 열 수 없습니다.</translation>
         </message>
         <message>
             <source>  FAILED: %1</source>
@@ -1068,11 +1068,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>  FAILED: extraction failed.</source>
-            <translation>&lt;source&gt; FAILED: 추출에 실패했습니다.</translation>
+            <translation> FAILED: 추출에 실패했습니다.</translation>
         </message>
         <message>
             <source>  FAILED: integrity check failed.</source>
-            <translation>&lt;source&gt; FAILED: 무결성 검사에 실패했습니다.</translation>
+            <translation> FAILED: 무결성 검사에 실패했습니다.</translation>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
@@ -1080,7 +1080,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
-            <translation>&lt;source&gt; OK: 무결성 검사를 통과했습니다.</translation>
+            <translation> OK: 무결성 검사를 통과했습니다.</translation>
         </message>
         <message>
             <source>% of data blocks</source>
@@ -1111,7 +1111,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation>&lt;source&gt;%1 파일이 선택되었습니다, %2</translation>
+            <translation>%1 파일이 선택되었습니다, %2</translation>
         </message>
         <message>
             <source>%1% saved</source>
@@ -1119,7 +1119,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Copy Path</source>
-            <translation>&lt;source&gt;&amp;경로 복사</translation>
+            <translation>&amp;경로 복사</translation>
         </message>
         <message>
             <source>&amp;Edit</source>
@@ -1127,23 +1127,23 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Invert Selection</source>
-            <translation>&lt;source&gt; 및 선택 반전</translation>
+            <translation> 및 선택 반전</translation>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;source&gt;&amp;amp;추출 시 손상된 파일 유지</translation>
+            <translation>&amp;amp;추출 시 손상된 파일 유지</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;source&gt;&amp;쉘 확장 제거</translation>
+            <translation>&amp;쉘 확장 제거</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
-            <translation>&lt;source&gt;&amp;복구 기록으로 확인/복구...</translation>
+            <translation>&amp;복구 기록으로 확인/복구...</translation>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation>&lt;source&gt;... 잘림(%2바이트 중 첫 번째 %1 표시)</translation>
+            <translation>... 잘림(%2바이트 중 첫 번째 %1 표시)</translation>
         </message>
         <message>
             <source>128 KB</source>
@@ -1227,7 +1227,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Convert Archive</source>
-            <translation>&lt;source&gt;아카이브 변환</translation>
+            <translation>아카이브 변환</translation>
         </message>
         <message>
             <source>Converted successfully:
@@ -1290,7 +1290,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;source&gt;추출 및 여기</translation>
+            <translation>추출 및 여기</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1410,11 +1410,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation>&lt;source&gt;유효한 소스 폴더를 선택하세요.</translation>
+            <translation>유효한 소스 폴더를 선택하세요.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation>&lt;source&gt;출력 폴더를 선택해주세요.</translation>
+            <translation>출력 폴더를 선택해주세요.</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
@@ -1470,7 +1470,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save Converted Archive</source>
-            <translation>&lt;source&gt;변환된 아카이브 저장</translation>
+            <translation>변환된 아카이브 저장</translation>
         </message>
         <message>
             <source>Save Password</source>
@@ -1490,7 +1490,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;source&gt;&amp;amp;모두 선택 Ctrl+A</translation>
+            <translation>&amp;amp;모두 선택 Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
@@ -1498,11 +1498,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation>&lt;source&gt;소스 폴더 선택</translation>
+            <translation>소스 폴더 선택</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation>&lt;source&gt;미리 볼 파일을 선택하세요</translation>
+            <translation>미리 볼 파일을 선택하세요</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
@@ -1538,7 +1538,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Start Repair</source>
-            <translation>&lt;source&gt;수리 시작</translation>
+            <translation>수리 시작</translation>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
@@ -1546,7 +1546,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Target format:</source>
-            <translation>&lt;source&gt;대상 형식:</translation>
+            <translation>대상 형식:</translation>
         </message>
         <message>
             <source>Test integrity of all archives</source>
@@ -1562,7 +1562,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Total blocks : %1</source>
-            <translation>&lt;source&gt;총 블록 수: %1</translation>
+            <translation>총 블록 수: %1</translation>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
@@ -1803,7 +1803,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation>&lt;source&gt;%1 파일이 대상에 이미 존재합니다. 무엇을 하고 싶나요?</translation>
+            <translation>%1 파일이 대상에 이미 존재합니다. 무엇을 하고 싶나요?</translation>
         </message>
         <message>
             <source>Cancel</source>

@@ -1619,7 +1619,7 @@ FEJL: %1</translation>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation>&lt;source&gt;rar.exe returnerede fejl %1:
+            <translation>rar.exe returnerede fejl %1:
 
 %2</translation>
         </message>

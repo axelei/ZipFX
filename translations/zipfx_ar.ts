@@ -1076,7 +1076,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>  OK: extracted to %1</source>
-            <translation>&lt;source&gt; حسنًا: تم الاستخراج إلى %1</translation>
+            <translation> حسنًا: تم الاستخراج إلى %1</translation>
         </message>
         <message>
             <source>  OK: integrity check passed.</source>
@@ -1246,7 +1246,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Could not extract "%1".</source>
-            <translation>&lt;source&gt;تعذر استخراج "%1".</translation>
+            <translation>تعذر استخراج "%1".</translation>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
@@ -1406,7 +1406,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation>&lt;source&gt;الأنماط التي يجب تخطيها عند إضافة ملفات (مفصولة بفواصل، على سبيل المثال *.tmp,thumbs.db):</translation>
+            <translation>الأنماط التي يجب تخطيها عند إضافة ملفات (مفصولة بفواصل، على سبيل المثال *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
@@ -1518,7 +1518,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation>&lt;source&gt;تم إلغاء تثبيت ملحق Shell.</translation>
+            <translation>تم إلغاء تثبيت ملحق Shell.</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
@@ -1594,7 +1594,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation>&lt;source&gt;عرض الملفات الفردية غير مدعوم لهذا الأرشيف (%1).</translation>
+            <translation>عرض الملفات الفردية غير مدعوم لهذا الأرشيف (%1).</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
@@ -1803,7 +1803,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation>ملفات &lt;source&gt;%1 موجودة بالفعل في الوجهة. ماذا تريد أن تفعل؟</translation>
+            <translation>ملفات %1 موجودة بالفعل في الوجهة. ماذا تريد أن تفعل؟</translation>
         </message>
         <message>
             <source>Cancel</source>
@@ -1830,7 +1830,7 @@ Cancelled by user.</source>
 %1
 
 Overwrite it?</source>
-            <translation>&lt;source&gt;الملف التالي موجود بالفعل في الوجهة:
+            <translation>الملف التالي موجود بالفعل في الوجهة:
 
 %1
 

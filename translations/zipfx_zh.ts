@@ -1101,7 +1101,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>%1 file(s) selected, %2</source>
-            <translation>&lt;source&gt;已选择 %1 个文件，%2</translation>
+            <translation>已选择 %1 个文件，%2</translation>
         </message>
         <message>
             <source>%1% saved</source>
@@ -1125,7 +1125,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;source&gt;&amp;卸载 Shell 扩展</translation>
+            <translation>&amp;卸载 Shell 扩展</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
@@ -1279,7 +1279,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;source&gt;摘录并在此处</translation>
+            <translation>摘录并在此处</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1523,7 +1523,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Source folder:</source>
-            <translation>&lt;source&gt;源文件夹：</translation>
+            <translation>源文件夹：</translation>
         </message>
         <message>
             <source>Start Repair</source>
@@ -1791,7 +1791,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation>&lt;source&gt;%1 个文件已存在于目标位置。你想做什么？</translation>
+            <translation>%1 个文件已存在于目标位置。你想做什么？</translation>
         </message>
         <message>
             <source>Cancel</source>

@@ -1255,7 +1255,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>&lt;source&gt;Исключить шаблоны...</translation>
+            <translation>Исключить шаблоны...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1279,7 +1279,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;source&gt;Извлечь &amp;amp;здесь</translation>
+            <translation>Извлечь &amp;amp;здесь</translation>
         </message>
         <message>
             <source>Extract all archives</source>
@@ -1287,7 +1287,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;source&gt;Извлечь без &amp;amp;Paths...</translation>
+            <translation>Извлечь без &amp;amp;Paths...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
@@ -1399,7 +1399,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation>&lt;source&gt;Пожалуйста, выберите правильную исходную папку.</translation>
+            <translation>Пожалуйста, выберите правильную исходную папку.</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
@@ -1487,7 +1487,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation>&lt;source&gt;Выбрать исходную папку</translation>
+            <translation>Выбрать исходную папку</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
@@ -1791,7 +1791,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>%1 files already exist at the destination. What would you like to do?</source>
-            <translation>Файлы &lt;source&gt;%1 уже существуют в месте назначения. Что бы вы хотели сделать?</translation>
+            <translation>Файлы %1 уже существуют в месте назначения. Что бы вы хотели сделать?</translation>
         </message>
         <message>
             <source>Cancel</source>

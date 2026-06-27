@@ -6,158 +6,158 @@
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="15" />
             <source>New Archive</source>
-            <translation>&lt;source&gt;New Archive</translation>
+            <translation>New Archive</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="27" />
             <source>Source files / folders to compress:</source>
-            <translation>&lt;source&gt;Source files / folders to compress:</translation>
+            <translation>Source files / folders to compress:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="33" />
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="159" />
             <source>None selected</source>
-            <translation>&lt;source&gt;None selected</translation>
+            <translation>None selected</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="36" />
             <source>Add Files...</source>
-            <translation>&lt;source&gt;Add Files...</translation>
+            <translation>Add Files...</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="40" />
             <source>Add Folder...</source>
-            <translation>&lt;source&gt;Add Folder...</translation>
+            <translation>Add Folder...</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="44" />
             <source>Clear</source>
-            <translation>&lt;source&gt;Clear</translation>
+            <translation>Clear</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="51" />
             <source>Save as:</source>
-            <translation>&lt;source&gt;Save as:</translation>
+            <translation>Save as:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="54" />
             <source>Browse...</source>
-            <translation>&lt;source&gt;Browse...</translation>
+            <translation>Browse...</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="61" />
             <source>Format:</source>
-            <translation>&lt;source&gt;Format:</translation>
+            <translation>Format:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="72" />
             <source>Compression:</source>
-            <translation>&lt;source&gt;Compression:</translation>
+            <translation>Compression:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="77" />
             <source>0 = Store  ·  9 = Maximum</source>
-            <translation>&lt;source&gt;0 = Store  ·  9 = Maximum</translation>
+            <translation>0 = Store  ·  9 = Maximum</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="82" />
             <source>Encryption</source>
-            <translation>&lt;source&gt;Encryption</translation>
+            <translation>Encryption</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="87" />
             <source>No password</source>
-            <translation>&lt;source&gt;No password</translation>
+            <translation>No password</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="88" />
             <source>Password:</source>
-            <translation>&lt;source&gt;Password:</translation>
+            <translation>Password:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="90" />
             <source>Encrypt file names</source>
-            <translation>&lt;source&gt;Encrypt file names</translation>
+            <translation>Encrypt file names</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="91" />
             <source>Only supported by 7z format</source>
-            <translation>&lt;source&gt;Only supported by 7z format</translation>
+            <translation>Only supported by 7z format</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="97" />
             <source>Volumes (split)</source>
-            <translation>&lt;source&gt;Volumes (split)</translation>
+            <translation>Volumes (split)</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="99" />
             <source>Volume size:</source>
-            <translation>&lt;source&gt;Volume size:</translation>
+            <translation>Volume size:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="103" />
             <source> MB</source>
-            <translation>&lt;source&gt; MB</translation>
+            <translation> MB</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="104" />
             <source>None</source>
-            <translation>&lt;source&gt;None</translation>
+            <translation>None</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="210" />
             <source>Please choose a destination path.</source>
-            <translation>&lt;source&gt;Please choose a destination path.</translation>
+            <translation>Please choose a destination path.</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="112" />
             <source>Create</source>
-            <translation>&lt;source&gt;Create</translation>
+            <translation>Create</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="113" />
             <source>Cancel</source>
-            <translation>&lt;source&gt;Cancel</translation>
+            <translation>Cancel</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="127" />
             <source>Select files to compress</source>
-            <translation>&lt;source&gt;Select files to compress</translation>
+            <translation>Select files to compress</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="139" />
             <source>Select folder to compress</source>
-            <translation>&lt;source&gt;Select folder to compress</translation>
+            <translation>Select folder to compress</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="171" />
             <source>%1 file(s)</source>
-            <translation>&lt;source&gt;%1 file(s)</translation>
+            <translation>%1 file(s)</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="172" />
             <source>%1 folder(s)</source>
-            <translation>&lt;source&gt;%1 folder(s)</translation>
+            <translation>%1 folder(s)</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="173" />
             <source>, </source>
-            <translation>&lt;source&gt;,</translation>
+            <translation>,</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="181" />
             <source>Save Archive</source>
-            <translation>&lt;source&gt;Save Archive</translation>
+            <translation>Save Archive</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="182" />
             <source>%1 (*%2)</source>
-            <translation>&lt;source&gt;%1 (*%2)</translation>
+            <translation>%1 (*%2)</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="210" />
             <source>Error</source>
-            <translation>&lt;source&gt;Error</translation>
+            <translation>Error</translation>
         </message>
         <message>
             <source>Optional archive comment</source>
@@ -261,17 +261,17 @@ Install manually: %1</translation>
         <message>
             <location filename="../src/dnd/DragProgressDialog.h" line="20" />
             <source>Extracting files...</source>
-            <translation>&lt;source&gt;Extracting files...</translation>
+            <translation>Extracting files...</translation>
         </message>
         <message>
             <location filename="../src/dnd/DragProgressDialog.h" line="34" />
             <source>After:</source>
-            <translation>&lt;source&gt;After:</translation>
+            <translation>After:</translation>
         </message>
         <message>
             <location filename="../src/dnd/DragProgressDialog.h" line="42" />
             <source>Cancel</source>
-            <translation>&lt;source&gt;Cancel</translation>
+            <translation>Cancel</translation>
         </message>
     </context>
     <context>
@@ -280,47 +280,47 @@ Install manually: %1</translation>
             <location filename="../src/ui/FileListModel.cpp" line="235" />
             <location filename="../src/ui/FileListModel.cpp" line="235" />
             <source>Folder</source>
-            <translation>&lt;source&gt;Folder</translation>
+            <translation>Folder</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="235" />
             <source>File</source>
-            <translation>&lt;source&gt;File</translation>
+            <translation>File</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="273" />
             <source>Name</source>
-            <translation>&lt;source&gt;Name</translation>
+            <translation>Name</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="274" />
             <source>Size</source>
-            <translation>&lt;source&gt;Size</translation>
+            <translation>Size</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="275" />
             <source>Packed</source>
-            <translation>&lt;source&gt;Packed</translation>
+            <translation>Packed</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="276" />
             <source>Type</source>
-            <translation>&lt;source&gt;Type</translation>
+            <translation>Type</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="277" />
             <source>Modified</source>
-            <translation>&lt;source&gt;Modified</translation>
+            <translation>Modified</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="278" />
             <source>CRC</source>
-            <translation>&lt;source&gt;CRC</translation>
+            <translation>CRC</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="279" />
             <source>Permissions</source>
-            <translation>&lt;source&gt;Permissions</translation>
+            <translation>Permissions</translation>
         </message>
         <message>
             <source>Comment</source>
@@ -341,112 +341,112 @@ Install manually: %1</translation>
             <location filename="../src/ui/MainWindow.cpp" line="119" />
             <location filename="../src/ui/MainWindow.cpp" line="136" />
             <source>Ready</source>
-            <translation>&lt;source&gt;Ready</translation>
+            <translation>Ready</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="156" />
             <source>&amp;File</source>
-            <translation>&lt;source&gt;&amp;amp;File</translation>
+            <translation>&amp;amp;File</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="157" />
             <source>&amp;New Archive...	Ctrl+N</source>
-            <translation>&lt;source&gt;&amp;amp;New Archive...	Ctrl+N</translation>
+            <translation>&amp;amp;New Archive...	Ctrl+N</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="158" />
             <source>&amp;Open Archive...	Ctrl+O</source>
-            <translation>&lt;source&gt;&amp;amp;Open Archive...	Ctrl+O</translation>
+            <translation>&amp;amp;Open Archive...	Ctrl+O</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="159" />
             <source>&amp;Close Archive	Ctrl+C</source>
-            <translation>&lt;source&gt;&amp;amp;Close Archive	Ctrl+C</translation>
+            <translation>&amp;amp;Close Archive	Ctrl+C</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="161" />
             <source>E&amp;xit	Alt+F4</source>
-            <translation>&lt;source&gt;E&amp;amp;xit	Alt+F4</translation>
+            <translation>E&amp;amp;xit	Alt+F4</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="164" />
             <source>&amp;Commands</source>
-            <translation>&lt;source&gt;&amp;amp;Commands</translation>
+            <translation>&amp;amp;Commands</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="165" />
             <source>&amp;Add Files...	Alt+A</source>
-            <translation>&lt;source&gt;&amp;amp;Add Files...	Alt+A</translation>
+            <translation>&amp;amp;Add Files...	Alt+A</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="167" />
             <source>E&amp;xtract...	Alt+E</source>
-            <translation>&lt;source&gt;E&amp;amp;xtract...	Alt+E</translation>
+            <translation>E&amp;amp;xtract...	Alt+E</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="168" />
             <source>&amp;Test	Alt+T</source>
-            <translation>&lt;source&gt;&amp;amp;Test	Alt+T</translation>
+            <translation>&amp;amp;Test	Alt+T</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="169" />
             <source>&amp;View	Alt+V</source>
-            <translation>&lt;source&gt;&amp;amp;View	Alt+V</translation>
+            <translation>&amp;amp;View	Alt+V</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="170" />
             <source>&amp;Delete	Del</source>
-            <translation>&lt;source&gt;&amp;amp;Delete	Del</translation>
+            <translation>&amp;amp;Delete	Del</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="172" />
             <source>&amp;Find...	F3</source>
-            <translation>&lt;source&gt;&amp;amp;Find...	F3</translation>
+            <translation>&amp;amp;Find...	F3</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="178" />
             <source>&amp;Information...	Ctrl+I</source>
-            <translation>&lt;source&gt;&amp;amp;Information...	Ctrl+I</translation>
+            <translation>&amp;amp;Information...	Ctrl+I</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="181" />
             <source>&amp;Options</source>
-            <translation>&lt;source&gt;&amp;amp;Options</translation>
+            <translation>&amp;amp;Options</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="182" />
             <source>&amp;Flat File List</source>
-            <translation>&lt;source&gt;&amp;amp;Flat File List</translation>
+            <translation>&amp;amp;Flat File List</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="230" />
             <source>&amp;Help</source>
-            <translation>&lt;source&gt;&amp;amp;Help</translation>
+            <translation>&amp;amp;Help</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="231" />
             <source>&amp;About ZipFX</source>
-            <translation>&lt;source&gt;&amp;amp;About ZipFX</translation>
+            <translation>&amp;amp;About ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="232" />
             <source>About ZipFX</source>
-            <translation>&lt;source&gt;About ZipFX</translation>
+            <translation>About ZipFX</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="241" />
             <source>Tools</source>
-            <translation>&lt;source&gt;Tools</translation>
+            <translation>Tools</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="245" />
             <source>Add</source>
-            <translation>&lt;source&gt;Add</translation>
+            <translation>Add</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="252" />
             <source>Extract To</source>
-            <translation>&lt;source&gt;Extract To</translation>
+            <translation>Extract To</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="255" />
@@ -454,30 +454,30 @@ Install manually: %1</translation>
             <location filename="../src/ui/MainWindow.cpp" line="784" />
             <location filename="../src/ui/MainWindow.cpp" line="788" />
             <source>Test</source>
-            <translation>&lt;source&gt;Test</translation>
+            <translation>Test</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="258" />
             <location filename="../src/ui/MainWindow.cpp" line="1020" />
             <source>View</source>
-            <translation>&lt;source&gt;View</translation>
+            <translation>View</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="263" />
             <location filename="../src/ui/MainWindow.cpp" line="1048" />
             <source>Delete</source>
-            <translation>&lt;source&gt;Delete</translation>
+            <translation>Delete</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="269" />
             <location filename="../src/ui/MainWindow.cpp" line="914" />
             <source>Close</source>
-            <translation>&lt;source&gt;Close</translation>
+            <translation>Close</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="272" />
             <source>Find</source>
-            <translation>&lt;source&gt;Find</translation>
+            <translation>Find</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="280" />
@@ -487,12 +487,12 @@ Install manually: %1</translation>
             <location filename="../src/ui/MainWindow.cpp" line="822" />
             <location filename="../src/ui/MainWindow.cpp" line="930" />
             <source>Info</source>
-            <translation>&lt;source&gt;Info</translation>
+            <translation>Info</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="292" />
             <source>Address:</source>
-            <translation>&lt;source&gt;Address:</translation>
+            <translation>Address:</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="359" />
@@ -505,64 +505,64 @@ Install manually: %1</translation>
             <location filename="../src/ui/MainWindow.cpp" line="1235" />
             <location filename="../src/ui/MainWindow.cpp" line="1268" />
             <source>Error</source>
-            <translation>&lt;source&gt;Error</translation>
+            <translation>Error</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="359" />
             <source>Format not supported.</source>
-            <translation>&lt;source&gt;Format not supported.</translation>
+            <translation>Format not supported.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="377" />
             <source>Could not create archive.</source>
-            <translation>&lt;source&gt;Could not create archive.</translation>
+            <translation>Could not create archive.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="451" />
             <source>Archive created</source>
-            <translation>&lt;source&gt;Archive created</translation>
+            <translation>Archive created</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="464" />
             <source>Open Archive</source>
-            <translation>&lt;source&gt;Open Archive</translation>
+            <translation>Open Archive</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="478" />
             <source>Open Failed</source>
-            <translation>&lt;source&gt;Open Failed</translation>
+            <translation>Open Failed</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="479" />
             <source>Could not open the archive.</source>
-            <translation>&lt;source&gt;Could not open the archive.</translation>
+            <translation>Could not open the archive.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="487" />
             <source>Opened: %1</source>
-            <translation>&lt;source&gt;Opened: %1</translation>
+            <translation>Opened: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="503" />
             <source>No archive open</source>
-            <translation>&lt;source&gt;No archive open</translation>
+            <translation>No archive open</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="510" />
             <location filename="../src/ui/MainWindow.cpp" line="523" />
             <source>No archive open or read-only.</source>
-            <translation>&lt;source&gt;No archive open or read-only.</translation>
+            <translation>No archive open or read-only.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="514" />
             <source>Add Files</source>
-            <translation>&lt;source&gt;Add Files</translation>
+            <translation>Add Files</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="401" />
             <location filename="../src/ui/MainWindow.cpp" line="557" />
             <source>Adding files...</source>
-            <translation>&lt;source&gt;Adding files...</translation>
+            <translation>Adding files...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="557" />
@@ -570,56 +570,56 @@ Install manually: %1</translation>
             <location filename="../src/ui/MainWindow.cpp" line="763" />
             <location filename="../src/ui/MainWindow.cpp" line="1155" />
             <source>Cancel</source>
-            <translation>&lt;source&gt;Cancel</translation>
+            <translation>Cancel</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="582" />
             <location filename="../src/ui/MainWindow.cpp" line="592" />
             <source>Adding: %1</source>
-            <translation>&lt;source&gt;Adding: %1</translation>
+            <translation>Adding: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="431" />
             <location filename="../src/ui/MainWindow.cpp" line="598" />
             <source>Saving...</source>
-            <translation>&lt;source&gt;Saving...</translation>
+            <translation>Saving...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="106" />
             <location filename="../src/ui/MainWindow.cpp" line="129" />
             <source>ZipFX %1</source>
-            <translation>&lt;source&gt;ZipFX %1</translation>
+            <translation>ZipFX %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="166" />
             <source>Add Fol&amp;der...	Alt+D</source>
-            <translation>&lt;source&gt;Add Fol&amp;amp;der...	Alt+D</translation>
+            <translation>Add Fol&amp;amp;der...	Alt+D</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="190" />
             <source>&amp;Language</source>
-            <translation>&lt;source&gt;&amp;amp;Language</translation>
+            <translation>&amp;amp;Language</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="201" />
             <source>English</source>
-            <translation>&lt;source&gt;English</translation>
+            <translation>English</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="202" />
             <source>Spanish</source>
-            <translation>&lt;source&gt;Spanish</translation>
+            <translation>Spanish</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="223" />
             <source>Language</source>
-            <translation>&lt;source&gt;Language</translation>
+            <translation>Language</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="224" />
             <source>Language changed to %1.
 Restart the app for the change to take full effect.</source>
-            <translation>&lt;source&gt;Language changed to %1.
+            <translation>Language changed to %1.
 
 Restart the app for the change to take full effect.</translation>
         </message>
@@ -629,7 +629,7 @@ Restart the app for the change to take full effect.</translation>
 
 Multiplatform archiver for power users.
 Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</source>
-            <translation>&lt;source&gt;ZipFX v%1
+            <translation>ZipFX v%1
 
 
 
@@ -641,63 +641,63 @@ Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
             <location filename="../src/ui/MainWindow.cpp" line="249" />
             <location filename="../src/ui/MainWindow.cpp" line="527" />
             <source>Add Folder</source>
-            <translation>&lt;source&gt;Add Folder</translation>
+            <translation>Add Folder</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="297" />
             <source>Go to parent directory</source>
-            <translation>&lt;source&gt;Go to parent directory</translation>
+            <translation>Go to parent directory</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="311" />
             <source>Search files...</source>
-            <translation>&lt;source&gt;Search files...</translation>
+            <translation>Search files...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="439" />
             <location filename="../src/ui/MainWindow.cpp" line="602" />
             <source>Failed to save archive.</source>
-            <translation>&lt;source&gt;Failed to save archive.</translation>
+            <translation>Failed to save archive.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="615" />
             <source>Extract to</source>
-            <translation>&lt;source&gt;Extract to</translation>
+            <translation>Extract to</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="626" />
             <source>Select files first.</source>
-            <translation>&lt;source&gt;Select files first.</translation>
+            <translation>Select files first.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="638" />
             <location filename="../src/ui/MainWindow.cpp" line="757" />
             <location filename="../src/ui/MainWindow.cpp" line="930" />
             <source>Archive is empty.</source>
-            <translation>&lt;source&gt;Archive is empty.</translation>
+            <translation>Archive is empty.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="663" />
             <source>Extracting...</source>
-            <translation>&lt;source&gt;Extracting...</translation>
+            <translation>Extracting...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="681" />
             <location filename="../src/ui/MainWindow.cpp" line="1165" />
             <source>Extracting: %1</source>
-            <translation>&lt;source&gt;Extracting: %1</translation>
+            <translation>Extracting: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="690" />
             <source>Overwrite?</source>
-            <translation>&lt;source&gt;Overwrite?</translation>
+            <translation>Overwrite?</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="691" />
             <source>File exists:
 %1
 Overwrite?</source>
-            <translation>&lt;source&gt;File exists:
+            <translation>File exists:
 
 %1
 
@@ -706,52 +706,52 @@ Overwrite?</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="713" />
             <source>Extraction complete</source>
-            <translation>&lt;source&gt;Extraction complete</translation>
+            <translation>Extraction complete</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="718" />
             <source>Extract selected to</source>
-            <translation>&lt;source&gt;Extract selected to</translation>
+            <translation>Extract selected to</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="763" />
             <source>Testing integrity...</source>
-            <translation>&lt;source&gt;Testing integrity...</translation>
+            <translation>Testing integrity...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="773" />
             <source>Testing: %1</source>
-            <translation>&lt;source&gt;Testing: %1</translation>
+            <translation>Testing: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="784" />
             <source>Integrity check passed.</source>
-            <translation>&lt;source&gt;Integrity check passed.</translation>
+            <translation>Integrity check passed.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="786" />
             <source>Integrity check cancelled.</source>
-            <translation>&lt;source&gt;Integrity check cancelled.</translation>
+            <translation>Integrity check cancelled.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="788" />
             <source>Integrity check FAILED.</source>
-            <translation>&lt;source&gt;Integrity check FAILED.</translation>
+            <translation>Integrity check FAILED.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="804" />
             <source>Could not read file.</source>
-            <translation>&lt;source&gt;Could not read file.</translation>
+            <translation>Could not read file.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="813" />
             <source>View: %1</source>
-            <translation>&lt;source&gt;View: %1</translation>
+            <translation>View: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="817" />
             <source>%1  —  %2 bytes</source>
-            <translation>&lt;source&gt;%1  —  %2 bytes</translation>
+            <translation>%1  —  %2 bytes</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="823" />
@@ -759,7 +759,7 @@ Overwrite?</translation>
 Size: %2 bytes
 
 Cannot preview this format.</source>
-            <translation>&lt;source&gt;File: %1
+            <translation>File: %1
 
 Size: %2 bytes
 
@@ -770,14 +770,14 @@ Cannot preview this format.</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="851" />
             <source>Failed to load image.</source>
-            <translation>&lt;source&gt;Failed to load image.</translation>
+            <translation>Failed to load image.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="878" />
             <source>
 
 ... truncated (showing first 100000 bytes)</source>
-            <translation>&lt;source&gt;
+            <translation>
 
 
 
@@ -786,114 +786,114 @@ Cannot preview this format.</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="906" />
             <source>... truncated (showing first 4096 bytes)</source>
-            <translation>&lt;source&gt;... truncated (showing first 4096 bytes)</translation>
+            <translation>... truncated (showing first 4096 bytes)</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="945" />
             <source>Archive: %1
 </source>
-            <translation>&lt;source&gt;Archive: %1</translation>
+            <translation>Archive: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="946" />
             <source>Format: %1
 </source>
-            <translation>&lt;source&gt;Format: %1</translation>
+            <translation>Format: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="947" />
             <source>Files: %1
 </source>
-            <translation>&lt;source&gt;Files: %1</translation>
+            <translation>Files: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="948" />
             <source>Folders: %1
 </source>
-            <translation>&lt;source&gt;Folders: %1</translation>
+            <translation>Folders: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="949" />
             <source>Total size: %1 bytes
 </source>
-            <translation>&lt;source&gt;Total size: %1 bytes</translation>
+            <translation>Total size: %1 bytes</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="950" />
             <source>Packed size: %1 bytes
 </source>
-            <translation>&lt;source&gt;Packed size: %1 bytes</translation>
+            <translation>Packed size: %1 bytes</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="954" />
             <source>Compression ratio: %1%
 </source>
-            <translation>&lt;source&gt;Compression ratio: %1%</translation>
+            <translation>Compression ratio: %1%</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="957" />
             <source>Archive Information</source>
-            <translation>&lt;source&gt;Archive Information</translation>
+            <translation>Archive Information</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="970" />
             <source>Confirm</source>
-            <translation>&lt;source&gt;Confirm</translation>
+            <translation>Confirm</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="971" />
             <source>Delete %1 files?</source>
-            <translation>&lt;source&gt;Delete %1 files?</translation>
+            <translation>Delete %1 files?</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1011" />
             <source>Extract...</source>
-            <translation>&lt;source&gt;Extract...</translation>
+            <translation>Extract...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1025" />
             <source>Rename...</source>
-            <translation>&lt;source&gt;Rename...</translation>
+            <translation>Rename...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1032" />
             <source>Rename</source>
-            <translation>&lt;source&gt;Rename</translation>
+            <translation>Rename</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1033" />
             <source>New name for %1:</source>
-            <translation>&lt;source&gt;New name for %1:</translation>
+            <translation>New name for %1:</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1044" />
             <source>Rename failed.</source>
-            <translation>&lt;source&gt;Rename failed.</translation>
+            <translation>Rename failed.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1155" />
             <source>Preparing files for drag...</source>
-            <translation>&lt;source&gt;Preparing files for drag...</translation>
+            <translation>Preparing files for drag...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1235" />
             <source>Read-only format.</source>
-            <translation>&lt;source&gt;Read-only format.</translation>
+            <translation>Read-only format.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1268" />
             <source>Failed to save.</source>
-            <translation>&lt;source&gt;Failed to save.</translation>
+            <translation>Failed to save.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1286" />
             <source>%1 files</source>
-            <translation>&lt;source&gt;%1 files</translation>
+            <translation>%1 files</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1287" />
             <source>ZipFX — %1</source>
-            <translation>&lt;source&gt;ZipFX — %1</translation>
+            <translation>ZipFX — %1</translation>
         </message>
         <message>
             <source>
@@ -1769,22 +1769,22 @@ Cancelled by user.</translation>
         <message>
             <location filename="../src/ui/PowerManager.h" line="22" />
             <source>Do nothing</source>
-            <translation>&lt;source&gt;Do nothing</translation>
+            <translation>Do nothing</translation>
         </message>
         <message>
             <location filename="../src/ui/PowerManager.h" line="23" />
             <source>Sleep</source>
-            <translation>&lt;source&gt;Sleep</translation>
+            <translation>Sleep</translation>
         </message>
         <message>
             <location filename="../src/ui/PowerManager.h" line="24" />
             <source>Hibernate</source>
-            <translation>&lt;source&gt;Hibernate</translation>
+            <translation>Hibernate</translation>
         </message>
         <message>
             <location filename="../src/ui/PowerManager.h" line="25" />
             <source>Shut down</source>
-            <translation>&lt;source&gt;Shut down</translation>
+            <translation>Shut down</translation>
         </message>
         <message>
             <source>After the operation completes:</source>

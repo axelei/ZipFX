@@ -1084,7 +1084,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>% of data blocks</source>
-            <translation>データ ブロックの &lt;source&gt;%</translation>
+            <translation>データ ブロックの %</translation>
         </message>
         <message>
             <source>%1
@@ -1131,11 +1131,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>&amp;Keep Broken Files on Extraction</source>
-            <translation>&lt;source&gt; 解凍時に壊れたファイルを保持する(&amp;amp;E)</translation>
+            <translation> 解凍時に壊れたファイルを保持する(&amp;amp;E)</translation>
         </message>
         <message>
             <source>&amp;Uninstall Shell Extension</source>
-            <translation>&lt;source&gt; シェル拡張機能をアンインストール(&amp;amp;A)</translation>
+            <translation> シェル拡張機能をアンインストール(&amp;amp;A)</translation>
         </message>
         <message>
             <source>&amp;Verify/Repair with Recovery Record...</source>
@@ -1143,7 +1143,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>... truncated (showing first %1 of %2 bytes)</source>
-            <translation>&lt;source&gt;... 切り詰められました (%2 バイトの最初の %1 を表示)</translation>
+            <translation>... 切り詰められました (%2 バイトの最初の %1 を表示)</translation>
         </message>
         <message>
             <source>128 KB</source>
@@ -1159,15 +1159,15 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Add &amp;Recovery Record...</source>
-            <translation>&lt;source&gt;リカバリ レコードの追加と...</translation>
+            <translation>リカバリ レコードの追加と...</translation>
         </message>
         <message>
             <source>Add Recovery Record</source>
-            <translation>&lt;source&gt;リカバリレコードの追加</translation>
+            <translation>リカバリレコードの追加</translation>
         </message>
         <message>
             <source>Add via rar.exe (if installed)...</source>
-            <translation>&lt;source&gt;rar.exe 経由で追加 (インストールされている場合)...</translation>
+            <translation>rar.exe 経由で追加 (インストールされている場合)...</translation>
         </message>
         <message>
             <source>Add...</source>
@@ -1191,7 +1191,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Attempts to recover readable files from a corrupted archive.</source>
-            <translation>&lt;source&gt;破損したアーカイブから読み取り可能なファイルの回復を試みます。</translation>
+            <translation>破損したアーカイブから読み取り可能なファイルの回復を試みます。</translation>
         </message>
         <message>
             <source>Bad blocks   : %1</source>
@@ -1199,11 +1199,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Batch &amp;Operations...</source>
-            <translation>&lt;source&gt;バッチとオペレーション...</translation>
+            <translation>バッチとオペレーション...</translation>
         </message>
         <message>
             <source>Batch Operations</source>
-            <translation>&lt;source&gt;バッチ操作</translation>
+            <translation>バッチ操作</translation>
         </message>
         <message>
             <source>Block size:</source>
@@ -1219,7 +1219,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Con&amp;vert Archive...</source>
-            <translation>&lt;source&gt;アーカイブを変換(&amp;amp;vert)...</translation>
+            <translation>アーカイブを変換(&amp;amp;vert)...</translation>
         </message>
         <message>
             <source>Convert</source>
@@ -1232,7 +1232,7 @@ ERROR: %1</source>
         <message>
             <source>Converted successfully:
 %1</source>
-            <translation>&lt;source&gt;正常に変換されました:
+            <translation>正常に変換されました:
 
 %1</translation>
         </message>
@@ -1242,7 +1242,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Could not create temporary directory.</source>
-            <translation>&lt;source&gt;一時ディレクトリを作成できませんでした。</translation>
+            <translation>一時ディレクトリを作成できませんでした。</translation>
         </message>
         <message>
             <source>Could not extract "%1".</source>
@@ -1250,23 +1250,23 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Create Sidecar (.rec)</source>
-            <translation>&lt;source&gt;サイドカーの作成 (.rec)</translation>
+            <translation>サイドカーの作成 (.rec)</translation>
         </message>
         <message>
             <source>Creating archive...</source>
-            <translation>&lt;source&gt;アーカイブを作成しています...</translation>
+            <translation>アーカイブを作成しています...</translation>
         </message>
         <message>
             <source>Creating recovery record...</source>
-            <translation>&lt;source&gt;リカバリレコードを作成しています...</translation>
+            <translation>リカバリレコードを作成しています...</translation>
         </message>
         <message>
             <source>Delete Selected</source>
-            <translation>&lt;source&gt;選択項目を削除</translation>
+            <translation>選択項目を削除</translation>
         </message>
         <message>
             <source>E&amp;xclude Patterns...</source>
-            <translation>&lt;source&gt;パターンを除外する(&amp;amp;X)...</translation>
+            <translation>パターンを除外する(&amp;amp;X)...</translation>
         </message>
         <message>
             <source>ERROR: %1</source>
@@ -1274,7 +1274,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>ERROR: Cannot create temporary directory.</source>
-            <translation>&lt;source&gt;エラー: 一時ディレクトリを作成できません。</translation>
+            <translation>エラー: 一時ディレクトリを作成できません。</translation>
         </message>
         <message>
             <source>ERROR: Failed to write recovered archive.</source>
@@ -1282,31 +1282,31 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Errors detected. Extracting recoverable files...</source>
-            <translation>&lt;source&gt;エラーが検出されました。回復可能なファイルを抽出しています...</translation>
+            <translation>エラーが検出されました。回復可能なファイルを抽出しています...</translation>
         </message>
         <message>
             <source>Exclude Patterns</source>
-            <translation>&lt;source&gt;除外パターン</translation>
+            <translation>除外パターン</translation>
         </message>
         <message>
             <source>Extract &amp;Here</source>
-            <translation>&lt;source&gt;抜粋してここに</translation>
+            <translation>抜粋してここに</translation>
         </message>
         <message>
             <source>Extract all archives</source>
-            <translation>&lt;source&gt;すべてのアーカイブを抽出する</translation>
+            <translation>すべてのアーカイブを抽出する</translation>
         </message>
         <message>
             <source>Extract without &amp;Paths...</source>
-            <translation>&lt;source&gt;パスを使用せずに抽出...</translation>
+            <translation>パスを使用せずに抽出...</translation>
         </message>
         <message>
             <source>Extract without paths to</source>
-            <translation>&lt;source&gt;パスを指定せずに抽出します</translation>
+            <translation>パスを指定せずに抽出します</translation>
         </message>
         <message>
             <source>Failed to save converted archive.</source>
-            <translation>&lt;source&gt;変換されたアーカイブの保存に失敗しました。</translation>
+            <translation>変換されたアーカイブの保存に失敗しました。</translation>
         </message>
         <message>
             <source>Files:</source>
@@ -1314,7 +1314,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Find Fi&amp;les...	Ctrl+F</source>
-            <translation>&lt;source&gt;ファイルを検索... Ctrl+F</translation>
+            <translation>ファイルを検索... Ctrl+F</translation>
         </message>
         <message>
             <source>Folder: %1</source>
@@ -1330,19 +1330,19 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Found %1 archive(s).</source>
-            <translation>&lt;source&gt;%1 個のアーカイブが見つかりました。</translation>
+            <translation>%1 個のアーカイブが見つかりました。</translation>
         </message>
         <message>
             <source>Include subfolders</source>
-            <translation>&lt;source&gt;サブフォルダーを含める</translation>
+            <translation>サブフォルダーを含める</translation>
         </message>
         <message>
             <source>Install Shell &amp;Extension (Explorer right-click)</source>
-            <translation>&lt;source&gt;シェルと拡張機能のインストール (エクスプローラーを右クリック)</translation>
+            <translation>シェルと拡張機能のインストール (エクスプローラーを右クリック)</translation>
         </message>
         <message>
             <source>Integrity test PASSED — archive appears undamaged.</source>
-            <translation>&lt;source&gt;整合性テストに合格しました — アーカイブは損傷していないように見えます。</translation>
+            <translation>整合性テストに合格しました — アーカイブは損傷していないように見えます。</translation>
         </message>
         <message>
             <source>Method:</source>
@@ -1350,15 +1350,15 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Native RAR recovery record added.</source>
-            <translation>&lt;source&gt;ネイティブ RAR リカバリ レコードが追加されました。</translation>
+            <translation>ネイティブ RAR リカバリ レコードが追加されました。</translation>
         </message>
         <message>
             <source>No archive open.</source>
-            <translation>&lt;source&gt;アーカイブが開いていません。</translation>
+            <translation>アーカイブが開いていません。</translation>
         </message>
         <message>
             <source>No files could be recovered.</source>
-            <translation>&lt;source&gt;ファイルを回復できませんでした。</translation>
+            <translation>ファイルを回復できませんでした。</translation>
         </message>
         <message>
             <source>No selection</source>
@@ -1366,7 +1366,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>No sidecar (.rec) file found for this archive.</source>
-            <translation>&lt;source&gt;このアーカイブにはサイドカー (.rec) ファイルが見つかりません。</translation>
+            <translation>このアーカイブにはサイドカー (.rec) ファイルが見つかりません。</translation>
         </message>
         <message>
             <source>Open</source>
@@ -1398,7 +1398,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Password &amp;Manager...</source>
-            <translation>&lt;source&gt;パスワードとマネージャー...</translation>
+            <translation>パスワードとマネージャー...</translation>
         </message>
         <message>
             <source>Password Manager</source>
@@ -1406,15 +1406,15 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Patterns to skip when adding files (comma-separated, e.g. *.tmp,thumbs.db):</source>
-            <translation>&lt;source&gt;ファイルを追加するときにスキップするパターン (カンマ区切り、例: *.tmp,thumbs.db):</translation>
+            <translation>ファイルを追加するときにスキップするパターン (カンマ区切り、例: *.tmp,thumbs.db):</translation>
         </message>
         <message>
             <source>Please select a valid source folder.</source>
-            <translation>&lt;source&gt;有効なソース フォルダーを選択してください。</translation>
+            <translation>有効なソース フォルダーを選択してください。</translation>
         </message>
         <message>
             <source>Please select an output folder.</source>
-            <translation>&lt;source&gt;出力フォルダーを選択してください。</translation>
+            <translation>出力フォルダーを選択してください。</translation>
         </message>
         <message>
             <source>RAR repair completed.</source>
@@ -1434,7 +1434,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Recovered %1 file(s), failed: %2.</source>
-            <translation>&lt;source&gt;%1 ファイルをリカバリしましたが、失敗しました: %2。</translation>
+            <translation>%1 ファイルをリカバリしましたが、失敗しました: %2。</translation>
         </message>
         <message>
             <source>Recovery Record</source>
@@ -1450,7 +1450,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Remember this password for this archive?</source>
-            <translation>&lt;source&gt;このアーカイブのパスワードを覚えていますか?</translation>
+            <translation>このアーカイブのパスワードを覚えていますか?</translation>
         </message>
         <message>
             <source>Repair</source>
@@ -1466,7 +1466,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save &amp;&amp; Close</source>
-            <translation>&lt;source&gt;保存&amp;amp;近い</translation>
+            <translation>保存&amp;amp;近い</translation>
         </message>
         <message>
             <source>Save Converted Archive</source>
@@ -1478,11 +1478,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Save Recovered Files</source>
-            <translation>&lt;source&gt;回復したファイルを保存する</translation>
+            <translation>回復したファイルを保存する</translation>
         </message>
         <message>
             <source>Saved passwords are applied automatically when opening archives.</source>
-            <translation>&lt;source&gt;保存されたパスワードは、アーカイブを開くときに自動的に適用されます。</translation>
+            <translation>保存されたパスワードは、アーカイブを開くときに自動的に適用されます。</translation>
         </message>
         <message>
             <source>Saved: %1</source>
@@ -1490,23 +1490,23 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Select &amp;All	Ctrl+A</source>
-            <translation>&lt;source&gt;すべてを選択(&amp;amp;A) Ctrl+A</translation>
+            <translation>すべてを選択(&amp;amp;A) Ctrl+A</translation>
         </message>
         <message>
             <source>Select Output Folder</source>
-            <translation>&lt;source&gt;出力フォルダーの選択</translation>
+            <translation>出力フォルダーの選択</translation>
         </message>
         <message>
             <source>Select Source Folder</source>
-            <translation>&lt;source&gt;ソースフォルダーの選択</translation>
+            <translation>ソースフォルダーの選択</translation>
         </message>
         <message>
             <source>Select a file to preview</source>
-            <translation>&lt;source&gt;プレビューするファイルを選択してください</translation>
+            <translation>プレビューするファイルを選択してください</translation>
         </message>
         <message>
             <source>Set &amp;Password...</source>
-            <translation>&lt;source&gt;パスワードを設定して...</translation>
+            <translation>パスワードを設定して...</translation>
         </message>
         <message>
             <source>Set Password</source>
@@ -1518,15 +1518,15 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Shell extension uninstalled.</source>
-            <translation>&lt;source&gt;シェル拡張機能がアンインストールされました。</translation>
+            <translation>シェル拡張機能がアンインストールされました。</translation>
         </message>
         <message>
             <source>Shell extensions are only available on Windows.</source>
-            <translation>&lt;source&gt;シェル拡張機能は Windows でのみ使用できます。</translation>
+            <translation>シェル拡張機能は Windows でのみ使用できます。</translation>
         </message>
         <message>
             <source>Show &amp;Preview Pane</source>
-            <translation>&lt;source&gt;「表示とプレビュー」ペイン</translation>
+            <translation>「表示とプレビュー」ペイン</translation>
         </message>
         <message>
             <source>Sidecar created: %1</source>
@@ -1542,7 +1542,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Target format not supported for writing.</source>
-            <translation>&lt;source&gt;ターゲット形式は書き込みがサポートされていません。</translation>
+            <translation>ターゲット形式は書き込みがサポートされていません。</translation>
         </message>
         <message>
             <source>Target format:</source>
@@ -1550,11 +1550,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Test integrity of all archives</source>
-            <translation>&lt;source&gt;すべてのアーカイブの整合性をテストする</translation>
+            <translation>すべてのアーカイブの整合性をテストする</translation>
         </message>
         <message>
             <source>Testing archive integrity...</source>
-            <translation>&lt;source&gt;アーカイブの整合性をテストしています...</translation>
+            <translation>アーカイブの整合性をテストしています...</translation>
         </message>
         <message>
             <source>The file "%1" is empty.</source>
@@ -1566,7 +1566,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Try repairing with rar.exe (native RAR recovery record)?</source>
-            <translation>&lt;source&gt;rar.exe (ネイティブ RAR リカバリ レコード) で修復してみますか?</translation>
+            <translation>rar.exe (ネイティブ RAR リカバリ レコード) で修復してみますか?</translation>
         </message>
         <message>
             <source>Uncompressed:</source>
@@ -1578,7 +1578,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify &amp;&amp; Repair</source>
-            <translation>&lt;source&gt;検証&amp;amp;&amp;amp;修理</translation>
+            <translation>検証&amp;amp;&amp;amp;修理</translation>
         </message>
         <message>
             <source>Verify Only</source>
@@ -1586,7 +1586,7 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Verify/Repair with Recovery Record</source>
-            <translation>&lt;source&gt;リカバリレコードによる検証/修復</translation>
+            <translation>リカバリレコードによる検証/修復</translation>
         </message>
         <message>
             <source>Verifying...</source>
@@ -1594,11 +1594,11 @@ ERROR: %1</source>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive (%1).</source>
-            <translation>&lt;source&gt;このアーカイブ (%1) では、個々のファイルの表示はサポートされていません。</translation>
+            <translation>このアーカイブ (%1) では、個々のファイルの表示はサポートされていません。</translation>
         </message>
         <message>
             <source>Viewing individual files is not supported for this archive.</source>
-            <translation>&lt;source&gt;このアーカイブでは、個々のファイルの表示はサポートされていません。</translation>
+            <translation>このアーカイブでは、個々のファイルの表示はサポートされていません。</translation>
         </message>
         <message>
             <source>archive.zip</source>
@@ -1811,11 +1811,11 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Extracting files...</source>
-            <translation>&lt;source&gt;ファイルを抽出しています...</translation>
+            <translation>ファイルを抽出しています...</translation>
         </message>
         <message>
             <source>Files Already Exist</source>
-            <translation>&lt;source&gt;ファイルはすでに存在します</translation>
+            <translation>ファイルはすでに存在します</translation>
         </message>
         <message>
             <source>Overwrite</source>
@@ -1823,14 +1823,14 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Skip Existing</source>
-            <translation>&lt;source&gt;既存をスキップ</translation>
+            <translation>既存をスキップ</translation>
         </message>
         <message>
             <source>The following file already exists at the destination:
 %1
 
 Overwrite it?</source>
-            <translation>&lt;source&gt;次のファイルは宛先にすでに存在します:
+            <translation>次のファイルは宛先にすでに存在します:
 
 %1
 

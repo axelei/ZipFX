@@ -1007,7 +1007,7 @@ Overskrive?</translation>
             <source>
 
 ... truncated (showing first %1 of %2 bytes)</source>
-            <translation>&lt;source&gt;
+            <translation>
 
 
 
@@ -1017,7 +1017,7 @@ Overskrive?</translation>
             <source>
 
 Extract the file first, then open it.</source>
-            <translation>&lt;source&gt;
+            <translation>
 
 
 
@@ -1619,7 +1619,7 @@ FEIL: %1</translation>
         <message>
             <source>rar.exe returned error %1:
 %2</source>
-            <translation>&lt;source&gt;rar.exe returnerte feilen %1:
+            <translation>rar.exe returnerte feilen %1:
 
 %2</translation>
         </message>
