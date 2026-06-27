@@ -50,6 +50,7 @@ public:
     std::string archiveComment() const override;
 
     void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
+    bool SupportsEncryption() const override { return true; }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void setVolumeSize(uint64_t bytes) { m_volumeSize = bytes; }
     void setCompressionMethod(int method) { m_compressionMethod = method; }

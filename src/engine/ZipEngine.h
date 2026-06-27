@@ -39,6 +39,7 @@ public:
     bool setEntryComment(std::string_view entryName, std::string_view comment) override;
 
     void setPassword(const std::string& pwd) { m_password = pwd; }
+    bool SupportsEncryption() const override { return true; }
     void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void cancelExtract() override { m_extractCancelled = true; }
     bool isExtractCancelled() const { return m_extractCancelled; }

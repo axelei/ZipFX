@@ -73,6 +73,7 @@ public:
     virtual int compressionLevel() const { return m_compressionLevel; }
 
     virtual void setPassword(std::string_view /*pwd*/) {}
+    virtual bool SupportsEncryption() const { return false; }
 
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;

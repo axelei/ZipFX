@@ -162,6 +162,7 @@ private:
 
     // Menu actions that need dynamic enable/disable
     QAction* m_archiveCommentAct = nullptr;
+    QAction* m_passwordAct       = nullptr;
     QAction* m_flatAct = nullptr;
     bool     m_openAfterExtract = false;
 

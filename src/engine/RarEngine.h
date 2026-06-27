@@ -67,6 +67,7 @@ public:
     bool SupportsViewFile()           const override;
     std::string ViewUnsupportedReason() const override;
     void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
+    bool SupportsEncryption() const override { return true; }
 
 private:
     // pending files for the next Save() call: {srcPath, archiveEntryPath}
