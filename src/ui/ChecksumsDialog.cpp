@@ -100,8 +100,8 @@ void ChecksumsDialog::compute()
         m_engine->ReadFileStreamed(m_names[i],
             [&](const uint8_t* data, size_t len) -> bool {
                 crc = crc32(crc, data, static_cast<uInt>(len));
-                sha256hash.addData(reinterpret_cast<const char*>(data),
-                                   static_cast<qsizetype>(len));
+                sha256hash.addData(QByteArrayView(
+                    reinterpret_cast<const char*>(data), static_cast<qsizetype>(len)));
                 return !m_cancelled;
             });
 
