@@ -7,6 +7,16 @@
 #include <algorithm>
 #include <set>
 
+static QString fmtSize(uint64_t b)
+{
+    if (b == 0) return QString();
+    if (b < 1024) return QString::number(b) + QLatin1String(" B");
+    if (b < 1024*1024) return QString("%1 KB").arg(b / 1024.0, 0, 'f', 1);
+    if (b < static_cast<uint64_t>(1024)*1024*1024)
+        return QString("%1 MB").arg(b / (1024.0*1024), 0, 'f', 2);
+    return QString("%1 GB").arg(b / (1024.0*1024*1024), 0, 'f', 2);
+}
+
 FileListModel::FileListModel(QObject* parent)
     : QAbstractItemModel(parent)
 {
@@ -139,6 +149,7 @@ void FileListModel::rebuild()
             item->modified = std::chrono::system_clock::to_time_t(e.modified);
             item->hasEntry = true;
             item->comment = QString::fromUtf8(e.comment.c_str());
+            item->compressionMethod = QString::fromUtf8(e.compressionMethod.c_str());
             item->parentItem = m_rootItem;
             m_rootItem->children.push_back(item);
         }
@@ -198,6 +209,7 @@ void FileListModel::rebuild()
                 item->modified = std::chrono::system_clock::to_time_t(e.modified);
                 item->hasEntry = true;
                 item->comment = QString::fromUtf8(e.comment.c_str());
+                item->compressionMethod = QString::fromUtf8(e.compressionMethod.c_str());
                 item->parentItem = m_rootItem;
                 m_rootItem->children.push_back(item);
             }
@@ -233,8 +245,22 @@ QVariant FileListModel::data(const QModelIndex& index, int role) const
         switch (index.column())
         {
         case ColName:     return item->name;
-        case ColSize:     return item->hasEntry ? QString::number(item->size) : "";
-        case ColPacked:   return item->hasEntry ? QString::number(item->packedSize) : "";
+        case ColSize:
+            return item->hasEntry ? fmtSize(item->size) : QVariant();
+        case ColPacked:
+            return (item->hasEntry && item->packedSize > 0 && item->packedSize != item->size)
+                ? fmtSize(item->packedSize) : QVariant();
+        case ColRatio:
+            if (!item->hasEntry || item->isDir || item->size == 0 || item->packedSize == 0)
+                return QVariant();
+            {
+                int pct = static_cast<int>((1.0 - static_cast<double>(item->packedSize) / item->size) * 100.0);
+                pct = std::max(0, std::min(99, pct));
+                return QString("%1%").arg(pct);
+            }
+        case ColMethod:
+            return (item->hasEntry && !item->compressionMethod.isEmpty())
+                ? QVariant(item->compressionMethod) : QVariant();
         case ColType:     return item->isDir ? tr("Folder") : (item->hasEntry ? tr("File") : tr("Folder"));
         case ColModified:
             if (item->modified > 86400 * 365)
@@ -278,6 +304,8 @@ QVariant FileListModel::headerData(int section, Qt::Orientation orientation, int
     case ColName:     return tr("Name");
     case ColSize:     return tr("Size");
     case ColPacked:   return tr("Packed");
+    case ColRatio:    return tr("Ratio");
+    case ColMethod:   return tr("Method");
     case ColType:     return tr("Type");
     case ColModified: return tr("Modified");
     case ColCRC:      return tr("CRC");
@@ -348,6 +376,18 @@ void FileListModel::sortItems()
                     if (a->packedSize < b->packedSize) return -1;
                     if (a->packedSize > b->packedSize) return 1;
                     return 0;
+                case ColRatio:
+                {
+                    double ra = (a->size > 0 && a->packedSize > 0)
+                        ? (1.0 - static_cast<double>(a->packedSize) / a->size) : 0.0;
+                    double rb = (b->size > 0 && b->packedSize > 0)
+                        ? (1.0 - static_cast<double>(b->packedSize) / b->size) : 0.0;
+                    if (ra < rb) return -1;
+                    if (ra > rb) return 1;
+                    return 0;
+                }
+                case ColMethod:
+                    return a->compressionMethod.compare(b->compressionMethod, Qt::CaseInsensitive);
                 case ColType:
                     return (a->isDir ? QStringLiteral("Folder") :
                             a->hasEntry ? QStringLiteral("File") : QString())

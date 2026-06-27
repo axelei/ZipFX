@@ -21,10 +21,12 @@ public:
 
 signals:
     void entryActivated(const QString& path);
+    void entryExtractRequested(const QString& path);
 
 private:
     void doSearch();
     void onItemActivated(QTreeWidgetItem* item, int column);
+    void onContextMenu(const QPoint& pos);
 
     std::vector<ArchiveEntry> m_entries;
     QLineEdit*   m_nameEdit     = nullptr;

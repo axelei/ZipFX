@@ -15,6 +15,7 @@
 #include <QDir>
 #include <QFileInfo>
 #include <QDateTime>
+#include <QMenu>
 
 #include <chrono>
 #include <cstdint>
@@ -92,6 +93,9 @@ FindFilesDialog::FindFilesDialog(std::vector<ArchiveEntry> entries, QWidget* par
 
     connect(m_resultsTree, &QTreeWidget::itemActivated,
             this, &FindFilesDialog::onItemActivated);
+    m_resultsTree->setContextMenuPolicy(Qt::CustomContextMenu);
+    connect(m_resultsTree, &QTreeWidget::customContextMenuRequested,
+            this, &FindFilesDialog::onContextMenu);
 
     // ── Buttons ─────────────────────────────────────────────────────────
     auto* btnRow = new QHBoxLayout();
@@ -176,4 +180,19 @@ void FindFilesDialog::onItemActivated(QTreeWidgetItem* item, int /*column*/)
 {
     if (item)
         emit entryActivated(item->data(0, Qt::UserRole).toString());
+}
+
+void FindFilesDialog::onContextMenu(const QPoint& pos)
+{
+    auto items = m_resultsTree->selectedItems();
+    if (items.isEmpty()) return;
+
+    QMenu menu(this);
+    menu.addAction(tr("Navigate to Entry"), this, [this, items]() {
+        onItemActivated(items[0], 0);
+    });
+    menu.addAction(tr("Extract..."), this, [this, items]() {
+        emit entryExtractRequested(items[0]->data(0, Qt::UserRole).toString());
+    });
+    menu.exec(m_resultsTree->viewport()->mapToGlobal(pos));
 }

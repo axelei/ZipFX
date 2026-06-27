@@ -69,6 +69,8 @@
 #include <QGraphicsPixmapItem>
 #include <QActionGroup>
 #include <QSettings>
+#include <QStyledItemDelegate>
+#include <QPainter>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -273,11 +275,13 @@ void MainWindow::setupMenus()
 
     // Options
     auto optsMenu = menuBar()->addMenu(tr("&Options"));
-    QAction* flatAction = optsMenu->addAction(tr("&Flat File List"));
-    flatAction->setCheckable(true);
-    connect(flatAction, &QAction::toggled, this, [this](bool checked) {
+    m_flatAct = optsMenu->addAction(tr("&Flat File List"));
+    m_flatAct->setCheckable(true);
+    connect(m_flatAct, &QAction::toggled, this, [this](bool checked) {
         m_model->setFlatMode(checked);
-        m_upBtn->setVisible(checked);
+        // Up button makes sense only in hierarchical mode when inside a subdir
+        m_upBtn->setVisible(!checked && !m_model->currentDir().isEmpty());
+        QSettings().setValue("options/flatMode", checked);
     });
 
     QAction* previewAct = optsMenu->addAction(tr("Show &Preview Pane"));
@@ -310,6 +314,18 @@ void MainWindow::setupMenus()
         m_keepBrokenFiles = checked;
         QSettings s;
         s.setValue("options/keepBrokenFiles", checked);
+    });
+
+    {
+        QSettings s;
+        m_openAfterExtract = s.value("options/openAfterExtract", false).toBool();
+    }
+    QAction* openAfterAct = optsMenu->addAction(tr("Open &Destination Folder After Extraction"));
+    openAfterAct->setCheckable(true);
+    openAfterAct->setChecked(m_openAfterExtract);
+    connect(openAfterAct, &QAction::toggled, this, [this](bool checked) {
+        m_openAfterExtract = checked;
+        QSettings().setValue("options/openAfterExtract", checked);
     });
 
     optsMenu->addSeparator();
@@ -381,6 +397,16 @@ void MainWindow::setupToolbar()
     m_toolbar->setIconSize(QSize(20, 20));
     m_toolbar->setToolButtonStyle(Qt::ToolButtonTextBesideIcon);
 
+    auto newAct = m_toolbar->addAction(
+        style()->standardIcon(QStyle::SP_FileIcon), tr("New"));
+    connect(newAct, &QAction::triggered, this, &MainWindow::onNewArchive);
+
+    auto openAct = m_toolbar->addAction(
+        style()->standardIcon(QStyle::SP_DialogOpenButton), tr("Open"));
+    connect(openAct, &QAction::triggered, this, &MainWindow::onOpenArchive);
+
+    m_toolbar->addSeparator();
+
     auto addAct = m_toolbar->addAction(m_icons->add, tr("Add"));
     connect(addAct, &QAction::triggered, this, &MainWindow::onAddFiles);
 
@@ -438,6 +464,7 @@ void MainWindow::setupUI()
     connect(m_upBtn, &QPushButton::clicked, this, [this]() {
         m_model->navigateUp();
         m_addrBox->setEditText(m_model->currentDir());
+        m_upBtn->setVisible(!m_model->currentDir().isEmpty());
     });
 
     loadRecentFiles();
@@ -480,10 +507,19 @@ void MainWindow::setupUI()
     m_treeView->header()->setStretchLastSection(false);
     m_treeView->header()->setSectionResizeMode(0, QHeaderView::Stretch);
 
-    connect(m_treeView, &QTreeView::doubleClicked, this, &MainWindow::onItemDoubleClicked);
+    connect(m_treeView, &QTreeView::activated, this, &MainWindow::onItemDoubleClicked);
+    connect(m_treeView, &ArchiveTreeView::backspacePressed, this, [this]() {
+        if (!m_model->isFlatMode() && !m_model->currentDir().isEmpty()) {
+            m_model->navigateUp();
+            m_addrBox->setEditText(m_model->currentDir());
+            m_upBtn->setVisible(!m_model->currentDir().isEmpty());
+        }
+    });
     connect(m_treeView, &QTreeView::customContextMenuRequested, this, &MainWindow::onContextMenu);
     connect(m_model, &FileListModel::directoryChanged, this, [this](const QString& dir) {
         m_addrBox->setEditText(dir);
+        if (!m_model->isFlatMode())
+            m_upBtn->setVisible(!dir.isEmpty());
     });
     connect(m_treeView->selectionModel(), &QItemSelectionModel::selectionChanged,
         this, &MainWindow::updateStatusBar);
@@ -508,6 +544,15 @@ void MainWindow::setupUI()
                 });
             }
             menu.exec(m_treeView->header()->mapToGlobal(pos));
+        });
+
+    // Save column widths to QSettings when the user resizes them
+    connect(m_treeView->header(), &QHeaderView::sectionResized,
+        this, [this](int logicalIndex, int, int newSize) {
+            QString colName = m_model->headerData(
+                logicalIndex, Qt::Horizontal, Qt::DisplayRole).toString();
+            if (!colName.isEmpty())
+                QSettings().setValue("columns/" + colName + "/width", newSize);
         });
 
     // ── Preview pane ────────────────────────────────────────────────────
@@ -550,6 +595,16 @@ void MainWindow::setupUI()
     m_splitter->setStretchFactor(1, 1);
 
     m_mainLayout->addWidget(m_splitter, 1);
+
+    {
+        QSettings s;
+        if (s.value("options/flatMode", false).toBool())
+        {
+            m_model->setFlatMode(true);
+            if (m_flatAct) m_flatAct->setChecked(true);
+            // up button hidden in flat mode
+        }
+    }
 
     setCentralWidget(m_centralWidget);
 }
@@ -771,7 +826,34 @@ void MainWindow::updateStatusBar()
     auto sel = m_treeView->selectionModel()->selectedRows(0);
     if (sel.isEmpty())
     {
-        statusBar()->showMessage(tr("%1 files").arg(m_engine->ListContents().size()));
+        const auto& all = m_engine->ListContents();
+        int fileCount = 0;
+        uint64_t totalSize = 0, totalPacked = 0;
+        for (const auto& e : all) {
+            if (!e.isDirectory) {
+                fileCount++;
+                totalSize   += e.size;
+                totalPacked += e.packedSize > 0 ? e.packedSize : e.size;
+            }
+        }
+        QString fmt = QString::fromUtf8(m_engine->FormatName().data());
+        int ratio = (totalSize > 0)
+            ? static_cast<int>((1.0 - static_cast<double>(totalPacked) / totalSize) * 100)
+            : 0;
+        auto fmtB = [](uint64_t b) -> QString {
+            if (b < 1024) return QString::number(b) + " B";
+            if (b < 1024*1024) return QString("%1 KB").arg(b / 1024.0, 0, 'f', 1);
+            if (b < static_cast<uint64_t>(1024)*1024*1024)
+                return QString("%1 MB").arg(b / (1024.0*1024), 0, 'f', 2);
+            return QString("%1 GB").arg(b / (1024.0*1024*1024), 0, 'f', 2);
+        };
+        statusBar()->showMessage(
+            tr("%1  —  %2 files  —  %3 → %4  (%5% saved)")
+                .arg(fmt)
+                .arg(fileCount)
+                .arg(fmtB(totalSize))
+                .arg(fmtB(totalPacked))
+                .arg(ratio));
         return;
     }
 
@@ -1454,6 +1536,9 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
     m_progressDlg = nullptr;
 
     statusBar()->showMessage(tr("Extraction complete"), 3000);
+
+    if (m_openAfterExtract && !m_extractCancelled)
+        QDesktopServices::openUrl(QUrl::fromLocalFile(destPath));
 }
 
 void MainWindow::doExtractSelected(const QModelIndexList& selection)
@@ -1602,7 +1687,6 @@ void MainWindow::onView()
 
     auto dlg = new QDialog(this);
     dlg->setWindowTitle(tr("View: %1").arg(name));
-    dlg->resize(700, 500);
     auto* layout = new QVBoxLayout(dlg);
 
     auto* infoLabel = new QLabel(tr("%1  —  %2 bytes").arg(name).arg(displaySize), dlg);
@@ -1653,9 +1737,12 @@ void MainWindow::onView()
 
         if (isText)
         {
-            QString content = QString::fromUtf8(
-                reinterpret_cast<const char*>(data.data()),
-                static_cast<int>(data.size()));
+            const char* raw = reinterpret_cast<const char*>(data.data());
+            int rawLen = static_cast<int>(data.size());
+            QString content = QString::fromUtf8(raw, rawLen);
+            // If decoding produced replacement characters, fall back to local encoding
+            if (content.contains(QChar::ReplacementCharacter))
+                content = QString::fromLocal8Bit(raw, rawLen);
             if (entrySize > kTextLimit)
                 content += tr("\n\n... truncated (showing first %1 of %2 bytes)")
                                .arg(kTextLimit).arg(entrySize);
@@ -1701,6 +1788,15 @@ void MainWindow::onView()
     layout->addLayout(btnLayout);
 
     dlg->setAttribute(Qt::WA_DeleteOnClose);
+    {
+        QSettings s;
+        QByteArray geo = s.value("viewDialog/geometry").toByteArray();
+        if (!geo.isEmpty()) dlg->restoreGeometry(geo);
+        else dlg->resize(700, 500);
+    }
+    connect(dlg, &QDialog::finished, this, [dlg]() {
+        QSettings().setValue("viewDialog/geometry", dlg->saveGeometry());
+    });
     dlg->show();
 }
 
@@ -1937,10 +2033,48 @@ void MainWindow::onItemDoubleClicked(const QModelIndex& index)
 
 void MainWindow::onContextMenu(const QPoint& pos)
 {
-    bool hasEngine = (m_engine != nullptr);
+    bool hasEngine    = (m_engine != nullptr);
     bool hasSelection = !m_treeView->selectionModel()->selectedRows(0).isEmpty();
 
+    // Determine if selection contains only directories (for disabling file-only actions)
+    bool selectionIsDir = false;
+    if (hasEngine && hasSelection)
+    {
+        auto sel = m_treeView->selectionModel()->selectedRows(0);
+        auto paths = m_model->selectedEntryPaths(sel);
+        selectionIsDir = !paths.isEmpty();
+        for (const auto& p : paths)
+        {
+            std::string sp = p.toStdString();
+            for (const auto& e : m_engine->ListContents())
+            {
+                if (e.name == sp || e.path == sp)
+                {
+                    if (!e.isDirectory) { selectionIsDir = false; break; }
+                    break;
+                }
+            }
+            if (!selectionIsDir) break;
+        }
+    }
+
     QMenu menu(this);
+
+    // Extract Here (fast path — no dialog)
+    if (hasEngine)
+    {
+        QAction* extractHereAct = menu.addAction(tr("Extract Here"), this, [this]() {
+            if (!m_engine) return;
+            QFileInfo fi(QString::fromStdString(m_currentPath));
+            QString archiveName = fi.completeBaseName();
+            if (archiveName.endsWith(".tar", Qt::CaseInsensitive))
+                archiveName = QFileInfo(archiveName).completeBaseName();
+            QString destPath = fi.dir().filePath(archiveName);
+            QDir().mkpath(destPath);
+            doExtract(destPath, true, false);
+        });
+        extractHereAct->setEnabled(hasEngine);
+    }
 
     QAction* extractAct = menu.addAction(tr("Extract..."), this, [this, hasSelection]() {
         auto sel = m_treeView->selectionModel()->selectedRows(0);
@@ -1951,14 +2085,16 @@ void MainWindow::onContextMenu(const QPoint& pos)
     });
     extractAct->setEnabled(hasEngine);
 
+    menu.addSeparator();
+
     QAction* viewAct = menu.addAction(tr("View"), this, &MainWindow::onView);
-    viewAct->setEnabled(hasEngine && hasSelection);
+    viewAct->setEnabled(hasEngine && hasSelection && !selectionIsDir);
 
     QAction* openAct = menu.addAction(tr("Open"), this, [this]() { onOpenEntry(false); });
-    openAct->setEnabled(hasEngine && hasSelection);
+    openAct->setEnabled(hasEngine && hasSelection && !selectionIsDir);
 
     QAction* openWithAct = menu.addAction(tr("Open with..."), this, [this]() { onOpenEntry(true); });
-    openWithAct->setEnabled(hasEngine && hasSelection);
+    openWithAct->setEnabled(hasEngine && hasSelection && !selectionIsDir);
 
     if (hasSelection)
     {
@@ -1969,8 +2105,75 @@ void MainWindow::onContextMenu(const QPoint& pos)
             if (!paths.isEmpty())
                 QApplication::clipboard()->setText(paths.join('\n'));
         });
+
+        // Properties
+        menu.addAction(tr("Properties..."), this, [this]() {
+            auto sel = m_treeView->selectionModel()->selectedRows(0);
+            if (sel.isEmpty()) return;
+            auto paths = m_model->selectedEntryPaths({sel[0]});
+            if (paths.isEmpty()) return;
+            const std::string key = paths[0].toStdString();
+            const ArchiveEntry* found = nullptr;
+            for (const auto& e : m_engine->ListContents())
+                if (e.name == key || e.path == key) { found = &e; break; }
+            if (!found) return;
+
+            QDialog pd(this);
+            pd.setWindowTitle(tr("Properties — %1").arg(paths[0]));
+            pd.setMinimumWidth(420);
+            auto* lay  = new QVBoxLayout(&pd);
+            auto* form = new QFormLayout();
+            form->setLabelAlignment(Qt::AlignRight);
+            lay->addLayout(form);
+
+            auto addRow = [&](const QString& label, const QString& value) {
+                auto* lbl = new QLabel(value, &pd);
+                lbl->setTextInteractionFlags(Qt::TextSelectableByMouse);
+                form->addRow(label, lbl);
+            };
+
+            addRow(tr("Name:"), QString::fromUtf8(found->name.c_str()));
+            addRow(tr("Path:"), QString::fromUtf8(found->path.c_str()));
+            addRow(tr("Type:"), found->isDirectory ? tr("Folder") : tr("File"));
+            if (!found->isDirectory) {
+                addRow(tr("Size:"), tr("%1 bytes").arg(found->size));
+                if (found->packedSize > 0)
+                    addRow(tr("Packed:"), tr("%1 bytes").arg(found->packedSize));
+                if (found->size > 0 && found->packedSize > 0) {
+                    int pct = static_cast<int>((1.0 - static_cast<double>(found->packedSize) / found->size) * 100);
+                    addRow(tr("Ratio:"), tr("%1% saved").arg(pct));
+                }
+                if (!found->compressionMethod.empty())
+                    addRow(tr("Method:"), QString::fromUtf8(found->compressionMethod.c_str()));
+                if (found->crc)
+                    addRow(tr("CRC32:"), QString::asprintf("%08X", found->crc));
+            }
+            if (found->modified != std::chrono::system_clock::time_point{}) {
+                time_t t = std::chrono::system_clock::to_time_t(found->modified);
+                addRow(tr("Modified:"), QDateTime::fromSecsSinceEpoch(t).toString("yyyy-MM-dd HH:mm:ss"));
+            }
+            if (found->permissions) {
+                uint32_t m = found->permissions;
+                QString s;
+                s += (m & 00400) ? 'r' : '-'; s += (m & 00200) ? 'w' : '-'; s += (m & 00100) ? 'x' : '-';
+                s += (m & 00040) ? 'r' : '-'; s += (m & 00020) ? 'w' : '-'; s += (m & 00010) ? 'x' : '-';
+                s += (m & 00004) ? 'r' : '-'; s += (m & 00002) ? 'w' : '-'; s += (m & 00001) ? 'x' : '-';
+                addRow(tr("Permissions:"), s);
+            }
+            if (!found->comment.empty())
+                addRow(tr("Comment:"), QString::fromUtf8(found->comment.c_str()));
+
+            auto* btnRow = new QHBoxLayout();
+            btnRow->addStretch();
+            auto* closeBtn = new QPushButton(tr("Close"), &pd);
+            connect(closeBtn, &QPushButton::clicked, &pd, &QDialog::accept);
+            btnRow->addWidget(closeBtn);
+            lay->addLayout(btnRow);
+            pd.exec();
+        });
+
         QAction* checksumsAct = menu.addAction(tr("Checksums..."), this, &MainWindow::onChecksums);
-        checksumsAct->setEnabled(hasEngine);
+        checksumsAct->setEnabled(hasEngine && !selectionIsDir);
     }
 
     if (hasEngine && m_engine->SupportsCreation())
@@ -2283,6 +2486,29 @@ void MainWindow::refreshFileList()
     autoHide(FileListModel::ColCRC,         hasCRC);
     autoHide(FileListModel::ColPermissions, hasPerms);
     autoHide(FileListModel::ColComment,     hasComment);
+    {
+        bool hasMethod = false, hasRatio = false;
+        for (const auto& e : entries)
+        {
+            if (e.isDirectory) continue;
+            if (!e.compressionMethod.empty()) hasMethod = true;
+            if (e.packedSize > 0 && e.packedSize != e.size) hasRatio = true;
+        }
+        autoHide(FileListModel::ColRatio,  hasRatio);
+        autoHide(FileListModel::ColMethod, hasMethod);
+    }
+
+    // Restore saved column widths
+    {
+        QSettings s;
+        for (int col = 1; col < FileListModel::ColCount; ++col)
+        {
+            QString name = m_model->headerData(col, Qt::Horizontal, Qt::DisplayRole).toString();
+            QString key  = "columns/" + name + "/width";
+            if (!name.isEmpty() && s.contains(key))
+                m_treeView->setColumnWidth(col, s.value(key).toInt());
+        }
+    }
 
     m_archiveCommentAct->setEnabled(m_engine && m_engine->supportsArchiveComment());
 
@@ -2468,10 +2694,30 @@ void MainWindow::onFindFiles()
     connect(&dlg, &FindFilesDialog::entryActivated, this, [this](const QString& path) {
         // Switch to flat mode and filter by filename so the entry is visible
         m_model->setFlatMode(true);
+        if (m_flatAct) m_flatAct->setChecked(true);
+        m_upBtn->setVisible(false);
         QString fname = QFileInfo(path).fileName();
         m_searchBox->setVisible(true);
         m_searchBox->setText(fname);
         m_model->setFilterString(fname);
+    });
+    connect(&dlg, &FindFilesDialog::entryExtractRequested, this, [this](const QString& path) {
+        if (!m_engine) return;
+        QString startDir = m_currentPath.empty()
+            ? QString()
+            : QFileInfo(QString::fromStdString(m_currentPath)).absolutePath();
+        QString dest = QFileDialog::getExistingDirectory(this, tr("Extract to"), startDir);
+        if (dest.isEmpty()) return;
+        QDir().mkpath(dest + "/" + QFileInfo(path).path());
+        QApplication::setOverrideCursor(Qt::WaitCursor);
+        bool ok = m_engine->Extract(path.toStdString(),
+                                    (dest + "/" + path).toStdString());
+        QApplication::restoreOverrideCursor();
+        if (ok)
+            statusBar()->showMessage(tr("Extracted: %1").arg(path), 3000);
+        else
+            QMessageBox::warning(this, tr("Error"),
+                tr("Failed to extract \"%1\".").arg(path));
     });
 
     dlg.exec();
@@ -2690,11 +2936,18 @@ void MainWindow::onRepairArchive()
             &dlg, tr("Save Recovered Files"),
             QFileInfo(QString::fromStdString(m_currentPath)).dir()
                 .filePath(QFileInfo(QString::fromStdString(m_currentPath)).completeBaseName()
-                          + "_recovered.zip"));
+                          + "_recovered.zip"),
+            tr("ZIP (*.zip);;7-Zip (*.7z);;TAR.GZ (*.tar.gz);;All files (*.*)"));
 
         if (!savePath.isEmpty())
         {
-            auto eng = ArchiveEngineFactory::CreateForFormat("zip");
+            QString ext = QFileInfo(savePath).suffix().toLower();
+            std::string fmt = "zip";
+            if (ext == "7z")   fmt = "7z";
+            else if (savePath.toLower().endsWith(".tar.gz"))  fmt = "tar.gz";
+            else if (savePath.toLower().endsWith(".tar.bz2")) fmt = "tar.bz2";
+            else if (savePath.toLower().endsWith(".tar.xz"))  fmt = "tar.xz";
+            auto eng = ArchiveEngineFactory::CreateForFormat(fmt);
             if (eng && eng->SupportsCreation() && eng->Create(savePath.toStdString()))
             {
                 QDir tmp(tempDir.path());
@@ -2774,11 +3027,19 @@ void MainWindow::onBatchOps()
 
     auto* btnRow = new QHBoxLayout();
     auto* startBtn  = new QPushButton(tr("Start"), &dlg);
+    auto* cancelBtn = new QPushButton(tr("Cancel"), &dlg);
     auto* closeBtn  = new QPushButton(tr("Close"), &dlg);
     startBtn->setDefault(true);
+    cancelBtn->setEnabled(false);
     connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::reject);
-    btnRow->addStretch(); btnRow->addWidget(startBtn); btnRow->addWidget(closeBtn);
+    btnRow->addStretch();
+    btnRow->addWidget(startBtn);
+    btnRow->addWidget(cancelBtn);
+    btnRow->addWidget(closeBtn);
     lay->addLayout(btnRow);
+
+    std::atomic<bool> batchCancelled{false};
+    connect(cancelBtn, &QPushButton::clicked, &dlg, [&]() { batchCancelled = true; });
 
     connect(startBtn, &QPushButton::clicked, &dlg, [&]() {
         const QString srcFolder = srcEdit->text().trimmed();
@@ -2796,6 +3057,8 @@ void MainWindow::onBatchOps()
         }
 
         startBtn->setEnabled(false);
+        batchCancelled = false;
+        cancelBtn->setEnabled(true);
         log->clear();
 
         QDirIterator::IteratorFlags flags = recurseCheck->isChecked()
@@ -2818,6 +3081,7 @@ void MainWindow::onBatchOps()
         for (const auto& ap : archivePaths)
         {
             QApplication::processEvents();
+            if (batchCancelled) { log->append(tr("\nCancelled by user.")); break; }
             log->append(QString("\n[%1]").arg(ap));
 
             auto eng = ArchiveEngineFactory::CreateForFile(ap.toStdString());
@@ -2852,6 +3116,7 @@ void MainWindow::onBatchOps()
         }
 
         log->append(tr("\nDone. %1 succeeded, %2 failed.").arg(ok).arg(fail));
+        cancelBtn->setEnabled(false);
         startBtn->setEnabled(true);
     });
 
@@ -2861,6 +3126,28 @@ void MainWindow::onBatchOps()
 // ── Feature 17: Password manager ──────────────────────────────────────
 void MainWindow::onPasswordManager()
 {
+    // Delegate that displays password column as bullets; editor uses password echo
+    class PasswordDelegate : public QStyledItemDelegate {
+    public:
+        using QStyledItemDelegate::QStyledItemDelegate;
+        void paint(QPainter* painter, const QStyleOptionViewItem& option,
+                   const QModelIndex& index) const override
+        {
+            QStyleOptionViewItem opt = option;
+            initStyleOption(&opt, index);
+            opt.text = QString(opt.text.length(), QChar(0x2022));
+            QStyledItemDelegate::paint(painter, opt, index);
+        }
+        QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& opt,
+                              const QModelIndex& idx) const override
+        {
+            auto* ed = qobject_cast<QLineEdit*>(
+                QStyledItemDelegate::createEditor(parent, opt, idx));
+            if (ed) ed->setEchoMode(QLineEdit::Password);
+            return ed;
+        }
+    };
+
     QDialog dlg(this);
     dlg.setWindowTitle(tr("Password Manager"));
     dlg.setMinimumSize(520, 320);
@@ -2868,6 +3155,10 @@ void MainWindow::onPasswordManager()
 
     lay->addWidget(new QLabel(
         tr("Saved passwords are applied automatically when opening archives."), &dlg));
+    auto* warnLabel = new QLabel(
+        tr("⚠ Passwords are stored in plaintext in application settings."), &dlg);
+    warnLabel->setStyleSheet(QStringLiteral("color: #888; font-size: 10px;"));
+    lay->addWidget(warnLabel);
 
     auto* table = new QTableWidget(&dlg);
     table->setColumnCount(2);
@@ -2876,6 +3167,7 @@ void MainWindow::onPasswordManager()
     table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
     table->setSelectionBehavior(QAbstractItemView::SelectRows);
     table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
+    table->setItemDelegateForColumn(1, new PasswordDelegate(table));
     lay->addWidget(table, 1);
 
     // Load existing passwords

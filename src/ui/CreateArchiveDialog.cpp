@@ -20,10 +20,15 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     resize(500, 400);
 
     m_formats = {
-        { "ZIP",     true,  false, false, false },
-        { "7z",      true,  true,  true,  true  },
-        { "TAR.GZ",  false, false, false, false },
-        { "RAR",     true,  false, true,  false },
+        { "ZIP",      true,  false, false, false },
+        { "7z",       true,  true,  true,  true  },
+        { "TAR.GZ",   false, false, false, false },
+        { "TAR.BZ2",  false, false, false, false },
+        { "TAR.XZ",   false, false, false, false },
+        { "TAR.ZST",  false, false, false, false },
+        { "TAR.LZ4",  false, false, false, false },
+        { "TAR.LZMA", false, false, false, false },
+        { "RAR",      true,  false, true,  false },
     };
 
     auto mainLayout = new QVBoxLayout(this);
@@ -126,6 +131,11 @@ CreateArchiveDialog::CreateArchiveDialog(QWidget* parent)
     m_passwordEdit->setEchoMode(QLineEdit::Password);
     m_passwordEdit->setPlaceholderText(tr("No password"));
     encLayout->addRow(tr("Password:"), m_passwordEdit);
+
+    m_confirmEdit = new QLineEdit(encGroup);
+    m_confirmEdit->setEchoMode(QLineEdit::Password);
+    m_confirmEdit->setPlaceholderText(tr("Confirm password"));
+    encLayout->addRow(tr("Confirm:"), m_confirmEdit);
 
     m_encryptNamesCheck = new QCheckBox(tr("Encrypt file names"), encGroup);
     m_encryptNamesCheck->setToolTip(tr("Only supported by 7z format"));
@@ -289,6 +299,7 @@ void CreateArchiveDialog::updateFormatOptions()
     const auto& fmt = m_formats[idx];
     bool enc = fmt.supportsPassword;
     m_passwordEdit->setEnabled(enc);
+    if (m_confirmEdit) m_confirmEdit->setEnabled(enc);
     m_encryptNamesCheck->setEnabled(enc && fmt.supportsEncryptNames);
     m_volumeSpin->setEnabled(fmt.supportsVolumes);
 
@@ -307,6 +318,15 @@ void CreateArchiveDialog::onAccept()
     if (m_pathEdit->text().trimmed().isEmpty())
     {
         QMessageBox::warning(this, tr("Error"), tr("Please choose a destination path."));
+        return;
+    }
+    if (!m_passwordEdit->text().isEmpty()
+        && m_passwordEdit->text() != m_confirmEdit->text())
+    {
+        QMessageBox::warning(this, tr("Error"),
+            tr("Passwords do not match. Please re-enter."));
+        m_confirmEdit->setFocus();
+        m_confirmEdit->selectAll();
         return;
     }
     accept();

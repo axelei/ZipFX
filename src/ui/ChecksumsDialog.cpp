@@ -94,6 +94,17 @@ void ChecksumsDialog::compute()
 
         if (m_cancelled) break;
 
+        static constexpr uint64_t kMaxHash = 256ULL * 1024 * 1024;
+        const ArchiveEntry* entry = m_entries[i];
+        if (entry->size > kMaxHash)
+        {
+            m_table->item(i, 3)->setText(tr("File too large"));
+            m_table->item(i, 4)->setText(tr("File too large"));
+            m_progress->setValue(i + 1);
+            QApplication::processEvents(QEventLoop::AllEvents);
+            continue;
+        }
+
         auto data = m_engine->ReadFile(m_names[i]);
 
         uLong crc = crc32(0, nullptr, 0);

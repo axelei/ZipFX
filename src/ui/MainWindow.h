@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include <QTreeView>
 #include <QComboBox>
+#include <QKeyEvent>
 #include <QLineEdit>
 #include <QPushButton>
 #include <QStatusBar>
@@ -40,11 +41,21 @@ public:
 
 signals:
     void dragStarted();
+    void backspacePressed();
 
 protected:
     void startDrag(Qt::DropActions) override
     {
         emit dragStarted();
+    }
+
+    void keyPressEvent(QKeyEvent* event) override
+    {
+        if (event->key() == Qt::Key_Backspace) {
+            emit backspacePressed();
+        } else {
+            QTreeView::keyPressEvent(event);
+        }
     }
 };
 
@@ -151,6 +162,8 @@ private:
 
     // Menu actions that need dynamic enable/disable
     QAction* m_archiveCommentAct = nullptr;
+    QAction* m_flatAct = nullptr;
+    bool     m_openAfterExtract = false;
 
     // Extraction
     QProgressDialog* m_progressDlg = nullptr;

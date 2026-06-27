@@ -18,6 +18,8 @@ public:
         ColName = 0,
         ColSize,
         ColPacked,
+        ColRatio,
+        ColMethod,
         ColType,
         ColModified,
         ColCRC,
@@ -66,6 +68,7 @@ public:
         bool        isParent = false;
         uint64_t    size = 0;
         uint64_t    packedSize = 0;
+        QString     compressionMethod;
         uint32_t    crc = 0;
         uint32_t    permissions = 0;
         time_t      modified = 0;

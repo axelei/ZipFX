@@ -59,6 +59,7 @@ private:
     QSpinBox*    m_levelSpin = nullptr;
     QComboBox*   m_methodCombo = nullptr;
     QLineEdit*   m_passwordEdit = nullptr;
+    QLineEdit*   m_confirmEdit = nullptr;
     QCheckBox*   m_encryptNamesCheck = nullptr;
     QSpinBox*    m_volumeSpin = nullptr;
     QPlainTextEdit* m_commentEdit = nullptr;
