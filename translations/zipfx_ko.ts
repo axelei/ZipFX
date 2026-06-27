@@ -233,7 +233,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Solid archive</source>
-            <translation>견고한 아카이브</translation>
+            <translation>솔리드 아카이브</translation>
         </message>
         <message>
             <source>Threads:</source>

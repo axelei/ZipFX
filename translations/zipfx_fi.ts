@@ -237,7 +237,7 @@ Asenna manuaalisesti: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Viestit:</translation>
+            <translation>Säikeet:</translation>
         </message>
         <message>
             <source>Word size:</source>

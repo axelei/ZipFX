@@ -221,7 +221,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>نسخ (متجر)</translation>
+            <translation>نسخ (تخزين)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -233,11 +233,11 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Solid archive</source>
-            <translation>أرشيف متين</translation>
+            <translation>أرشيف متراص</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>المواضيع:</translation>
+            <translation>الخيوط:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1739,11 +1739,11 @@ Overwrite it?</source>
         </message>
         <message>
             <source>CRC32(c)</source>
-            <translation>CRC32(ج)</translation>
+            <translation>CRC32(c)</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32(ق)</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>
@@ -1763,7 +1763,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>الحوسبة...</translation>
+            <translation>جاري الحساب...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1783,7 +1783,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>SHA-256</source>
-            <translation>شا-256</translation>
+            <translation>SHA-256</translation>
         </message>
         <message>
             <source>Size</source>

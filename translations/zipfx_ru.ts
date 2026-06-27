@@ -221,7 +221,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Копировать (Магазин)</translation>
+            <translation>Копировать (Хранить)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -237,7 +237,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Темы:</translation>
+            <translation>Потоки:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1724,11 +1724,11 @@ Overwrite it?</source>
         </message>
         <message>
             <source>CRC32(c)</source>
-            <translation>CRC32(с)</translation>
+            <translation>CRC32(c)</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32(а)</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>
@@ -1756,7 +1756,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Done.</source>
-            <translation>Сделанный.</translation>
+            <translation>Готово.</translation>
         </message>
         <message>
             <source>File</source>
@@ -1768,7 +1768,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>SHA-256</source>
-            <translation>ША-256</translation>
+            <translation>SHA-256</translation>
         </message>
         <message>
             <source>Size</source>

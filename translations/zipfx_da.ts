@@ -221,7 +221,7 @@ Installer manuelt: %1</translation>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Kopi (butik)</translation>
+            <translation>Kopi (Lager)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -1743,7 +1743,7 @@ Vil du overskrive det?</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32(er)</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>

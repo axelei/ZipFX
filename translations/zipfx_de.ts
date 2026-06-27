@@ -229,7 +229,7 @@ Manuell installieren: %1</translation>
         </message>
         <message>
             <source>Method:</source>
-            <translation>Verfahren:</translation>
+            <translation>Methode:</translation>
         </message>
         <message>
             <source>Solid archive</source>
@@ -237,7 +237,7 @@ Manuell installieren: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Themen:</translation>
+            <translation>Threads:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1748,7 +1748,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Computer...</translation>
+            <translation>Berechne...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1764,7 +1764,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N / A</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>

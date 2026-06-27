@@ -237,7 +237,7 @@ Installez manuellement : %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Sujets :</translation>
+            <translation>Threads :</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1748,7 +1748,7 @@ L'écraser ?</translation>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Informatique...</translation>
+            <translation>Calcul en cours...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1764,7 +1764,7 @@ L'écraser ?</translation>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N / A</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>

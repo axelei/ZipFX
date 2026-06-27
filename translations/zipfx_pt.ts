@@ -221,7 +221,7 @@ Instale manualmente: %1</translation>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Copiar (Loja)</translation>
+            <translation>Copiar (Armazenar)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -237,7 +237,7 @@ Instale manualmente: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Tópicos:</translation>
+            <translation>Threads:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -273,7 +273,7 @@ Instale manualmente: %1</translation>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="235" />
             <source>File</source>
-            <translation>Ficheiro</translation>
+            <translation>Arquivo</translation>
         </message>
         <message>
             <location filename="../src/ui/FileListModel.cpp" line="273" />
@@ -1748,7 +1748,7 @@ Substituir?</translation>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Computação...</translation>
+            <translation>Calculando...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1764,7 +1764,7 @@ Substituir?</translation>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N / D</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>

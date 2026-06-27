@@ -237,7 +237,7 @@ Installa manualmente: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Discussioni:</translation>
+            <translation>Thread:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1728,7 +1728,7 @@ Sovrascriverlo?</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32/i</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>
@@ -1748,7 +1748,7 @@ Sovrascriverlo?</translation>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Informatica...</translation>
+            <translation>Calcolo in corso...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1764,7 +1764,7 @@ Sovrascriverlo?</translation>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N / A</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>

@@ -221,7 +221,7 @@ Installera manuellt: %1</translation>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Kopiera (butik)</translation>
+            <translation>Kopiera (Lagra)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -1748,7 +1748,7 @@ Vill du skriva över det?</translation>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Datoranvändning...</translation>
+            <translation>Beräknar...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1756,7 +1756,7 @@ Vill du skriva över det?</translation>
         </message>
         <message>
             <source>Done.</source>
-            <translation>Gjort.</translation>
+            <translation>Klar.</translation>
         </message>
         <message>
             <source>File</source>

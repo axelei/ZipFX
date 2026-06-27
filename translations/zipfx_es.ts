@@ -231,7 +231,7 @@ Instale manualmente: %1</translation>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Copiar (Tienda)</translation>
+            <translation>Copiar (Almacenar)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -247,7 +247,7 @@ Instale manualmente: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Trapos:</translation>
+            <translation>Hilos:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1768,7 +1768,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>CRC32(c)</source>
-            <translation>CDN32(c)</translation>
+            <translation>CRC32(c)</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
@@ -1792,7 +1792,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Computación...</translation>
+            <translation>Calculando...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1808,7 +1808,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N / A</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>

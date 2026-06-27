@@ -233,7 +233,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Solid archive</source>
-            <translation>扎实的档案</translation>
+            <translation>固实归档</translation>
         </message>
         <message>
             <source>Threads:</source>

@@ -233,7 +233,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Solid archive</source>
-            <translation>充実したアーカイブ</translation>
+            <translation>ソリッドアーカイブ</translation>
         </message>
         <message>
             <source>Threads:</source>
@@ -1743,7 +1743,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>
@@ -1763,7 +1763,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>コンピューティング中...</translation>
+            <translation>計算中...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1771,7 +1771,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Done.</source>
-            <translation>終わり。</translation>
+            <translation>完了。</translation>
         </message>
         <message>
             <source>File</source>

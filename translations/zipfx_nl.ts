@@ -221,7 +221,7 @@ Handmatig installeren: %1</translation>
         </message>
         <message>
             <source>Copy (Store)</source>
-            <translation>Kopiëren (winkel)</translation>
+            <translation>Kopiëren (Opslaan)</translation>
         </message>
         <message>
             <source>Dictionary:</source>
@@ -237,7 +237,7 @@ Handmatig installeren: %1</translation>
         </message>
         <message>
             <source>Threads:</source>
-            <translation>Onderwerpen:</translation>
+            <translation>Threads:</translation>
         </message>
         <message>
             <source>Word size:</source>
@@ -1728,7 +1728,7 @@ Overschrijven?</translation>
         </message>
         <message>
             <source>CRC32(s)</source>
-            <translation>CRC32('s)</translation>
+            <translation>CRC32(s)</translation>
         </message>
         <message>
             <source>Checksums</source>
@@ -1748,7 +1748,7 @@ Overschrijven?</translation>
         </message>
         <message>
             <source>Computing...</source>
-            <translation>Computergebruik...</translation>
+            <translation>Berekenen...</translation>
         </message>
         <message>
             <source>Copy to Clipboard</source>
@@ -1764,7 +1764,7 @@ Overschrijven?</translation>
         </message>
         <message>
             <source>N/A</source>
-            <translation>N.v.t</translation>
+            <translation>N/A</translation>
         </message>
         <message>
             <source>SHA-256</source>
