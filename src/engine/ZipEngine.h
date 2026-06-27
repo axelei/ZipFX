@@ -44,6 +44,7 @@ public:
 
     std::string_view FormatName() const override { return "ZIP"; }
     bool SupportsCreation() const override { return true; }
+    bool supportsArchiveComment() const override { return true; }
     bool IsOpen() const override { return m_zip != nullptr; }
 
 private:

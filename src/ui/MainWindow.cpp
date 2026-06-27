@@ -146,6 +146,8 @@ MainWindow::MainWindow(QWidget* parent)
 
 #ifdef _WIN32
     registerFileAssociations();
+#elif defined(__APPLE__)
+    registerFileAssociationsMac();
 #endif
 }
 
@@ -167,6 +169,11 @@ void MainWindow::setupMenus()
 {
     // File
     auto fileMenu = menuBar()->addMenu(tr("&File"));
+    fileMenu->addAction(tr("New &Window\tCtrl+Shift+N"), this, [this]() {
+        auto* w = new MainWindow({});
+        w->show();
+    });
+    fileMenu->addSeparator();
     fileMenu->addAction(tr("&New Archive...\tCtrl+N"), this, &MainWindow::onNewArchive);
     fileMenu->addAction(tr("&Open Archive...\tCtrl+O"), this, &MainWindow::onOpenArchive);
     fileMenu->addAction(tr("&Close Archive\tCtrl+C"), this, &MainWindow::onCloseArchive);
@@ -251,7 +258,8 @@ void MainWindow::setupMenus()
     });
 
     cmdMenu->addAction(tr("&Information...\tCtrl+I"), this, &MainWindow::onInfo);
-    cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
+    m_archiveCommentAct = cmdMenu->addAction(tr("Archive &Comment..."), this, &MainWindow::onArchiveComment);
+    m_archiveCommentAct->setEnabled(false); // enabled when a supporting format is open
     cmdMenu->addSeparator();
     cmdMenu->addAction(tr("Find Fi&les...\tCtrl+F"), this, &MainWindow::onFindFiles);
     cmdMenu->addAction(tr("Con&vert Archive..."),    this, &MainWindow::onConvertArchive);
@@ -1131,6 +1139,7 @@ void MainWindow::onCloseArchive()
     m_model->clear();
     m_addrBox->clearEditText();
     m_treeView->setEnabled(false);
+    m_archiveCommentAct->setEnabled(false);
     setWindowTitle(tr("ZipFX %1").arg(ZIPFX_VERSION));
     statusBar()->showMessage(tr("No archive open"));
 }
@@ -1772,23 +1781,18 @@ void MainWindow::onInfo()
 
 void MainWindow::onArchiveComment()
 {
-    if (!m_engine) return;
+    if (!m_engine || !m_engine->supportsArchiveComment()) return;
 
     std::string current = m_engine->archiveComment();
     bool ok = false;
     QString text = QInputDialog::getMultiLineText(this, tr("Archive Comment"),
         tr("Comment:"), QString::fromUtf8(current.c_str()), &ok);
-    if (!ok) return;
+    if (!ok || text.toStdString() == current) return;
 
     if (m_engine->setArchiveComment(text.toStdString()))
     {
         runSave(tr("Updating comment..."));
         statusBar()->showMessage(tr("Archive comment updated."), 3000);
-    }
-    else
-    {
-        QMessageBox::warning(this, tr("Error"),
-            tr("This format does not support archive comments."));
     }
 }
 
@@ -2276,6 +2280,8 @@ void MainWindow::refreshFileList()
     autoHide(FileListModel::ColCRC,         hasCRC);
     autoHide(FileListModel::ColPermissions, hasPerms);
     autoHide(FileListModel::ColComment,     hasComment);
+
+    m_archiveCommentAct->setEnabled(m_engine && m_engine->supportsArchiveComment());
 
     updateStatusBar();
     setWindowTitle(tr("ZipFX — %1").arg(
@@ -3326,6 +3332,26 @@ void MainWindow::registerFileAssociations()
             fn(SHCNE_ASSOCCHANGED, SHCNF_IDLIST, nullptr, nullptr);
         FreeLibrary(shell32);
     }
+}
+#elif defined(__APPLE__)
+void MainWindow::registerFileAssociationsMac()
+{
+    QSettings s;
+    if (s.value("assoc/registered_mac", false).toBool())
+        return;
+
+    // Launch Services only auto-scans /Applications and ~/Applications.
+    // Force it to read our bundle's CFBundleDocumentTypes/UTExportedTypeDeclarations
+    // now, regardless of where the .app lives (dev build, Downloads, etc.).
+    QDir d(QApplication::applicationDirPath()); // .app/Contents/MacOS
+    d.cdUp(); d.cdUp();                          // → .app
+    const QString lsregister =
+        "/System/Library/Frameworks/CoreServices.framework"
+        "/Versions/A/Frameworks/LaunchServices.framework"
+        "/Versions/A/Support/lsregister";
+    QProcess::startDetached(lsregister, {"-f", d.absolutePath()});
+
+    s.setValue("assoc/registered_mac", true);
 }
 #endif
 

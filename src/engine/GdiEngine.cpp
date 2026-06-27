@@ -28,12 +28,20 @@ bool GdiEngine::parseGdi()
         // Strip carriage return
         if (!line.empty() && line.back() == '\r')
             line.pop_back();
+        if (line.empty()) continue;
 
         GdiTrack t;
         char filename[1024] = {};
+
+        // Try quoted filename ("track01.bin") first, then bare (track01.bin)
         int n = std::sscanf(line.c_str(), "%d %d %d %d \"%1023[^\"]\" %d",
                             &t.number, &t.lba, &t.sectorType,
                             &t.sectorSize, filename, &t.extOffset);
+        if (n < 5)
+            n = std::sscanf(line.c_str(), "%d %d %d %d %1023s %d",
+                            &t.number, &t.lba, &t.sectorType,
+                            &t.sectorSize, filename, &t.extOffset);
+
         if (n >= 5)
         {
             t.fileName = filename;
@@ -148,7 +156,7 @@ std::vector<uint8_t> GdiEngine::ReadFile(std::string_view entryName)
     FILE* f = std::fopen(t.resolvedPath.c_str(), "rb");
     if (!f) return {};
 
-    std::fseek(f, t.extOffset, SEEK_END);
+    std::fseek(f, 0, SEEK_END);
     long fileLen = std::ftell(f);
     uint64_t available = (fileLen > t.extOffset) ? static_cast<uint64_t>(fileLen - t.extOffset) : 0;
     uint64_t sectors = available / t.sectorSize;
