@@ -59,6 +59,7 @@ private:
     uint32_t      m_dataSectorSize = 2352;
     uint32_t      m_dataHeaderOff  = 0;
     uint32_t      m_dataExtOffset  = 0;
+    uint32_t      m_dataTrackLba   = 0;
     Iso9660Reader m_iso;
 
     std::atomic<bool> m_extractCancelled{false};

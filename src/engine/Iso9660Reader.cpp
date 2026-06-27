@@ -39,9 +39,10 @@ time_t Iso9660Reader::decodeDate(const uint8_t* d)
 
 // ── Public API ────────────────────────────────────────────────────────────────
 
-bool Iso9660Reader::open(SectorFn reader)
+bool Iso9660Reader::open(SectorFn reader, uint32_t vdStartLba)
 {
-    m_reader = std::move(reader);
+    m_reader  = std::move(reader);
+    m_vdStart = vdStartLba;
     m_entries.clear();
     m_opened = false;
     if (parseVolumeDescriptors())
@@ -79,8 +80,9 @@ bool Iso9660Reader::parseVolumeDescriptors()
     uint32_t svdRootLba = 0, svdRootSize = 0;
     bool     havePvd = false, haveSvd = false;
 
-    // VDs start at LBA 16; scan until terminator or an implausible run
-    for (uint32_t lba = 16; lba < 64; ++lba)
+    // VDs start at m_vdStart (16 for standalone ISOs, trackStartLba+16 for GDI);
+    // scan until terminator or an implausible run
+    for (uint32_t lba = m_vdStart; lba < m_vdStart + 48; ++lba)
     {
         if (!m_reader(lba, sector)) break;
 

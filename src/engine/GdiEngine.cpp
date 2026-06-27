@@ -119,18 +119,22 @@ bool GdiEngine::tryMountFilesystem()
     std::fread(buf, 1, sizeof(buf), m_dataFile);
     std::fseek(m_dataFile, 0, SEEK_SET);
 
-    m_dataSectorSize = static_cast<uint32_t>(best->sectorSize);
-    m_dataExtOffset  = static_cast<uint32_t>(best->extOffset);
+    m_dataSectorSize  = static_cast<uint32_t>(best->sectorSize);
+    m_dataExtOffset   = static_cast<uint32_t>(best->extOffset);
+    m_dataTrackLba    = static_cast<uint32_t>(best->lba);
     if (m_dataSectorSize == 2352)
         m_dataHeaderOff = (buf[15] == 2) ? 24u : 16u;
     else
         m_dataHeaderOff = 0;
 
-    // Build sector reader and pass to ISO 9660 parser
-    auto sectorFn = [this](uint32_t lba, uint8_t* out) -> bool
+    // Build sector reader. LBAs passed in are disc-absolute (as stored in the
+    // ISO 9660 structures on a GDI disc); subtract the track's disc-start LBA
+    // to get the track-relative sector number, then convert to a file offset.
+    auto sectorFn = [this](uint32_t discLba, uint8_t* out) -> bool
     {
+        if (discLba < m_dataTrackLba) return false;
         int64_t off = m_dataExtOffset
-                    + static_cast<int64_t>(lba) * m_dataSectorSize
+                    + static_cast<int64_t>(discLba - m_dataTrackLba) * m_dataSectorSize
                     + m_dataHeaderOff;
 #ifdef _WIN32
         if (_fseeki64(m_dataFile, off, SEEK_SET) != 0) return false;
@@ -140,7 +144,8 @@ bool GdiEngine::tryMountFilesystem()
         return std::fread(out, 1, 2048, m_dataFile) == 2048;
     };
 
-    if (!m_iso.open(sectorFn))
+    // VD scan also uses disc-absolute LBAs (trackLba + 16)
+    if (!m_iso.open(sectorFn, m_dataTrackLba + 16))
     {
         std::fclose(m_dataFile);
         m_dataFile = nullptr;

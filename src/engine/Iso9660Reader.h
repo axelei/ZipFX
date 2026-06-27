@@ -28,7 +28,10 @@ public:
     };
 
     // Parse the filesystem. Returns false if no valid ISO 9660 VD is found.
-    bool open(SectorFn reader);
+    // vdStartLba: the LBA at which to start scanning for Volume Descriptors
+    // (default 16 for standalone ISO images; pass trackStartLba+16 for GDI/CDs
+    // that use disc-absolute LBAs inside the ISO 9660 structures).
+    bool open(SectorFn reader, uint32_t vdStartLba = 16);
 
     bool isOpen() const { return !m_entries.empty() || m_opened; }
     const std::vector<Entry>& entries() const { return m_entries; }
@@ -45,7 +48,8 @@ private:
 
     SectorFn           m_reader;
     std::vector<Entry> m_entries;
-    bool               m_opened = false;
+    bool               m_opened   = false;
+    uint32_t           m_vdStart  = 16;
 };
 
 // Detect whether a raw disc image uses 2352-byte sectors (with sync header) or
