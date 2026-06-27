@@ -3206,11 +3206,54 @@ void MainWindow::onPasswordManager()
     saveBtn->setDefault(true);
 
     connect(addBtn, &QPushButton::clicked, &dlg, [&]() {
-        int row = table->rowCount();
-        table->insertRow(row);
-        table->setItem(row, 0, new QTableWidgetItem(tr("archive.zip")));
-        table->setItem(row, 1, new QTableWidgetItem(QString()));
-        table->editItem(table->item(row, 0));
+        QDialog addDlg(&dlg);
+        addDlg.setWindowTitle(tr("Add Password"));
+        addDlg.setMinimumWidth(360);
+        auto* addLay = new QFormLayout(&addDlg);
+        addLay->setContentsMargins(12, 12, 12, 12);
+        addLay->setSpacing(8);
+
+        auto* archiveEdit = new QLineEdit(&addDlg);
+        archiveEdit->setPlaceholderText(tr("archive.zip"));
+        auto* pwdEdit     = new QLineEdit(&addDlg);
+        pwdEdit->setEchoMode(QLineEdit::Password);
+        auto* confirmEdit = new QLineEdit(&addDlg);
+        confirmEdit->setEchoMode(QLineEdit::Password);
+        auto* matchLabel  = new QLabel(&addDlg);
+        matchLabel->setStyleSheet(QStringLiteral("color: red; font-size: 10px;"));
+        matchLabel->hide();
+
+        addLay->addRow(tr("Archive:"),          archiveEdit);
+        addLay->addRow(tr("Password:"),         pwdEdit);
+        addLay->addRow(tr("Confirm password:"), confirmEdit);
+        addLay->addRow(QString(), matchLabel);
+
+        auto* addBtns = new QDialogButtonBox(
+            QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &addDlg);
+        addLay->addRow(addBtns);
+
+        connect(addBtns, &QDialogButtonBox::accepted, &addDlg, [&]() {
+            if (pwdEdit->text() != confirmEdit->text()) {
+                matchLabel->setText(tr("Passwords do not match."));
+                matchLabel->show();
+                return;
+            }
+            if (pwdEdit->text().isEmpty()) {
+                matchLabel->setText(tr("Password cannot be empty."));
+                matchLabel->show();
+                return;
+            }
+            addDlg.accept();
+        });
+        connect(addBtns, &QDialogButtonBox::rejected, &addDlg, &QDialog::reject);
+
+        if (addDlg.exec() == QDialog::Accepted) {
+            int row = table->rowCount();
+            table->insertRow(row);
+            table->setItem(row, 0, new QTableWidgetItem(archiveEdit->text().isEmpty()
+                ? tr("archive.zip") : archiveEdit->text()));
+            table->setItem(row, 1, new QTableWidgetItem(pwdEdit->text()));
+        }
     });
 
     connect(delBtn, &QPushButton::clicked, &dlg, [&]() {
