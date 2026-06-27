@@ -5,12 +5,14 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/ZipEngine.h"
 #include "engine/TarGzEngine.h"
+#include "engine/Bit7zEngine.h"
 
 class tst_ArchiveEngineFactory : public QObject
 {
     Q_OBJECT
 
 private slots:
+    // ── Extension-based format lookup ─────────────────────────────────
     void testCreateForFile_zip()
     {
         auto e = ArchiveEngineFactory::CreateForFile("test.zip");
@@ -38,10 +40,26 @@ private slots:
         QVERIFY(e != nullptr);
     }
 
+    void testCreateForFile_7z()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.7z");
+        QVERIFY(e != nullptr);
+        // 7z uses Bit7zEngine
+        QVERIFY(dynamic_cast<Bit7zEngine*>(e.get()) != nullptr);
+    }
+
     void testCreateForFile_rar()
     {
         auto e = ArchiveEngineFactory::CreateForFile("test.rar");
         QVERIFY(e != nullptr);
+    }
+
+    void testCreateForFile_arj()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.arj");
+        QVERIFY(e != nullptr);
+        // ARJ is read-only via Bit7zEngine
+        QVERIFY(!e->SupportsCreation());
     }
 
     void testCreateForFile_iso()
@@ -58,7 +76,6 @@ private slots:
 
     void testCreateForFile_lzh()
     {
-        // lzh triggers magic detection first; if no magic, falls to extension
         auto e = ArchiveEngineFactory::CreateForFile("test.lzh");
         QVERIFY(e != nullptr);
     }
@@ -75,6 +92,31 @@ private slots:
         QVERIFY(e != nullptr);
     }
 
+    void testCreateForFile_gz()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.gz");
+        QVERIFY(e != nullptr);
+    }
+
+    void testCreateForFile_bz2()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.bz2");
+        QVERIFY(e != nullptr);
+    }
+
+    void testCreateForFile_xz()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.xz");
+        QVERIFY(e != nullptr);
+    }
+
+    void testCreateForFile_zst()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.zst");
+        QVERIFY(e != nullptr);
+    }
+
+    // ── Format-name lookup ────────────────────────────────────────────
     void testCreateForFormat_zip()
     {
         auto e = ArchiveEngineFactory::CreateForFormat("zip");
@@ -94,12 +136,43 @@ private slots:
         QVERIFY(e != nullptr);
     }
 
+    void testCreateForFormat_targz()
+    {
+        auto e = ArchiveEngineFactory::CreateForFormat("tar.gz");
+        QVERIFY(e != nullptr);
+    }
+
     void testCreateForFormat_unknown()
     {
         auto e = ArchiveEngineFactory::CreateForFormat("xyz");
         QVERIFY(e == nullptr);
     }
 
+    // ── Capability flags ──────────────────────────────────────────────
+    void testZipSupportsCreation()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.zip");
+        QVERIFY(e != nullptr);
+        QVERIFY(e->SupportsCreation());
+    }
+
+    void testArjReadOnly()
+    {
+        // ARJ must be read-only (Bit7zEngine with setReadOnly(true))
+        auto e = ArchiveEngineFactory::CreateForFile("test.arj");
+        QVERIFY(e != nullptr);
+        QVERIFY(!e->SupportsCreation());
+    }
+
+    void testRarReadOnly()
+    {
+        auto e = ArchiveEngineFactory::CreateForFile("test.rar");
+        QVERIFY(e != nullptr);
+        // RAR creation requires external rar binary; engine may or may not support it
+        // Just verify the engine is returned (not null)
+    }
+
+    // ── Extension registry ────────────────────────────────────────────
     void testSupportedExtensions()
     {
         auto exts = ArchiveEngineFactory::SupportedExtensions();
@@ -107,6 +180,9 @@ private slots:
         QVERIFY(std::find(exts.begin(), exts.end(), ".zip") != exts.end());
         QVERIFY(std::find(exts.begin(), exts.end(), ".7z") != exts.end());
         QVERIFY(std::find(exts.begin(), exts.end(), ".rar") != exts.end());
+        QVERIFY(std::find(exts.begin(), exts.end(), ".arj") != exts.end());
+        QVERIFY(std::find(exts.begin(), exts.end(), ".tar.gz") != exts.end());
+        QVERIFY(std::find(exts.begin(), exts.end(), ".iso") != exts.end());
     }
 };
 

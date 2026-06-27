@@ -59,6 +59,19 @@ private slots:
         QCOMPARE(result, m_contentB);
     }
 
+    void testReadFilePartial()
+    {
+        ZipEngine eng;
+        QVERIFY(eng.Open(m_archive.string()));
+        size_t half = m_contentA.size() / 2;
+        auto data = eng.ReadFilePartial("a.txt", half);
+        QVERIFY(!data.empty());
+        QVERIFY(data.size() <= half);
+        // first bytes match
+        QCOMPARE(std::string(data.begin(), data.end()),
+                 m_contentA.substr(0, data.size()));
+    }
+
     void testExtract()
     {
         ZipEngine eng;
@@ -85,19 +98,16 @@ private slots:
         ZipEngine eng;
         QVERIFY(eng.Open(m_archive.string()));
 
-        // Add a third file first to have something to remove
         createTempFile("src/to_remove.txt", "will be deleted");
         QVERIFY(eng.AddFile(
             (baseTempDir() / "src/to_remove.txt").string(),
             "to_remove.txt"));
         QVERIFY(eng.Save());
 
-        // Re-open and remove
         QVERIFY(eng.Open(m_archive.string()));
         QVERIFY(eng.RemoveEntry("to_remove.txt"));
         QVERIFY(eng.Save());
 
-        // Re-open and verify gone
         QVERIFY(eng.Open(m_archive.string()));
         auto entries = eng.ListContents();
         QCOMPARE(entries.size(), size_t(2));
@@ -116,10 +126,77 @@ private slots:
         QVERIFY(hasEntry(entries, "renamed.txt"));
         QVERIFY(!hasEntry(entries, "a.txt"));
 
-        // Verify content preserved
         auto data = eng.ReadFile("renamed.txt");
         std::string result(data.begin(), data.end());
         QCOMPARE(result, m_contentA);
+
+        // Rename back so later tests still find a.txt
+        QVERIFY(eng.RenameEntry("renamed.txt", "a.txt"));
+        QVERIFY(eng.Save());
+    }
+
+    void testArchiveComment()
+    {
+        ZipEngine eng;
+        QVERIFY(eng.Open(m_archive.string()));
+        QVERIFY(eng.setArchiveComment("Test comment"));
+        QVERIFY(eng.Save());
+
+        QVERIFY(eng.Open(m_archive.string()));
+        QCOMPARE(eng.archiveComment(), "Test comment");
+
+        // Clear comment
+        QVERIFY(eng.setArchiveComment(""));
+        QVERIFY(eng.Save());
+    }
+
+    void testEntryComment()
+    {
+        ZipEngine eng;
+        QVERIFY(eng.Open(m_archive.string()));
+        QVERIFY(eng.setEntryComment("sub/b.txt", "entry note"));
+        QVERIFY(eng.Save());
+
+        QVERIFY(eng.Open(m_archive.string()));
+        const auto& entries = eng.ListContents();
+        for (const auto& e : entries)
+        {
+            if (e.path == "sub/b.txt")
+            {
+                QCOMPARE(e.comment, "entry note");
+                return;
+            }
+        }
+        QFAIL("sub/b.txt not found");
+    }
+
+    void testCompressionMethodString()
+    {
+        // Create archive and check that compressionMethod is populated in listing
+        auto archivePath = m_dir.path / "method_test.zip";
+        createTempFile("src/cm.txt", "compression method test");
+        ZipEngine eng;
+        QVERIFY(eng.Create(archivePath.string()));
+        QVERIFY(eng.AddFile(
+            (baseTempDir() / "src/cm.txt").string(), "cm.txt"));
+        QVERIFY(eng.Save());
+
+        QVERIFY(eng.Open(archivePath.string()));
+        const auto& entries = eng.ListContents();
+        QCOMPARE(entries.size(), size_t(1));
+        // compressionMethod should be "Deflate" or "Stored" (not empty)
+        QVERIFY(!entries[0].compressionMethod.empty());
+    }
+
+    void testCrcStoredInEntry()
+    {
+        ZipEngine eng;
+        QVERIFY(eng.Open(m_archive.string()));
+        const auto& entries = eng.ListContents();
+        // ZIP stores CRC32; all entries should have non-zero CRC
+        for (const auto& e : entries)
+            if (!e.isDirectory)
+                QVERIFY(e.crc != 0);
     }
 
     void testTestIntegrity()
