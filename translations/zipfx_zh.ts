@@ -213,7 +213,7 @@ Install manually: %1</source>
         </message>
         <message>
             <source>Auto</source>
-            <translation>汽车</translation>
+            <translation>自动</translation>
         </message>
         <message>
             <source>Auto (LZMA2)</source>

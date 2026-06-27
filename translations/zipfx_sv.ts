@@ -213,7 +213,7 @@ Installera manuellt: %1</translation>
         </message>
         <message>
             <source>Auto</source>
-            <translation>Bil</translation>
+            <translation>Automatisk</translation>
         </message>
         <message>
             <source>Auto (LZMA2)</source>
