@@ -388,7 +388,7 @@ void MainWindow::setupToolbar()
         style()->standardIcon(QStyle::SP_FileDialogNewFolder), tr("Add Folder"));
     connect(addDirAct, &QAction::triggered, this, &MainWindow::onAddFolder);
 
-    auto extractAct = m_toolbar->addAction(m_icons->extract, tr("Extract To"));
+    auto extractAct = m_toolbar->addAction(m_icons->extract, tr("Extract..."));
     connect(extractAct, &QAction::triggered, this, &MainWindow::onExtractAll);
 
     auto testAct = m_toolbar->addAction(m_icons->test, tr("Test"));
