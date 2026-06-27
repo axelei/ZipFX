@@ -37,7 +37,7 @@
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="51" />
             <source>Save as:</source>
-            <translation>Guardar en:</translation>
+            <translation>Guardar como:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="54" />
@@ -52,7 +52,7 @@
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="72" />
             <source>Compression:</source>
-            <translation>Compresion:</translation>
+            <translation>Compresión:</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="77" />
@@ -82,7 +82,7 @@
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="91" />
             <source>Only supported by 7z format</source>
-            <translation>Solo compatible con formato 7z</translation>
+            <translation>Sólo compatible con formato 7z</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="97" />
@@ -128,12 +128,12 @@
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="127" />
             <source>Select files to compress</source>
-            <translation>Seleccionar archivos para comprimir</translation>
+            <translation>Seleccione archivos para comprimir</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="139" />
             <source>Select folder to compress</source>
-            <translation>Seleccionar carpeta para comprimir</translation>
+            <translation>Seleccione carpeta para comprimir</translation>
         </message>
         <message>
             <location filename="../src/ui/CreateArchiveDialog.cpp" line="171" />
@@ -276,7 +276,7 @@ Instale manualmente: %1</translation>
         <message>
             <location filename="../src/dnd/DragProgressDialog.h" line="34" />
             <source>After:</source>
-            <translation>Despues:</translation>
+            <translation>Después:</translation>
         </message>
         <message>
             <location filename="../src/dnd/DragProgressDialog.h" line="42" />
@@ -519,12 +519,12 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
             <location filename="../src/ui/MainWindow.cpp" line="822" />
             <location filename="../src/ui/MainWindow.cpp" line="930" />
             <source>Info</source>
-            <translation>Informacion</translation>
+            <translation>Información</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="292" />
             <source>Address:</source>
-            <translation>Direccion:</translation>
+            <translation>Dirección:</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="359" />
@@ -581,24 +581,24 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="503" />
             <source>No archive open</source>
-            <translation>Ningun archivo abierto</translation>
+            <translation>Ningún archivo abierto</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="510" />
             <location filename="../src/ui/MainWindow.cpp" line="523" />
             <source>No archive open or read-only.</source>
-            <translation>Ningun archivo abierto o solo lectura.</translation>
+            <translation>Ningún archivo abierto o sólo lectura.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="514" />
             <source>Add Files</source>
-            <translation>Anadir archivos</translation>
+            <translation>Añadir archivos</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="401" />
             <location filename="../src/ui/MainWindow.cpp" line="557" />
             <source>Adding files...</source>
-            <translation>Anadiendo archivos...</translation>
+            <translation>Añadiendo archivos...</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="557" />
@@ -612,7 +612,7 @@ Soporta: ZIP, 7z, RAR, TAR.GZ</translation>
             <location filename="../src/ui/MainWindow.cpp" line="582" />
             <location filename="../src/ui/MainWindow.cpp" line="592" />
             <source>Adding: %1</source>
-            <translation>Anadiendo: %1</translation>
+            <translation>Añadiendo: %1</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="431" />
@@ -706,7 +706,7 @@ Compatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
             <location filename="../src/ui/MainWindow.cpp" line="757" />
             <location filename="../src/ui/MainWindow.cpp" line="930" />
             <source>Archive is empty.</source>
-            <translation>El archivo esta vacio.</translation>
+            <translation>El archivo está vacio.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="663" />
@@ -722,7 +722,7 @@ Compatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="690" />
             <source>Overwrite?</source>
-            <translation>Sobreescribir?</translation>
+            <translation>¿Sobreescribir?</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="691" />
@@ -731,12 +731,12 @@ Compatible: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...</translation>
 Overwrite?</source>
             <translation>El archivo existe:
 %1
-Sobrescribir?</translation>
+¿Sobrescribir?</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="713" />
             <source>Extraction complete</source>
-            <translation>Extraccion completa</translation>
+            <translation>Extracción completa</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="718" />
@@ -875,7 +875,7 @@ No se puede previsualizar este formato.</translation>
             <source>File: %1
 Size: %2 bytes</source>
             <translation type="vanished">Archivo: %1
-Tamano: %2 bytes</translation>
+Tamaño: %2 bytes</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="970" />
@@ -885,7 +885,7 @@ Tamano: %2 bytes</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="971" />
             <source>Delete %1 files?</source>
-            <translation>Eliminar %1 archivos?</translation>
+            <translation>¿Eliminar %1 archivos?</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1011" />
@@ -920,7 +920,7 @@ Tamano: %2 bytes</translation>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1235" />
             <source>Read-only format.</source>
-            <translation>Formato de solo lectura.</translation>
+            <translation>Formato de sólo lectura.</translation>
         </message>
         <message>
             <location filename="../src/ui/MainWindow.cpp" line="1268" />
@@ -1043,7 +1043,7 @@ Overwrite?</source>
         </message>
         <message>
             <source>This format does not support file comments.</source>
-            <translation>Este formato no admite comentarios de archivo.</translation>
+            <translation>Este formato no admite comentarios individuales de archivo.</translation>
         </message>
         <message>
             <source>Updating comment...</source>
@@ -1711,7 +1711,7 @@ Es posible que necesites ejecutar ZipFX como administrador para esta operación.
         </message>
         <message>
             <source>New &amp;Window	Ctrl+Shift+N</source>
-            <translation>Nuevo &amp;amp;Ventana Ctrl+Mayús+N</translation>
+            <translation>Nueva &amp;Ventana Ctrl+Mayús+N</translation>
         </message>
         <message>
             <source>
@@ -1772,7 +1772,7 @@ Cancelled by user.</source>
         </message>
         <message>
             <source>Path:</source>
-            <translation>Camino:</translation>
+            <translation>Ruta:</translation>
         </message>
         <message>
             <source>Permissions:</source>
@@ -1885,11 +1885,11 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Checksums</source>
-            <translation>sumas de control</translation>
+            <translation>Sumas de control</translation>
         </message>
         <message>
             <source>Close</source>
-            <translation>Cerca</translation>
+            <translation>Cerrar</translation>
         </message>
         <message>
             <source>Computing %1 of %2: %3</source>
@@ -1992,7 +1992,7 @@ Overwrite it?</source>
         </message>
         <message>
             <source>Extract...</source>
-            <translation>Extracto...</translation>
+            <translation>Extraer...</translation>
         </message>
         <message>
             <source>Navigate to Entry</source>
