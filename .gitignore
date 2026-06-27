@@ -28,3 +28,6 @@ deploy/build_linux/
 deploy/ZipFX-macOS.dmg
 deploy/ZipFX-Linux.tar.gz
 deploy/ZipFX-*.AppImage
+
+.claude/
+
