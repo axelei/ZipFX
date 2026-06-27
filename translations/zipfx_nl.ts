@@ -207,6 +207,42 @@ Install manually: %1</source>
             <translation>Kan de pakketbeheerder niet starten.
 Handmatig installeren: %1</translation>
         </message>
+        <message>
+            <source>Advanced</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Auto</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Auto (LZMA2)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Copy (Store)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Dictionary:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Method:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Solid archive</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Threads:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Word size:</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>DragProgressDialog</name>
@@ -1571,7 +1607,7 @@ the archive will be repaired in-place.</source>
 The archive may be encrypted, corrupted, or use a compression method that is not supported for in-place preview.
 
 Try extracting the file first.</source>
-            <translation>Kon &quot;%1&quot; niet lezen.
+            <translation>Kon "%1" niet lezen.
 
 Het archief is mogelijk gecodeerd of beschadigd of gebruikt een compressiemethode die niet wordt ondersteund voor in-place preview.
 
@@ -1602,6 +1638,14 @@ Bouw eerst het shell-extensiedoel.</translation>
 You may need to run ZipFX as administrator for this operation.</source>
             <translation>regsvr32 is mislukt (afsluiten %1).
 Mogelijk moet u ZipFX als beheerder uitvoeren voor deze bewerking.</translation>
+        </message>
+        <message>
+            <source>Checksums...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>New &amp;Window	Ctrl+Shift+N</source>
+            <translation type="unfinished" />
         </message>
     </context>
     <context>
@@ -1667,6 +1711,66 @@ Overwrite it?</source>
 %1
 
 Overschrijven?</translation>
+        </message>
+        <message>
+            <source>CRC32 (computed)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>CRC32 (stored)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>CRC32(c)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>CRC32(s)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Checksums</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Close</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Computing %1 of %2: %3</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Computing checksums...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Computing...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Copy to Clipboard</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Done.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>File</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>N/A</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>SHA-256</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Size</source>
+            <translation type="unfinished" />
         </message>
     </context>
     <context>
