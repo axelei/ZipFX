@@ -2,9 +2,11 @@
 #define ZIPFX_GDI_ENGINE_H
 
 #include "ArchiveEngine.h"
+#include "Iso9660Reader.h"
 
 #include <atomic>
 #include <cstdint>
+#include <cstdio>
 #include <string>
 #include <vector>
 
@@ -41,12 +43,24 @@ public:
 
 private:
     bool parseGdi();
+    void buildTrackEntries();
+    bool tryMountFilesystem();
 
     std::string m_path;
     std::string m_baseDir;
     bool m_isOpen = false;
-    std::vector<GdiTrack> m_tracks;
+
+    std::vector<GdiTrack>     m_tracks;
     std::vector<ArchiveEntry> m_entries;
+
+    // Filesystem view — populated when a data track contains ISO 9660
+    bool          m_hasFilesystem  = false;
+    FILE*         m_dataFile       = nullptr;
+    uint32_t      m_dataSectorSize = 2352;
+    uint32_t      m_dataHeaderOff  = 0;
+    uint32_t      m_dataExtOffset  = 0;
+    Iso9660Reader m_iso;
+
     std::atomic<bool> m_extractCancelled{false};
 };
 

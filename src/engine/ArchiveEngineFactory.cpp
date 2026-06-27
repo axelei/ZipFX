@@ -17,6 +17,7 @@
 #include "ChdEngine.h"
 #include "CdiEngine.h"
 #include "GdiEngine.h"
+#include "IsoEngine.h"
 #include "DskEngine.h"
 #include "SsdEngine.h"
 #include "AtrEngine.h"
@@ -169,10 +170,7 @@ static const FormatEntry kFormats[] = {
             return std::unique_ptr<ArchiveEngine>(std::move(e));
         },                                                                false },
     { "ISO",    ".iso",                              ArchiveType::Iso,
-        []() { return std::make_unique<LibarchiveEngine>(
-            std::vector<LibarchiveEngine::FormatRegistrar>{
-                archive_read_support_format_iso9660 },
-            "ISO"); },                                                false },
+        []() { return std::make_unique<IsoEngine>(); },              false },
     { "CAB",    ".cab",                              ArchiveType::Cab,
         []() { return std::make_unique<LibarchiveEngine>(
             std::vector<LibarchiveEngine::FormatRegistrar>{
@@ -241,9 +239,7 @@ static const FormatEntry kFormats[] = {
     { "CDI",    ".cdi",                              ArchiveType::Cdi,
         []() { return std::make_unique<CdiEngine>(); },               false },
     { "ISO",    ".iso",                              ArchiveType::Iso,
-        []() { return std::make_unique<LibarchiveEngine>(
-            std::vector<LibarchiveEngine::FormatRegistrar>{archive_read_support_format_iso9660},
-            "ISO"); },                                                    false },
+        []() { return std::make_unique<IsoEngine>(); },              false },
     { "GDI",    ".gdi",                              ArchiveType::Gdi,
         []() { return std::make_unique<GdiEngine>(); },               false },
     // ── Retro disk image formats ──────────────────────────────

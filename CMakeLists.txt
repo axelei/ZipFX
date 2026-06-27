@@ -373,6 +373,8 @@ set(ZIPFX_SOURCES
     src/engine/RffEngine.cpp
     src/engine/BigEngine.cpp
     src/engine/PodEngine.cpp
+    src/engine/Iso9660Reader.cpp
+    src/engine/IsoEngine.cpp
     src/engine/CdiEngine.cpp
     src/engine/GdiEngine.cpp
     src/engine/DskEngine.cpp

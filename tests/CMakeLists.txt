@@ -20,6 +20,8 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/BigEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/PodEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/RarEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/Iso9660Reader.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/IsoEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/CdiEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/GdiEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/DskEngine.cpp
