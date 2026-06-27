@@ -1328,7 +1328,10 @@ void MainWindow::onExtractAll()
 {
     if (!m_engine) return;
 
-    QString dest = QFileDialog::getExistingDirectory(this, tr("Extract to"));
+    QString startDir = m_currentPath.empty()
+        ? QString()
+        : QFileInfo(QString::fromStdString(m_currentPath)).absolutePath();
+    QString dest = QFileDialog::getExistingDirectory(this, tr("Extract to"), startDir);
     if (dest.isEmpty()) return;
 
     doExtract(dest, true);
