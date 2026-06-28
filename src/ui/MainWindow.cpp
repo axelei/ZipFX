@@ -50,6 +50,9 @@
 #ifdef Q_OS_MACOS
 #include "dnd/MacPromiseDrag.h"
 #endif
+#ifdef ZIPFX_HAVE_FUSE
+#include "dnd/FuseArchiveMount.h"
+#endif
 #include <QDropEvent>
 #include <QFileOpenEvent>
 #include <QUrl>
@@ -2377,70 +2380,105 @@ void MainWindow::onBeginDrag()
                                 buf.constData(), filePaths.size(), this);
     }
 #else
-    // Extract to temp, then QDrag with file URLs
-    QString tmpRoot = QStandardPaths::writableLocation(
-        QStandardPaths::TempLocation) + "/ZipFX_Drag/"
-        + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
-    QDir().mkpath(tmpRoot);
-
-    uint64_t totalBytesDrag = 0;
-    for (const auto& fp : filePaths)
-        for (const auto& e : allEntries)
-            if (e.path == fp.toStdString())
-                { totalBytesDrag += e.packedSize > 0 ? e.packedSize : e.size; break; }
-
-    ProgressInfo piDrag;
-    piDrag.start(totalBytesDrag);
-
-    QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
-        0, filePaths.size(), this);
-    prog.setWindowModality(Qt::ApplicationModal);
-    prog.show();
-
-    QList<QUrl> urls;
-    for (int i = 0; i < filePaths.size(); ++i)
+#ifdef ZIPFX_HAVE_FUSE
+    // Linux + FUSE: mount archive as a virtual filesystem, drag real paths lazily
     {
-        if (prog.wasCanceled()) break;
-        prog.setValue(i);
-
-        std::string fp = filePaths[i].toStdString();
-
-        piDrag.addBytes(0);
-        for (const auto& e : allEntries)
-            if (e.path == fp)
-                { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
+        auto* mount = new FuseArchiveMount(m_engine.get());
+        for (const auto& fp : filePaths)
         {
-            QString fname = filePaths[i];
-            if (piDrag.shouldUpdate())
-            {
-                piDrag.updateRate();
-                QString eta = piDrag.etaString();
-                fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
-            }
-            prog.setLabelText(fname);
+            QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
+            uint64_t sz = 0;
+            for (const auto& e : allEntries)
+                if (e.path == fp.toStdString()) { sz = e.size; break; }
+            mount->addEntry(fp.toStdString(), dragName.toStdString(), sz);
         }
-        QApplication::processEvents();
 
-        QString fpQ = filePaths[i];
-        QString dragName = fpQ.startsWith(prefix) ? fpQ.mid(prefix.size()) : fpQ;
-        QString destPath = tmpRoot + dragName;
-        QDir().mkpath(QFileInfo(destPath).path());
-
-        if (m_engine->Extract(fp, destPath.toStdString()))
-            urls << QUrl::fromLocalFile(destPath);
+        if (mount->start())
+        {
+            QList<QUrl> urls;
+            for (const auto& fp : filePaths)
+            {
+                QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
+                urls << QUrl::fromLocalFile(
+                    QString::fromStdString(mount->mountPoint()) + "/" + dragName);
+            }
+            QMimeData* mime = new QMimeData();
+            mime->setUrls(urls);
+            QDrag* drag = new QDrag(this);
+            drag->setMimeData(mime);
+            drag->exec(Qt::CopyAction); // blocks until drop or cancel
+            mount->unmount();
+        }
+        delete mount;
     }
-    prog.close();
-
-    if (!urls.isEmpty())
+#else
+    // Fallback: extract to temp dir before starting the drag
     {
-        QMimeData* mime = new QMimeData();
-        mime->setUrls(urls);
-        QDrag* drag = new QDrag(this);
-        drag->setMimeData(mime);
-        drag->exec(Qt::CopyAction);
+        QString tmpRoot = QStandardPaths::writableLocation(
+            QStandardPaths::TempLocation) + "/ZipFX_Drag/"
+            + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
+        QDir().mkpath(tmpRoot);
+
+        uint64_t totalBytesDrag = 0;
+        for (const auto& fp : filePaths)
+            for (const auto& e : allEntries)
+                if (e.path == fp.toStdString())
+                    { totalBytesDrag += e.packedSize > 0 ? e.packedSize : e.size; break; }
+
+        ProgressInfo piDrag;
+        piDrag.start(totalBytesDrag);
+
+        QProgressDialog prog(tr("Preparing files for drag..."), tr("Cancel"),
+            0, filePaths.size(), this);
+        prog.setWindowModality(Qt::ApplicationModal);
+        prog.show();
+
+        QList<QUrl> urls;
+        for (int i = 0; i < filePaths.size(); ++i)
+        {
+            if (prog.wasCanceled()) break;
+            prog.setValue(i);
+
+            std::string fp = filePaths[i].toStdString();
+
+            piDrag.addBytes(0);
+            for (const auto& e : allEntries)
+                if (e.path == fp)
+                    { piDrag.addBytes(e.packedSize > 0 ? e.packedSize : e.size); break; }
+            {
+                QString fname = filePaths[i];
+                if (piDrag.shouldUpdate())
+                {
+                    piDrag.updateRate();
+                    QString eta = piDrag.etaString();
+                    fname += (eta.isEmpty() ? QString() : QChar('\n') + eta);
+                }
+                prog.setLabelText(fname);
+            }
+            QApplication::processEvents();
+
+            QString fpQ = filePaths[i];
+            QString dragName = fpQ.startsWith(prefix) ? fpQ.mid(prefix.size()) : fpQ;
+            QString destPath = tmpRoot + dragName;
+            QDir().mkpath(QFileInfo(destPath).path());
+
+            if (m_engine->Extract(fp, destPath.toStdString()))
+                urls << QUrl::fromLocalFile(destPath);
+        }
+        prog.close();
+
+        if (!urls.isEmpty())
+        {
+            QMimeData* mime = new QMimeData();
+            mime->setUrls(urls);
+            QDrag* drag = new QDrag(this);
+            drag->setMimeData(mime);
+            drag->exec(Qt::CopyAction);
+        }
     }
-#endif
-#endif
+#endif // ZIPFX_HAVE_FUSE
+#endif // Q_OS_MACOS
+#endif // _WIN32
 }
 
 // ── macOS: handle "Open with" / double-click in Finder ─────────────

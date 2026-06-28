@@ -325,6 +325,21 @@ find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Widgets Network)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Widgets Network)
 
 # ====================================================================
+# FUSE3  –  optional; enables lazy drag-and-drop extraction on Linux
+# ====================================================================
+if(UNIX AND NOT APPLE)
+    find_package(PkgConfig QUIET)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(FUSE3 QUIET fuse3)
+    endif()
+    if(FUSE3_FOUND)
+        message(STATUS "FUSE3 found (${FUSE3_VERSION}) — lazy drag extraction enabled")
+    else()
+        message(STATUS "FUSE3 not found — drag will use eager pre-extraction fallback")
+    endif()
+endif()
+
+# ====================================================================
 # CLI11  –  header-only command-line parser
 # ====================================================================
 FetchContent_Declare(
@@ -394,6 +409,8 @@ if(WIN32)
     list(APPEND ZIPFX_SOURCES src/dnd/VirtualFileDataObject.cpp)
 elseif(APPLE)
     list(APPEND ZIPFX_SOURCES src/dnd/MacPromiseDrag.mm)
+elseif(FUSE3_FOUND)
+    list(APPEND ZIPFX_SOURCES src/dnd/FuseArchiveMount.cpp)
 endif()
 
 add_executable(ZipFX ${ZIPFX_SOURCES})
@@ -415,6 +432,7 @@ target_include_directories(ZipFX PRIVATE
 target_compile_definitions(ZipFX PRIVATE
     LIBARCHIVE_STATIC
     $<$<CONFIG:Debug>:QT_QML_DEBUG>
+    $<$<BOOL:${FUSE3_FOUND}>:ZIPFX_HAVE_FUSE>
 )
 
 target_link_libraries(ZipFX PRIVATE
@@ -430,6 +448,11 @@ target_link_libraries(ZipFX PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
 )
+
+if(FUSE3_FOUND)
+    target_include_directories(ZipFX PRIVATE ${FUSE3_INCLUDE_DIRS})
+    target_link_libraries(ZipFX PRIVATE ${FUSE3_LIBRARIES})
+endif()
 
 if(APPLE)
     target_link_libraries(ZipFX PRIVATE "-framework Cocoa")
