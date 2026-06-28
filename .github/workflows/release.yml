@@ -434,9 +434,12 @@ jobs:
       # LD_LIBRARY_PATH lets linuxdeploy find Qt + dep shared libs.
       - name: Create AppImage
         env:
-          QMAKE:           ${{ env.QT_ROOT_DIR }}/bin/qmake
-          OUTPUT:          ZipFX-${{ steps.version.outputs.version }}-Linux-x86_64.AppImage
-          LD_LIBRARY_PATH: ${{ env.QT_ROOT_DIR }}/lib:deploy/build_linux/install/usr/lib
+          QMAKE:                    ${{ env.QT_ROOT_DIR }}/bin/qmake
+          OUTPUT:                   ZipFX-${{ steps.version.outputs.version }}-Linux-x86_64.AppImage
+          LD_LIBRARY_PATH:          ${{ env.QT_ROOT_DIR }}/lib:deploy/build_linux/install/usr/lib
+          # linuxdeploy and appimagetool are themselves AppImages; without this
+          # they try to FUSE-mount themselves which hangs in CI containers.
+          APPIMAGE_EXTRACT_AND_RUN: "1"
         run: |
           /tmp/linuxdeploy \
             --appdir deploy/build_linux/install \

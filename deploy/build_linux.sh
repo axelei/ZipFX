@@ -87,6 +87,9 @@ if ! command -v linuxdeploy &>/dev/null; then
     chmod +x /tmp/linuxdeploy /tmp/linuxdeploy-plugin-qt
     export PATH="/tmp:$PATH"
 fi
+# linuxdeploy and appimagetool are themselves AppImages; without this they try
+# to FUSE-mount themselves, which hangs or fails in containers and CI.
+export APPIMAGE_EXTRACT_AND_RUN=1
 if command -v linuxdeploy &>/dev/null; then
     # Copy lib7z.so into the AppDir
     LIB7Z=""
