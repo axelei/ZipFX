@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Build and package ZipFX for Linux
-# Requires: Qt 6, CMake, GCC/Clang, libfuse2 (for AppImage)
+# Requires: Qt 6, CMake, GCC/Clang, libfuse2 (for AppImage), libfuse3-dev (optional, for lazy drag)
 #
 # Usage:  ./build_linux.sh [Qt_DIR]
 #         default Qt_DIR = /usr  (system Qt)
@@ -33,7 +33,8 @@ cmake -S .. -B "${BUILD_DIR}" \
     -DCMAKE_PREFIX_PATH="${QT_DIR}" \
     -DCMAKE_BUILD_TYPE=Release \
     -DBUILD_TESTING=OFF \
-    -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install/usr"
+    -DCMAKE_INSTALL_PREFIX="${BUILD_DIR}/install/usr" \
+    -DCMAKE_INSTALL_RPATH='$ORIGIN/../lib'
 
 echo "=== Building ==="
 cmake --build "${BUILD_DIR}" -j"$(nproc)"
@@ -48,6 +49,19 @@ for path in ../lib/linux/x64/lib7z.so ../lib/linux/lib7z.so; do
 done
 if [ -n "$LIB7Z" ]; then
     cp "$LIB7Z" "${BUILD_DIR}/install/usr/lib/"
+fi
+
+echo "=== Bundling system shared libs ==="
+mkdir -p "${BUILD_DIR}/install/usr/lib"
+# libfuse3 — needed for lazy drag-and-drop; locate via ldconfig then copy with symlinks
+LIBFUSE3_REAL=$(ldconfig -p 2>/dev/null | awk '/libfuse3\.so/{print $NF}' | head -1)
+if [ -n "$LIBFUSE3_REAL" ]; then
+    LIBFUSE3_DIR=$(dirname "$LIBFUSE3_REAL")
+    find "$LIBFUSE3_DIR" -maxdepth 1 -name "libfuse3.so*" \
+        -exec cp -Pn {} "${BUILD_DIR}/install/usr/lib/" \; 2>/dev/null || true
+    echo "Bundled libfuse3 from ${LIBFUSE3_DIR}"
+else
+    echo "libfuse3 not found — lazy drag-and-drop will fall back to eager extraction"
 fi
 
 echo "=== Creating tar.gz ==="
@@ -88,6 +102,12 @@ if command -v linuxdeploy &>/dev/null; then
         -name "libzip.so*" -o -name "libstorm.so*" -o -name "liblzma.so*" \
         -o -name "libbrotli*.so*" \
         \) | xargs -I{} cp -P {} "${BUILD_DIR}/install/usr/lib/" 2>/dev/null || true
+    # libfuse3 is a system lib (not in _deps); copy it if not already present from the tar.gz step
+    LIBFUSE3_REAL=$(ldconfig -p 2>/dev/null | awk '/libfuse3\.so/{print $NF}' | head -1)
+    if [ -n "$LIBFUSE3_REAL" ]; then
+        find "$(dirname "$LIBFUSE3_REAL")" -maxdepth 1 -name "libfuse3.so*" \
+            -exec cp -Pn {} "${BUILD_DIR}/install/usr/lib/" \; 2>/dev/null || true
+    fi
     export QMAKE="${QT_DIR}/bin/qmake"
     # Let linuxdeploy resolve shared libs from build tree and AppDir
     DEPS_LIB_DIRS=$(find "${BUILD_DIR}/_deps" -name "*.so*" -printf "%h\n" 2>/dev/null | sort -u | tr '\n' ':')

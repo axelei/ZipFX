@@ -367,6 +367,7 @@ jobs:
             -DBUILD_TESTING=OFF \
             -DFETCHCONTENT_UPDATES_DISCONNECTED=ON \
             -DCMAKE_INSTALL_PREFIX=build_linux/install/usr \
+            "-DCMAKE_INSTALL_RPATH=\$ORIGIN/../lib" \
             -DCMAKE_C_COMPILER_LAUNCHER=ccache \
             -DCMAKE_CXX_COMPILER_LAUNCHER=ccache
 
@@ -403,6 +404,12 @@ jobs:
             -name "libstorm*.so*"  -o \
             -name "libbrotli*.so*" \
           \) -exec cp -Pn {} "$LIBDIR/" \; 2>/dev/null || true
+          # libfuse3 is a system lib (not in _deps); bundle it for lazy drag-and-drop
+          LIBFUSE3=$(ldconfig -p 2>/dev/null | awk '/libfuse3\.so/{print $NF}' | head -1)
+          if [ -n "$LIBFUSE3" ]; then
+            find "$(dirname "$LIBFUSE3")" -maxdepth 1 -name "libfuse3.so*" \
+              -exec cp -Pn {} "$LIBDIR/" \; 2>/dev/null || true
+          fi
 
       # ── linuxdeploy + Qt plugin ───────────────────────────────────────────
       # Downloaded to a temp location; not cached because the "continuous"
