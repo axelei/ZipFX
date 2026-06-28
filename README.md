@@ -314,20 +314,22 @@ cmake --build build
 **Prerequisites (Debian/Ubuntu):**
 
 ```bash
-sudo apt install cmake build-essential qt6-base-dev libgl1-mesa-dev
+sudo apt install cmake build-essential qt6-base-dev libgl1-mesa-dev libfuse3-dev
 ```
 
 **Prerequisites (Fedora/RHEL):**
 
 ```bash
-sudo dnf install cmake gcc-c++ qt6-qtbase-devel mesa-libGL-devel
+sudo dnf install cmake gcc-c++ qt6-qtbase-devel mesa-libGL-devel fuse3-devel
 ```
 
 **Prerequisites (Arch Linux):**
 
 ```bash
-sudo pacman -S cmake base-devel qt6-base mesa
+sudo pacman -S cmake base-devel qt6-base mesa fuse3
 ```
+
+> `libfuse3-dev` / `fuse3-devel` / `fuse3` is optional. Without it, dragging files out of an archive pre-extracts them to a temp directory before the drag starts. With it, files are read from the archive on demand as the drop target opens them (lazy extraction).
 
 ```bash
 cmake -B build
