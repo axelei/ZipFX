@@ -609,7 +609,11 @@ bool ZipEngine::Save()
     // Commit changes to disk (libzip handles everything in-place)
     if (zip_close(m_zip) != 0)
     {
-        LOG_ERR("ZipEngine: failed to close/commit archive");
+        zip_error_t* ze = zip_get_error(m_zip);
+        LOG_ERR("ZipEngine: failed to close/commit archive: %s (zip_err=%d)",
+                zip_error_strerror(ze), zip_error_code_zip(ze));
+        zip_discard(m_zip); // free zombie handle; a failed zip_close leaves m_zip unusable
+        m_zip = nullptr;
         return false;
     }
     m_zip = nullptr;

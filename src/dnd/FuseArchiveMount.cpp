@@ -15,9 +15,11 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
 
-// ── static FUSE op trampolines ────────────────────────────────────
-
-static FuseArchiveMount* s_mount = nullptr;
+// ── static FUSE op trampolines ────────────────────────────────────────
+//
+// Each mount passes 'this' as fuse_new()'s private_data so that concurrent
+// mounts (two rapid drags) are fully independent — there is no global
+// singleton that the second start() could clobber under the first's thread.
 
 // Strip leading '/' from FUSE path
 static std::string relpath(const char* cpath)
@@ -25,10 +27,15 @@ static std::string relpath(const char* cpath)
     return (cpath && cpath[0] == '/') ? cpath + 1 : (cpath ? cpath : "");
 }
 
+static inline FuseArchiveMount* self()
+{
+    return static_cast<FuseArchiveMount*>(fuse_get_context()->private_data);
+}
+
 static int op_getattr(const char* cpath, struct stat* st, struct fuse_file_info*)
 {
     memset(st, 0, sizeof(*st));
-    FuseArchiveMount* m = s_mount;
+    FuseArchiveMount* m = self();
     std::string path = relpath(cpath);
 
     if (path.empty())
@@ -60,7 +67,7 @@ static int op_getattr(const char* cpath, struct stat* st, struct fuse_file_info*
 static int op_readdir(const char* cpath, void* buf, fuse_fill_dir_t filler,
                       off_t, struct fuse_file_info*, enum fuse_readdir_flags)
 {
-    FuseArchiveMount* m = s_mount;
+    FuseArchiveMount* m = self();
     std::string path = relpath(cpath);
 
     auto it = m->m_dirs.find(path);
@@ -75,7 +82,7 @@ static int op_readdir(const char* cpath, void* buf, fuse_fill_dir_t filler,
 
 static int op_open(const char* cpath, struct fuse_file_info* fi)
 {
-    FuseArchiveMount* m = s_mount;
+    FuseArchiveMount* m = self();
     auto it = m->m_byMountPath.find(relpath(cpath));
     if (it == m->m_byMountPath.end()) return -ENOENT;
     if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
@@ -92,7 +99,7 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
 
 static int op_release(const char* /*path*/, struct fuse_file_info* /*fi*/)
 {
-    FuseArchiveMount* m = s_mount;
+    FuseArchiveMount* m = self();
     if (--m->m_openFiles == 0)
         m->m_cv.notify_all(); // wake phase-2 of unmount()
     return 0;
@@ -187,18 +194,18 @@ bool FuseArchiveMount::start()
         return false;
     }
     m_mountPoint = tmpl;
-    s_mount = this;
 
     const char* argv[] = { "ZipFX", nullptr };
     struct fuse_args args = FUSE_ARGS_INIT(1, const_cast<char**>(argv));
 
-    struct fuse* f = fuse_new(&args, &s_ops, sizeof(s_ops), nullptr);
+    // Pass 'this' as private_data so each mount's FUSE ops resolve to their
+    // own FuseArchiveMount via fuse_get_context()->private_data (see self()).
+    struct fuse* f = fuse_new(&args, &s_ops, sizeof(s_ops), this);
     if (!f)
     {
         LOG_ERR("FuseArchiveMount: fuse_new failed: %s", strerror(errno));
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
-        s_mount = nullptr;
         return false;
     }
 
@@ -222,7 +229,6 @@ bool FuseArchiveMount::start()
         fuse_destroy(f);
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
-        s_mount = nullptr;
         return false;
     }
 
@@ -288,8 +294,6 @@ void FuseArchiveMount::unmount()
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
     }
-    if (s_mount == this)
-        s_mount = nullptr;
 }
 
 #endif // ZIPFX_HAVE_FUSE

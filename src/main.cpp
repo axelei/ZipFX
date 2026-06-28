@@ -6,6 +6,22 @@
 #  include <cstdio>
 #endif
 
+#ifndef _WIN32
+#include <execinfo.h>
+#include <signal.h>
+#include <unistd.h>
+static void crashHandler(int sig)
+{
+    void* frames[64];
+    int n = backtrace(frames, 64);
+    const char* msg = (sig == SIGSEGV) ? "\n*** SIGSEGV — backtrace:\n" : "\n*** SIGABRT — backtrace:\n";
+    write(STDERR_FILENO, msg, __builtin_strlen(msg));
+    backtrace_symbols_fd(frames, n, STDERR_FILENO);
+    signal(sig, SIG_DFL);
+    raise(sig);
+}
+#endif
+
 #include <QApplication>
 #include <QCoreApplication>
 #include <QDir>
@@ -72,6 +88,10 @@ static bool tryActivateExistingInstance(const QString& fileToOpen)
 // ── Main ───────────────────────────────────────────────────────────────
 int main(int argc, char* argv[])
 {
+#ifndef _WIN32
+    signal(SIGSEGV, crashHandler);
+    signal(SIGABRT, crashHandler);
+#endif
     // Collect bare file arguments (not subcommands) for the GUI
     QString     fileToOpen;
     QStringList shellAddFiles;

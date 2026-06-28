@@ -2290,6 +2290,7 @@ void MainWindow::onContextMenu(const QPoint& pos)
 void MainWindow::onBeginDrag()
 {
     if (!m_engine) return;
+    if (m_dragInProgress) return; // block re-entrant drag started by event loop inside drag->exec()
 
     auto sel = m_treeView->selectionModel()->selectedRows(0);
     if (sel.isEmpty()) return;
@@ -2409,7 +2410,9 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
+            m_dragInProgress = true;
             drag->exec(Qt::CopyAction);
+            m_dragInProgress = false;
             // Unmount on a background thread: unmount() blocks waiting for
             // the drop target to finish reading (up to 65 s). Doing it here
             // would freeze the UI for the duration of the file copy.
@@ -2483,7 +2486,9 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
+            m_dragInProgress = true;
             drag->exec(Qt::CopyAction);
+            m_dragInProgress = false;
         }
     }
 #endif // Q_OS_MACOS
@@ -2518,6 +2523,10 @@ bool MainWindow::eventFilter(QObject* obj, QEvent* event)
 void MainWindow::dragEnterEvent(QDragEnterEvent* event)
 {
     if (!event->mimeData()->hasUrls()) return;
+    // Reject self-drags: a drag that originated from this window carrying FUSE
+    // URLs would trigger dropEvent → doAddPaths → Save() while drag->exec() is
+    // still on the call stack, corrupting the zip handle.
+    if (event->source() != nullptr) { event->ignore(); return; }
     // Reject drops when an archive is open but doesn't support adding files
     if (m_engine && !m_engine->SupportsCreation())
     {

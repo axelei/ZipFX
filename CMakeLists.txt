@@ -454,6 +454,10 @@ if(FUSE3_FOUND)
     target_link_libraries(ZipFX PRIVATE ${FUSE3_LIBRARIES})
 endif()
 
+if(UNIX AND NOT APPLE)
+    target_link_options(ZipFX PRIVATE "-rdynamic")
+endif()
+
 if(APPLE)
     target_link_libraries(ZipFX PRIVATE "-framework Cocoa")
     string(TIMESTAMP ZIPFX_YEAR "%Y")

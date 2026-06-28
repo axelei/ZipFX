@@ -170,6 +170,9 @@ private:
     // Extraction
     QProgressDialog* m_progressDlg = nullptr;
     bool m_extractCancelled = false;
+
+    // Set while a QDrag::exec() is on the call stack to block re-entrant drags.
+    bool m_dragInProgress = false;
 };
 
 #endif
