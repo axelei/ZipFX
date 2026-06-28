@@ -182,10 +182,8 @@ bool FuseArchiveMount::start()
     buildTree();
     s_mount = this;
 
-    // -f: stay in foreground — required when running the loop on a thread
-    //     (libfuse would try to fork() to daemonize without it, which fails)
-    const char* argv[] = { "ZipFX", "-f", nullptr };
-    struct fuse_args args = FUSE_ARGS_INIT(2, const_cast<char**>(argv));
+    const char* argv[] = { "ZipFX", nullptr };
+    struct fuse_args args = FUSE_ARGS_INIT(1, const_cast<char**>(argv));
 
     struct fuse* f = fuse_new(&args, &s_ops, sizeof(s_ops), nullptr);
     if (!f)
