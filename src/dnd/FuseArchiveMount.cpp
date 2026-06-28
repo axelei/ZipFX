@@ -182,13 +182,15 @@ bool FuseArchiveMount::start()
     buildTree();
     s_mount = this;
 
-    const char* argv[] = { "ZipFX", nullptr };
-    struct fuse_args args = FUSE_ARGS_INIT(1, const_cast<char**>(argv));
+    // -f: stay in foreground — required when running the loop on a thread
+    //     (libfuse would try to fork() to daemonize without it, which fails)
+    const char* argv[] = { "ZipFX", "-f", nullptr };
+    struct fuse_args args = FUSE_ARGS_INIT(2, const_cast<char**>(argv));
 
     struct fuse* f = fuse_new(&args, &s_ops, sizeof(s_ops), nullptr);
     if (!f)
     {
-        LOG_ERR("FuseArchiveMount: fuse_new failed");
+        LOG_ERR("FuseArchiveMount: fuse_new failed: %s", strerror(errno));
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
         s_mount = nullptr;
@@ -197,7 +199,8 @@ bool FuseArchiveMount::start()
 
     if (fuse_mount(f, m_mountPoint.c_str()) != 0)
     {
-        LOG_ERR("FuseArchiveMount: fuse_mount failed on %s", m_mountPoint.c_str());
+        LOG_ERR("FuseArchiveMount: fuse_mount failed on %s: %s",
+                m_mountPoint.c_str(), strerror(errno));
         fuse_destroy(f);
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
