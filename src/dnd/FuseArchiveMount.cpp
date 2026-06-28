@@ -78,7 +78,10 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
     FuseArchiveMount* m = s_mount;
     if (!m->m_byMountPath.count(relpath(cpath))) return -ENOENT;
     if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
+    m->m_everOpened.store(true);
     ++m->m_openFiles;
+    // Wake phase-1 of unmount() which waits for the first open.
+    m->m_cv.notify_all();
     return 0;
 }
 
@@ -86,11 +89,7 @@ static int op_release(const char* /*path*/, struct fuse_file_info* /*fi*/)
 {
     FuseArchiveMount* m = s_mount;
     if (--m->m_openFiles == 0)
-    {
-        // Wake unmount() if it is waiting for all handles to close.
-        std::lock_guard<std::mutex> lk(m->m_idleMutex);
-        m->m_idleCv.notify_all();
-    }
+        m->m_cv.notify_all(); // Wake phase-2 of unmount().
     return 0;
 }
 
@@ -251,13 +250,21 @@ void FuseArchiveMount::unmount()
 {
     if (m_session)
     {
-        // Wait until all open file handles from the drop target are closed,
-        // so it always receives complete data. Cap at 60 s in case of leaks.
+        std::unique_lock<std::mutex> lk(m_cvMutex);
+
+        // Phase 1: wait up to 5 s for the drop target to open at least one file.
+        // Without this, m_openFiles is still 0 and we'd tear down immediately
+        // before the file manager has had a chance to start reading.
+        m_cv.wait_for(lk, std::chrono::seconds(5),
+                      [this] { return m_everOpened.load(); });
+
+        // Phase 2: wait up to 60 s for all open handles to be closed.
+        if (m_everOpened.load())
         {
-            std::unique_lock<std::mutex> lk(m_idleMutex);
-            m_idleCv.wait_for(lk, std::chrono::seconds(60),
-                              [this] { return m_openFiles.load() == 0; });
+            m_cv.wait_for(lk, std::chrono::seconds(60),
+                          [this] { return m_openFiles.load() == 0; });
         }
+
         fuse_exit(static_cast<struct fuse*>(m_session));
         m_session = nullptr;
     }

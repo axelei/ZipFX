@@ -2410,9 +2410,13 @@ void MainWindow::onBeginDrag()
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
             drag->exec(Qt::CopyAction);
-            mount->unmount();
+            // Unmount on a background thread: unmount() blocks waiting for
+            // the drop target to finish reading (up to 65 s). Doing it here
+            // would freeze the UI for the duration of the file copy.
+            std::thread([mount] { mount->unmount(); delete mount; }).detach();
+            mount = nullptr;
         }
-        delete mount;
+        if (mount) delete mount; // start() failed, fallthrough to eager path
     }
 #endif // ZIPFX_HAVE_FUSE
 

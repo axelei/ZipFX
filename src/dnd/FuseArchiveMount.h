@@ -15,27 +15,36 @@ class ArchiveEngine;
 
 // Mounts a subset of an open archive as a read-only FUSE filesystem.
 // Files are extracted on demand when the drop target reads them.
-// unmount() waits for all open file handles to be closed before tearing
-// down the mount, so the drop target always gets complete file data.
+//
+// Security: mkdtemp creates the mount point with 0700 (owner-only).
+// FUSE without allow_other only permits the mounting user, so no other
+// user on the system can access the files.
+//
+// Lifecycle: call start(), pass URLs to QDrag, then detach unmount()
+// onto a background std::thread — it blocks until the drop target
+// finishes reading (max 65 s) and cleans up without touching the UI thread.
 class FuseArchiveMount
 {
 public:
     struct Entry {
         std::string archivePath; // key into engine
-        std::string mountPath;   // relative path inside the mount (may contain '/')
+        std::string mountPath;   // relative path inside the mount
         uint64_t    size = 0;
     };
 
     explicit FuseArchiveMount(ArchiveEngine* engine);
     ~FuseArchiveMount();
 
-    void addEntry(const std::string& archivePath, const std::string& mountPath, uint64_t size);
+    void addEntry(const std::string& archivePath,
+                  const std::string& mountPath,
+                  uint64_t size);
 
-    // Starts the FUSE thread. Returns false if mount fails.
+    // Starts the FUSE background thread. Returns false if mount fails.
     bool start();
 
-    // Waits until all open file handles are closed (max 60 s), then stops
-    // the FUSE loop and blocks until the thread exits.
+    // Blocks until the drop target has opened and closed all file handles
+    // (max 65 s), then tears down the mount. Call from a background thread
+    // so the main thread stays responsive.
     void unmount();
 
     const std::string& mountPoint() const { return m_mountPoint; }
@@ -51,10 +60,11 @@ public:
     std::unordered_map<std::string, const Entry*>             m_byMountPath;
     std::unordered_map<std::string, std::vector<std::string>> m_dirs;
 
-    // Reference count of currently open file handles; guarded by m_idleMutex.
-    std::atomic<int>        m_openFiles{0};
-    std::mutex              m_idleMutex;
-    std::condition_variable m_idleCv;
+    // Open-file tracking for the two-phase unmount wait.
+    std::atomic<int>         m_openFiles{0};
+    std::atomic<bool>        m_everOpened{false};
+    std::mutex               m_cvMutex;
+    std::condition_variable  m_cv;
 
 private:
     void buildTree();
