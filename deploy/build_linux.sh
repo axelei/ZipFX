@@ -78,6 +78,9 @@ rm -rf "${BUILD_DIR}/install/usr/include" \
        "${BUILD_DIR}/install/usr/lib/cmake"
 
 echo "=== AppImage (if linuxdeploy available) ==="
+# Reuse a previously downloaded linuxdeploy if present and executable, so
+# repeated builds don't re-download and curl doesn't try to overwrite a live file.
+[ -x /tmp/linuxdeploy ] && export PATH="/tmp:$PATH"
 if ! command -v linuxdeploy &>/dev/null; then
     echo "linuxdeploy not found — downloading..."
     curl -fsSL -o /tmp/linuxdeploy \
