@@ -10,11 +10,14 @@
 #include <condition_variable>
 #include <atomic>
 #include <unordered_map>
+#include <cstdint>
 
 class ArchiveEngine;
 
 // Mounts a subset of an open archive as a read-only FUSE filesystem.
-// Files are extracted on demand when the drop target reads them.
+// All files are extracted into memory inside start() on the caller's thread
+// before the FUSE session begins. FUSE ops never touch the engine, so there
+// is no race with the archive engine being used on the main thread.
 //
 // Security: mkdtemp creates the mount point with 0700 (owner-only).
 // FUSE without allow_other only permits the mounting user, so no other
@@ -27,9 +30,10 @@ class FuseArchiveMount
 {
 public:
     struct Entry {
-        std::string archivePath; // key into engine
-        std::string mountPath;   // relative path inside the mount
-        uint64_t    size = 0;
+        std::string          archivePath; // key used during extraction
+        std::string          mountPath;   // relative path inside the mount
+        uint64_t             size = 0;
+        std::vector<uint8_t> data;        // extracted content, filled by start()
     };
 
     explicit FuseArchiveMount(ArchiveEngine* engine);
@@ -39,7 +43,8 @@ public:
                   const std::string& mountPath,
                   uint64_t size);
 
-    // Starts the FUSE background thread. Returns false if mount fails.
+    // Extracts all entries into memory, mounts the FUSE filesystem, and starts
+    // the background thread. Returns false if extraction or mount fails.
     bool start();
 
     // Blocks until the drop target has opened and closed all file handles
@@ -50,10 +55,8 @@ public:
     const std::string& mountPoint() const { return m_mountPoint; }
 
     // Public so the static FUSE op trampolines in the .cpp can access them.
-    ArchiveEngine*           m_engine;
     std::string              m_mountPoint;
     std::vector<Entry>       m_entries;
-    std::mutex               m_engineMutex;
     void*                    m_session = nullptr; // struct fuse*, opaque here
     std::thread              m_thread;
 
@@ -67,6 +70,7 @@ public:
     std::condition_variable  m_cv;
 
 private:
+    ArchiveEngine* m_engine; // only used during start(), not after
     void buildTree();
 };
 

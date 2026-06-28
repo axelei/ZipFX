@@ -43,7 +43,7 @@ static int op_getattr(const char* cpath, struct stat* st, struct fuse_file_info*
     {
         st->st_mode  = S_IFREG | 0444;
         st->st_nlink = 1;
-        st->st_size  = static_cast<off_t>(it->second->size);
+        st->st_size  = static_cast<off_t>(it->second->data.size());
         return 0;
     }
 
@@ -80,26 +80,19 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
     if (it == m->m_byMountPath.end()) return -ENOENT;
     if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
 
-    // Extract the file once into a heap buffer stored in fi->fh so op_read
-    // can serve all chunk reads with plain memcpy. The alternative — streaming
-    // from byte 0 on every op_read call — is O(n²) in file size.
-    {
-        std::lock_guard<std::mutex> lock(m->m_engineMutex);
-        auto* data = new std::vector<uint8_t>(
-            m->m_engine->ReadFile(it->second->archivePath));
-        fi->fh = reinterpret_cast<uint64_t>(data);
-    }
-
+    // Point fi->fh at the pre-extracted Entry. All data was loaded in
+    // start() on the main thread, so no engine access is needed here and
+    // there is no race with the archive engine on the main thread.
+    fi->fh = reinterpret_cast<uint64_t>(it->second);
     m->m_everOpened.store(true);
     ++m->m_openFiles;
     m->m_cv.notify_all(); // wake phase-1 of unmount()
     return 0;
 }
 
-static int op_release(const char* /*path*/, struct fuse_file_info* fi)
+static int op_release(const char* /*path*/, struct fuse_file_info* /*fi*/)
 {
     FuseArchiveMount* m = s_mount;
-    delete reinterpret_cast<std::vector<uint8_t>*>(fi->fh);
     if (--m->m_openFiles == 0)
         m->m_cv.notify_all(); // wake phase-2 of unmount()
     return 0;
@@ -108,11 +101,11 @@ static int op_release(const char* /*path*/, struct fuse_file_info* fi)
 static int op_read(const char* /*path*/, char* buf, size_t size, off_t offset,
                    struct fuse_file_info* fi)
 {
-    auto* data = reinterpret_cast<std::vector<uint8_t>*>(fi->fh);
-    if (!data) return -EIO;
-    if (static_cast<size_t>(offset) >= data->size()) return 0;
-    size_t n = std::min(size, data->size() - static_cast<size_t>(offset));
-    memcpy(buf, data->data() + offset, n);
+    const auto* e = reinterpret_cast<const FuseArchiveMount::Entry*>(fi->fh);
+    if (!e) return -EIO;
+    if (static_cast<size_t>(offset) >= e->data.size()) return 0;
+    size_t n = std::min(size, e->data.size() - static_cast<size_t>(offset));
+    memcpy(buf, e->data.data() + offset, n);
     return static_cast<int>(n);
 }
 
@@ -142,7 +135,7 @@ void FuseArchiveMount::addEntry(const std::string& archivePath,
                                 const std::string& mountPath,
                                 uint64_t size)
 {
-    m_entries.push_back({archivePath, mountPath, size});
+    m_entries.push_back({archivePath, mountPath, size, {}});
 }
 
 void FuseArchiveMount::buildTree()
@@ -174,6 +167,19 @@ void FuseArchiveMount::buildTree()
 
 bool FuseArchiveMount::start()
 {
+    // Extract all files now, on the caller's thread, before the FUSE session
+    // starts. FUSE ops (op_open/op_read) will read from these buffers and
+    // never touch the engine — eliminating any race with the main thread
+    // using the archive engine (e.g. zip_close during Save).
+    buildTree();
+    for (Entry& e : m_entries)
+    {
+        e.data = m_engine->ReadFile(e.archivePath);
+        if (e.data.empty() && e.size > 0)
+            LOG_WARN("FuseArchiveMount: failed to extract '%s'", e.archivePath.c_str());
+    }
+    m_engine = nullptr; // not used after this point
+
     char tmpl[] = "/tmp/ZipFX_fuse_XXXXXX";
     if (!mkdtemp(tmpl))
     {
@@ -181,7 +187,6 @@ bool FuseArchiveMount::start()
         return false;
     }
     m_mountPoint = tmpl;
-    buildTree();
     s_mount = this;
 
     const char* argv[] = { "ZipFX", nullptr };
