@@ -10,6 +10,7 @@
 #include <cstring>
 #include <cerrno>
 #include <algorithm>
+#include <chrono>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
@@ -77,6 +78,19 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
     FuseArchiveMount* m = s_mount;
     if (!m->m_byMountPath.count(relpath(cpath))) return -ENOENT;
     if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
+    ++m->m_openFiles;
+    return 0;
+}
+
+static int op_release(const char* /*path*/, struct fuse_file_info* /*fi*/)
+{
+    FuseArchiveMount* m = s_mount;
+    if (--m->m_openFiles == 0)
+    {
+        // Wake unmount() if it is waiting for all handles to close.
+        std::lock_guard<std::mutex> lk(m->m_idleMutex);
+        m->m_idleCv.notify_all();
+    }
     return 0;
 }
 
@@ -122,6 +136,7 @@ static const struct fuse_operations s_ops = []() {
     ops.readdir = op_readdir;
     ops.open    = op_open;
     ops.read    = op_read;
+    ops.release = op_release;
     return ops;
 }();
 
@@ -236,6 +251,13 @@ void FuseArchiveMount::unmount()
 {
     if (m_session)
     {
+        // Wait until all open file handles from the drop target are closed,
+        // so it always receives complete data. Cap at 60 s in case of leaks.
+        {
+            std::unique_lock<std::mutex> lk(m_idleMutex);
+            m_idleCv.wait_for(lk, std::chrono::seconds(60),
+                              [this] { return m_openFiles.load() == 0; });
+        }
         fuse_exit(static_cast<struct fuse*>(m_session));
         m_session = nullptr;
     }
