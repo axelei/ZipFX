@@ -77,6 +77,8 @@ public:
 
         Item*       parentItem = nullptr;
         std::vector<Item*> children;
+
+        ~Item() { for (Item* c : children) delete c; }
     };
 
 signals:

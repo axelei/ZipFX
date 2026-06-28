@@ -168,6 +168,11 @@ MainWindow::~MainWindow()
     qApp->removeEventFilter(this);
     onCloseArchive();
     delete m_icons;
+    if (m_currentTranslator)
+    {
+        qApp->removeTranslator(m_currentTranslator);
+        delete m_currentTranslator;
+    }
 }
 
 // ── UI Setup ───────────────────────────────────────────────────────────
@@ -1747,7 +1752,7 @@ void MainWindow::onView()
                 view->fitInView(pixItem->sceneBoundingRect(), Qt::KeepAspectRatio);
             };
             fitImage();
-            dlg->installEventFilter(new ResizeEventFilter(fitImage));
+            dlg->installEventFilter(new ResizeEventFilter(fitImage, dlg));
         }
         else
         {
@@ -2348,10 +2353,9 @@ void MainWindow::onBeginDrag()
         vfdo->AddFile(ve);
     }
     if (vfdo->GetCount() > 0)
-    {
-        vfdo->AddRef();
-        StartVirtualDrag(vfdo, (HWND)winId());
-    }
+        StartVirtualDrag(vfdo, (HWND)winId());  // consumes the constructor ref via Release()
+    else
+        vfdo->Release();
 #else
 #ifdef Q_OS_MACOS
     // macOS: native file promises (lazy extraction on drop)
