@@ -6,6 +6,7 @@
 #include <fuse.h>
 
 #include <sys/stat.h>
+#include <signal.h>
 #include <cstring>
 #include <cerrno>
 #include <algorithm>
@@ -195,10 +196,23 @@ bool FuseArchiveMount::start()
         return false;
     }
 
-    if (fuse_mount(f, m_mountPoint.c_str()) != 0)
+    // Block SIGCHLD around fuse_mount to prevent Qt's SIGCHLD handler from
+    // reaping fusermount3 before libfuse's internal waitpid can, which causes
+    // the mount fd handshake to fail with EPERM.
+    sigset_t blockSet, oldSet;
+    sigemptyset(&blockSet);
+    sigaddset(&blockSet, SIGCHLD);
+    pthread_sigmask(SIG_BLOCK, &blockSet, &oldSet);
+
+    int mountRc = fuse_mount(f, m_mountPoint.c_str());
+    int savedErrno = errno;
+
+    pthread_sigmask(SIG_SETMASK, &oldSet, nullptr);
+
+    if (mountRc != 0)
     {
         LOG_ERR("FuseArchiveMount: fuse_mount failed on %s: %s",
-                m_mountPoint.c_str(), strerror(errno));
+                m_mountPoint.c_str(), strerror(savedErrno));
         fuse_destroy(f);
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
