@@ -2380,8 +2380,10 @@ void MainWindow::onBeginDrag()
                                 buf.constData(), filePaths.size(), this);
     }
 #else
+    bool dragHandled = false;
 #ifdef ZIPFX_HAVE_FUSE
-    // Linux + FUSE: mount archive as a virtual filesystem, drag real paths lazily
+    // Linux + FUSE: mount archive as a virtual filesystem, drag real paths lazily.
+    // Falls through to eager extraction if mount fails (e.g. Snap/AppArmor sandbox).
     {
         auto* mount = new FuseArchiveMount(m_engine.get());
         for (const auto& fp : filePaths)
@@ -2395,6 +2397,7 @@ void MainWindow::onBeginDrag()
 
         if (mount->start())
         {
+            dragHandled = true;
             QList<QUrl> urls;
             for (const auto& fp : filePaths)
             {
@@ -2406,14 +2409,17 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
-            drag->exec(Qt::CopyAction); // blocks until drop or cancel
+            drag->exec(Qt::CopyAction);
             mount->unmount();
         }
         delete mount;
     }
-#else
-    // Fallback: extract to temp dir before starting the drag
+#endif // ZIPFX_HAVE_FUSE
+
+    if (!dragHandled)
     {
+        // Eager fallback: extract to temp dir before starting the drag.
+        // Used when FUSE is unavailable at compile time or mount fails at runtime.
         QString tmpRoot = QStandardPaths::writableLocation(
             QStandardPaths::TempLocation) + "/ZipFX_Drag/"
             + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
@@ -2476,7 +2482,6 @@ void MainWindow::onBeginDrag()
             drag->exec(Qt::CopyAction);
         }
     }
-#endif // ZIPFX_HAVE_FUSE
 #endif // Q_OS_MACOS
 #endif // _WIN32
 }
