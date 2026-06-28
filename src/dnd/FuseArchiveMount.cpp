@@ -76,57 +76,44 @@ static int op_readdir(const char* cpath, void* buf, fuse_fill_dir_t filler,
 static int op_open(const char* cpath, struct fuse_file_info* fi)
 {
     FuseArchiveMount* m = s_mount;
-    if (!m->m_byMountPath.count(relpath(cpath))) return -ENOENT;
-    if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
-    m->m_everOpened.store(true);
-    ++m->m_openFiles;
-    // Wake phase-1 of unmount() which waits for the first open.
-    m->m_cv.notify_all();
-    return 0;
-}
-
-static int op_release(const char* /*path*/, struct fuse_file_info* /*fi*/)
-{
-    FuseArchiveMount* m = s_mount;
-    if (--m->m_openFiles == 0)
-        m->m_cv.notify_all(); // Wake phase-2 of unmount().
-    return 0;
-}
-
-static int op_read(const char* cpath, char* buf, size_t size, off_t offset,
-                   struct fuse_file_info*)
-{
-    FuseArchiveMount* m = s_mount;
     auto it = m->m_byMountPath.find(relpath(cpath));
     if (it == m->m_byMountPath.end()) return -ENOENT;
+    if ((fi->flags & O_ACCMODE) != O_RDONLY) return -EACCES;
 
-    const FuseArchiveMount::Entry* e = it->second;
-    if (static_cast<uint64_t>(offset) >= e->size) return 0;
+    // Extract the file once into a heap buffer stored in fi->fh so op_read
+    // can serve all chunk reads with plain memcpy. The alternative — streaming
+    // from byte 0 on every op_read call — is O(n²) in file size.
+    {
+        std::lock_guard<std::mutex> lock(m->m_engineMutex);
+        auto* data = new std::vector<uint8_t>(
+            m->m_engine->ReadFile(it->second->archivePath));
+        fi->fh = reinterpret_cast<uint64_t>(data);
+    }
 
-    std::lock_guard<std::mutex> lock(m->m_engineMutex);
+    m->m_everOpened.store(true);
+    ++m->m_openFiles;
+    m->m_cv.notify_all(); // wake phase-1 of unmount()
+    return 0;
+}
 
-    int filled = 0;
-    uint64_t pos = 0;
-    const uint64_t wantStart = static_cast<uint64_t>(offset);
-    const uint64_t wantEnd   = wantStart + size;
-    bool done = false;
+static int op_release(const char* /*path*/, struct fuse_file_info* fi)
+{
+    FuseArchiveMount* m = s_mount;
+    delete reinterpret_cast<std::vector<uint8_t>*>(fi->fh);
+    if (--m->m_openFiles == 0)
+        m->m_cv.notify_all(); // wake phase-2 of unmount()
+    return 0;
+}
 
-    m->m_engine->ReadFileStreamed(e->archivePath, [&](const uint8_t* data, size_t len) -> bool {
-        const uint64_t chunkEnd = pos + len;
-        if (chunkEnd > wantStart && pos < wantEnd)
-        {
-            size_t copyFrom = (pos < wantStart) ? static_cast<size_t>(wantStart - pos) : 0;
-            size_t copyEnd  = static_cast<size_t>(std::min(chunkEnd, wantEnd) - pos);
-            size_t n        = copyEnd - copyFrom;
-            memcpy(buf + filled, data + copyFrom, n);
-            filled += static_cast<int>(n);
-        }
-        pos += len;
-        if (pos >= wantEnd) done = true;
-        return !done;
-    });
-
-    return filled;
+static int op_read(const char* /*path*/, char* buf, size_t size, off_t offset,
+                   struct fuse_file_info* fi)
+{
+    auto* data = reinterpret_cast<std::vector<uint8_t>*>(fi->fh);
+    if (!data) return -EIO;
+    if (static_cast<size_t>(offset) >= data->size()) return 0;
+    size_t n = std::min(size, data->size() - static_cast<size_t>(offset));
+    memcpy(buf, data->data() + offset, n);
+    return static_cast<int>(n);
 }
 
 static const struct fuse_operations s_ops = []() {
@@ -238,7 +225,9 @@ bool FuseArchiveMount::start()
 
     m_thread = std::thread([f]() {
         fuse_loop(f);
-        fuse_unmount(f);
+        // fuse_unmount() is called by the unmount thread before join(), which
+        // causes read(/dev/fuse) to return ENODEV and fuse_loop to exit. Do
+        // not call fuse_unmount here — just free the fuse object.
         fuse_destroy(f);
     });
 
@@ -258,14 +247,33 @@ void FuseArchiveMount::unmount()
         m_cv.wait_for(lk, std::chrono::seconds(5),
                       [this] { return m_everOpened.load(); });
 
-        // Phase 2: wait up to 60 s for all open handles to be closed.
+        // Phase 2: wait for all handles to close, with a 500 ms grace period
+        // between closes to handle file managers that open files sequentially
+        // (they close file A before opening file B, creating a momentary zero).
         if (m_everOpened.load())
         {
-            m_cv.wait_for(lk, std::chrono::seconds(60),
-                          [this] { return m_openFiles.load() == 0; });
+            auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+            while (true)
+            {
+                // Wait for m_openFiles to reach 0 (or deadline).
+                bool closed = m_cv.wait_until(lk, deadline,
+                    [this] { return m_openFiles.load() == 0; });
+                if (!closed) break; // 60 s hard cap
+
+                // Grace period: if the file manager opens another file within
+                // 500 ms, loop back and wait for that one to close too.
+                bool reopened = m_cv.wait_for(lk, std::chrono::milliseconds(500),
+                    [this] { return m_openFiles.load() > 0; });
+                if (!reopened) break; // still idle — file manager is done
+            }
         }
 
-        fuse_exit(static_cast<struct fuse*>(m_session));
+        // fuse_unmount() triggers the kernel to remove the FUSE filesystem,
+        // which causes fuse_loop()'s blocking read(/dev/fuse) to get ENODEV
+        // and return. This is cleaner than fuse_exit() + dummy stat, which
+        // is unreliable because fuse_loop only checks the exit flag before
+        // each request, not mid-read.
+        fuse_unmount(static_cast<struct fuse*>(m_session));
         m_session = nullptr;
     }
     if (m_thread.joinable())
