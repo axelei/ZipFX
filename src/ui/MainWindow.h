@@ -26,8 +26,12 @@ class QTextEdit;
 #include <memory>
 #include <set>
 #include <atomic>
+#include <thread>
 
 class ArchiveEngine;
+#ifdef ZIPFX_HAVE_FUSE
+class FuseArchiveMount;
+#endif
 struct ArchiveEntry;
 class FileListModel;
 struct ZipFXIcons;
@@ -172,11 +176,14 @@ private:
     QProgressDialog* m_progressDlg = nullptr;
     bool m_extractCancelled = false;
 
-    // Set while a QDrag::exec() is on the call stack and cleared only after the
-    // FUSE unmount background thread finishes (for the FUSE path) or immediately
-    // after exec() returns (for the eager path). Prevents re-entrant drags that
-    // would corrupt Qt / libzip internal state.
+    // Set while a QDrag::exec() is on the call stack. Prevents re-entrant drags
+    // that would corrupt Qt / libzip internal state.
     std::atomic<bool> m_dragInProgress{false};
+
+#ifdef ZIPFX_HAVE_FUSE
+    std::unique_ptr<FuseArchiveMount> m_fuseMount;
+    std::thread                       m_fuseThread;
+#endif
 };
 
 #endif

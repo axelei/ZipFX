@@ -15,6 +15,8 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
 
+#include <QCoreApplication>
+
 // Counts mounts that have a live FUSE thread (incremented in start() after
 // a successful mount, decremented in unmount() after the FUSE thread is
 // joined). hasActiveMount() lets MainWindow avoid starting a second FUSE
@@ -123,6 +125,7 @@ static int op_read(const char* /*path*/, char* buf, size_t size, off_t offset,
     if (static_cast<size_t>(offset) >= e->data.size()) return 0;
     size_t n = std::min(size, e->data.size() - static_cast<size_t>(offset));
     memcpy(buf, e->data.data() + offset, n);
+    self()->m_totalReadBytes += n;
     return static_cast<int>(n);
 }
 
@@ -184,6 +187,11 @@ void FuseArchiveMount::buildTree()
 
 bool FuseArchiveMount::start()
 {
+    // Mark active BEFORE the extraction loop — it calls processEvents() and
+    // the re-entrant onBeginDrag() must see hasActiveMount() == true.
+    m_active = true;
+    ++s_activeMounts;
+
     // Extract all files now, on the caller's thread, before the FUSE session
     // starts. FUSE ops (op_open/op_read) will read from these buffers and
     // never touch the engine — eliminating any race with the main thread
@@ -194,6 +202,7 @@ bool FuseArchiveMount::start()
         e.data = m_engine->ReadFile(e.archivePath);
         if (e.data.empty() && e.size > 0)
             LOG_WARN("FuseArchiveMount: failed to extract '%s'", e.archivePath.c_str());
+        QCoreApplication::processEvents();
     }
     m_engine = nullptr; // not used after this point
 
@@ -201,6 +210,7 @@ bool FuseArchiveMount::start()
     if (!mkdtemp(tmpl))
     {
         LOG_ERR("FuseArchiveMount: mkdtemp failed: %s", strerror(errno));
+        m_active = false; --s_activeMounts;
         return false;
     }
     m_mountPoint = tmpl;
@@ -216,6 +226,7 @@ bool FuseArchiveMount::start()
         LOG_ERR("FuseArchiveMount: fuse_new failed: %s", strerror(errno));
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
+        m_active = false; --s_activeMounts;
         return false;
     }
 
@@ -239,12 +250,11 @@ bool FuseArchiveMount::start()
         fuse_destroy(f);
         rmdir(m_mountPoint.c_str());
         m_mountPoint.clear();
+        m_active = false; --s_activeMounts;
         return false;
     }
 
     m_session = f;
-    m_active = true;
-    ++s_activeMounts;
 
     m_thread = std::thread([f]() {
         fuse_loop(f);
@@ -257,6 +267,12 @@ bool FuseArchiveMount::start()
     LOG_DBG("FuseArchiveMount: mounted at %s (active mounts: %d)",
             m_mountPoint.c_str(), s_activeMounts.load());
     return true;
+}
+
+void FuseArchiveMount::abandon()
+{
+    m_abandoned = true;
+    m_cv.notify_all();
 }
 
 bool FuseArchiveMount::hasActiveMount()
@@ -272,33 +288,51 @@ void FuseArchiveMount::unmount(bool immediate)
         {
             std::unique_lock<std::mutex> lk(m_cvMutex);
 
-            // Phase 1: wait up to 15 s for the drop target to open at least
-            // one file. File managers sometimes delay the copy by several
-            // seconds (e.g. showing a "replace existing file?" dialog).
-            // Without this wait we tear down the mount before the file
-            // manager reads anything.
+            // Phase 1: wait for the drop target to open at least one file,
+            // or until abandon() is called by a new drag.
             LOG_DBG("FuseArchiveMount: unmount phase-1 wait (mount=%s)", m_mountPoint.c_str());
-            m_cv.wait_for(lk, std::chrono::seconds(15),
-                          [this] { return m_everOpened.load(); });
-            if (!m_everOpened.load())
-                LOG_DBG("FuseArchiveMount: phase-1 timeout — no file opened "
-                        "(drag cancelled or file manager didn't read)");
+            m_cv.wait_for(lk, std::chrono::seconds(60),
+                          [this] { return m_everOpened.load() || m_abandoned.load(); });
 
-            // Phase 2: wait for all handles to close, with a 500 ms grace
-            // period between closes to handle file managers that open files
-            // sequentially (they close file A before opening file B,
-            // creating a momentary zero).
-            if (m_everOpened.load())
+            // Phase 2: wait for all handles to close, with a grace period for
+            // re-opens. We track total bytes read via FUSE to distinguish a
+            // normal copy (file fully read) from a metadata probe (only a few
+            // bytes read, e.g. for an "Overwrite?" dialog).
+            if (!m_abandoned.load() && m_everOpened.load())
             {
-                auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
-                while (true)
+                uint64_t totalSize = 0;
+                for (const auto& e : m_entries)
+                    totalSize += e.size;
+
+                bool abandoned = false;
+                auto deadline = std::chrono::steady_clock::now()
+                              + std::chrono::seconds(60);
+                while (!abandoned && std::chrono::steady_clock::now() < deadline)
                 {
-                    bool closed = m_cv.wait_until(lk, deadline,
-                        [this] { return m_openFiles.load() == 0; });
+                    if (m_abandoned.load()) { abandoned = true; break; }
+
+                    auto remaining = std::chrono::duration_cast<
+                        std::chrono::milliseconds>(deadline
+                        - std::chrono::steady_clock::now());
+                    if (remaining.count() <= 0) break;
+
+                    bool closed = m_cv.wait_for(lk, remaining,
+                        [this] { return m_openFiles.load() == 0
+                                      || m_abandoned.load(); });
+                    if (m_abandoned.load()) { abandoned = true; break; }
                     if (!closed) break;
 
-                    bool reopened = m_cv.wait_for(lk, std::chrono::milliseconds(500),
-                        [this] { return m_openFiles.load() > 0; });
+                    // Grace period for re-open. Use a short grace (500 ms)
+                    // when all bytes were already read (normal copy), or a
+                    // long grace (60 s) when only a probe occurred (the file
+                    // manager is likely showing a dialog).
+                    bool allRead = m_totalReadBytes.load() >= totalSize;
+                    auto grace = allRead ? std::chrono::milliseconds(500)
+                                         : std::chrono::seconds(60);
+                    bool reopened = m_cv.wait_for(lk, grace,
+                        [this] { return m_openFiles.load() > 0
+                                      || m_abandoned.load(); });
+                    if (m_abandoned.load()) { abandoned = true; break; }
                     if (!reopened) break;
                 }
             }

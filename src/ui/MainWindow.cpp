@@ -172,6 +172,14 @@ MainWindow::MainWindow(const QString& fileToOpen, QWidget* parent)
 MainWindow::~MainWindow()
 {
     qApp->removeEventFilter(this);
+#ifdef ZIPFX_HAVE_FUSE
+    if (m_fuseThread.joinable())
+    {
+        m_fuseMount->abandon();
+        m_fuseThread.join();
+    }
+    m_fuseMount.reset();
+#endif
     onCloseArchive();
     delete m_icons;
     if (m_currentTranslator)
@@ -2387,12 +2395,26 @@ void MainWindow::onBeginDrag()
     bool dragHandled = false;
 #ifdef ZIPFX_HAVE_FUSE
     // Linux + FUSE: mount archive as a virtual filesystem, drag real paths lazily.
-    // Skip if a previous drag's FUSE mount is still alive (its unmount thread is
-    // in the 15-second Phase-1 wait): multiple concurrent fuse_loop() instances
-    // can corrupt libfuse internal state and crash. Fall through to eager extraction.
-    if (qEnvironmentVariableIsSet("ZIPFX_USE_FUSE") && !FuseArchiveMount::hasActiveMount())
+    // FUSE is used by default. Set ZIPFX_NO_FUSE=1 to force eager extraction.
+    if (!qEnvironmentVariableIsSet("ZIPFX_NO_FUSE"))
     {
-        auto* mount = new FuseArchiveMount(m_engine.get());
+        // Abandon any previous FUSE mount that's still in its grace-period wait.
+        // This allows a second drag to use FUSE immediately instead of falling
+        // back to the slow eager extraction path.
+        if (m_fuseThread.joinable())
+        {
+            m_fuseMount->abandon();
+            m_fuseThread.join();
+            m_fuseMount.reset();
+        }
+
+        // Lock BEFORE start() — the extraction inside start() now calls
+        // processEvents(), which could re-enter onBeginDrag() and corrupt
+        // the archive engine or spawn a second FUSE mount.
+        m_dragInProgress = true;
+
+        m_fuseMount = std::make_unique<FuseArchiveMount>(m_engine.get());
+        FuseArchiveMount* mount = m_fuseMount.get();
         for (const auto& fp : filePaths)
         {
             QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
@@ -2433,39 +2455,29 @@ void MainWindow::onBeginDrag()
                 drag->setPixmap(pm);
                 drag->setHotSpot({8, 16});
             }
-            m_dragInProgress = true;
             auto t0 = std::chrono::steady_clock::now();
             Qt::DropAction result = drag->exec(Qt::CopyAction);
             auto dt = std::chrono::steady_clock::now() - t0;
             auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dt).count();
             LOG_DBG("FuseArchiveMount: QDrag::exec returned %d after %lld ms",
                     static_cast<int>(result), (long long)ms);
-            // DON'T clear m_dragInProgress here — the FUSE unmount is still
-            // running on a background thread (see below). If we cleared it,
-            // the user's mouse-move events during the 15-second phase-1 wait
-            // would trigger re-entrant onBeginDrag() calls that cascade into
-            // repeated eager extraction + QDrag::exec() — corrupting Qt heap
-            // state and causing SIGSEGV in the DBus event loop.
-            //
-            // Instead, keep the lock until the background thread finishes
-            // unmounting, then clear it on the main thread via QueuedConnection.
-            //
-            // If exec() returned 0 (IgnoreAction) the drop target rejected
-            // the data — no copy is in progress, so skip the 15 s phase-1
-            // wait and tear down immediately.
+            // Clear the re-entrancy guard NOW so the user can start a new
+            // drag immediately (e.g. a second file from the same archive).
+            // The abandon+join at the top of this block will tear down the
+            // previous mount gracefully when the new drag arrives.
+            m_dragInProgress = false;
             bool dropped = (result == Qt::CopyAction
                          || result == Qt::MoveAction
                          || result == Qt::LinkAction);
-            std::thread([mount, this, dropped] {
-                mount->unmount(!dropped); // immediate if no active copy
-                delete mount;
-                QMetaObject::invokeMethod(this, [this]() {
-                    m_dragInProgress = false;
-                }, Qt::QueuedConnection);
-            }).detach();
-            mount = nullptr;
+            m_fuseThread = std::thread([mount, dropped] {
+                mount->unmount(!dropped);
+            });
         }
-        if (mount) delete mount; // start() failed, fallthrough to eager path
+        else
+        {
+            m_dragInProgress = false; // start() failed, unlock
+            m_fuseMount.reset();
+        }
     }
 #endif // ZIPFX_HAVE_FUSE
 

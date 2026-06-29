@@ -56,6 +56,10 @@ public:
 
     const std::string& mountPoint() const { return m_mountPoint; }
 
+    // Abort a running unmount wait. Called from MainWindow when a new drag
+    // starts while the previous mount is still in its grace-period wait.
+    void abandon();
+
     // Public so the static FUSE op trampolines in the .cpp can access them.
     std::string              m_mountPoint;
     std::vector<Entry>       m_entries;
@@ -68,6 +72,7 @@ public:
     // Open-file tracking for the two-phase unmount wait.
     std::atomic<int>         m_openFiles{0};
     std::atomic<bool>        m_everOpened{false};
+    std::atomic<uint64_t>    m_totalReadBytes{0}; // total bytes read via FUSE
     std::mutex               m_cvMutex;
     std::condition_variable  m_cv;
 
@@ -80,6 +85,7 @@ public:
 private:
     ArchiveEngine* m_engine; // only used during start(), not after
     bool           m_active = false; // true while counted in s_activeMounts
+    std::atomic<bool> m_abandoned{false};
     void buildTree();
 };
 
