@@ -2419,9 +2419,10 @@ void MainWindow::onBeginDrag()
         {
             QString dragName = fp.startsWith(prefix) ? fp.mid(prefix.size()) : fp;
             uint64_t sz = 0;
+            uint32_t perm = 0644;
             for (const auto& e : allEntries)
-                if (e.path == fp.toStdString()) { sz = e.size; break; }
-            mount->addEntry(fp.toStdString(), dragName.toStdString(), sz);
+                if (e.path == fp.toStdString()) { sz = e.size; perm = e.permissions ? e.permissions : 0644; break; }
+            mount->addEntry(fp.toStdString(), dragName.toStdString(), sz, perm);
         }
 
         if (mount->start())

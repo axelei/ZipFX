@@ -33,6 +33,7 @@ public:
         std::string          archivePath; // key used during extraction
         std::string          mountPath;   // relative path inside the mount
         uint64_t             size = 0;
+        uint32_t             permissions = 0644; // Unix mode bits
         std::vector<uint8_t> data;        // extracted content, filled by start()
     };
 
@@ -41,7 +42,8 @@ public:
 
     void addEntry(const std::string& archivePath,
                   const std::string& mountPath,
-                  uint64_t size);
+                  uint64_t size,
+                  uint32_t permissions = 0644);
 
     // Extracts all entries into memory, mounts the FUSE filesystem, and starts
     // the background thread. Returns false if extraction or mount fails.

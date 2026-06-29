@@ -58,7 +58,7 @@ static int op_getattr(const char* cpath, struct stat* st, struct fuse_file_info*
     auto it = m->m_byMountPath.find(path);
     if (it != m->m_byMountPath.end())
     {
-        st->st_mode  = S_IFREG | 0444;
+        st->st_mode  = S_IFREG | (it->second->permissions & 0777);
         st->st_nlink = 1;
         st->st_size  = static_cast<off_t>(it->second->data.size());
         return 0;
@@ -153,9 +153,10 @@ FuseArchiveMount::~FuseArchiveMount()
 
 void FuseArchiveMount::addEntry(const std::string& archivePath,
                                 const std::string& mountPath,
-                                uint64_t size)
+                                uint64_t size,
+                                uint32_t permissions)
 {
-    m_entries.push_back({archivePath, mountPath, size, {}});
+    m_entries.push_back({archivePath, mountPath, size, permissions, {}});
 }
 
 void FuseArchiveMount::buildTree()
