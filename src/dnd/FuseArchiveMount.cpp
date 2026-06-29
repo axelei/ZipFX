@@ -15,6 +15,14 @@
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
 
+// Counts mounts that have a live FUSE thread (incremented in start() after
+// a successful mount, decremented in unmount() after the FUSE thread is
+// joined). hasActiveMount() lets MainWindow avoid starting a second FUSE
+// mount while the first is still waiting for the file manager to finish
+// reading — multiple concurrent fuse_loop() calls on the same libfuse
+// installation can corrupt internal libfuse state and crash.
+static std::atomic<int> s_activeMounts{0};
+
 // ── static FUSE op trampolines ────────────────────────────────────────
 //
 // Each mount passes 'this' as fuse_new()'s private_data so that concurrent
@@ -91,6 +99,8 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
     // start() on the main thread, so no engine access is needed here and
     // there is no race with the archive engine on the main thread.
     fi->fh = reinterpret_cast<uint64_t>(it->second);
+    LOG_DBG("FuseArchiveMount: op_open %s (%zu bytes)",
+            cpath, it->second->data.size());
     m->m_everOpened.store(true);
     ++m->m_openFiles;
     m->m_cv.notify_all(); // wake phase-1 of unmount()
@@ -233,6 +243,8 @@ bool FuseArchiveMount::start()
     }
 
     m_session = f;
+    m_active = true;
+    ++s_activeMounts;
 
     m_thread = std::thread([f]() {
         fuse_loop(f);
@@ -242,53 +254,69 @@ bool FuseArchiveMount::start()
         fuse_destroy(f);
     });
 
-    LOG_DBG("FuseArchiveMount: mounted at %s", m_mountPoint.c_str());
+    LOG_DBG("FuseArchiveMount: mounted at %s (active mounts: %d)",
+            m_mountPoint.c_str(), s_activeMounts.load());
     return true;
 }
 
-void FuseArchiveMount::unmount()
+bool FuseArchiveMount::hasActiveMount()
+{
+    return s_activeMounts.load() > 0;
+}
+
+void FuseArchiveMount::unmount(bool immediate)
 {
     if (m_session)
     {
-        std::unique_lock<std::mutex> lk(m_cvMutex);
-
-        // Phase 1: wait up to 5 s for the drop target to open at least one file.
-        // Without this, m_openFiles is still 0 and we'd tear down immediately
-        // before the file manager has had a chance to start reading.
-        m_cv.wait_for(lk, std::chrono::seconds(5),
-                      [this] { return m_everOpened.load(); });
-
-        // Phase 2: wait for all handles to close, with a 500 ms grace period
-        // between closes to handle file managers that open files sequentially
-        // (they close file A before opening file B, creating a momentary zero).
-        if (m_everOpened.load())
+        if (!immediate)
         {
-            auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
-            while (true)
-            {
-                // Wait for m_openFiles to reach 0 (or deadline).
-                bool closed = m_cv.wait_until(lk, deadline,
-                    [this] { return m_openFiles.load() == 0; });
-                if (!closed) break; // 60 s hard cap
+            std::unique_lock<std::mutex> lk(m_cvMutex);
 
-                // Grace period: if the file manager opens another file within
-                // 500 ms, loop back and wait for that one to close too.
-                bool reopened = m_cv.wait_for(lk, std::chrono::milliseconds(500),
-                    [this] { return m_openFiles.load() > 0; });
-                if (!reopened) break; // still idle — file manager is done
+            // Phase 1: wait up to 15 s for the drop target to open at least
+            // one file. File managers sometimes delay the copy by several
+            // seconds (e.g. showing a "replace existing file?" dialog).
+            // Without this wait we tear down the mount before the file
+            // manager reads anything.
+            LOG_DBG("FuseArchiveMount: unmount phase-1 wait (mount=%s)", m_mountPoint.c_str());
+            m_cv.wait_for(lk, std::chrono::seconds(15),
+                          [this] { return m_everOpened.load(); });
+            if (!m_everOpened.load())
+                LOG_DBG("FuseArchiveMount: phase-1 timeout — no file opened "
+                        "(drag cancelled or file manager didn't read)");
+
+            // Phase 2: wait for all handles to close, with a 500 ms grace
+            // period between closes to handle file managers that open files
+            // sequentially (they close file A before opening file B,
+            // creating a momentary zero).
+            if (m_everOpened.load())
+            {
+                auto deadline = std::chrono::steady_clock::now() + std::chrono::seconds(60);
+                while (true)
+                {
+                    bool closed = m_cv.wait_until(lk, deadline,
+                        [this] { return m_openFiles.load() == 0; });
+                    if (!closed) break;
+
+                    bool reopened = m_cv.wait_for(lk, std::chrono::milliseconds(500),
+                        [this] { return m_openFiles.load() > 0; });
+                    if (!reopened) break;
+                }
             }
         }
+        else
+            LOG_DBG("FuseArchiveMount: immediate unmount — skipping two-phase wait");
 
-        // fuse_unmount() triggers the kernel to remove the FUSE filesystem,
-        // which causes fuse_loop()'s blocking read(/dev/fuse) to get ENODEV
-        // and return. This is cleaner than fuse_exit() + dummy stat, which
-        // is unreliable because fuse_loop only checks the exit flag before
-        // each request, not mid-read.
         fuse_unmount(static_cast<struct fuse*>(m_session));
         m_session = nullptr;
     }
     if (m_thread.joinable())
         m_thread.join();
+    if (m_active)
+    {
+        --s_activeMounts;
+        m_active = false;
+        LOG_DBG("FuseArchiveMount: FUSE thread exited (active mounts now: %d)", s_activeMounts.load());
+    }
     if (!m_mountPoint.empty())
     {
         rmdir(m_mountPoint.c_str());

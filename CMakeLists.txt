@@ -413,7 +413,14 @@ elseif(FUSE3_FOUND)
     list(APPEND ZIPFX_SOURCES src/dnd/FuseArchiveMount.cpp)
 endif()
 
+option(ZIPFX_ASAN "Build with AddressSanitizer (Linux; detects heap corruption)" OFF)
+
 add_executable(ZipFX ${ZIPFX_SOURCES})
+
+if(ZIPFX_ASAN AND UNIX AND NOT APPLE)
+    target_compile_options(ZipFX PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+    target_link_options(ZipFX PRIVATE -fsanitize=address -fno-omit-frame-pointer)
+endif()
 
 target_include_directories(ZipFX PRIVATE
     src

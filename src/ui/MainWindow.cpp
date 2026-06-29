@@ -14,6 +14,7 @@
 
 #include "ProgressInfo.h"
 #include "PowerManager.h"
+#include "engine/Logging.h"
 
 #include <QApplication>
 #include <QMenuBar>
@@ -47,6 +48,7 @@
 
 #include <atomic>
 #include <thread>
+#include <chrono>
 #ifdef Q_OS_MACOS
 #include "dnd/MacPromiseDrag.h"
 #endif
@@ -56,6 +58,7 @@
 #include <QDropEvent>
 #include <QFileOpenEvent>
 #include <QUrl>
+#include <QPainter>
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QPushButton>
@@ -2384,7 +2387,10 @@ void MainWindow::onBeginDrag()
     bool dragHandled = false;
 #ifdef ZIPFX_HAVE_FUSE
     // Linux + FUSE: mount archive as a virtual filesystem, drag real paths lazily.
-    // Falls through to eager extraction if mount fails (e.g. Snap/AppArmor sandbox).
+    // Skip if a previous drag's FUSE mount is still alive (its unmount thread is
+    // in the 15-second Phase-1 wait): multiple concurrent fuse_loop() instances
+    // can corrupt libfuse internal state and crash. Fall through to eager extraction.
+    if (qEnvironmentVariableIsSet("ZIPFX_USE_FUSE") && !FuseArchiveMount::hasActiveMount())
     {
         auto* mount = new FuseArchiveMount(m_engine.get());
         for (const auto& fp : filePaths)
@@ -2410,13 +2416,53 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
+            // Set an explicit pixmap so Wayland compositors show drag feedback.
+            // Without it, XWayland may display no drag icon at all.
+            {
+                int nFiles = filePaths.size();
+                QString label = nFiles == 1
+                    ? filePaths[0].section('/', -1)
+                    : QStringLiteral("%1 files").arg(nFiles);
+                QPixmap pm(256, 32);
+                pm.fill(Qt::transparent);
+                QPainter p(&pm);
+                p.setPen(Qt::white);
+                p.setFont(QFont("sans-serif", 11));
+                p.drawText(pm.rect(), Qt::AlignCenter, label);
+                p.end();
+                drag->setPixmap(pm);
+                drag->setHotSpot({8, 16});
+            }
             m_dragInProgress = true;
-            drag->exec(Qt::CopyAction);
-            m_dragInProgress = false;
-            // Unmount on a background thread: unmount() blocks waiting for
-            // the drop target to finish reading (up to 65 s). Doing it here
-            // would freeze the UI for the duration of the file copy.
-            std::thread([mount] { mount->unmount(); delete mount; }).detach();
+            auto t0 = std::chrono::steady_clock::now();
+            Qt::DropAction result = drag->exec(Qt::CopyAction);
+            auto dt = std::chrono::steady_clock::now() - t0;
+            auto ms = std::chrono::duration_cast<std::chrono::milliseconds>(dt).count();
+            LOG_DBG("FuseArchiveMount: QDrag::exec returned %d after %lld ms",
+                    static_cast<int>(result), (long long)ms);
+            // DON'T clear m_dragInProgress here — the FUSE unmount is still
+            // running on a background thread (see below). If we cleared it,
+            // the user's mouse-move events during the 15-second phase-1 wait
+            // would trigger re-entrant onBeginDrag() calls that cascade into
+            // repeated eager extraction + QDrag::exec() — corrupting Qt heap
+            // state and causing SIGSEGV in the DBus event loop.
+            //
+            // Instead, keep the lock until the background thread finishes
+            // unmounting, then clear it on the main thread via QueuedConnection.
+            //
+            // If exec() returned 0 (IgnoreAction) the drop target rejected
+            // the data — no copy is in progress, so skip the 15 s phase-1
+            // wait and tear down immediately.
+            bool dropped = (result == Qt::CopyAction
+                         || result == Qt::MoveAction
+                         || result == Qt::LinkAction);
+            std::thread([mount, this, dropped] {
+                mount->unmount(!dropped); // immediate if no active copy
+                delete mount;
+                QMetaObject::invokeMethod(this, [this]() {
+                    m_dragInProgress = false;
+                }, Qt::QueuedConnection);
+            }).detach();
             mount = nullptr;
         }
         if (mount) delete mount; // start() failed, fallthrough to eager path
@@ -2427,6 +2473,13 @@ void MainWindow::onBeginDrag()
     {
         // Eager fallback: extract to temp dir before starting the drag.
         // Used when FUSE is unavailable at compile time or mount fails at runtime.
+        //
+        // Set m_dragInProgress NOW — before processEvents() is called inside the
+        // extraction loop below — so that any re-entrant onBeginDrag() call (e.g.
+        // from a mouse-move event processed by processEvents()) is blocked.
+        // Without this, cascading re-entrant calls corrupt libzip / Qt heap state.
+        m_dragInProgress = true;
+
         QString tmpRoot = QStandardPaths::writableLocation(
             QStandardPaths::TempLocation) + "/ZipFX_Drag/"
             + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
@@ -2486,10 +2539,10 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
-            m_dragInProgress = true;
             drag->exec(Qt::CopyAction);
-            m_dragInProgress = false;
         }
+
+        m_dragInProgress = false; // always clear, whether drag happened or was cancelled
     }
 #endif // Q_OS_MACOS
 #endif // _WIN32

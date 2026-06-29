@@ -25,6 +25,7 @@ class QTextEdit;
 
 #include <memory>
 #include <set>
+#include <atomic>
 
 class ArchiveEngine;
 struct ArchiveEntry;
@@ -171,8 +172,11 @@ private:
     QProgressDialog* m_progressDlg = nullptr;
     bool m_extractCancelled = false;
 
-    // Set while a QDrag::exec() is on the call stack to block re-entrant drags.
-    bool m_dragInProgress = false;
+    // Set while a QDrag::exec() is on the call stack and cleared only after the
+    // FUSE unmount background thread finishes (for the FUSE path) or immediately
+    // after exec() returns (for the eager path). Prevents re-entrant drags that
+    // would corrupt Qt / libzip internal state.
+    std::atomic<bool> m_dragInProgress{false};
 };
 
 #endif

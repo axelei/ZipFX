@@ -47,10 +47,12 @@ public:
     // the background thread. Returns false if extraction or mount fails.
     bool start();
 
-    // Blocks until the drop target has opened and closed all file handles
-    // (max 65 s), then tears down the mount. Call from a background thread
-    // so the main thread stays responsive.
-    void unmount();
+    // Tears down the mount. If immediate is true, skip the two-phase wait
+    // (used when QDrag::exec returned IgnoreAction — no copy is in progress).
+    // Otherwise blocks until the drop target has opened and closed all file
+    // handles (max 65 s). Call from a background thread so the main thread
+    // stays responsive.
+    void unmount(bool immediate = false);
 
     const std::string& mountPoint() const { return m_mountPoint; }
 
@@ -69,8 +71,15 @@ public:
     std::mutex               m_cvMutex;
     std::condition_variable  m_cv;
 
+    // Returns true if any FuseArchiveMount has an active FUSE thread.
+    // Used by MainWindow to fall back to eager extraction when a previous
+    // drag's unmount is still in progress, preventing multiple concurrent
+    // FUSE threads that can corrupt libfuse internal state.
+    static bool hasActiveMount();
+
 private:
     ArchiveEngine* m_engine; // only used during start(), not after
+    bool           m_active = false; // true while counted in s_activeMounts
     void buildTree();
 };
 

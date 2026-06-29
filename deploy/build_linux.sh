@@ -118,6 +118,8 @@ if command -v linuxdeploy &>/dev/null; then
     # Let linuxdeploy resolve shared libs from build tree and AppDir
     DEPS_LIB_DIRS=$(find "${BUILD_DIR}/_deps" -name "*.so*" -printf "%h\n" 2>/dev/null | sort -u | tr '\n' ':')
     export LD_LIBRARY_PATH="${BUILD_DIR}/install/usr/lib:${QT_DIR}/lib:${DEPS_LIB_DIRS}${LD_LIBRARY_PATH:-}"
+    # Remove stale AppImages before building so the glob below is unambiguous.
+    rm -f ZipFX*.AppImage
     linuxdeploy --appdir "${BUILD_DIR}/install" \
         --desktop-file "${BUILD_DIR}/install/usr/share/applications/zipfx.desktop" \
         --icon-file "${BUILD_DIR}/install/usr/share/icons/hicolor/256x256/apps/zipfx.png" \
