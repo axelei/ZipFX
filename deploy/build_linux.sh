@@ -51,6 +51,9 @@ if [ -n "$LIB7Z" ]; then
     cp "$LIB7Z" "${BUILD_DIR}/install/usr/lib/"
 fi
 
+echo "=== Copying AppIcon.png next to executable ==="
+cp ../src/resources/AppIcon.png "${BUILD_DIR}/install/usr/bin/"
+
 echo "=== Bundling system shared libs ==="
 mkdir -p "${BUILD_DIR}/install/usr/lib"
 # libfuse3 — needed for lazy drag-and-drop; locate via ldconfig then copy with symlinks
@@ -69,7 +72,7 @@ tar czf ZipFX-Linux.tar.gz -C "${BUILD_DIR}/install/usr" .
 echo "=== Done: ZipFX-Linux.tar.gz ==="
 
 echo "=== Cleaning up non-ZipFX install artifacts ==="
-find "${BUILD_DIR}/install/usr/bin" -type f ! -name "ZipFX" -delete
+find "${BUILD_DIR}/install/usr/bin" -type f ! -name "ZipFX" ! -name "AppIcon.png" -delete
 ln -sf ZipFX "${BUILD_DIR}/install/usr/bin/zipfx"
 rm -rf "${BUILD_DIR}/install/usr/include" \
        "${BUILD_DIR}/install/usr/FALSE" \

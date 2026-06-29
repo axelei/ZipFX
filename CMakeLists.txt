@@ -743,6 +743,9 @@ if(UNIX AND NOT APPLE)
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
         DESTINATION "share/icons/hicolor/scalable/apps"
         RENAME "zipfx.png")
+    # Also install next to the executable for runtime QIcon loading
+    install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "bin")
 
     # AppStream metainfo
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/net.krusher.zipfx.metainfo.xml"

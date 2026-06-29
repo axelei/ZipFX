@@ -182,13 +182,18 @@ int main(int argc, char* argv[])
     // Respect explicit QT_QPA_PLATFORM override if set.
     if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM")
         && qEnvironmentVariableIsSet("WAYLAND_DISPLAY"))
+    {
         qputenv("QT_QPA_PLATFORM", "wayland");
+        // Ensure the Wayland app_id matches our desktop file for icon lookup
+        qputenv("QT_WAYLAND_APP_ID", "zipfx");
+    }
 
     // GUI mode – requires Qt
     QApplication app(argc, argv);
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
     app.setApplicationVersion(ZIPFX_VERSION);
+
     {
         // Prefer .ico on Windows (higher resolution, already installed next to exe).
         // Fall back to .png for other platforms.

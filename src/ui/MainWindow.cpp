@@ -159,6 +159,8 @@ MainWindow::MainWindow(QWidget* parent)
     // QFileOpenEvent is dispatched to qApp, not to windows — install a filter
     // so Finder "Open With" / double-click reaches this window.
     qApp->installEventFilter(this);
+#elif defined(__linux__)
+    registerFileAssociationsLinux();
 #endif
 }
 
@@ -3835,8 +3837,84 @@ void MainWindow::installShellExtension(bool install)
 #endif
 }
 
+// ── Linux: register desktop file & icon on every launch ────────────
+#if defined(__linux__)
+void MainWindow::registerFileAssociationsLinux()
+{
+    const QString dataDir = QStandardPaths::writableLocation(
+        QStandardPaths::GenericDataLocation);
+    const QString appsDir = dataDir + "/applications";
+    const QString hicolorDir = dataDir + "/icons/hicolor";
+    const QString icon256Dir = hicolorDir + "/256x256/apps";
+    const QString icon64Dir = hicolorDir + "/64x64/apps";
+    const QString desktopPath = appsDir + "/zipfx.desktop";
+    const QString desktopPathUpper = appsDir + "/ZipFX.desktop";
+    const QString iconName = "zipfx.png";
+
+    // Current executable path (AppImage or regular binary)
+    const QString execPath = [&]() -> QString {
+        const QString appImg = qEnvironmentVariable("APPIMAGE");
+        if (!appImg.isEmpty())
+            return appImg;
+        return QApplication::applicationFilePath();
+    }();
+
+    // ── Icon (install to multiple sizes for best matching) ──
+    const QString srcIcon = QApplication::applicationDirPath() + "/AppIcon.png";
+    if (QFile::exists(srcIcon))
+    {
+        for (const auto& dir : {icon256Dir, icon64Dir})
+        {
+            QDir().mkpath(dir);
+            const QString dst = dir + "/" + iconName;
+            QFile::remove(dst);
+            QFile::copy(srcIcon, dst);
+        }
+    }
+
+    // Never create a user-local index.theme — the system hicolor theme
+    // already has the full Directories= list and is authoritative. A
+    // minimal user-local version with Directories= missing or Hidden=true
+    // would silently disable hicolor and break all icon lookups.
+    // gtk-update-icon-cache below will read the system index.theme and
+    // index our icons correctly.
+
+    // ── Desktop file (always rewrite to pick up field additions) ──
+    QDir().mkpath(appsDir);
+    {
+        QFile df(desktopPath);
+        if (df.open(QIODevice::WriteOnly | QIODevice::Text))
+        {
+            QByteArray contents;
+            contents += "[Desktop Entry]\n";
+            contents += "Type=Application\n";
+            contents += "Name=ZipFX\n";
+            contents += "Comment=Multi-format archive manager\n";
+            contents += "Exec=" + execPath.toUtf8() + " %f\n";
+            contents += "Icon=zipfx\n";
+            contents += "StartupWMClass=zipfx\n";
+            contents += "Terminal=false\n";
+            contents += "Categories=Archiving;Utility;\n";
+            df.write(contents);
+            df.close();
+        }
+    }
+
+    // Symlink ZipFX.desktop → zipfx.desktop so the portal finds it regardless
+    // of app_id casing.
+    if (!QFile::exists(desktopPathUpper))
+        QFile::link("zipfx.desktop", desktopPathUpper);
+
+    // Update icon cache and desktop database (non-fatal if unavailable).
+    // Do NOT create a user-local index.theme — the system theme is authoritative.
+    QProcess::startDetached("gtk-update-icon-cache",
+        {"--ignore-theme-index", "--quiet", hicolorDir});
+    QProcess::startDetached("update-desktop-database",
+        {appsDir, "--quiet"});
+}
+
 // ── Windows: register file associations on first launch ────────────
-#ifdef _WIN32
+#elif defined(_WIN32)
 #include <QSettings>
 #include <QDir>
 #include <shlwapi.h>

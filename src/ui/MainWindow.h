@@ -123,6 +123,8 @@ private:
     void registerFileAssociations();
 #elif defined(__APPLE__)
     void registerFileAssociationsMac();
+#elif defined(__linux__)
+    void registerFileAssociationsLinux();
 #endif
     void doExtract(const QString& destPath, bool all, bool stripPaths = false);
     void doExtractSelected(const QModelIndexList& selection);
