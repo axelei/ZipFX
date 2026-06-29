@@ -103,6 +103,16 @@ void ZipEngine::LoadEntries()
 
     for (zip_int64_t i = 0; i < num; ++i)
     {
+        if (isOpenCancelled()) return;
+
+        if (m_openProgressCb)
+        {
+            ArchiveEngine::OpenProgressInfo info;
+            info.currentBytes = i;
+            info.totalBytes = num;
+            m_openProgressCb(info);
+        }
+
         struct zip_stat st;
         zip_stat_init(&st);
         if (zip_stat_index(m_zip, i, 0, &st) != 0)
@@ -150,6 +160,14 @@ void ZipEngine::LoadEntries()
             entry.comment = std::string(comment, commentLen);
 
         m_entries.push_back(std::move(entry));
+    }
+
+    if (m_openProgressCb)
+    {
+        ArchiveEngine::OpenProgressInfo info;
+        info.currentBytes = num;
+        info.totalBytes = num;
+        m_openProgressCb(info);
     }
 }
 

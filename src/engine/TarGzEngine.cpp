@@ -216,8 +216,15 @@ bool TarGzEngine::Open(std::string_view path)
     std::string gnuLongLink;
 
     TarHeader hdr;
+    size_t entryCount = 0;
     while (true)
     {
+        if (isOpenCancelled())
+        {
+            gzclose(f);
+            return false;
+        }
+
         int bytesRead = gzread(f, &hdr, TAR_BLOCK_SIZE);
         if (bytesRead < static_cast<int>(TAR_BLOCK_SIZE))
             break;
@@ -296,8 +303,25 @@ bool TarGzEngine::Open(std::string_view path)
             static_cast<time_t>(mtime));
 
         m_entries.push_back(std::move(entry));
+        entryCount++;
+
+        if (m_openProgressCb && (entryCount % 100 == 0))
+        {
+            ArchiveEngine::OpenProgressInfo info;
+            info.currentBytes = entryCount;
+            info.totalBytes = -1; // Unknown total
+            m_openProgressCb(info);
+        }
 
         SkipTarData(f, fileSize);
+    }
+
+    if (m_openProgressCb)
+    {
+        ArchiveEngine::OpenProgressInfo info;
+        info.currentBytes = entryCount;
+        info.totalBytes = entryCount;
+        m_openProgressCb(info);
     }
 
     LOG_DBG("TarGzEngine: loaded %zu entries", m_entries.size());

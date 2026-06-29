@@ -1244,10 +1244,97 @@ bool MainWindow::openArchive(const QString& path)
     std::string firstVolPath = ArchiveEngineFactory::ResolveFirstVolume(spath);
 
     auto engine = ArchiveEngineFactory::CreateForFile(firstVolPath);
-    if (!engine || !engine->Open(firstVolPath))
+    if (!engine)
     {
         QMessageBox::warning(this, tr("Open Failed"),
             tr("Could not open the archive."));
+        return false;
+    }
+
+    engine->resetOpenCancel();
+
+    // Progress dialog for opening large archives
+    struct { std::mutex m; ArchiveEngine::OpenProgressInfo info; } op;
+
+    engine->setOpenProgressCb([&](const ArchiveEngine::OpenProgressInfo& info) {
+        std::lock_guard<std::mutex> lock(op.m);
+        op.info = info;
+    });
+
+    std::atomic<bool> openDone{false};
+    std::atomic<bool> openOk{false};
+
+    std::thread openThread([&]() {
+        openOk = engine->Open(firstVolPath);
+        openDone = true;
+    });
+
+    m_progressDlg = new QProgressDialog(tr("Opening archive..."), tr("Cancel"), 0, 0, this);
+    m_progressDlg->setWindowModality(Qt::ApplicationModal);
+    m_progressDlg->setAutoClose(false);
+    m_progressDlg->setAutoReset(false);
+    m_progressDlg->show();
+
+    QString fileName = QFileInfo(path).fileName();
+
+    while (!openDone)
+    {
+        QApplication::processEvents();
+        QThread::msleep(16);
+
+        if (m_progressDlg && m_progressDlg->wasCanceled())
+        {
+            engine->cancelOpen();
+            openOk = false;
+            openDone = true;
+            break;
+        }
+
+        int64_t currentBytes = 0;
+        int64_t totalBytes = 0;
+        {
+            std::lock_guard<std::mutex> lock(op.m);
+            currentBytes = op.info.currentBytes;
+            totalBytes = op.info.totalBytes;
+        }
+
+        if (totalBytes > 0)
+        {
+            m_progressDlg->setRange(0, totalBytes);
+            m_progressDlg->setValue(currentBytes);
+            int pct = (totalBytes > 0) ? static_cast<int>((currentBytes * 100) / totalBytes) : 0;
+            m_progressDlg->setLabelText(
+                fileName + QChar('\n') + tr("%1%").arg(pct));
+        }
+        else
+        {
+            // Indeterminate progress
+            m_progressDlg->setLabelText(
+                fileName + QChar('\n') + tr("Reading entries... %1").arg(currentBytes));
+        }
+    }
+
+    if (openThread.joinable())
+        openThread.join();
+
+    engine->setOpenProgressCb(nullptr);
+
+    if (m_progressDlg)
+    {
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+    }
+
+    // If the user cancelled, don't show an error message
+    if (!openOk && !engine->isOpenCancelled())
+    {
+        QMessageBox::warning(this, tr("Open Failed"),
+            tr("Could not open the archive."));
+        return false;
+    }
+    else if (engine->isOpenCancelled())
+    {
         return false;
     }
 

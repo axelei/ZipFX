@@ -114,8 +114,20 @@ bool Bit7zEngine::Open(std::string_view path)
         auto items = m_reader->items();
         m_entries.reserve(items.size());
 
-        for (const auto& item : items)
+        size_t total = items.size();
+        for (size_t i = 0; i < total; ++i)
         {
+            if (isOpenCancelled()) return false;
+
+            if (m_openProgressCb && (i % 100 == 0))
+            {
+                ArchiveEngine::OpenProgressInfo info;
+                info.currentBytes = i;
+                info.totalBytes = total;
+                m_openProgressCb(info);
+            }
+
+            const auto& item = items[i];
             ArchiveEntry ae;
             ae.name = item.path();
             if (ae.name.empty()) continue;
@@ -135,6 +147,14 @@ bool Bit7zEngine::Open(std::string_view path)
                 if (cv.isString()) ae.comment = cv.getString();
             } catch (...) {}
             m_entries.push_back(std::move(ae));
+        }
+
+        if (m_openProgressCb)
+        {
+            ArchiveEngine::OpenProgressInfo info;
+            info.currentBytes = total;
+            info.totalBytes = total;
+            m_openProgressCb(info);
         }
 
         LOG_DBG("Bit7zEngine: opened %s (%zu entries)", m_path.c_str(), m_entries.size());

@@ -81,8 +81,19 @@ bool LibarchiveEngine::LoadEntries()
     m_entries.clear();
 
     struct archive_entry* entry;
+    size_t entryCount = 0;
     while (archive_read_next_header(m_archive, &entry) == ARCHIVE_OK)
     {
+        if (isOpenCancelled()) return false;
+
+        if (m_openProgressCb && (entryCount % 100 == 0))
+        {
+            ArchiveEngine::OpenProgressInfo info;
+            info.currentBytes = entryCount;
+            info.totalBytes = -1; // Unknown total
+            m_openProgressCb(info);
+        }
+
         ArchiveEntry ae;
         ae.name = archive_entry_pathname(entry);
         ae.path = ae.name;
@@ -100,6 +111,15 @@ bool LibarchiveEngine::LoadEntries()
         ae.compressionMethod = m_compressionMethod;
 
         m_entries.push_back(std::move(ae));
+        entryCount++;
+    }
+
+    if (m_openProgressCb)
+    {
+        ArchiveEngine::OpenProgressInfo info;
+        info.currentBytes = entryCount;
+        info.totalBytes = entryCount;
+        m_openProgressCb(info);
     }
 
     if (m_entries.size() == 1 && m_entries[0].name == "data")

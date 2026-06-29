@@ -45,6 +45,9 @@ public:
     void resetSaveCancel() { m_saveCancelled = false; }
     bool isSaveCancelled() const { return m_saveCancelled; }
     virtual void cancelExtract() {} // engines may override to abort extraction
+    void cancelOpen() { m_openCancelled = true; }
+    void resetOpenCancel() { m_openCancelled = false; }
+    bool isOpenCancelled() const { return m_openCancelled; }
 
     struct ExtractProgressInfo {
         uint64_t bytesProcessed = 0;
@@ -63,6 +66,14 @@ public:
     };
     using SaveProgressCb = std::function<void(const SaveProgressInfo&)>;
     void setSaveProgressCb(SaveProgressCb cb) { m_saveProgressCb = std::move(cb); }
+
+    struct OpenProgressInfo {
+        int64_t currentBytes = 0;
+        int64_t totalBytes = 0;
+        std::string fileName;
+    };
+    using OpenProgressCb = std::function<void(const OpenProgressInfo&)>;
+    void setOpenProgressCb(OpenProgressCb cb) { m_openProgressCb = std::move(cb); }
 
     virtual std::string archiveComment() const { return {}; }
     virtual bool setArchiveComment(std::string_view comment) { return false; }
@@ -84,8 +95,10 @@ public:
 protected:
     int m_compressionLevel = 6; // 0=store, 9=max
     std::atomic<bool> m_saveCancelled{false};
+    std::atomic<bool> m_openCancelled{false};
     SaveProgressCb m_saveProgressCb;
     ExtractProgressCb m_extractProgressCb;
+    OpenProgressCb m_openProgressCb;
 };
 
 #endif
