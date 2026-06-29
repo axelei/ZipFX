@@ -156,10 +156,35 @@ if command -v linuxdeploy &>/dev/null; then
     fi
     # Remove stale AppImages before building so the glob below is unambiguous.
     rm -f ZipFX*.AppImage
+    # Fill the AppDir with all libraries and plugins.
     linuxdeploy --appdir "${BUILD_DIR}/install" \
         --desktop-file "${BUILD_DIR}/install/usr/share/applications/zipfx.desktop" \
         --icon-file "${BUILD_DIR}/install/usr/share/icons/hicolor/256x256/apps/zipfx.png" \
-        --plugin qt --output appimage
+        --plugin qt
+
+    # Remove bundled glib — it's a universal system library and bundling it
+    # pulls in a GLIBC version requirement from the build host
+    # (e.g. GLIBC_2.43 on Ubuntu 26.04) that breaks on older distros.
+    rm -f "${BUILD_DIR}/install/usr/lib/libglib-2.0.so"*
+
+    # Create the AppImage via appimagetool (extracted from linuxdeploy).
+    # We cannot use linuxdeploy --output appimage here because it would
+    # re-deploy the glib library we just removed.
+    if [ ! -x /tmp/appimagetool ]; then
+        (cd /tmp && /tmp/linuxdeploy --appimage-extract 1>/dev/null 2>&1)
+        if [ -f /tmp/squashfs-root/plugins/linuxdeploy-plugin-appimage/appimagetool-prefix/usr/bin/appimagetool ]; then
+            cp /tmp/squashfs-root/plugins/linuxdeploy-plugin-appimage/appimagetool-prefix/usr/bin/appimagetool /tmp/appimagetool
+            chmod +x /tmp/appimagetool
+            rm -rf /tmp/squashfs-root
+        fi
+    fi
+    if [ -x /tmp/appimagetool ]; then
+        VERSION="${VERSION:-continuous}"
+        ARCH="${ARCH:-x86_64}"
+        /tmp/appimagetool --no-appstream "${BUILD_DIR}/install" "ZipFX-Linux.AppImage" 2>&1
+    else
+        echo "=== appimagetool not available — skipping AppImage ==="
+    fi
     mv ZipFX*.AppImage ZipFX-Linux.AppImage 2>/dev/null || true
     echo "=== AppImage created ==="
 else
