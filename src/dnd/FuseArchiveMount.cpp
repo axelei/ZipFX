@@ -4,9 +4,11 @@
 
 #define FUSE_USE_VERSION 35
 #include <fuse.h>
+#include <fuse_lowlevel.h>
 
 #include <sys/stat.h>
 #include <signal.h>
+#include <poll.h>
 #include <cstring>
 #include <cerrno>
 #include <algorithm>
@@ -257,11 +259,41 @@ bool FuseArchiveMount::start()
 
     m_session = f;
 
-    m_thread = std::thread([f]() {
-        fuse_loop(f);
-        // fuse_unmount() is called by the unmount thread before join(), which
-        // causes read(/dev/fuse) to return ENODEV and fuse_loop to exit. Do
-        // not call fuse_unmount here — just free the fuse object.
+    m_thread = std::thread([this, f]() {
+        struct fuse_session* se = fuse_get_session(f);
+        int fuse_fd = fuse_session_fd(se);
+
+        // Custom poll-based loop instead of fuse_loop(f). This allows the
+        // unmount thread to simply set m_unmountRequested and rely on the
+        // 1-second poll timeout to unblock the loop, instead of requiring
+        // fuse_unmount (which closes /dev/fuse) to be called from a
+        // different thread — the root cause of the fd-close-vs-read race
+        // that crashes in Release builds.
+        while (!m_unmountRequested.load())
+        {
+            struct pollfd pfd = {fuse_fd, POLLIN, 0};
+            int ret = poll(&pfd, 1, 1000);  // 1 s timeout
+
+            if (ret < 0)
+            {
+                if (errno == EINTR) continue;
+                break;
+            }
+
+            if (ret > 0 && (pfd.revents & POLLIN))
+            {
+                struct fuse_buf fbuf;
+                memset(&fbuf, 0, sizeof(fbuf));
+                int res = fuse_session_receive_buf(se, &fbuf);
+                if (res == -EINTR) continue;
+                if (res <= 0) break;
+                fuse_session_process_buf(se, &fbuf);
+            }
+        }
+
+        // fuse_unmount and fuse_destroy on the SAME thread that ran the
+        // event loop — no cross-thread fd close race.
+        fuse_unmount(f);
         fuse_destroy(f);
     });
 
@@ -341,11 +373,15 @@ void FuseArchiveMount::unmount(bool immediate)
         else
             LOG_DBG("FuseArchiveMount: immediate unmount — skipping two-phase wait");
 
-        fuse_unmount(static_cast<struct fuse*>(m_session));
-        m_session = nullptr;
+        // Signal the FUSE thread to exit its poll loop.
+        // It will call fuse_unmount + fuse_destroy on the same thread,
+        // avoiding the libfuse3 close-fd-vs-read race that crashes in
+        // Release builds.
+        m_unmountRequested = true;
     }
     if (m_thread.joinable())
         m_thread.join();
+    m_session = nullptr;
     if (m_active)
     {
         --s_activeMounts;

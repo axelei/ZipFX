@@ -178,6 +178,12 @@ int main(int argc, char* argv[])
         return 0;
     }
 
+    // Auto-select Wayland platform on Wayland sessions (for proper DND).
+    // Respect explicit QT_QPA_PLATFORM override if set.
+    if (!qEnvironmentVariableIsSet("QT_QPA_PLATFORM")
+        && qEnvironmentVariableIsSet("WAYLAND_DISPLAY"))
+        qputenv("QT_QPA_PLATFORM", "wayland");
+
     // GUI mode – requires Qt
     QApplication app(argc, argv);
     app.setApplicationName("ZipFX");

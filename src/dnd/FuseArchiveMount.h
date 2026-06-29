@@ -88,6 +88,7 @@ private:
     ArchiveEngine* m_engine; // only used during start(), not after
     bool           m_active = false; // true while counted in s_activeMounts
     std::atomic<bool> m_abandoned{false};
+    std::atomic<bool> m_unmountRequested{false};
     void buildTree();
 };
 

@@ -118,6 +118,42 @@ if command -v linuxdeploy &>/dev/null; then
     # Let linuxdeploy resolve shared libs from build tree and AppDir
     DEPS_LIB_DIRS=$(find "${BUILD_DIR}/_deps" -name "*.so*" -printf "%h\n" 2>/dev/null | sort -u | tr '\n' ':')
     export LD_LIBRARY_PATH="${BUILD_DIR}/install/usr/lib:${QT_DIR}/lib:${DEPS_LIB_DIRS}${LD_LIBRARY_PATH:-}"
+    # Bundle the Wayland QPA plugin so Qt runs natively under Wayland
+    # (drag-and-drop is broken under XWayland on modern compositors).
+    WAYLAND_PLUGIN="${QT_DIR}/plugins/platforms/libqwayland.so"
+    if [ -f "$WAYLAND_PLUGIN" ]; then
+        mkdir -p "${BUILD_DIR}/install/usr/plugins/platforms"
+        cp "$WAYLAND_PLUGIN" "${BUILD_DIR}/install/usr/plugins/platforms/"
+        # Also bundle libQt6WaylandClient (so dependency)
+        for lib in "${QT_DIR}/lib/libQt6WaylandClient.so"*; do
+            [ -f "$lib" ] && cp -P "$lib" "${BUILD_DIR}/install/usr/lib/"
+        done
+        # Shell integration (xdg-shell) — required for the Wayland plugin to work
+        WAYLAND_SHELL="${QT_DIR}/plugins/wayland-shell-integration"
+        if [ -d "$WAYLAND_SHELL" ]; then
+            mkdir -p "${BUILD_DIR}/install/usr/plugins/wayland-shell-integration"
+            cp "$WAYLAND_SHELL"/*.so "${BUILD_DIR}/install/usr/plugins/wayland-shell-integration/" 2>/dev/null || true
+        fi
+        # Graphics integration (wayland-egl) — required for rendering
+        WAYLAND_GFX="${QT_DIR}/plugins/wayland-graphics-integration-client"
+        if [ -d "$WAYLAND_GFX" ]; then
+            mkdir -p "${BUILD_DIR}/install/usr/plugins/wayland-graphics-integration-client"
+            cp "$WAYLAND_GFX"/*.so "${BUILD_DIR}/install/usr/plugins/wayland-graphics-integration-client/" 2>/dev/null || true
+            # libQt6OpenGL is a transitive dependency of the egl integration
+            for lib in "${QT_DIR}/lib/libQt6OpenGL.so"*; do
+                [ -f "$lib" ] && cp -P "$lib" "${BUILD_DIR}/install/usr/lib/"
+            done
+        fi
+        # Decoration client (bradient/adwaita) — optional, for server-side decorations
+        WAYLAND_DECOR="${QT_DIR}/plugins/wayland-decoration-client"
+        if [ -d "$WAYLAND_DECOR" ]; then
+            mkdir -p "${BUILD_DIR}/install/usr/plugins/wayland-decoration-client"
+            cp "$WAYLAND_DECOR"/*.so "${BUILD_DIR}/install/usr/plugins/wayland-decoration-client/" 2>/dev/null || true
+        fi
+        echo "Bundled Wayland support from ${QT_DIR}"
+    else
+        echo "Wayland QPA plugin not found at ${WAYLAND_PLUGIN} — XWayland fallback"
+    fi
     # Remove stale AppImages before building so the glob below is unambiguous.
     rm -f ZipFX*.AppImage
     linuxdeploy --appdir "${BUILD_DIR}/install" \

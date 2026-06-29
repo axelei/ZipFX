@@ -2440,18 +2440,28 @@ void MainWindow::onBeginDrag()
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
             // Set an explicit pixmap so Wayland compositors show drag feedback.
-            // Without it, XWayland may display no drag icon at all.
+            // A dark background ensures white text is visible on any surface.
             {
                 int nFiles = filePaths.size();
                 QString label = nFiles == 1
                     ? filePaths[0].section('/', -1)
                     : QStringLiteral("%1 files").arg(nFiles);
-                QPixmap pm(256, 32);
-                pm.fill(Qt::transparent);
+                QPixmap pm(256, 38);
+                pm.fill(QColor(45, 45, 45));
                 QPainter p(&pm);
+                p.setRenderHint(QPainter::Antialiasing);
+                int penWidth = pm.height() - 2;
+                QPixmap iconPm(":/AppIcon.png");
+                if (!iconPm.isNull())
+                {
+                    QPixmap scaled = iconPm.scaled(penWidth, penWidth, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    p.drawPixmap(2, (pm.height() - scaled.height()) / 2, scaled);
+                }
                 p.setPen(Qt::white);
                 p.setFont(QFont("sans-serif", 11));
-                p.drawText(pm.rect(), Qt::AlignCenter, label);
+                int textLeft = iconPm.isNull() ? 4 : penWidth + 6;
+                p.drawText(textLeft, 0, pm.width() - textLeft - 4, pm.height(),
+                           Qt::AlignVCenter | Qt::AlignLeft, label);
                 p.end();
                 drag->setPixmap(pm);
                 drag->setHotSpot({8, 16});
@@ -2552,6 +2562,32 @@ void MainWindow::onBeginDrag()
             mime->setUrls(urls);
             QDrag* drag = new QDrag(this);
             drag->setMimeData(mime);
+            // Same drag pixmap as the FUSE path above
+            {
+                int nFiles = filePaths.size();
+                QString label = nFiles == 1
+                    ? filePaths[0].section('/', -1)
+                    : QStringLiteral("%1 files").arg(nFiles);
+                QPixmap pm(256, 38);
+                pm.fill(QColor(45, 45, 45));
+                QPainter p(&pm);
+                p.setRenderHint(QPainter::Antialiasing);
+                int penWidth = pm.height() - 2;
+                QPixmap iconPm(":/AppIcon.png");
+                if (!iconPm.isNull())
+                {
+                    QPixmap scaled = iconPm.scaled(penWidth, penWidth, Qt::KeepAspectRatio, Qt::SmoothTransformation);
+                    p.drawPixmap(2, (pm.height() - scaled.height()) / 2, scaled);
+                }
+                p.setPen(Qt::white);
+                p.setFont(QFont("sans-serif", 11));
+                int textLeft = iconPm.isNull() ? 4 : penWidth + 6;
+                p.drawText(textLeft, 0, pm.width() - textLeft - 4, pm.height(),
+                           Qt::AlignVCenter | Qt::AlignLeft, label);
+                p.end();
+                drag->setPixmap(pm);
+                drag->setHotSpot({8, 16});
+            }
             drag->exec(Qt::CopyAction);
         }
 
