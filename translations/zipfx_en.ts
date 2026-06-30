@@ -1763,6 +1763,42 @@ Cancelled by user.</translation>
             <source>⚠ Passwords are stored in plaintext in application settings.</source>
             <translation>⚠ Passwords are stored in plaintext in application settings.</translation>
         </message>
+        <message>
+            <source>&amp;License</source>
+            <translation>&amp;License</translation>
+        </message>
+        <message>
+            <source>(LICENSE file not found)</source>
+            <translation>(LICENSE file not found)</translation>
+        </message>
+        <message>
+            <source>Confirm password:</source>
+            <translation>Confirm password:</translation>
+        </message>
+        <message>
+            <source>License</source>
+            <translation>License</translation>
+        </message>
+        <message>
+            <source>Opening "%1"\u2026</source>
+            <translation>Opening "%1"\u2026</translation>
+        </message>
+        <message>
+            <source>Opening archive...</source>
+            <translation>Opening archive...</translation>
+        </message>
+        <message>
+            <source>Password:</source>
+            <translation>Password:</translation>
+        </message>
+        <message>
+            <source>Passwords do not match.</source>
+            <translation>Passwords do not match.</translation>
+        </message>
+        <message>
+            <source>Reading entries... %1</source>
+            <translation>Reading entries... %1</translation>
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1888,6 +1924,124 @@ Overwrite it?</translation>
             <source>Size</source>
             <translation>Size</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation>
+Cancelled by user.</translation>
+        </message>
+        <message>
+            <source>
+Done. %1 succeeded, %2 failed.</source>
+            <translation>
+Done. %1 succeeded, %2 failed.</translation>
+        </message>
+        <message>
+            <source>  ERROR: could not open.</source>
+            <translation>  ERROR: could not open.</translation>
+        </message>
+        <message>
+            <source>  FAILED: extraction failed.</source>
+            <translation>  FAILED: extraction failed.</translation>
+        </message>
+        <message>
+            <source>  FAILED: integrity check failed.</source>
+            <translation>  FAILED: integrity check failed.</translation>
+        </message>
+        <message>
+            <source>  OK: extracted to %1</source>
+            <translation>  OK: extracted to %1</translation>
+        </message>
+        <message>
+            <source>  OK: integrity check passed.</source>
+            <translation>  OK: integrity check passed.</translation>
+        </message>
+        <message>
+            <source>%1
+%2 bytes</source>
+            <translation>%1
+%2 bytes</translation>
+        </message>
+        <message>
+            <source>Batch Operations</source>
+            <translation>Batch Operations</translation>
+        </message>
+        <message>
+            <source>Browse...</source>
+            <translation>Browse...</translation>
+        </message>
+        <message>
+            <source>Cancelling...</source>
+            <translation>Cancelling...</translation>
+        </message>
+        <message>
+            <source>Error</source>
+            <translation>Error</translation>
+        </message>
+        <message>
+            <source>Extract all archives</source>
+            <translation>Extract all archives</translation>
+        </message>
+        <message>
+            <source>Failed to save archive.</source>
+            <translation>Failed to save archive.</translation>
+        </message>
+        <message>
+            <source>Folder: %1</source>
+            <translation>Folder: %1</translation>
+        </message>
+        <message>
+            <source>Found %1 archive(s).</source>
+            <translation>Found %1 archive(s).</translation>
+        </message>
+        <message>
+            <source>Include subfolders</source>
+            <translation>Include subfolders</translation>
+        </message>
+        <message>
+            <source>No selection</source>
+            <translation>No selection</translation>
+        </message>
+        <message>
+            <source>Operation:</source>
+            <translation>Operation:</translation>
+        </message>
+        <message>
+            <source>Output folder:</source>
+            <translation>Output folder:</translation>
+        </message>
+        <message>
+            <source>Please select a valid source folder.</source>
+            <translation>Please select a valid source folder.</translation>
+        </message>
+        <message>
+            <source>Please select an output folder.</source>
+            <translation>Please select an output folder.</translation>
+        </message>
+        <message>
+            <source>Saving...</source>
+            <translation>Saving...</translation>
+        </message>
+        <message>
+            <source>Select Output Folder</source>
+            <translation>Select Output Folder</translation>
+        </message>
+        <message>
+            <source>Select Source Folder</source>
+            <translation>Select Source Folder</translation>
+        </message>
+        <message>
+            <source>Select a file to preview</source>
+            <translation>Select a file to preview</translation>
+        </message>
+        <message>
+            <source>Source folder:</source>
+            <translation>Source folder:</translation>
+        </message>
+        <message>
+            <source>Test integrity of all archives</source>
+            <translation>Test integrity of all archives</translation>
+        </message>
     </context>
     <context>
         <name>FindFilesDialog</name>
@@ -1977,6 +2131,69 @@ Overwrite it?</translation>
         <message>
             <source>Sleep</source>
             <translation>Sleep</translation>
+        </message>
+    </context>
+    <context>
+        <name>PasswordDelegate</name>
+        <message>
+            <source>Add Password</source>
+            <translation>Add Password</translation>
+        </message>
+        <message>
+            <source>Add...</source>
+            <translation>Add...</translation>
+        </message>
+        <message>
+            <source>Archive filename</source>
+            <translation>Archive filename</translation>
+        </message>
+        <message>
+            <source>Archive:</source>
+            <translation>Archive:</translation>
+        </message>
+        <message>
+            <source>Confirm password:</source>
+            <translation>Confirm password:</translation>
+        </message>
+        <message>
+            <source>Delete Selected</source>
+            <translation>Delete Selected</translation>
+        </message>
+        <message>
+            <source>Password</source>
+            <translation>Password</translation>
+        </message>
+        <message>
+            <source>Password Manager</source>
+            <translation>Password Manager</translation>
+        </message>
+        <message>
+            <source>Password cannot be empty.</source>
+            <translation>Password cannot be empty.</translation>
+        </message>
+        <message>
+            <source>Password:</source>
+            <translation>Password:</translation>
+        </message>
+        <message>
+            <source>Passwords are stored in plaintext in application settings.</source>
+            <translation>Passwords are stored in plaintext in application settings.</translation>
+        </message>
+        <message>
+            <source>Passwords do not match.</source>
+            <translation>Passwords do not match.</translation>
+        </message>
+        <message>
+            <source>Save &amp;&amp; Close</source>
+            <translation>Save &amp;&amp; Close</translation>
+        </message>
+        <message>
+            <source>Saved passwords are applied automatically when opening archives.</source>
+            <translation>Saved passwords are applied automatically when opening archives.</translation>
+        </message>
+        <message>
+            <source>archive.zip</source>
+            <translation>archive.zip</translation>
         </message>
     </context>
 </TS>

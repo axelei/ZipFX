@@ -1758,6 +1758,42 @@ Cancelled by user.</source>
             <source>⚠ Passwords are stored in plaintext in application settings.</source>
             <translation>⚠ Wachtwoorden worden in platte tekst opgeslagen in de applicatie-instellingen.</translation>
         </message>
+        <message>
+            <source>&amp;License</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>(LICENSE file not found)</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Confirm password:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>License</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Opening "%1"\u2026</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Opening archive...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Passwords do not match.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Reading entries... %1</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>QObject</name>
@@ -1883,6 +1919,121 @@ Overschrijven?</translation>
             <source>Size</source>
             <translation>Maat</translation>
         </message>
+        <message>
+            <source>
+Cancelled by user.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>
+Done. %1 succeeded, %2 failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  ERROR: could not open.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  FAILED: extraction failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  FAILED: integrity check failed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  OK: extracted to %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>  OK: integrity check passed.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1
+%2 bytes</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Batch Operations</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Browse...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Cancelling...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Error</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extract all archives</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Failed to save archive.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Folder: %1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Found %1 archive(s).</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Include subfolders</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No selection</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Operation:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Output folder:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Please select a valid source folder.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Please select an output folder.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Saving...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select Output Folder</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select Source Folder</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Select a file to preview</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Source folder:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Test integrity of all archives</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>FindFilesDialog</name>
@@ -1972,6 +2123,69 @@ Overschrijven?</translation>
         <message>
             <source>Sleep</source>
             <translation>Slaapstand</translation>
+        </message>
+    </context>
+    <context>
+        <name>PasswordDelegate</name>
+        <message>
+            <source>Add Password</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Add...</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Archive filename</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Archive:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Confirm password:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Delete Selected</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password Manager</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password cannot be empty.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password:</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Passwords are stored in plaintext in application settings.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Passwords do not match.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Save &amp;&amp; Close</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Saved passwords are applied automatically when opening archives.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>archive.zip</source>
+            <translation type="unfinished" />
         </message>
     </context>
 </TS>
