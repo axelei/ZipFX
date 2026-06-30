@@ -524,6 +524,14 @@ to the executable.
 
 ---
 
+## AI Attribution
+
+Large portions of this codebase were generated with the assistance of
+large language models (Anthropic Claude, OpenAI ChatGPT). The human
+author reviewed, tested, and refined all generated code.
+
+---
+
 ## License
 
 GPLv3 — see [LICENSE](LICENSE).
