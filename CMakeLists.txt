@@ -364,6 +364,10 @@ configure_file(
 # ====================================================================
 set(ZIPFX_SOURCES
     src/main.cpp
+    src/ui/ArchiveProgress.cpp
+    src/ui/PreviewPanel.cpp
+    src/ui/BatchOpsDialog.cpp
+    src/ui/PasswordManagerDialog.cpp
     src/ui/MainWindow.cpp
     src/ui/FileListModel.cpp
     src/ui/CreateArchiveDialog.cpp

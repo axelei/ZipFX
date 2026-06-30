@@ -1,4 +1,8 @@
 #include "MainWindow.h"
+#include "ArchiveProgress.h"
+#include "PreviewPanel.h"
+#include "BatchOpsDialog.h"
+#include "PasswordManagerDialog.h"
 #include "FileListModel.h"
 #include "CreateArchiveDialog.h"
 #include "ChecksumsDialog.h"
@@ -32,19 +36,14 @@
 
 #include <QThread>
 #include <QTimer>
-#include <QClipboard>
 #include <QDesktopServices>
+#include <QClipboard>
 #include <QDirIterator>
 #include <QFile>
 #include <QFormLayout>
-#include <QGroupBox>
 #include <QProcess>
 #include <QSplitter>
-#include <QStackedWidget>
-#include <QTableWidget>
-#include <QTreeWidget>
 #include <QHeaderView>
-#include <QDateEdit>
 #include <QTextEdit>
 #include <QDialogButtonBox>
 
@@ -64,12 +63,10 @@
 #include <QStandardPaths>
 #include <QTemporaryDir>
 #include <QPushButton>
-#include <QHeaderView>
 #include <QDateTime>
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QInputDialog>
-#include <QTextEdit>
 #include <QFontDatabase>
 #include <QPixmap>
 #include <QGraphicsView>
@@ -77,8 +74,6 @@
 #include <QGraphicsPixmapItem>
 #include <QActionGroup>
 #include <QSettings>
-#include <QStyledItemDelegate>
-#include <QPainter>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/ArchiveEngineFactory.h"
@@ -648,35 +643,7 @@ void MainWindow::setupUI()
         });
 
     // ── Preview pane ────────────────────────────────────────────────────
-    m_previewPanel = new QWidget(this);
-    m_previewPanel->setMinimumWidth(180);
-    auto* previewLay = new QVBoxLayout(m_previewPanel);
-    previewLay->setContentsMargins(4, 0, 0, 0);
-    previewLay->setSpacing(4);
-
-    m_previewInfo = new QLabel(tr("No selection"), m_previewPanel);
-    m_previewInfo->setAlignment(Qt::AlignLeft | Qt::AlignTop);
-    m_previewInfo->setWordWrap(true);
-    previewLay->addWidget(m_previewInfo);
-
-    m_previewStack = new QStackedWidget(m_previewPanel);
-
-    auto* placeholderPage = new QLabel(tr("Select a file to preview"), m_previewStack);
-    placeholderPage->setAlignment(Qt::AlignCenter);
-    m_previewStack->addWidget(placeholderPage);   // index 0
-
-    m_previewText = new QTextEdit(m_previewStack);
-    m_previewText->setReadOnly(true);
-    m_previewText->setFont(QFontDatabase::systemFont(QFontDatabase::FixedFont));
-    m_previewStack->addWidget(m_previewText);     // index 1
-
-    m_previewScene = new QGraphicsScene(m_previewPanel);
-    m_previewImage = new QGraphicsView(m_previewScene, m_previewStack);
-    m_previewImage->setDragMode(QGraphicsView::ScrollHandDrag);
-    m_previewImage->setFrameShape(QFrame::NoFrame);
-    m_previewStack->addWidget(m_previewImage);    // index 2
-
-    previewLay->addWidget(m_previewStack, 1);
+    m_previewPanel = new PreviewPanel(this);
     m_previewPanel->hide();
 
     // ── Splitter ────────────────────────────────────────────────────────
@@ -701,211 +668,7 @@ void MainWindow::setupUI()
     setCentralWidget(m_centralWidget);
 }
 
-// ── Save helpers ───────────────────────────────────────────────────────
-bool MainWindow::saveWithProgress()
-{
-    m_progressDlg->setLabelText(tr("Saving..."));
-    m_progressDlg->setRange(0, 0);
-    QApplication::processEvents();
-
-    std::atomic<bool> saveDone{false};
-    std::atomic<bool> saveOk{false};
-    std::mutex spMutex;
-    ArchiveEngine::SaveProgressInfo spInfo;
-    uint64_t prevBytes = 0;
-    ProgressInfo savePi;
-
-    m_engine->setSaveProgressCb([&](const ArchiveEngine::SaveProgressInfo& info) {
-        std::lock_guard<std::mutex> lock(spMutex);
-        spInfo = info;
-    });
-
-    m_engine->resetSaveCancel();
-
-    std::thread saveThread([this, &saveDone, &saveOk]() {
-        saveOk = m_engine->Save();
-        saveDone = true;
-    });
-
-    bool userCancelled = false;
-
-    while (!saveDone)
-    {
-        QApplication::processEvents();
-        QThread::msleep(16);
-
-        if (!userCancelled && m_progressDlg->wasCanceled())
-        {
-            m_engine->cancelSave();
-            userCancelled = true;
-            m_progressDlg->setLabelText(tr("Cancelling..."));
-        }
-
-        bool needsRangeInit = false;
-        bool needsUpdate = false;
-        int pct = 0;
-        QString fileName;
-        QString eta;
-
-        {
-            std::lock_guard<std::mutex> lock(spMutex);
-            if (spInfo.totalBytes > 0)
-            {
-                if (savePi.totalBytes == 0)
-                {
-                    savePi.start(spInfo.totalBytes);
-                    needsRangeInit = true;
-                }
-                savePi.addBytes(spInfo.bytesProcessed - prevBytes);
-                prevBytes = spInfo.bytesProcessed;
-                if (savePi.shouldUpdate() && !userCancelled)
-                {
-                    savePi.updateRate();
-                    pct = savePi.percent();
-                    fileName = QString::fromStdString(spInfo.fileName);
-                    eta = savePi.etaString();
-                    needsUpdate = true;
-                }
-            }
-        }
-
-        if (needsRangeInit)
-        {
-            m_progressDlg->setRange(0, 100);
-            if (auto* lbl = m_progressDlg->findChild<QLabel*>())
-                lbl->setAlignment(Qt::AlignLeft);
-        }
-        if (needsUpdate)
-        {
-            m_progressDlg->setValue(pct);
-            QString label = fileName + QChar('\n')
-                + tr("%1%").arg(pct)
-                + (eta.isEmpty() ? QString() : QChar('\n') + eta);
-            m_progressDlg->setLabelText(label);
-        }
-    }
-
-    if (saveThread.joinable())
-        saveThread.join();
-
-    m_engine->setSaveProgressCb(nullptr);
-
-    m_progressDlg->close();
-    delete m_progressDlg;
-    m_progressDlg = nullptr;
-
-    if (m_engine->isSaveCancelled())
-    {
-        statusBar()->showMessage(tr("Save cancelled."), 3000);
-        return false;
-    }
-
-    if (!saveOk)
-    {
-        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-        return false;
-    }
-
-    return true;
-}
-
-bool MainWindow::runSave(const QString& label)
-{
-    QDialog dlg(this, Qt::Dialog | Qt::WindowTitleHint | Qt::CustomizeWindowHint);
-    dlg.setWindowTitle(label.isEmpty() ? tr("Saving...") : label);
-    dlg.setFixedSize(300, 80);
-    auto* lay = new QVBoxLayout(&dlg);
-    auto* lbl = new QLabel(label.isEmpty() ? tr("Saving...") : label, &dlg);
-    lbl->setAlignment(Qt::AlignCenter);
-    lay->addWidget(lbl);
-    auto* bar = new QProgressBar(&dlg);
-    bar->setRange(0, 0);
-    lay->addWidget(bar);
-    dlg.setWindowModality(Qt::ApplicationModal);
-    dlg.show();
-    QApplication::processEvents();
-
-    std::atomic<bool> done{false};
-    std::atomic<bool> ok{false};
-
-    m_engine->resetSaveCancel();
-
-    std::thread t([this, &done, &ok]() {
-        ok = m_engine->Save();
-        done = true;
-    });
-
-    while (!done)
-        QApplication::processEvents(QEventLoop::AllEvents, 16);
-
-    if (t.joinable()) t.join();
-
-    if (!ok)
-        QMessageBox::warning(this, tr("Error"), tr("Failed to save archive."));
-
-    return ok;
-}
-
-bool MainWindow::extractFileWithProgress(
-    const ArchiveEntry& entry, const QString& destFile,
-    ProgressInfo& pi, uint64_t baseBytes)
-{
-    struct { std::mutex m; ArchiveEngine::ExtractProgressInfo info; } ep;
-
-    m_engine->setExtractProgressCb([&](const ArchiveEngine::ExtractProgressInfo& info) {
-        std::lock_guard<std::mutex> lock(ep.m);
-        ep.info = info;
-    });
-
-    std::atomic<bool> extractDone{false};
-    std::atomic<bool> extractOk{false};
-    std::string entryPath = entry.path;
-    std::string destStr = destFile.toStdString();
-
-    std::thread extractThread([&]() {
-        extractOk = m_engine->Extract(entryPath, destStr);
-        extractDone = true;
-    });
-
-    QString name = QString::fromUtf8(entry.name.c_str());
-
-    while (!extractDone)
-    {
-        QApplication::processEvents();
-        QThread::msleep(16);
-
-        if (m_progressDlg && m_progressDlg->wasCanceled())
-            m_engine->cancelExtract();
-
-        uint64_t fileBytesNow = 0;
-        {
-            std::lock_guard<std::mutex> lock(ep.m);
-            fileBytesNow = ep.info.bytesProcessed;
-        }
-
-        pi.bytesProcessed = baseBytes + fileBytesNow;
-        if (pi.shouldUpdate())
-        {
-            pi.updateRate();
-            int pct = pi.percent();
-            QString eta = pi.etaString();
-            if (m_progressDlg)
-            {
-                m_progressDlg->setValue(pct);
-                QString label = name + QChar('\n')
-                    + tr("%1%").arg(pct)
-                    + (eta.isEmpty() ? QString() : QChar('\n') + eta);
-                m_progressDlg->setLabelText(label);
-            }
-        }
-    }
-
-    if (extractThread.joinable())
-        extractThread.join();
-
-    m_engine->setExtractProgressCb(nullptr);
-    return extractOk;
-}
+// ── Save/extract helpers moved to ArchiveProgress namespace ───────────
 
 void MainWindow::updateStatusBar()
 {
@@ -1168,7 +931,9 @@ void MainWindow::onNewArchive()
 
         m_progressDlg->show();
 
-        if (!saveWithProgress())
+        auto sr = ArchiveProgress::save(m_engine.get(), m_progressDlg, this);
+        m_progressDlg = nullptr;
+        if (sr != ArchiveProgress::SaveResult::Ok)
         {
             refreshFileList();
             return;
@@ -1574,7 +1339,9 @@ void MainWindow::doAddPaths(const QStringList& paths)
     m_progressDlg->setRange(0, 0);
     m_progressDlg->setLabelText(tr("Saving..."));
 
-    if (!saveWithProgress())
+    auto sr = ArchiveProgress::save(m_engine.get(), m_progressDlg, this);
+    m_progressDlg = nullptr;
+    if (sr != ArchiveProgress::SaveResult::Ok)
     {
         refreshFileList();
         return;
@@ -1693,7 +1460,7 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
 
         QDir().mkpath(QFileInfo(destFile).path());
 
-        bool extractOk = extractFileWithProgress(entry, destFile, pi, bytesSoFar);
+        bool extractOk = ArchiveProgress::extractFile(m_engine.get(), entry, destFile, pi, bytesSoFar, m_progressDlg);
 
         bytesSoFar += entry.size;
         pi.bytesProcessed = bytesSoFar;
@@ -2070,7 +1837,7 @@ void MainWindow::onArchiveComment()
 
     if (m_engine->setArchiveComment(text.toStdString()))
     {
-        runSave(tr("Updating comment..."));
+        ArchiveProgress::runSave(m_engine.get(), tr("Updating comment..."), this);
         statusBar()->showMessage(tr("Archive comment updated."), 3000);
     }
 }
@@ -2101,7 +1868,7 @@ void MainWindow::onEntryComment()
 
     if (m_engine->setEntryComment(entryStd, text.toStdString()))
     {
-        runSave(tr("Updating comment..."));
+        ArchiveProgress::runSave(m_engine.get(), tr("Updating comment..."), this);
         refreshFileList();
         statusBar()->showMessage(tr("File comment updated."), 3000);
     }
@@ -2129,7 +1896,7 @@ void MainWindow::onDelete()
     for (const auto& p : paths)
         m_engine->RemoveEntry(p.toStdString());
 
-    runSave(tr("Deleting..."));
+    ArchiveProgress::runSave(m_engine.get(), tr("Deleting..."), this);
     refreshFileList();
 }
 
@@ -2147,10 +1914,18 @@ void MainWindow::onOpenEntry(bool pickApp)
     QString entryPath = paths[0];
     QFileInfo fi(entryPath);
 
-    // Skip directories
+    // Look up the archive entry; skip directories
+    std::string key = entryPath.toStdString();
+    const ArchiveEntry* foundEntry = nullptr;
     for (const auto& e : m_engine->ListContents())
-        if ((e.name == entryPath.toStdString() || e.path == entryPath.toStdString()) && e.isDirectory)
-            return;
+    {
+        if ((e.name == key || e.path == key) && !e.isDirectory)
+        {
+            foundEntry = &e;
+            break;
+        }
+    }
+    if (!foundEntry) return;
 
     QString filename = fi.fileName();
     QString tempDir = QDir::tempPath() + "/ZipFX_Open/"
@@ -2158,19 +1933,49 @@ void MainWindow::onOpenEntry(bool pickApp)
     QDir().mkpath(tempDir);
     QString destFile = tempDir + filename;
 
+    if (!pickApp)
+    {
+        // "Open" — extract with a proper progress dialog
+        m_extractCancelled = false;
+        m_progressDlg = new QProgressDialog(
+            tr("Opening \"%1\"\u2026").arg(filename),
+            tr("Cancel"), 0, 100, this);
+        m_progressDlg->setAutoClose(false);
+        m_progressDlg->setAutoReset(false);
+        m_progressDlg->setWindowModality(Qt::ApplicationModal);
+        if (auto* lbl = m_progressDlg->findChild<QLabel*>())
+            lbl->setAlignment(Qt::AlignLeft);
+        m_progressDlg->show();
+
+        ProgressInfo pi;
+        pi.start(foundEntry->size);
+
+        bool ok = ArchiveProgress::extractFile(m_engine.get(), *foundEntry, destFile, pi, 0, m_progressDlg);
+
+        m_progressDlg->close();
+        delete m_progressDlg;
+        m_progressDlg = nullptr;
+
+        if (!ok)
+        {
+            if (!m_extractCancelled)
+                QMessageBox::warning(this, tr("Error"),
+                    tr("Could not extract \"%1\".").arg(filename));
+            return;
+        }
+
+        QDesktopServices::openUrl(QUrl::fromLocalFile(destFile));
+        return;
+    }
+
+    // "Open with..." — existing wait-cursor behaviour
     QApplication::setOverrideCursor(Qt::WaitCursor);
-    bool ok = m_engine->Extract(entryPath.toStdString(), destFile.toStdString());
+    bool ok = m_engine->Extract(key, destFile.toStdString());
     QApplication::restoreOverrideCursor();
 
     if (!ok)
     {
         QMessageBox::warning(this, tr("Error"), tr("Could not extract \"%1\".").arg(filename));
-        return;
-    }
-
-    if (!pickApp)
-    {
-        QDesktopServices::openUrl(QUrl::fromLocalFile(destFile));
         return;
     }
 
@@ -2916,16 +2721,12 @@ QString MainWindow::loadPassword(const QString& archive)
 void MainWindow::updatePreview()
 {
     if (!m_previewPanel || !m_previewPanel->isVisible() || !m_engine)
-    {
-        if (m_previewStack) m_previewStack->setCurrentIndex(0);
         return;
-    }
 
     auto sel = m_treeView->selectionModel()->selectedRows(0);
     if (sel.size() != 1)
     {
-        m_previewInfo->setText(tr("No selection"));
-        m_previewStack->setCurrentIndex(0);
+        m_previewPanel->showMessage(tr("No selection"));
         return;
     }
 
@@ -2933,7 +2734,6 @@ void MainWindow::updatePreview()
     if (paths.isEmpty()) return;
 
     const QString entryPath = paths[0];
-    const QString ext = QFileInfo(entryPath).suffix().toLower();
     const std::string entryStd = entryPath.toStdString();
 
     uint64_t entrySize = 0;
@@ -2948,85 +2748,7 @@ void MainWindow::updatePreview()
         }
     }
 
-    if (isDir)
-    {
-        m_previewInfo->setText(tr("Folder: %1").arg(QFileInfo(entryPath).fileName()));
-        m_previewStack->setCurrentIndex(0);
-        return;
-    }
-
-    m_previewInfo->setText(tr("%1\n%2 bytes")
-        .arg(QFileInfo(entryPath).fileName()).arg(entrySize));
-
-    if (entrySize == 0 || !m_engine->SupportsViewFile())
-    {
-        m_previewStack->setCurrentIndex(0);
-        return;
-    }
-
-    static const QStringList imgExts = {
-        "png","jpg","jpeg","gif","bmp","svg","webp","ico","tiff","tif"};
-    static constexpr size_t kPreviewLimit = 65536;
-
-    if (imgExts.contains(ext))
-    {
-        auto data = m_engine->ReadFile(entryStd);
-        if (!data.empty())
-        {
-            QPixmap pix;
-            if (pix.loadFromData(data.data(), static_cast<uint32_t>(data.size())))
-            {
-                m_previewScene->clear();
-                auto* pi = m_previewScene->addPixmap(pix);
-                m_previewImage->fitInView(pi->sceneBoundingRect(), Qt::KeepAspectRatio);
-                m_previewStack->setCurrentIndex(2);
-                return;
-            }
-        }
-    }
-
-    auto data = m_engine->ReadFilePartial(entryStd, kPreviewLimit);
-    if (data.empty())
-    {
-        m_previewStack->setCurrentIndex(0);
-        return;
-    }
-
-    // Detect text vs binary
-    bool isText = true;
-    for (size_t i = 0; i < data.size() && i < 512; ++i)
-        if (data[i] == 0 || (data[i] < 9 && data[i] != 0x0A && data[i] != 0x0D))
-            { isText = false; break; }
-
-    if (isText)
-    {
-        m_previewText->setPlainText(QString::fromUtf8(
-            reinterpret_cast<const char*>(data.data()), static_cast<int>(data.size())));
-    }
-    else
-    {
-        QString hex;
-        size_t maxHex = std::min(data.size(), size_t(256));
-        for (size_t i = 0; i < maxHex; i += 16)
-        {
-            hex += QString("%1  ").arg(i, 6, 16, QChar('0'));
-            for (size_t j = 0; j < 16; ++j)
-            {
-                if (i + j < maxHex) hex += QString("%1 ").arg(data[i+j], 2, 16, QChar('0'));
-                else hex += "   ";
-                if (j == 7) hex += " ";
-            }
-            hex += " ";
-            for (size_t j = 0; j < 16 && i + j < maxHex; ++j)
-            {
-                char c = static_cast<char>(data[i+j]);
-                hex += (c >= 32 && c < 127) ? c : '.';
-            }
-            hex += "\n";
-        }
-        m_previewText->setPlainText(hex);
-    }
-    m_previewStack->setCurrentIndex(1);
+    m_previewPanel->showEntry(*m_engine, entryPath, entrySize, isDir);
 }
 
 // ── Feature 11: Find Files dialog ─────────────────────────────────────
@@ -3324,300 +3046,14 @@ void MainWindow::onRepairArchive()
 // ── Feature 16: Batch operations ──────────────────────────────────────
 void MainWindow::onBatchOps()
 {
-    QDialog dlg(this);
-    dlg.setWindowTitle(tr("Batch Operations"));
-    dlg.setMinimumSize(560, 420);
-    auto* lay = new QVBoxLayout(&dlg);
-
-    auto* form = new QFormLayout();
-
-    auto* srcEdit = new QLineEdit(&dlg);
-    auto* srcBtn  = new QPushButton(tr("Browse..."), &dlg);
-    auto* srcRow  = new QHBoxLayout();
-    srcRow->addWidget(srcEdit, 1); srcRow->addWidget(srcBtn);
-    form->addRow(tr("Source folder:"), srcRow);
-    connect(srcBtn, &QPushButton::clicked, &dlg, [&]() {
-        QString d = QFileDialog::getExistingDirectory(&dlg, tr("Select Source Folder"));
-        if (!d.isEmpty()) srcEdit->setText(d);
-    });
-
-    auto* recurseCheck = new QCheckBox(tr("Include subfolders"), &dlg);
-    recurseCheck->setChecked(true);
-    form->addRow(recurseCheck);
-
-    auto* opCombo = new QComboBox(&dlg);
-    opCombo->addItem(tr("Test integrity of all archives"),  "test");
-    opCombo->addItem(tr("Extract all archives"),            "extract");
-    form->addRow(tr("Operation:"), opCombo);
-
-    auto* outEdit = new QLineEdit(&dlg);
-    auto* outBtn  = new QPushButton(tr("Browse..."), &dlg);
-    auto* outRow  = new QHBoxLayout();
-    outRow->addWidget(outEdit, 1); outRow->addWidget(outBtn);
-    auto* outLabel = new QLabel(tr("Output folder:"), &dlg);
-    form->addRow(outLabel, outRow);
-    connect(outBtn, &QPushButton::clicked, &dlg, [&]() {
-        QString d = QFileDialog::getExistingDirectory(&dlg, tr("Select Output Folder"));
-        if (!d.isEmpty()) outEdit->setText(d);
-    });
-
-    auto setOutVisible = [&]() {
-        bool ex = (opCombo->currentData() == "extract");
-        outLabel->setVisible(ex); outEdit->setVisible(ex); outBtn->setVisible(ex);
-    };
-    setOutVisible();
-    connect(opCombo, QOverload<int>::of(&QComboBox::currentIndexChanged),
-            &dlg, [&]() { setOutVisible(); });
-
-    lay->addLayout(form);
-
-    auto* log = new QTextEdit(&dlg);
-    log->setReadOnly(true);
-    lay->addWidget(log, 1);
-
-    auto* btnRow = new QHBoxLayout();
-    auto* startBtn  = new QPushButton(tr("Start"), &dlg);
-    auto* cancelBtn = new QPushButton(tr("Cancel"), &dlg);
-    auto* closeBtn  = new QPushButton(tr("Close"), &dlg);
-    startBtn->setDefault(true);
-    cancelBtn->setEnabled(false);
-    connect(closeBtn, &QPushButton::clicked, &dlg, &QDialog::reject);
-    btnRow->addStretch();
-    btnRow->addWidget(startBtn);
-    btnRow->addWidget(cancelBtn);
-    btnRow->addWidget(closeBtn);
-    lay->addLayout(btnRow);
-
-    std::atomic<bool> batchCancelled{false};
-    connect(cancelBtn, &QPushButton::clicked, &dlg, [&]() { batchCancelled = true; });
-
-    connect(startBtn, &QPushButton::clicked, &dlg, [&]() {
-        const QString srcFolder = srcEdit->text().trimmed();
-        if (srcFolder.isEmpty() || !QDir(srcFolder).exists())
-        {
-            QMessageBox::warning(&dlg, tr("Error"), tr("Please select a valid source folder."));
-            return;
-        }
-        const QString op        = opCombo->currentData().toString();
-        const QString outFolder = outEdit->text().trimmed();
-        if (op == "extract" && outFolder.isEmpty())
-        {
-            QMessageBox::warning(&dlg, tr("Error"), tr("Please select an output folder."));
-            return;
-        }
-
-        startBtn->setEnabled(false);
-        batchCancelled = false;
-        cancelBtn->setEnabled(true);
-        log->clear();
-
-        QDirIterator::IteratorFlags flags = recurseCheck->isChecked()
-            ? QDirIterator::Subdirectories : QDirIterator::NoIteratorFlags;
-
-        // Discover archive files
-        QStringList archivePaths;
-        QDirIterator it(srcFolder, QDir::Files, flags);
-        while (it.hasNext())
-        {
-            it.next();
-            auto eng = ArchiveEngineFactory::CreateForFile(it.filePath().toStdString());
-            if (eng) archivePaths << it.filePath();
-        }
-
-        log->append(tr("Found %1 archive(s).").arg(archivePaths.size()));
-        QApplication::processEvents();
-
-        int ok = 0, fail = 0;
-        for (const auto& ap : archivePaths)
-        {
-            QApplication::processEvents();
-            if (batchCancelled) { log->append(tr("\nCancelled by user.")); break; }
-            log->append(QString("\n[%1]").arg(ap));
-
-            auto eng = ArchiveEngineFactory::CreateForFile(ap.toStdString());
-            if (!eng || !eng->Open(ap.toStdString()))
-            {
-                log->append(tr("  ERROR: could not open."));
-                fail++;
-                continue;
-            }
-
-            if (op == "test")
-            {
-                bool res = eng->TestIntegrity(nullptr, nullptr);
-                if (res) { log->append(tr("  OK: integrity check passed.")); ok++; }
-                else     { log->append(tr("  FAILED: integrity check failed.")); fail++; }
-            }
-            else
-            {
-                QFileInfo fi(ap);
-                QString dest = outFolder + "/" + fi.completeBaseName();
-                QDir().mkpath(dest);
-                if (eng->ExtractAll(dest.toStdString()))
-                {
-                    log->append(tr("  OK: extracted to %1").arg(dest)); ok++;
-                }
-                else
-                {
-                    log->append(tr("  FAILED: extraction failed.")); fail++;
-                }
-            }
-            QApplication::processEvents();
-        }
-
-        log->append(tr("\nDone. %1 succeeded, %2 failed.").arg(ok).arg(fail));
-        cancelBtn->setEnabled(false);
-        startBtn->setEnabled(true);
-    });
-
+    BatchOpsDialog dlg(this);
     dlg.exec();
 }
 
 // ── Feature 17: Password manager ──────────────────────────────────────
 void MainWindow::onPasswordManager()
 {
-    // Delegate that displays password column as bullets; editor uses password echo
-    class PasswordDelegate : public QStyledItemDelegate {
-    public:
-        using QStyledItemDelegate::QStyledItemDelegate;
-        void paint(QPainter* painter, const QStyleOptionViewItem& option,
-                   const QModelIndex& index) const override
-        {
-            QStyleOptionViewItem opt = option;
-            initStyleOption(&opt, index);
-            opt.text = QString(opt.text.length(), QChar(0x2022));
-            QStyledItemDelegate::paint(painter, opt, index);
-        }
-        QWidget* createEditor(QWidget* parent, const QStyleOptionViewItem& opt,
-                              const QModelIndex& idx) const override
-        {
-            auto* ed = qobject_cast<QLineEdit*>(
-                QStyledItemDelegate::createEditor(parent, opt, idx));
-            if (ed) ed->setEchoMode(QLineEdit::Password);
-            return ed;
-        }
-    };
-
-    QDialog dlg(this);
-    dlg.setWindowTitle(tr("Password Manager"));
-    dlg.setMinimumSize(520, 320);
-    auto* lay = new QVBoxLayout(&dlg);
-
-    lay->addWidget(new QLabel(
-        tr("Saved passwords are applied automatically when opening archives."), &dlg));
-    auto* warnLabel = new QLabel(
-        tr("⚠ Passwords are stored in plaintext in application settings."), &dlg);
-    warnLabel->setStyleSheet(QStringLiteral("color: #888; font-size: 10px;"));
-    lay->addWidget(warnLabel);
-
-    auto* table = new QTableWidget(&dlg);
-    table->setColumnCount(2);
-    table->setHorizontalHeaderLabels({tr("Archive filename"), tr("Password")});
-    table->horizontalHeader()->setSectionResizeMode(0, QHeaderView::Stretch);
-    table->horizontalHeader()->setSectionResizeMode(1, QHeaderView::ResizeToContents);
-    table->setSelectionBehavior(QAbstractItemView::SelectRows);
-    table->setEditTriggers(QAbstractItemView::DoubleClicked | QAbstractItemView::SelectedClicked);
-    table->setItemDelegateForColumn(1, new PasswordDelegate(table));
-    lay->addWidget(table, 1);
-
-    // Load existing passwords
-    QSettings s;
-    int count = s.beginReadArray("passwordManager/passwords");
-    for (int i = 0; i < count; ++i)
-    {
-        s.setArrayIndex(i);
-        int row = table->rowCount();
-        table->insertRow(row);
-        table->setItem(row, 0, new QTableWidgetItem(s.value("archive").toString()));
-        table->setItem(row, 1, new QTableWidgetItem(s.value("password").toString()));
-    }
-    s.endArray();
-
-    auto* btnRow = new QHBoxLayout();
-    auto* addBtn  = new QPushButton(tr("Add..."), &dlg);
-    auto* delBtn  = new QPushButton(tr("Delete Selected"), &dlg);
-    auto* saveBtn = new QPushButton(tr("Save && Close"), &dlg);
-    saveBtn->setDefault(true);
-
-    connect(addBtn, &QPushButton::clicked, &dlg, [&]() {
-        QDialog addDlg(&dlg);
-        addDlg.setWindowTitle(tr("Add Password"));
-        addDlg.setMinimumWidth(360);
-        auto* addLay = new QFormLayout(&addDlg);
-        addLay->setContentsMargins(12, 12, 12, 12);
-        addLay->setSpacing(8);
-
-        auto* archiveEdit = new QLineEdit(&addDlg);
-        archiveEdit->setPlaceholderText(tr("archive.zip"));
-        auto* pwdEdit     = new QLineEdit(&addDlg);
-        pwdEdit->setEchoMode(QLineEdit::Password);
-        auto* confirmEdit = new QLineEdit(&addDlg);
-        confirmEdit->setEchoMode(QLineEdit::Password);
-        auto* matchLabel  = new QLabel(&addDlg);
-        matchLabel->setStyleSheet(QStringLiteral("color: red; font-size: 10px;"));
-        matchLabel->hide();
-
-        addLay->addRow(tr("Archive:"),          archiveEdit);
-        addLay->addRow(tr("Password:"),         pwdEdit);
-        addLay->addRow(tr("Confirm password:"), confirmEdit);
-        addLay->addRow(QString(), matchLabel);
-
-        auto* addBtns = new QDialogButtonBox(
-            QDialogButtonBox::Ok | QDialogButtonBox::Cancel, &addDlg);
-        addLay->addRow(addBtns);
-
-        connect(addBtns, &QDialogButtonBox::accepted, &addDlg, [&]() {
-            if (pwdEdit->text() != confirmEdit->text()) {
-                matchLabel->setText(tr("Passwords do not match."));
-                matchLabel->show();
-                return;
-            }
-            if (pwdEdit->text().isEmpty()) {
-                matchLabel->setText(tr("Password cannot be empty."));
-                matchLabel->show();
-                return;
-            }
-            addDlg.accept();
-        });
-        connect(addBtns, &QDialogButtonBox::rejected, &addDlg, &QDialog::reject);
-
-        if (addDlg.exec() == QDialog::Accepted) {
-            int row = table->rowCount();
-            table->insertRow(row);
-            table->setItem(row, 0, new QTableWidgetItem(archiveEdit->text().isEmpty()
-                ? tr("archive.zip") : archiveEdit->text()));
-            table->setItem(row, 1, new QTableWidgetItem(pwdEdit->text()));
-        }
-    });
-
-    connect(delBtn, &QPushButton::clicked, &dlg, [&]() {
-        QSet<int> toRemove;
-        for (auto* item : table->selectedItems()) toRemove.insert(item->row());
-        QList<int> rows(toRemove.begin(), toRemove.end());
-        std::sort(rows.rbegin(), rows.rend());
-        for (int r : rows) table->removeRow(r);
-    });
-
-    connect(saveBtn, &QPushButton::clicked, &dlg, [&]() {
-        QSettings s2;
-        s2.remove("passwordManager/passwords");
-        s2.beginWriteArray("passwordManager/passwords");
-        for (int row = 0; row < table->rowCount(); ++row)
-        {
-            s2.setArrayIndex(row);
-            s2.setValue("archive",  table->item(row, 0)->text());
-            s2.setValue("password", table->item(row, 1)->text());
-        }
-        s2.endArray();
-        dlg.accept();
-    });
-
-    btnRow->addWidget(addBtn);
-    btnRow->addWidget(delBtn);
-    btnRow->addStretch();
-    btnRow->addWidget(saveBtn);
-    lay->addLayout(btnRow);
-
+    PasswordManagerDialog dlg(this);
     dlg.exec();
 }
 

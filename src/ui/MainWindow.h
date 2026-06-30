@@ -16,10 +16,7 @@
 #include <QTranslator>
 
 class QSplitter;
-class QStackedWidget;
-class QGraphicsView;
-class QGraphicsScene;
-class QTextEdit;
+class PreviewPanel;
 
 #include "ProgressInfo.h"
 
@@ -129,10 +126,6 @@ private:
     void doExtract(const QString& destPath, bool all, bool stripPaths = false);
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
-    bool saveWithProgress();
-    bool runSave(const QString& label = {});
-    bool extractFileWithProgress(const ArchiveEntry& entry, const QString& destFile,
-                                 ProgressInfo& pi, uint64_t baseBytes);
     void afterActionDialog();
     void loadRecentFiles();
     void addRecentFile(const QString& path);
@@ -157,12 +150,7 @@ private:
     ZipFXIcons*      m_icons          = nullptr;
 
     // Preview pane
-    QWidget*         m_previewPanel   = nullptr;
-    QLabel*          m_previewInfo    = nullptr;
-    QStackedWidget*  m_previewStack   = nullptr;
-    QTextEdit*       m_previewText    = nullptr;
-    QGraphicsView*   m_previewImage   = nullptr;
-    QGraphicsScene*  m_previewScene   = nullptr;
+    PreviewPanel*    m_previewPanel   = nullptr;
 
     // Translation
     QTranslator* m_currentTranslator = nullptr;
