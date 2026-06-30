@@ -125,6 +125,16 @@ int main(int argc, char* argv[])
         }
     }
 
+    // Auto-detect headless (no display server) — redirect to CLI mode
+    if (!isCli)
+    {
+#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
+        if (!qEnvironmentVariableIsSet("DISPLAY")
+            && !qEnvironmentVariableIsSet("WAYLAND_DISPLAY"))
+            isCli = true;
+#endif
+    }
+
     if (isCli)
     {
 #ifdef _WIN32
