@@ -53,13 +53,15 @@ if not "!WINDEPLOYQT!"=="" (
 
 if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo ERROR: Qt platform plugin (qwindows.dll) missing
 
-echo === Copying 7z.dll ===
+echo === Copying 7z.dll + LICENSE ===
 if exist "%REPO_DIR%\lib\win\x64\7z.dll" (
     copy /y "%REPO_DIR%\lib\win\x64\7z.dll" "%BUILD_DIR%\" >nul
     echo 7z.dll copied
 ) else (
     echo Warning: 7z.dll not found at %REPO_DIR%\lib\win\x64\7z.dll
 )
+copy /y "%REPO_DIR%\LICENSE" "%BUILD_DIR%\" >nul
+echo LICENSE copied
 
 if not exist "%BUILD_DIR%\ZipFX.exe" echo WARNING: ZipFX.exe not found
 if not exist "%BUILD_DIR%\platforms\qwindows.dll" echo WARNING: qwindows.dll not found
@@ -123,6 +125,7 @@ powershell Compress-Archive -Path "%BUILD_DIR%\ZipFX.exe",^
     "%BUILD_DIR%\libadf.dll",^
     "%BUILD_DIR%\libStormLib.dll",^
     "%BUILD_DIR%\7z.dll",^
+    "%BUILD_DIR%\LICENSE",^
     "%BUILD_DIR%\ZipFXShellExt.dll",^
     "%BUILD_DIR%\opengl32sw.dll",^
     "%BUILD_DIR%\D3Dcompiler_47.dll",^

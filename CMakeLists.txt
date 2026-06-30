@@ -559,10 +559,11 @@ install(TARGETS ZipFX
     BUNDLE DESTINATION .
 )
 
-# Install app icons next to the executable (Windows/macOS)
+# Install app icons and license next to the executable (Windows/macOS)
 install(FILES
     "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
     "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.ico"
+    "${CMAKE_SOURCE_DIR}/LICENSE"
     DESTINATION ".")
 
 # ====================================================================
@@ -745,6 +746,8 @@ if(UNIX AND NOT APPLE)
         RENAME "zipfx.png")
     # Also install next to the executable for runtime QIcon loading
     install(FILES "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.png"
+        DESTINATION "bin")
+    install(FILES "${CMAKE_SOURCE_DIR}/LICENSE"
         DESTINATION "bin")
 
     # AppStream metainfo

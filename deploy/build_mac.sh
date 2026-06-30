@@ -75,6 +75,9 @@ if [ -n "$LIB7Z" ]; then
     chmod 644 "${BUILD_DIR}/ZipFX.app/Contents/MacOS/lib7z.so"
 fi
 
+# Copy LICENSE into Resources
+cp ../LICENSE "${BUILD_DIR}/ZipFX.app/Contents/Resources/LICENSE"
+
 # Fix misplaced AppIcon.png (sometimes lands in MacOS/ instead of Resources/)
 if [ -f "${BUILD_DIR}/ZipFX.app/Contents/MacOS/AppIcon.png" ]; then
     mv "${BUILD_DIR}/ZipFX.app/Contents/MacOS/AppIcon.png" \

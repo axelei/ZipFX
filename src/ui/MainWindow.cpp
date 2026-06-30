@@ -45,6 +45,8 @@
 #include <QTreeWidget>
 #include <QHeaderView>
 #include <QDateEdit>
+#include <QTextEdit>
+#include <QDialogButtonBox>
 
 #include <atomic>
 #include <thread>
@@ -447,6 +449,37 @@ void MainWindow::setupMenus()
             tr("ZipFX v%1\n\nMultiplatform archiver for power users.\n"
                "Supported: ZIP, 7z, RAR, TAR.GZ, ISO, CAB, LHA, XAR, CPIO, ...")
             .arg(ZIPFX_VERSION));
+    });
+    helpMenu->addSeparator();
+    helpMenu->addAction(tr("&License"), this, [this]() {
+        QStringList paths = {
+            QApplication::applicationDirPath() + "/LICENSE",
+            QApplication::applicationDirPath() + "/../LICENSE",
+            QApplication::applicationDirPath() + "/../share/doc/zipfx/LICENSE",
+        };
+        QFile file;
+        for (const auto &p : paths) {
+            file.setFileName(p);
+            if (file.exists()) break;
+        }
+        QString text;
+        if (file.open(QIODevice::ReadOnly | QIODevice::Text))
+            text = QString::fromUtf8(file.readAll());
+        else
+            text = tr("(LICENSE file not found)");
+
+        QDialog dlg(this);
+        dlg.setWindowTitle(tr("License"));
+        dlg.resize(640, 480);
+        auto *layout = new QVBoxLayout(&dlg);
+        auto *editor = new QTextEdit(&dlg);
+        editor->setPlainText(text);
+        editor->setReadOnly(true);
+        layout->addWidget(editor);
+        auto *buttons = new QDialogButtonBox(QDialogButtonBox::Close, &dlg);
+        connect(buttons, &QDialogButtonBox::rejected, &dlg, &QDialog::reject);
+        layout->addWidget(buttons);
+        dlg.exec();
     });
 }
 

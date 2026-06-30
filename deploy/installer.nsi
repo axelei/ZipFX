@@ -84,6 +84,9 @@ Section "Install"
     ; App icon for shortcuts
     File "..\src\resources\AppIcon.ico"
 
+    ; License
+    File "..\LICENSE"
+
     ; Start menu
     CreateDirectory "$SMPROGRAMS\ZipFX"
     CreateShortCut "$SMPROGRAMS\ZipFX\ZipFX.lnk" "$INSTDIR\ZipFX.exe" "" "$INSTDIR\AppIcon.ico"
@@ -171,6 +174,7 @@ Section "Uninstall"
     Delete "$INSTDIR\7z.dll"
     Delete "$INSTDIR\ZipFXShellExt.dll"
     Delete "$INSTDIR\AppIcon.ico"
+    Delete "$INSTDIR\LICENSE"
     Delete "$INSTDIR\Uninstall.exe"
     RMDir /r "$INSTDIR\platforms"
     RMDir /r "$INSTDIR\styles"
