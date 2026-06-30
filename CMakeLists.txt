@@ -308,6 +308,23 @@ if(TARGET bit7z64)
 endif()
 
 # ====================================================================
+# libxmp  –  tracker module support (MOD, S3M, IT, XM, ...)
+# Provides raw sample data extraction.
+# ====================================================================
+set(BUILD_SHARED OFF CACHE BOOL "" FORCE)
+set(BUILD_STATIC ON  CACHE BOOL "" FORCE)
+set(BUILD_LITE  OFF CACHE BOOL "" FORCE)
+set(LIBXMP_DISABLE_DEPACKERS ON  CACHE BOOL "" FORCE)
+set(LIBXMP_DISABLE_PROWIZARD ON  CACHE BOOL "" FORCE)
+FetchContent_Declare(
+    libxmp
+    GIT_REPOSITORY https://github.com/libxmp/libxmp.git
+    GIT_TAG        libxmp-4.7.0
+    GIT_SHALLOW    TRUE
+)
+FetchContent_MakeAvailable(libxmp)
+
+# ====================================================================
 # Qt6  –  cross-platform UI
 # ====================================================================
 # Common default installation paths per platform.
@@ -405,6 +422,7 @@ set(ZIPFX_SOURCES
     src/engine/MpqEngine.cpp
     src/engine/BsaEngine.cpp
     src/engine/BrotliEngine.cpp
+    src/engine/ModEngine.cpp
     src/cli/CliHandler.cpp
     src/recovery/RecoveryRecord.cpp
 )
@@ -438,6 +456,7 @@ target_include_directories(ZipFX PRIVATE
     ${storm_SOURCE_DIR}/src
     ${libchdr_SOURCE_DIR}/include
     ${brotli_SOURCE_DIR}/c/include
+    ${libxmp_SOURCE_DIR}/include
 )
 
 target_compile_definitions(ZipFX PRIVATE
@@ -456,6 +475,7 @@ target_link_libraries(ZipFX PRIVATE
     storm
     brotlidec
     brotlicommon
+    xmp_static
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Network
 )

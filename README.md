@@ -146,6 +146,20 @@ When creating a 7z archive, the Create Archive dialog exposes:
 | MPQ | ✅ | ✅ | StormLib | Warcraft III, StarCraft II, Diablo III, WoW; `.mpq`, `.mpk`, `.w3x`, `.w3m` |
 | BSA | ✅ | ❌ | BsaEngine | Bethesda games (Morrowind through Skyrim SE) |
 
+### Tracker Module Formats
+
+| Format | Read | Write | Backend | Notes |
+|--------|------|-------|---------|-------|
+| MOD | ✅ | ❌ | libxmp (ModEngine) | Protracker modules; detected by magic `M.K.`, `M!K!`, etc. at offset 1080 |
+| S3M | ✅ | ❌ | libxmp (ModEngine) | Scream Tracker 3 modules |
+| IT | ✅ | ❌ | libxmp (ModEngine) | Impulse Tracker modules; detected by magic `IMPM` |
+| XM | ✅ | ❌ | libxmp (ModEngine) | Fast Tracker II eXtended Modules; detected by magic `Extended Module: ` |
+| MTM | ✅ | ❌ | libxmp (ModEngine) | MultiTracker modules |
+| MED | ✅ | ❌ | libxmp (ModEngine) | Amiga MED/OctaMED modules |
+| 669 | ✅ | ❌ | libxmp (ModEngine) | Composer 669 modules |
+| ULT | ✅ | ❌ | libxmp (ModEngine) | UltraTracker modules |
+| STM | ✅ | ❌ | libxmp (ModEngine) | Scream Tracker 2 modules |
+
 ### Disc Image Formats
 
 | Format | Read | Write | Backend | Notes |
@@ -173,8 +187,10 @@ When creating a 7z archive, the Create Archive dialog exposes:
 
 ### Additional Formats (via Bit7z / 7z.dll)
 
-CHM, DMG, EXT, FAT, GPT, HFS, HXS, IHEX, LZMA, MBR, MSI, NSIS, NTFS,
-RPM, SquashFS, UDF, UEFI, VDI, WIM, and many more formats that 7-Zip supports.
+APFS, ARJ, BIN/CUE, CHM, COFF, CRAMFS, DCS, DEX, DMG, ELF, EXT,
+FAT, FLV, GPT, HFS, HXS, IHEX, MBR, Mach-O, MSI, NES, NRG, NSIS,
+NTFS, PE, RPM, SquashFS, SWF, TE, UDF, UEFI, VDI, VHD / VHDX,
+WIM, and many more formats that 7-Zip supports.
 
 ---
 
@@ -253,6 +269,7 @@ The following are fetched automatically by CMake via `FetchContent`:
 - **StormLib** — Blizzard MPQ archive format
 - **libchdr** — MAME Compressed Hunks of Data (.chd) disc images
 - **brotli** — Brotli decompression (.br files)
+- **libxmp** — tracker module playback (MOD, S3M, IT, XM, and many more)
 - **CLI11** — command-line interface
 
 Only Qt6 must be pre-installed; everything else is fetched and built automatically.
@@ -427,6 +444,9 @@ ArchiveEngine (pure virtual interface)
 ├── DskEngine — multi-format retro disks (Apple DOS, TeleDisk,
 │   IMD, DC42, 2MG, generic sector dumps)
 ├── FatEngine — FAT12 floppy disk images
+├── ModEngine (libxmp) — tracker module formats (MOD, S3M, IT, XM, etc.);
+│   raw sample PCM exposed as WAV entries; song message and instrument
+│   names in archive comment
 ├── FlatArchiveEngine (base class for headerless game archives)
 │   ├── WadEngine — Doom IWAD/PWAD/WAD2/WAD3
 │   ├── PakEngine — Quake PACK
@@ -520,6 +540,7 @@ to the executable.
 - [ADFlib](https://github.com/adflib/ADFlib) — Amiga Disk File library
 - [StormLib](https://github.com/ladislav-zezula/StormLib) by Ladislav Zezula — Blizzard MPQ archive library
 - [libchdr](https://github.com/rtissera/libchdr) — MAME Compressed Hunks of Data library
+- [libxmp](https://github.com/libxmp/libxmp) — Extended Module Player library
 - [CLI11](https://github.com/CLIUtils/CLI11) — command-line parser
 
 ---

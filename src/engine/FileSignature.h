@@ -52,7 +52,8 @@ enum class ArchiveType
     UnixCompress,
     Lzip,
     Bsa,
-    Arj
+    Arj,
+    Mod
 };
 
 struct FileSignature

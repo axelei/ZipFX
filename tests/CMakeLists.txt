@@ -34,6 +34,7 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/AdfEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/BsaEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/BrotliEngine.cpp
+    ${CMAKE_SOURCE_DIR}/src/engine/ModEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
 )
 
@@ -49,6 +50,7 @@ set(TEST_LIBS
     storm
     brotlidec
     brotlicommon
+    xmp_static
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Test
 )
@@ -93,6 +95,7 @@ macro(add_zipfx_test TEST_NAME)
         ${libchdr_SOURCE_DIR}/include
         ${brotli_SOURCE_DIR}/c/include
         ${CLI11_SOURCE_DIR}/include
+        ${libxmp_SOURCE_DIR}/include
     )
     target_compile_definitions(${TEST_NAME} PRIVATE
         LIBARCHIVE_STATIC
@@ -131,3 +134,4 @@ add_zipfx_test(tst_FileListModel)
 add_zipfx_test(tst_CliHandler)
 add_zipfx_test(tst_FlatArchiveEngines)
 add_zipfx_test(tst_MpqEngine)
+add_zipfx_test(tst_ModEngine)

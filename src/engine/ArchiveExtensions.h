@@ -48,6 +48,9 @@
     X(".d64")   X(".d71") \
     X(".dsk")   X(".d80")   X(".d82") \
     X(".td0")   X(".imd")   X(".dc42")  X(".2mg") \
+    /* ── Tracker modules (samples) ──────────────────── */ \
+    X(".mod")   X(".s3m")   X(".it")    X(".xm") \
+    X(".med")   X(".mtm")   X(".669")   X(".ult")   X(".stm") \
     /* ── Game archives ────────────────────────────── */ \
     X(".wad")   X(".pak")   X(".grp")   X(".hog") \
     X(".vpk")   X(".gob")   X(".rff") \

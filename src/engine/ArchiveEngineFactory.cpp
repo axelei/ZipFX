@@ -27,6 +27,7 @@
 #include "RarEngine.h"
 #include "BsaEngine.h"
 #include "BrotliEngine.h"
+#include "ModEngine.h"
 #include "FileSignature.h"
 
 #include <archive.h>
@@ -309,6 +310,11 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<FatEngine>(); },               false },
     { "Disk",   ".flp",                               ArchiveType::Unknown,
         []() { return std::make_unique<Bit7zEngine>(); },                   false },
+
+    // ── Tracker modules (read-only) ────────────────────
+    { "Tracker", ".mod,.s3m,.it,.xm,.med,.mtm,.669,.ult,.stm",
+                                                     ArchiveType::Mod,
+        []() { return std::make_unique<ModEngine>(); },              false },
 
     // ── Bit7z fallback (last resort) ──────────────────
     { "Bit7z",  nullptr,                             ArchiveType::Unknown,
