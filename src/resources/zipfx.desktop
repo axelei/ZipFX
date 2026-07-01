@@ -2,7 +2,7 @@
 Type=Application
 Name=ZipFX
 Comment=Multi-format archive manager
-Exec=zipfx %f
+Exec=ZipFX %f
 Icon=zipfx
 Terminal=false
 Categories=Archiving;Utility;
