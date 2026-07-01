@@ -36,6 +36,7 @@ set(ENGINE_SOURCES
     ${CMAKE_SOURCE_DIR}/src/engine/BrotliEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/engine/ModEngine.cpp
     ${CMAKE_SOURCE_DIR}/src/ui/FileListModel.cpp
+    ${CMAKE_SOURCE_DIR}/src/dnd/TempCleanup.cpp
 )
 
 set(CMAKE_AUTOMOC ON)
@@ -74,6 +75,9 @@ if(WIN32)
     endif()
     if(EXISTS "${StormLib_BINARY_DIR}/libStormLib.dll")
         list(APPEND TEST_DLLS "${StormLib_BINARY_DIR}/libStormLib.dll")
+    endif()
+    if(EXISTS "${adflib_BINARY_DIR}/src/libadf.dll")
+        list(APPEND TEST_DLLS "${adflib_BINARY_DIR}/src/libadf.dll")
     endif()
 endif()
 
@@ -115,12 +119,13 @@ macro(add_zipfx_test TEST_NAME)
     endif()
 
     add_test(NAME ${TEST_NAME} COMMAND ${TEST_NAME})
+    # Find Qt paths for runtime environment
+    get_target_property(_QtWidgets_LOC Qt6::Widgets IMPORTED_LOCATION)
+    get_filename_component(_QT_BIN_DIR "${_QtWidgets_LOC}" DIRECTORY)
+    get_filename_component(_QT_DIR "${_QT_BIN_DIR}" DIRECTORY)
     if(WIN32)
-        # Must include Qt DLL path so the test executables can find Qt6 DLLs
-        get_target_property(_QtWidgets_LOC Qt6::Widgets IMPORTED_LOCATION)
-        get_filename_component(_QT_BIN_DIR "${_QtWidgets_LOC}" DIRECTORY)
         set_tests_properties(${TEST_NAME} PROPERTIES
-            ENVIRONMENT "PATH=${_QT_BIN_DIR}\;${CMAKE_BINARY_DIR}/tests\;C:/Program Files/7-Zip\;$ENV{PATH}")
+            ENVIRONMENT "PATH=${_QT_BIN_DIR}\;${CMAKE_BINARY_DIR}/tests\;C:/Program Files/7-Zip\;$ENV{PATH};QT_PLUGIN_PATH=${_QT_DIR}/plugins")
     endif()
 endmacro()
 
@@ -135,3 +140,4 @@ add_zipfx_test(tst_CliHandler)
 add_zipfx_test(tst_FlatArchiveEngines)
 add_zipfx_test(tst_MpqEngine)
 add_zipfx_test(tst_ModEngine)
+add_zipfx_test(tst_TempCleanup)

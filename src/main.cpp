@@ -38,6 +38,7 @@ static void crashHandler(int sig)
 #include <QTimer>
 
 #include "ui/MainWindow.h"
+#include "dnd/TempCleanup.h"
 
 static QTranslator* LoadAppTranslator(const QString& locale)
 {
@@ -203,6 +204,7 @@ int main(int argc, char* argv[])
     app.setApplicationName("ZipFX");
     app.setOrganizationName("ZipFX");
     app.setApplicationVersion(ZIPFX_VERSION);
+    QObject::connect(&app, &QCoreApplication::aboutToQuit, &TempCleanup::cleanupAll);
 
     {
         // Prefer .ico on Windows (higher resolution, already installed next to exe).

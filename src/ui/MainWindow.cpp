@@ -53,6 +53,7 @@
 #ifdef Q_OS_MACOS
 #include "dnd/MacPromiseDrag.h"
 #endif
+#include "dnd/TempCleanup.h"
 #ifdef ZIPFX_HAVE_FUSE
 #include "dnd/FuseArchiveMount.h"
 #endif
@@ -1931,6 +1932,7 @@ void MainWindow::onOpenEntry(bool pickApp)
     QString tempDir = QDir::tempPath() + "/ZipFX_Open/"
         + QString::number(QDateTime::currentMSecsSinceEpoch()) + "/";
     QDir().mkpath(tempDir);
+    TempCleanup::registerPath(tempDir.toStdString());
     QString destFile = tempDir + filename;
 
     if (!pickApp)
@@ -2434,6 +2436,7 @@ void MainWindow::onBeginDrag()
             QStandardPaths::TempLocation) + "/ZipFX_Drag/"
             + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
         QDir().mkpath(tmpRoot);
+        TempCleanup::registerPath(tmpRoot.toStdString());
 
         uint64_t totalBytesDrag = 0;
         for (const auto& fp : filePaths)
