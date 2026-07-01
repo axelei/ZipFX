@@ -157,6 +157,7 @@ bool ChdEngine::Open(std::string_view path)
 void ChdEngine::parseMetadata()
 {
     m_tracks.clear();
+    m_isGdRom = false;
 
     // Try CD-ROM track metadata (CHTR / CHT2)
     char metaBuf[256];
@@ -166,7 +167,10 @@ void ChdEngine::parseMetadata()
 
     for (uint32_t idx = 0; ; ++idx)
     {
-        // Try CDROM_TRACK_METADATA2 first, fall back to CDROM_TRACK_METADATA
+        // Try CDROM_TRACK_METADATA2 first, then CDROM_TRACK_METADATA, then
+        // GDROM_TRACK_METADATA (Dreamcast GD-ROM — same leading fields, plus
+        // a PAD count between FRAMES and PREGAP that we don't need: PAD
+        // frames are not physically stored, just a logical TOC gap).
         chd_error err = chd_get_metadata(m_chd, 0x43485432 /*CHT2*/, idx,
                                           metaBuf, sizeof(metaBuf) - 1,
                                           &metaLen, &metaTag, nullptr);
@@ -174,8 +178,17 @@ void ChdEngine::parseMetadata()
             err = chd_get_metadata(m_chd, 0x43485452 /*CHTR*/, idx,
                                    metaBuf, sizeof(metaBuf) - 1,
                                    &metaLen, &metaTag, nullptr);
+        bool isGdTag = false;
+        if (err != CHDERR_NONE)
+        {
+            err = chd_get_metadata(m_chd, 0x43484744 /*CHGD*/, idx,
+                                   metaBuf, sizeof(metaBuf) - 1,
+                                   &metaLen, &metaTag, nullptr);
+            isGdTag = (err == CHDERR_NONE);
+        }
         if (err != CHDERR_NONE)
             break;
+        if (isGdTag) m_isGdRom = true;
 
         metaBuf[metaLen] = '\0';
 
@@ -254,52 +267,103 @@ void ChdEngine::parseMetadata()
 
 bool ChdEngine::tryMountFilesystem()
 {
-    // Find the first non-audio CD track — the data area that should hold the
-    // ISO 9660 filesystem. PS1/PS2/Saturn/etc discs put this at track 1.
-    const TrackInfo* dataTrack = nullptr;
+    // Collect every non-audio CD track — most discs (PS1/PS2/Saturn/etc)
+    // have exactly one, but GD-ROM (Dreamcast) discs have two: a small
+    // "low density" system-info area (license/copyright text) and a large
+    // "high density" area with the real game filesystem. Mount each one
+    // that parses as ISO 9660.
+    std::vector<const TrackInfo*> dataTracks;
     for (const auto& t : m_tracks)
-    {
-        if (t.isCdTrack && t.type != "AUDIO") { dataTrack = &t; break; }
-    }
-    if (!dataTrack) return false;
+        if (t.isCdTrack && t.type != "AUDIO") dataTracks.push_back(&t);
+    if (dataTracks.empty()) return false;
 
-    // ISO 9660 logical sectors are always 2048 bytes, one per CD frame.
-    // Mode 1 sectors have no subheader (user data at raw-sector offset 16);
-    // Mode 2 (XA) sectors have an 8-byte subheader (user data at offset 24).
-    bool isMode2 = dataTrack->type.rfind("MODE2", 0) == 0;
-    uint32_t isoHeaderOff = isMode2 ? 24 : 16;
-    uint64_t startFrame = dataTrack->startFrame;
-
-    auto sectorFn = [this, startFrame, isoHeaderOff](uint32_t lba, uint8_t* out) -> bool
-    {
-        uint64_t off = (startFrame + lba) * kCdFrameBytes + isoHeaderOff;
-        auto data = readRange(off, 2048);
-        if (data.size() != 2048) return false;
-        std::memcpy(out, data.data(), 2048);
-        return true;
-    };
-
-    if (!m_iso.open(sectorFn))
-        return false;
-
+    m_isoMounts.clear();
+    m_isoMountPrefixes.clear();
     m_entries.clear();
-    for (const auto& e : m_iso.entries())
+    std::vector<bool> mounted(dataTracks.size(), false);
+
+    for (size_t i = 0; i < dataTracks.size(); ++i)
     {
-        ArchiveEntry ae;
-        ae.name        = e.path;
-        ae.path        = e.path;
-        ae.size         = e.size;
-        ae.packedSize  = e.size;
-        ae.isDirectory = e.isDir;
-        if (e.mtime != 0)
-            ae.modified = std::chrono::system_clock::from_time_t(e.mtime);
-        m_entries.push_back(std::move(ae));
+        const TrackInfo* dataTrack = dataTracks[i];
+
+        // ISO 9660 logical sectors are always 2048 bytes, one per CD frame.
+        // Mode 1 sectors have no subheader (user data at raw-sector offset 16);
+        // Mode 2 (XA) sectors have an 8-byte subheader (user data at offset 24).
+        bool isMode2 = dataTrack->type.rfind("MODE2", 0) == 0;
+        uint32_t isoHeaderOff = isMode2 ? 24 : 16;
+        uint64_t startFrame = dataTrack->startFrame;
+
+        // Ordinary CD-ROM tracks are mastered with filesystem LBAs relative
+        // to that track's own start (0-based), so incoming LBAs are made
+        // disc-relative by adding startFrame. GD-ROM (Dreamcast) discs master
+        // their high-density-area filesystem with disc-absolute LBAs instead
+        // (conventionally based at 45000, which is exactly this track's
+        // startFrame), so incoming LBAs are already disc-relative — subtract
+        // startFrame to get the track-local frame instead of adding it.
+        bool gdRom = m_isGdRom;
+        Iso9660Reader iso;
+        auto sectorFn = [this, startFrame, isoHeaderOff, gdRom](uint32_t lba, uint8_t* out) -> bool
+        {
+            uint64_t absFrame = gdRom ? (uint64_t)lba : (startFrame + lba);
+            if (gdRom && absFrame < startFrame) return false;
+            uint64_t off = absFrame * kCdFrameBytes + isoHeaderOff;
+            auto data = readRange(off, 2048);
+            if (data.size() != 2048) return false;
+            std::memcpy(out, data.data(), 2048);
+            return true;
+        };
+
+        uint32_t vdStart = gdRom ? static_cast<uint32_t>(startFrame + 16) : 16;
+        if (!iso.open(sectorFn, vdStart)) continue;
+
+        mounted[i] = true;
+
+        // Disambiguate with a folder prefix only when there's more than one
+        // mounted filesystem, so entries from different tracks can't collide.
+        std::string prefix;
+        if (dataTracks.size() > 1)
+        {
+            char buf[32];
+            std::snprintf(buf, sizeof(buf), "Track %02d", dataTrack->number > 0 ? dataTrack->number : (int)i + 1);
+            prefix = buf;
+
+            ArchiveEntry dirEntry;
+            dirEntry.name = prefix;
+            dirEntry.path = prefix;
+            dirEntry.isDirectory = true;
+            m_entries.push_back(std::move(dirEntry));
+            prefix += "/";
+        }
+
+        for (const auto& e : iso.entries())
+        {
+            ArchiveEntry ae;
+            ae.name        = prefix + e.path;
+            ae.path        = ae.name;
+            ae.size        = e.size;
+            ae.packedSize  = e.size;
+            ae.isDirectory = e.isDir;
+            if (e.mtime != 0)
+                ae.modified = std::chrono::system_clock::from_time_t(e.mtime);
+            m_entries.push_back(std::move(ae));
+        }
+
+        m_isoMounts.push_back(std::move(iso));
+        m_isoMountPrefixes.push_back(prefix);
     }
 
-    // Append non-data tracks (audio) as raw playable entries alongside the filesystem
+    if (m_isoMounts.empty()) return false;
+
+    // Append audio tracks, plus any data track whose filesystem didn't mount,
+    // as raw playable/extractable entries alongside the mounted filesystem(s).
     for (const auto& t : m_tracks)
     {
-        if (&t == dataTrack) continue;
+        bool isUnmountedDataTrack = false;
+        for (size_t i = 0; i < dataTracks.size(); ++i)
+            if (dataTracks[i] == &t && !mounted[i]) isUnmountedDataTrack = true;
+
+        if (t.type != "AUDIO" && !isUnmountedDataTrack) continue;
+
         ArchiveEntry ae;
         ae.name = t.name;
         ae.path = t.name;
@@ -310,7 +374,7 @@ bool ChdEngine::tryMountFilesystem()
         m_entries.push_back(std::move(ae));
     }
 
-    LOG_DBG("CHD: mounted ISO 9660 filesystem, %zu entries", m_entries.size());
+    LOG_DBG("CHD: mounted %zu ISO 9660 filesystem(s), %zu entries", m_isoMounts.size(), m_entries.size());
     return true;
 }
 
@@ -446,7 +510,8 @@ void ChdEngine::Close()
     m_tracks.clear();
     m_entries.clear();
     m_hasFilesystem = false;
-    m_iso = Iso9660Reader{};
+    m_isoMounts.clear();
+    m_isoMountPrefixes.clear();
     m_cueSheetName.clear();
     m_cueSheetText.clear();
     m_cachedHunk = UINT32_MAX;
@@ -462,16 +527,24 @@ std::vector<uint8_t> ChdEngine::ReadFile(std::string_view entryName)
 {
     if (m_hasFilesystem)
     {
-        for (const auto& e : m_iso.entries())
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
         {
-            if (e.isDir || e.path != entryName) continue;
-            std::vector<uint8_t> result;
-            result.reserve(e.size);
-            m_iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
-                result.insert(result.end(), data, data + len);
-                return true;
-            });
-            return result;
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
+
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
+                std::vector<uint8_t> result;
+                result.reserve(e.size);
+                iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    result.insert(result.end(), data, data + len);
+                    return true;
+                });
+                return result;
+            }
         }
     }
 
@@ -503,19 +576,27 @@ bool ChdEngine::Extract(std::string_view entryName, std::string_view destPath)
 
     if (m_hasFilesystem)
     {
-        for (const auto& e : m_iso.entries())
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
         {
-            if (e.isDir || e.path != entryName) continue;
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
 
-            fs::path dest(destPath);
-            fs::create_directories(dest.parent_path());
-            std::ofstream out(dest, std::ios::binary);
-            if (!out) { LOG_ERR("CHD: cannot create %s", dest.string().c_str()); return false; }
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
 
-            return m_iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
-                out.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(len));
-                return out.good() && !m_extractCancelled.load();
-            });
+                fs::path dest(destPath);
+                fs::create_directories(dest.parent_path());
+                std::ofstream out(dest, std::ios::binary);
+                if (!out) { LOG_ERR("CHD: cannot create %s", dest.string().c_str()); return false; }
+
+                return iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    out.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(len));
+                    return out.good() && !m_extractCancelled.load();
+                });
+            }
         }
     }
 

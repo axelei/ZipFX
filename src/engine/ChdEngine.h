@@ -67,12 +67,22 @@ private:
     uint32_t m_cachedHunk = UINT32_MAX;
     std::vector<uint8_t> m_hunkCache;
     std::vector<TrackInfo> m_tracks;
+
+    // GD-ROM (Dreamcast) discs master their high-density-area ISO 9660
+    // filesystem with disc-absolute LBAs (conventionally based at 45000),
+    // unlike ordinary CD-ROM tracks whose filesystem LBAs are relative to
+    // that track's own start.
+    bool m_isGdRom = false;
     std::vector<ArchiveEntry> m_entries;
     std::atomic<bool> m_extractCancelled{false};
 
-    // ISO 9660 filesystem mounted from the data track, when present
+    // ISO 9660 filesystems mounted from data tracks, when present. Discs can
+    // have more than one (GD-ROM discs have a small "low density" system
+    // area plus the large "high density" game data area) — each is kept as
+    // its own Iso9660Reader, and ReadFile/Extract check them in turn.
     bool m_hasFilesystem = false;
-    Iso9660Reader m_iso;
+    std::vector<Iso9660Reader> m_isoMounts;
+    std::vector<std::string> m_isoMountPrefixes; // "" or "Track NN/", parallel to m_isoMounts
 
     // Synthesized .cue sheet describing the track layout, exposed as an
     // extra entry when no filesystem could be mounted (raw track fallback).
