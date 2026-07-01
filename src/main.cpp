@@ -127,8 +127,9 @@ int main(int argc, char* argv[])
         }
     }
 
-#if defined(__linux__) || defined(__unix__) || defined(__APPLE__)
-    // Auto-detect headless (no display server) — redirect to CLI mode
+#if defined(__linux__) && !defined(__APPLE__)
+    // Auto-detect headless (no display server) — redirect to CLI mode.
+    // macOS uses Quartz (no DISPLAY/WAYLAND_DISPLAY), so skip this check there.
     if (!isCli)
     {
         if (!qEnvironmentVariableIsSet("DISPLAY")

@@ -137,13 +137,30 @@ ArchiveType FileSignature::Detect(std::string_view path)
     size_t n = std::fread(header, 1, sizeof(header), f);
     std::fseek(f, 0, SEEK_END);
     long fileSize = std::ftell(f);
-    std::fclose(f);
 
     for (const auto& sig : kSignatures)
     {
         if (n >= sig.minBytes && sig.match(header, n))
+        {
+            std::fclose(f);
             return sig.type;
+        }
     }
+
+    // DMG (Apple UDIF): 'koly' block is the last 512 bytes of the file.
+    // No header magic — must check the trailer.
+    if (fileSize > 512)
+    {
+        uint8_t koly[4];
+        if (std::fseek(f, fileSize - 512, SEEK_SET) == 0 &&
+            std::fread(koly, 1, 4, f) == 4 &&
+            koly[0] == 'k' && koly[1] == 'o' && koly[2] == 'l' && koly[3] == 'y')
+        {
+            std::fclose(f);
+            return ArchiveType::Dmg;
+        }
+    }
+    std::fclose(f);
 
     // Commodore D64/D71 detection: size alone is insufficient (false positives
     // on any 174 KB file that doesn't match a magic signature above), so also

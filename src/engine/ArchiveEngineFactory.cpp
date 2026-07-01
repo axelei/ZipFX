@@ -28,6 +28,7 @@
 #include "BsaEngine.h"
 #include "BrotliEngine.h"
 #include "ModEngine.h"
+#include "DmgEngine.h"
 #include "FileSignature.h"
 
 #include <archive.h>
@@ -248,6 +249,18 @@ static const FormatEntry kFormats[] = {
         []() { return std::make_unique<BsaEngine>(); },                  false },
     { "Brotli", ".br",                               ArchiveType::Unknown,
         []() { return std::make_unique<BrotliEngine>(); },               false },
+
+    // ── Apple Disk Image ────────────────────────────────
+    { "DMG",    ".dmg",                              ArchiveType::Dmg,
+        []() {
+#ifdef __APPLE__
+            return std::unique_ptr<ArchiveEngine>(std::make_unique<DmgEngine>());
+#else
+            auto e = std::make_unique<Bit7zEngine>();
+            e->setReadOnly(true);
+            return std::unique_ptr<ArchiveEngine>(std::move(e));
+#endif
+        },                                                                false },
 
     // ── Disc images (compressed / raw) ────────────────
     { "CDI",    ".cdi",                              ArchiveType::Cdi,

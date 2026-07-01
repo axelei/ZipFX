@@ -437,6 +437,7 @@ set(ZIPFX_SOURCES
     src/engine/BsaEngine.cpp
     src/engine/BrotliEngine.cpp
     src/engine/ModEngine.cpp
+    src/engine/DmgEngine.cpp
     src/cli/CliHandler.cpp
     src/recovery/RecoveryRecord.cpp
     src/dnd/TempCleanup.cpp
