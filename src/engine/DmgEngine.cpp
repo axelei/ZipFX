@@ -7,21 +7,49 @@
 #include <fstream>
 #include <chrono>
 #include <cstdlib>
+#include <cstdio>
 #include <sys/stat.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <spawn.h>
 #include <unistd.h>
 
 namespace fs = std::filesystem;
 
-// Single-quote–escape a path for /bin/sh.
-static std::string shellq(const std::string& s)
+// Maximum bytes loaded into memory by ReadFile (256 MB).
+static constexpr size_t kMaxReadBytes = 256u * 1024u * 1024u;
+
+// Run /usr/bin/hdiutil with the given arguments, no shell involved.
+// stdout and stderr are redirected to /dev/null.
+extern char** environ;
+static int runHdiutil(const std::vector<std::string>& args)
 {
-    std::string r = "'";
-    for (char c : s) {
-        if (c == '\'') r += "'\\''";
-        else            r += c;
-    }
-    r += "'";
-    return r;
+    std::vector<const char*> argv;
+    argv.push_back("/usr/bin/hdiutil");
+    for (const auto& a : args) argv.push_back(a.c_str());
+    argv.push_back(nullptr);
+
+    posix_spawn_file_actions_t actions;
+    posix_spawn_file_actions_init(&actions);
+    posix_spawn_file_actions_addopen(&actions, STDOUT_FILENO, "/dev/null", O_WRONLY, 0);
+    posix_spawn_file_actions_addopen(&actions, STDERR_FILENO, "/dev/null", O_WRONLY, 0);
+
+    pid_t pid;
+    int rc = posix_spawn(&pid, "/usr/bin/hdiutil", &actions, nullptr,
+                         const_cast<char* const*>(argv.data()), environ);
+    posix_spawn_file_actions_destroy(&actions);
+    if (rc != 0) return -1;
+
+    int status = 0;
+    waitpid(pid, &status, 0);
+    return WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+}
+
+// Return a writable per-user temp directory (private on macOS via $TMPDIR).
+static std::string userTempDir()
+{
+    const char* t = std::getenv("TMPDIR");
+    return (t && t[0]) ? std::string(t) : std::string("/tmp/");
 }
 
 DmgEngine::DmgEngine() = default;
@@ -51,21 +79,22 @@ void DmgEngine::Close()
 
 bool DmgEngine::mountDmg()
 {
-    char tmpl[] = "/tmp/zipfx-dmg-XXXXXX";
-    if (!mkdtemp(tmpl)) {
+    std::string tmplStr = userTempDir() + "zipfx-dmg-XXXXXX";
+    std::vector<char> tmpl(tmplStr.begin(), tmplStr.end());
+    tmpl.push_back('\0');
+
+    if (!mkdtemp(tmpl.data())) {
         LOG_ERR("DmgEngine: mkdtemp failed");
         return false;
     }
-    m_mountPoint = tmpl;
+    m_mountPoint = tmpl.data();
 
-    std::string cmd = "hdiutil attach -readonly -nobrowse -noautoopen"
-                      " -mountpoint " + shellq(m_mountPoint) +
-                      " " + shellq(m_path) +
-                      " > /dev/null 2>&1";
-
-    if (std::system(cmd.c_str()) != 0) {
+    int rc = runHdiutil({"attach", "-readonly", "-nobrowse", "-noautoopen",
+                         "-mountpoint", m_mountPoint, m_path});
+    if (rc != 0) {
         LOG_ERR("DmgEngine: hdiutil attach failed for %s", m_path.c_str());
-        ::rmdir(tmpl);
+        if (::rmdir(m_mountPoint.c_str()) != 0)
+            LOG_WARN("DmgEngine: rmdir '%s' failed", m_mountPoint.c_str());
         m_mountPoint.clear();
         return false;
     }
@@ -75,9 +104,9 @@ bool DmgEngine::mountDmg()
 void DmgEngine::unmountDmg()
 {
     if (m_mountPoint.empty()) return;
-    std::string cmd = "hdiutil detach " + shellq(m_mountPoint) + " -force > /dev/null 2>&1";
-    std::system(cmd.c_str());
-    ::rmdir(m_mountPoint.c_str());
+    runHdiutil({"detach", m_mountPoint, "-force"});
+    if (::rmdir(m_mountPoint.c_str()) != 0)
+        LOG_WARN("DmgEngine: rmdir '%s' failed after detach", m_mountPoint.c_str());
     m_mountPoint.clear();
 }
 
@@ -181,6 +210,16 @@ std::vector<uint8_t> DmgEngine::ReadFile(std::string_view entryName)
 {
     if (m_mountPoint.empty()) return {};
 
+    // Validate entryName against the known entry list (prevents path traversal).
+    bool found = false;
+    for (const auto& e : m_entries) {
+        if (!e.isDirectory && (e.name == entryName || e.path == entryName)) {
+            found = true;
+            break;
+        }
+    }
+    if (!found) return {};
+
     std::string src = m_mountPoint + "/" + std::string(entryName);
     std::ifstream f(src, std::ios::binary);
     if (!f) return {};
@@ -188,8 +227,17 @@ std::vector<uint8_t> DmgEngine::ReadFile(std::string_view entryName)
     f.seekg(0, std::ios::end);
     auto sz = f.tellg();
     if (sz <= 0) return {};
-    f.seekg(0, std::ios::beg);
 
+    // Cap in-memory reads to avoid exhausting RAM on large mounted files.
+    if (static_cast<size_t>(sz) > kMaxReadBytes) {
+        LOG_WARN("DmgEngine: ReadFile truncated '%s' to %zu MB (file is %lld bytes)",
+                 std::string(entryName).c_str(),
+                 kMaxReadBytes / (1024 * 1024),
+                 static_cast<long long>(sz));
+        sz = static_cast<std::streampos>(kMaxReadBytes);
+    }
+
+    f.seekg(0, std::ios::beg);
     std::vector<uint8_t> data(static_cast<size_t>(sz));
     f.read(reinterpret_cast<char*>(data.data()), sz);
     return data;
@@ -200,8 +248,7 @@ bool DmgEngine::TestIntegrity(
     std::function<bool()> /*cancelFlag*/)
 {
     if (m_path.empty()) return false;
-    std::string cmd = "hdiutil verify -quiet " + shellq(m_path) + " > /dev/null 2>&1";
-    return std::system(cmd.c_str()) == 0;
+    return runHdiutil({"verify", "-quiet", m_path}) == 0;
 }
 
 #endif // __APPLE__
