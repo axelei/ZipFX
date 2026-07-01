@@ -2080,9 +2080,6 @@ void MainWindow::onContextMenu(const QPoint& pos)
     QAction* openAct = menu.addAction(tr("Open"), this, [this]() { onOpenEntry(false); });
     openAct->setEnabled(hasEngine && hasSelection && !selectionIsDir);
 
-    QAction* openWithAct = menu.addAction(tr("Open with..."), this, [this]() { onOpenEntry(true); });
-    openWithAct->setEnabled(hasEngine && hasSelection && !selectionIsDir);
-
     if (hasSelection)
     {
         menu.addSeparator();

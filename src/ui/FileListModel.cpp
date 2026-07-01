@@ -17,6 +17,21 @@ static QString fmtSize(uint64_t b)
     return QString("%1 GB").arg(b / (1024.0*1024*1024), 0, 'f', 2);
 }
 
+static QString sanitizeName(const QString& name)
+{
+    QString safe = name;
+    safe.replace('/',  QChar('_'));
+    safe.replace('\\', QChar('_'));
+    safe.replace(':',  QChar('_'));
+    safe.replace('"',  QChar('_'));
+    safe.replace('*',  QChar('_'));
+    safe.replace('?',  QChar('_'));
+    safe.replace('<',  QChar('_'));
+    safe.replace('>',  QChar('_'));
+    safe.replace('|',  QChar('_'));
+    return safe;
+}
+
 FileListModel::FileListModel(QObject* parent)
     : QAbstractItemModel(parent)
 {
@@ -139,7 +154,7 @@ void FileListModel::rebuild()
             if (e.name.empty()) continue;
             if (!matchesFilter(e.name)) continue;
             auto* item = new Item;
-            item->name = QString::fromUtf8(e.name.c_str());
+            item->name = sanitizeName(QString::fromUtf8(e.name.c_str()));
             item->fullPath = QString::fromUtf8(e.path.c_str());
             item->isDir = e.isDirectory;
             item->size = e.size;
@@ -189,7 +204,7 @@ void FileListModel::rebuild()
                 if (seenDirs.insert(dirName).second)
                 {
                     auto* item = new Item;
-                    item->name = dirName;
+                    item->name = sanitizeName(dirName);
                     item->fullPath = m_currentDirPrefix + dirName;
                     item->isDir = true;
                     item->parentItem = m_rootItem;
@@ -199,7 +214,7 @@ void FileListModel::rebuild()
             else if (!e.isDirectory && !remainder.isEmpty())
             {
                 auto* item = new Item;
-                item->name = remainder;
+                item->name = sanitizeName(remainder);
                 item->fullPath = ep;
                 item->isDir = false;
                 item->size = e.size;

@@ -12,6 +12,17 @@
 
 namespace fs = std::filesystem;
 
+static std::string sanitizeEntryName(const std::string& s)
+{
+    std::string r = s;
+    for (auto& c : r) {
+        if (c == '/' || c == '\\' || c == ':' || c == '"' || c == '*'
+            || c == '?' || c == '<' || c == '>' || c == '|')
+            c = '_';
+    }
+    return r;
+}
+
 struct WavHeader
 {
     char     riff[4]       = {'R','I','F','F'};
@@ -136,6 +147,7 @@ bool ModEngine::Open(std::string_view path)
             entryName += se.name;
         }
         entryName += ".wav";
+        entryName = sanitizeEntryName(entryName);
 
         ArchiveEntry ae;
         ae.name = entryName;
