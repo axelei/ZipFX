@@ -29,6 +29,9 @@ static QString sanitizeName(const QString& name)
     safe.replace('<',  QChar('_'));
     safe.replace('>',  QChar('_'));
     safe.replace('|',  QChar('_'));
+    for (int i = 0; i < safe.size(); ++i)
+        if (safe[i] < QChar(0x20) || safe[i] == QChar(0x7f))
+            safe[i] = QChar('_');
     return safe;
 }
 

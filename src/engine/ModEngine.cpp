@@ -12,12 +12,20 @@
 
 namespace fs = std::filesystem;
 
+// Safely copy a fixed-size char array (possibly not null-terminated) into a std::string.
+static std::string nameFromFixed(const char* buf, size_t maxLen)
+{
+    auto end = std::find(buf, buf + maxLen, '\0');
+    return std::string(buf, static_cast<size_t>(end - buf));
+}
+
 static std::string sanitizeEntryName(const std::string& s)
 {
     std::string r = s;
     for (auto& c : r) {
         if (c == '/' || c == '\\' || c == ':' || c == '"' || c == '*'
-            || c == '?' || c == '<' || c == '>' || c == '|')
+            || c == '?' || c == '<' || c == '>' || c == '|'
+            || (static_cast<unsigned char>(c) < 0x20) || c == '\x7f')
             c = '_';
     }
     return r;
@@ -124,9 +132,9 @@ bool ModEngine::Open(std::string_view path)
         SampleEntry se;
         se.index = i;
         if (i < mod->ins && mod->xxi[i].name[0])
-            se.name = mod->xxi[i].name;
+            se.name = nameFromFixed(mod->xxi[i].name, 32);
         else if (xs.name[0])
-            se.name = xs.name;
+            se.name = nameFromFixed(xs.name, 32);
         se.data = xs.data;
         se.length = xs.len;
         se.bits = (xs.flg & XMP_SAMPLE_16BIT) ? 16 : 8;
