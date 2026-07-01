@@ -147,8 +147,7 @@ ArchiveType FileSignature::Detect(std::string_view path)
         }
     }
 
-    // DMG (Apple UDIF): 'koly' block is the last 512 bytes of the file.
-    // No header magic — must check the trailer.
+    // DMG (Apple UDIF): 'koly' block is the last 512 bytes; no header magic.
     if (fileSize > 512)
     {
         uint8_t koly[4];

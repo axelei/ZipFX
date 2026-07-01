@@ -12,9 +12,7 @@
 
 namespace fs = std::filesystem;
 
-// Single-quote–escape a path for /bin/sh.  Handles any character including
-// embedded single-quotes by ending the quoted string, inserting an escaped
-// quote, then reopening it.
+// Single-quote–escape a path for /bin/sh.
 static std::string shellq(const std::string& s)
 {
     std::string r = "'";
@@ -53,7 +51,6 @@ void DmgEngine::Close()
 
 bool DmgEngine::mountDmg()
 {
-    // Create a temp directory to use as the mount point.
     char tmpl[] = "/tmp/zipfx-dmg-XXXXXX";
     if (!mkdtemp(tmpl)) {
         LOG_ERR("DmgEngine: mkdtemp failed");
@@ -61,11 +58,6 @@ bool DmgEngine::mountDmg()
     }
     m_mountPoint = tmpl;
 
-    // hdiutil attach flags:
-    //   -readonly       — never modify the DMG
-    //   -nobrowse       — don't appear in Finder's sidebar
-    //   -noautoopen     — don't open a Finder window
-    //   -mountpoint     — use our temp dir as the exact mount point
     std::string cmd = "hdiutil attach -readonly -nobrowse -noautoopen"
                       " -mountpoint " + shellq(m_mountPoint) +
                       " " + shellq(m_path) +
@@ -103,8 +95,7 @@ void DmgEngine::walkDir(const std::string& dirPath, const std::string& prefix)
         ae.path = relPath;
 
         if (e.is_symlink(ec)) {
-            // Skip symlinks (e.g. Applications alias in app DMGs)
-            continue;
+            continue; // skip aliases (e.g. Applications shortcut in app DMGs)
         } else if (e.is_directory(ec)) {
             ae.isDirectory = true;
             m_entries.push_back(ae);
@@ -117,8 +108,7 @@ void DmgEngine::walkDir(const std::string& dirPath, const std::string& prefix)
             struct stat st{};
             if (::stat(e.path().c_str(), &st) == 0) {
                 ae.permissions = st.st_mode & 0777u;
-                using SC = std::chrono::system_clock;
-                ae.modified = SC::from_time_t(st.st_mtime);
+                ae.modified = std::chrono::system_clock::from_time_t(st.st_mtime);
             }
 
             ae.compressionMethod = "stored";

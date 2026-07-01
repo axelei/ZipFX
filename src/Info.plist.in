@@ -292,16 +292,6 @@
 				<string>com.zipfx.raw-disk-image</string>
 			</array>
 		</dict>
-		<dict>
-			<key>CFBundleTypeName</key>
-			<string>Apple Disk Image</string>
-			<key>LSHandlerRank</key>
-			<string>Alternate</string>
-			<key>LSItemContentTypes</key>
-			<array>
-				<string>com.apple.disk-image-udif</string>
-			</array>
-		</dict>
 	</array>
 	<key>UTExportedTypeDeclarations</key>
 	<array>
