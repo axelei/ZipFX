@@ -89,9 +89,7 @@ BatchOpsDialog::BatchOpsDialog(QWidget* parent)
     std::atomic<bool> batchCancelled{false};
     connect(cancelBtn, &QPushButton::clicked, this, [&]() { batchCancelled = true; });
 
-    connect(startBtn, &QPushButton::clicked, this, [=, this, &batchCancelled,
-            srcEdit, opCombo, outEdit, log, recurseCheck,
-            startBtn, cancelBtn, closeBtn]() {
+    connect(startBtn, &QPushButton::clicked, this, [=, this, &batchCancelled]() {
         const QString srcFolder = srcEdit->text().trimmed();
         if (srcFolder.isEmpty() || !QDir(srcFolder).exists())
         {
