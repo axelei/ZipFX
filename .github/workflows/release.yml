@@ -128,8 +128,11 @@ jobs:
 
       - name: Build NSIS installer
         working-directory: deploy
-        shell: cmd
-        run: makensis /DVERSION=${{ steps.version.outputs.version }} installer.nsi
+        shell: pwsh
+        run: |
+          $nsis = "${env:ProgramFiles(x86)}\NSIS"
+          if (-not (Test-Path "$nsis\makensis.exe")) { $nsis = "C:\Program Files (x86)\NSIS" }
+          & "$nsis\makensis.exe" "/DVERSION=${{ steps.version.outputs.version }}" installer.nsi
 
       # ── ZIP package (always produced — useful without NSIS) ───────────────
       - name: Build ZIP package
