@@ -1397,9 +1397,15 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
         for (const auto& p : paths)
         {
             std::string sp = p.toStdString();
+            std::string prefix = sp + "/";
             for (const auto& e : entries)
-                if (e.path == sp || e.path == sp + "/")
-                    { toExtract.push_back(e); break; }
+            {
+                if (e.path == sp || e.path == prefix
+                    || e.path.rfind(prefix, 0) == 0)
+                {
+                    toExtract.push_back(e);
+                }
+            }
         }
     }
     else
