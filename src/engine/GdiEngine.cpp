@@ -41,8 +41,25 @@ bool GdiEngine::parseGdi()
                             &t.sectorSize, filename, &t.extOffset);
         if (n >= 5)
         {
-            t.fileName     = filename;
-            t.resolvedPath = (fs::path(m_baseDir) / t.fileName).string();
+            t.fileName = filename;
+
+            // Reject absolute paths and traversal sequences to prevent a
+            // malicious .gdi from referencing files outside the disc directory.
+            fs::path joined = fs::path(m_baseDir) / t.fileName;
+            std::error_code ec;
+            fs::path resolved = fs::weakly_canonical(joined, ec);
+            fs::path base     = fs::weakly_canonical(m_baseDir, ec);
+            // Ensure resolved is strictly inside base.
+            auto [bEnd, pIt] = std::mismatch(base.begin(), base.end(),
+                                              resolved.begin());
+            if (bEnd != base.end())
+            {
+                LOG_WARN("GdiEngine: skipping track '%s' — escapes disc directory",
+                         filename);
+                continue;
+            }
+
+            t.resolvedPath = resolved.string();
             m_tracks.push_back(std::move(t));
         }
     }
