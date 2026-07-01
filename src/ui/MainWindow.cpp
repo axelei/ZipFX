@@ -65,6 +65,7 @@
 #include <QTemporaryDir>
 #include <QPushButton>
 #include <QDateTime>
+#include <QRandomGenerator>
 #include <QProgressBar>
 #include <QProgressDialog>
 #include <QInputDialog>
@@ -171,6 +172,7 @@ MainWindow::MainWindow(const QString& fileToOpen, QWidget* parent)
 
 MainWindow::~MainWindow()
 {
+    clearSensitiveData();
     qApp->removeEventFilter(this);
 #ifdef ZIPFX_HAVE_FUSE
     if (m_fuseThread.joinable())
@@ -186,6 +188,17 @@ MainWindow::~MainWindow()
     {
         qApp->removeTranslator(m_currentTranslator);
         delete m_currentTranslator;
+    }
+}
+
+void MainWindow::clearSensitiveData()
+{
+    if (!m_archivePassword.empty())
+    {
+        volatile char* p = const_cast<volatile char*>(m_archivePassword.data());
+        for (size_t i = 0; i < m_archivePassword.size(); ++i)
+            p[i] = 0;
+        m_archivePassword.clear();
     }
 }
 
@@ -846,7 +859,7 @@ void MainWindow::onNewArchive()
             fs::path src(sp.toStdWString());
             if (fs::is_directory(src))
             {
-                for (const auto& de : fs::recursive_directory_iterator(src))
+                for (const auto& de : fs::recursive_directory_iterator(src, fs::directory_options::skip_permission_denied))
                     if (de.is_regular_file()) { total++; totalBytes += fs::file_size(de); }
             }
             else if (fs::is_regular_file(src))
@@ -1229,7 +1242,7 @@ void MainWindow::doAddPaths(const QStringList& paths)
         fs::path src(path.toStdWString());
         if (fs::is_directory(src))
         {
-            for (const auto& de : fs::recursive_directory_iterator(src))
+            for (const auto& de : fs::recursive_directory_iterator(src, fs::directory_options::skip_permission_denied))
                 if (de.is_regular_file()) {
                     QString fname = QString::fromStdWString(de.path().filename().wstring());
                     if (!isExcluded(fname)) { total++; totalBytes += fs::file_size(de); }
@@ -1443,6 +1456,10 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
         }
 
         const auto& entry = toExtract[i];
+        if (!ArchiveEngine::isSafeEntryName(entry.path)) {
+            qWarning("Skipping unsafe entry: %s", entry.path.c_str());
+            continue;
+        }
         QString name = QString::fromUtf8(entry.name.c_str());
 
         QString entryRelPath = stripPaths
@@ -1936,7 +1953,7 @@ void MainWindow::onOpenEntry(bool pickApp)
 
     QString filename = fi.fileName();
     QString tempDir = QDir::tempPath() + "/ZipFX_Open/"
-        + QString::number(QDateTime::currentMSecsSinceEpoch()) + "/";
+        + QString::number(QRandomGenerator::global()->generate64(), 16) + "/";
     QDir().mkpath(tempDir);
     TempCleanup::registerPath(tempDir.toStdString());
     QString destFile = tempDir + filename;
@@ -2437,7 +2454,7 @@ void MainWindow::onBeginDrag()
 
         QString tmpRoot = QStandardPaths::writableLocation(
             QStandardPaths::TempLocation) + "/ZipFX_Drag/"
-            + QString::number(QDateTime::currentSecsSinceEpoch()) + "/";
+            + QString::number(QRandomGenerator::global()->generate64(), 16) + "/";
         QDir().mkpath(tmpRoot);
         TempCleanup::registerPath(tmpRoot.toStdString());
 

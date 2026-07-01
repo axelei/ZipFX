@@ -85,6 +85,8 @@ int FlatArchiveEngine::findEntry(std::string_view name) const
 
 bool FlatArchiveEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     int idx = findEntry(entryName);
     if (idx < 0) return false;
 
@@ -119,6 +121,7 @@ bool FlatArchiveEngine::ExtractAll(std::string_view destPath)
     for (const auto& e : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("FlatArchiveEngine: extract cancelled"); return false; }
+        if (!isSafeEntryName(e.name)) { LOG_WARN("FlatArchive: skipping unsafe entry '%s'", e.name.c_str()); continue; }
 
         fs::path dest = fs::path(destPath) / e.name;
         fs::create_directories(dest.parent_path());

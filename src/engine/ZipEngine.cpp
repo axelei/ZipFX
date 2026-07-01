@@ -211,6 +211,8 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_zip) { qWarning("Extract: m_zip is null"); return false; }
 
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     std::string name(entryName);
     std::string dp(destPath);
 
@@ -254,6 +256,11 @@ bool ZipEngine::Extract(std::string_view entryName, std::string_view destPath)
         zf = zip_fopen_index(m_zip, idx, 0);
     if (!zf)
     {
+        if (st.encryption_method != ZIP_EM_NONE && m_password.empty())
+        {
+            LOG_WARN("ZipEngine: encrypted Deflate64 entry '%s' requires password", name.c_str());
+            return false;
+        }
         // Try Deflate64 fallback
         if (m_bit7zFallback
             && (st.valid & ZIP_STAT_COMP_METHOD) && st.comp_method == 9)
@@ -304,6 +311,7 @@ bool ZipEngine::ExtractAll(std::string_view destPath)
     for (const auto& entry : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("ZipEngine: extract cancelled"); return false; }
+        if (!isSafeEntryName(entry.name)) { LOG_WARN("ZipEngine: skipping unsafe entry '%s'", entry.name.c_str()); continue; }
         if (entry.isDirectory)
         {
             fs::create_directories(fs::path(std::string(destPath) + "/" + entry.name));

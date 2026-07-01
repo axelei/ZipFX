@@ -12,8 +12,11 @@
 #include <fstream>
 #include <cstring>
 #include <ctime>
+#include <mutex>
 
 namespace fs = std::filesystem;
+
+static std::once_flag s_adfInitFlag;
 
 AdfEngine::AdfEngine() = default;
 
@@ -27,21 +30,21 @@ bool AdfEngine::Open(std::string_view path)
     Close();
     m_path = path;
 
-    adfLibInit();
-    adfEnvSetProperty(ADF_PR_QUIET, true);
+    std::call_once(s_adfInitFlag, []() {
+        adfLibInit();
+        adfEnvSetProperty(ADF_PR_QUIET, true);
+    });
 
     auto* dev = adfDevOpen(m_path.c_str(), ADF_ACCESS_MODE_READONLY);
     if (!dev)
     {
         LOG_ERR("AdfEngine: failed to open %s", m_path.c_str());
-        adfLibCleanUp();
         return false;
     }
 
     if (adfDevMount(dev) != ADF_RC_OK)
     {
         adfDevClose(dev);
-        adfLibCleanUp();
         return false;
     }
 
@@ -50,7 +53,6 @@ bool AdfEngine::Open(std::string_view path)
     {
         adfDevUnMount(dev);
         adfDevClose(dev);
-        adfLibCleanUp();
         return false;
     }
 
@@ -78,7 +80,6 @@ void AdfEngine::Close()
         adfDevClose(dev);
         m_dev = nullptr;
     }
-    adfLibCleanUp();
     m_isOpen = false;
     m_entries.clear();
 }
@@ -88,22 +89,22 @@ bool AdfEngine::Create(std::string_view path)
     Close();
     m_path = path;
 
-    adfLibInit();
-    adfEnvSetProperty(ADF_PR_QUIET, true);
+    std::call_once(s_adfInitFlag, []() {
+        adfLibInit();
+        adfEnvSetProperty(ADF_PR_QUIET, true);
+    });
 
     // Standard floppy geometry: 80 cylinders, 2 heads, 11 sectors = 880 KB
     auto* dev = adfDevCreate("dump", m_path.c_str(), 80, 2, 11);
     if (!dev)
     {
         LOG_ERR("AdfEngine: failed to create %s", m_path.c_str());
-        adfLibCleanUp();
         return false;
     }
 
     if (adfCreateFlop(dev, "ZipFX", ADF_DOSFS_FFS) != ADF_RC_OK)
     {
         adfDevClose(dev);
-        adfLibCleanUp();
         LOG_ERR("AdfEngine: failed to format %s", m_path.c_str());
         return false;
     }
@@ -111,7 +112,6 @@ bool AdfEngine::Create(std::string_view path)
     if (adfDevMount(dev) != ADF_RC_OK)
     {
         adfDevClose(dev);
-        adfLibCleanUp();
         return false;
     }
 
@@ -120,7 +120,6 @@ bool AdfEngine::Create(std::string_view path)
     {
         adfDevUnMount(dev);
         adfDevClose(dev);
-        adfLibCleanUp();
         return false;
     }
 
@@ -313,6 +312,8 @@ bool AdfEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (!m_isOpen || !m_vol) return false;
     m_extractCancelled = false;
 
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     auto* file = adfFileOpen(m_vol, std::string(entryName).c_str(), ADF_FILE_MODE_READ);
     if (!file) return false;
 
@@ -339,6 +340,7 @@ bool AdfEngine::ExtractAll(std::string_view destPath)
     for (const auto& e : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("AdfEngine: extract cancelled"); return false; }
+        if (!isSafeEntryName(e.name)) { LOG_WARN("AdfEngine: skipping unsafe entry '%s'", e.name.c_str()); continue; }
         if (e.isDirectory)
         {
             fs::create_directories(fs::path(destPath) / e.name);

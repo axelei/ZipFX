@@ -5,13 +5,23 @@
 #include <atomic>
 #include <filesystem>
 #include <fstream>
+#include <random>
 
 namespace fs = std::filesystem;
 
 static std::atomic<uint64_t> s_renameCounter{0};
 
+static std::string randomSuffix()
+{
+    std::random_device rd;
+    std::mt19937_64 gen(rd());
+    return std::to_string(gen());
+}
+
 bool ArchiveEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     auto data = ReadFile(entryName);
 
     fs::path dest(destPath);
@@ -54,7 +64,7 @@ bool ArchiveEngine::RenameEntry(std::string_view entryName, std::string_view new
 
     // Write to temp file
     auto tmpPath = fs::temp_directory_path() /
-        ("zipfx-rename-" + std::to_string(time(nullptr)) + "-" +
+        ("zipfx-rename-" + randomSuffix() + "-" +
          std::to_string(s_renameCounter.fetch_add(1)));
     {
         std::ofstream tmp(tmpPath, std::ios::binary);

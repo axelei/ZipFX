@@ -295,6 +295,7 @@ bool ChdEngine::ExtractAll(std::string_view destPath)
     for (const auto& t : m_tracks)
     {
         if (m_extractCancelled) { LOG_DBG("CHD: extract cancelled"); return false; }
+        if (!isSafeEntryName(t.name)) { LOG_WARN("CHD: skipping unsafe entry '%s'", t.name.c_str()); continue; }
 
         fs::path outPath = fs::path(destPath) / t.name;
         fs::create_directories(outPath.parent_path());

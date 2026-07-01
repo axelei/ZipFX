@@ -14,8 +14,9 @@ bool GrpEngine::Open(std::string_view path)
         if (std::memcmp(hdr, "KenSilverman", 12) != 0) return false;
 
         int count = static_cast<int>(readLE32(hdr + 12));
+        if (count <= 0) return false;
 
-        uint32_t dataOff = 16 + count * 16;
+        uint32_t dataOff = 16 + static_cast<uint32_t>(count) * 16;
 
         for (int i = 0; i < count; ++i)
         {

@@ -160,6 +160,8 @@ bool TarGzEngine::Create(std::string_view path)
 // Skip fileSize bytes (padded to TAR_BLOCK_SIZE) in the gzFile stream
 static void SkipTarData(gzFile f, uint64_t fileSize)
 {
+    if (fileSize > UINT64_MAX - TAR_BLOCK_SIZE)
+        fileSize = UINT64_MAX - TAR_BLOCK_SIZE;
     uint64_t skipBytes = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
     std::vector<char> skipBuf(static_cast<size_t>(
         std::min(skipBytes, static_cast<uint64_t>(65536))));
@@ -356,6 +358,8 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
     m_extractCancelled = false;
 
     std::string name(entryName);
+    if (!isSafeEntryName(name)) return false;
+
     auto linkIt = m_linkTargets.find(name);
     if (linkIt != m_linkTargets.end())
         name = linkIt->second;
@@ -391,8 +395,25 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
             gnuLongName_link.clear();
             fs::path dest(destPath);
             fs::create_directories(dest.parent_path());
-            std::error_code ec;
 #ifndef _WIN32
+            // Reject symlinks that escape the extraction directory
+            fs::path targetPath(target);
+            if (targetPath.is_absolute())
+            {
+                LOG_WARN("TarGzEngine: rejecting absolute symlink target: %s", target.c_str());
+                return false;
+            }
+            fs::path resolved = dest.parent_path() / targetPath;
+            resolved = fs::weakly_canonical(resolved);
+            std::string resolvedStr = resolved.string();
+            std::string destParentStr = fs::weakly_canonical(dest.parent_path()).string();
+            if (resolvedStr.rfind(destParentStr, 0) != 0)
+            {
+                LOG_WARN("TarGzEngine: rejecting symlink escaping extraction dir: %s -> %s",
+                         std::string(destPath).c_str(), target.c_str());
+                return false;
+            }
+            std::error_code ec;
             fs::create_symlink(target, dest, ec);
             if (ec)
                 LOG_WARN("TarGzEngine: symlink %s -> %s: %s",
@@ -436,6 +457,7 @@ bool TarGzEngine::ExtractAll(std::string_view destPath)
     for (const auto& entry : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("TarGzEngine: extract cancelled"); return false; }
+        if (!isSafeEntryName(entry.name)) { LOG_WARN("TarGzEngine: skipping unsafe entry '%s'", entry.name.c_str()); continue; }
         if (entry.isDirectory)
         {
             fs::create_directories(fs::path(destPath) / entry.name);

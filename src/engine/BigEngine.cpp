@@ -29,7 +29,7 @@ bool BigEngine::Open(std::string_view path)
             // Read null-terminated filename
             std::string name;
             char c;
-            while (f.get(c) && c != '\0')
+            while (f.get(c) && c != '\0' && name.size() < 1048576)
                 name += c;
             if (!f) return false;
 
@@ -47,7 +47,7 @@ bool BigEngine::doSave(std::ofstream& f)
     // Compute header + directory size to determine data start
     // Header: magic[4] + totalSize[4] + count[4]
     // Each entry: offset[4] + size[4] + name + null terminator
-    uint32_t dirSize = 12;
+    uint64_t dirSize = 12;
     for (const auto& e : m_entries)
         dirSize += 8 + static_cast<uint32_t>(e.name.size()) + 1;
 
@@ -57,8 +57,8 @@ bool BigEngine::doSave(std::ofstream& f)
     writeBE32(f, static_cast<uint32_t>(count));
 
     // Compute offsets
-    uint32_t dataOff = dirSize;
-    std::vector<uint32_t> offsets;
+    uint64_t dataOff = dirSize;
+    std::vector<uint64_t> offsets;
     for (const auto& e : m_entries)
     {
         offsets.push_back(dataOff);
@@ -68,7 +68,7 @@ bool BigEngine::doSave(std::ofstream& f)
     // Write directory entries (offset[4] + size[4] + name + '\0')
     for (size_t i = 0; i < count; ++i)
     {
-        writeBE32(f, offsets[i]);
+        writeBE32(f, static_cast<uint32_t>(offsets[i]));
         writeBE32(f, m_entries[i].size > 0 ? m_entries[i].size : 0);
         f.write(m_entries[i].name.c_str(), m_entries[i].name.size() + 1);
     }
@@ -81,7 +81,7 @@ bool BigEngine::doSave(std::ofstream& f)
     }
 
     // Fix totalSize in header
-    uint32_t totalSize = dataOff;
+    uint32_t totalSize = static_cast<uint32_t>(dataOff);
     f.seekp(4);
     writeBE32(f, totalSize);
     return f.good();

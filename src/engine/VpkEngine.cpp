@@ -6,11 +6,12 @@
 #include <cstdint>
 #include <cstring>
 
-static std::string readNullString(std::ifstream& f)
+static std::string readNullString(std::ifstream& f, size_t maxLen = 1048576)
 {
     std::string s;
+    s.reserve(256);
     char c;
-    while (f.get(c) && c != '\0')
+    while (f.get(c) && c != '\0' && s.size() < maxLen)
         s.push_back(c);
     return s;
 }
@@ -33,7 +34,7 @@ bool VpkEngine::Open(std::string_view path)
 
     uint32_t treeSize = readLE32(hdr + 8);
     uint32_t headerSize = (version == 2) ? 28 : 12;
-    uint32_t dataSectionStart = headerSize + treeSize;
+    uint64_t dataSectionStart = static_cast<uint64_t>(headerSize) + treeSize;
 
     if (version == 2)
     {
@@ -45,7 +46,7 @@ bool VpkEngine::Open(std::string_view path)
         uint32_t otherMD5SectionSize = readLE32(v2hdr + 8);
         uint32_t signatureSectionSize = readLE32(v2hdr + 12);
 
-        dataSectionStart = headerSize + treeSize
+        dataSectionStart = static_cast<uint64_t>(headerSize) + treeSize
             + archiveMD5SectionSize + otherMD5SectionSize + signatureSectionSize;
     }
 
@@ -88,12 +89,13 @@ bool VpkEngine::Open(std::string_view path)
                 fullPath += '.';
                 fullPath += ext;
 
-                uint32_t dataOff = (archiveIndex == 0x7FFF)
+                uint64_t dataOff64 = (archiveIndex == 0x7FFF)
                     ? (dataSectionStart + entryOff)  // embedded in this file
                     : entryOff;                       // in a volume file (offset within that file)
+                if (dataOff64 > UINT32_MAX) return false;
 
                 m_entries.push_back({
-                    fullPath, dataOff, entryLen, {}, archiveIndex
+                    fullPath, static_cast<uint32_t>(dataOff64), entryLen, {}, archiveIndex
                 });
 
                 if (preloadSize > 0)

@@ -233,6 +233,8 @@ bool MpqEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (!m_isOpen || !m_handle) return false;
     m_extractCancelled = false;
 
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     auto* hMpq = static_cast<HANDLE>(m_handle);
     std::string name = toStormPath(entryName);
 
@@ -278,6 +280,7 @@ bool MpqEngine::ExtractAll(std::string_view destPath)
     for (const auto& e : m_entries)
     {
         if (m_extractCancelled) { LOG_DBG("MpqEngine: extract cancelled"); return false; }
+        if (!isSafeEntryName(e.name)) { LOG_WARN("MpqEngine: skipping unsafe entry '%s'", e.name.c_str()); continue; }
         if (e.isDirectory) continue;
 
         fs::path fullPath = fs::path(destPath) / e.name;

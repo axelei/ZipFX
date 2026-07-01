@@ -144,6 +144,7 @@ bool LibarchiveEngine::Extract(std::string_view entryName, std::string_view dest
 {
     if (!m_isOpen) return false;
     m_extractCancelled = false;
+    std::lock_guard<std::mutex> lock(m_archiveMutex);
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
@@ -167,6 +168,7 @@ bool LibarchiveEngine::Extract(std::string_view entryName, std::string_view dest
 
         if (name == currentName || (singleEntry && m_entries[0].name == name))
         {
+            if (!isSafeEntryName(currentName)) return false;
             fs::path dest(destPath);
             fs::create_directories(dest.parent_path());
 
@@ -198,6 +200,7 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
 {
     if (!m_isOpen) return false;
     m_extractCancelled = false;
+    std::lock_guard<std::mutex> lock(m_archiveMutex);
 
     // Re-open for a single sequential pass through the archive
     archive_read_free(m_archive);
@@ -221,6 +224,7 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
         if (!currentName) continue;
 
         std::string name(currentName);
+        if (!isSafeEntryName(name)) { LOG_WARN("%s: skipping unsafe entry '%s'", m_formatName.c_str(), name.c_str()); archive_read_data_skip(m_archive); continue; }
         bool isDir = archive_entry_filetype(entry) == AE_IFDIR;
 
         fs::path fullPath = fs::path(destPath) / name;
@@ -270,6 +274,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
         return {};
     }
     m_extractCancelled = false;
+    std::lock_guard<std::mutex> lock(m_archiveMutex);
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
@@ -339,6 +344,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
 std::vector<uint8_t> LibarchiveEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
 {
     if (!m_isOpen) return {};
+    std::lock_guard<std::mutex> lock(m_archiveMutex);
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
@@ -390,6 +396,7 @@ std::vector<uint8_t> LibarchiveEngine::ReadFilePartial(std::string_view entryNam
 bool LibarchiveEngine::ReadFileStreamed(std::string_view entryName, const StreamConsumer& consumer)
 {
     if (!m_isOpen) return false;
+    std::lock_guard<std::mutex> lock(m_archiveMutex);
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();

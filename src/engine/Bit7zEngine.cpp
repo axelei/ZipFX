@@ -14,6 +14,7 @@
 
 #include <QApplication>
 #include <QDir>
+#include <QFile>
 
 #include <filesystem>
 #include <fstream>
@@ -32,58 +33,22 @@ static const char* kDllNames[] = {
 
 Bit7zEngine::Bit7zEngine()
 {
-    // Build search paths
-    QStringList searchPaths;
-    searchPaths << QApplication::applicationDirPath()
-                << QApplication::applicationDirPath() + "/../Resources"
-                << QApplication::applicationDirPath() + "/../PlugIns";
-
-#ifdef __APPLE__
-    // Development paths: look next to the source tree
+    // Security: only search the application directory for 7z.dll to prevent DLL hijacking
+    QString appDir = QApplication::applicationDirPath();
+    for (const char* dllName : kDllNames)
     {
-        QString base = QApplication::applicationDirPath();
-        for (int i = 0; i < 4; i++) {
-            base += "/..";
-            QString libPath = base + "/lib/macos/arm64/";
-            if (QDir(libPath).exists())
-                searchPaths << QDir(libPath).absolutePath();
-        }
-    }
-    searchPaths << "/usr/local/lib" << "/opt/homebrew/lib";
-#endif
-
-    for (auto name : kDllNames)
-    {
-        for (const auto& dir : searchPaths)
+        QString fullPath = appDir + "/" + dllName;
+        if (QFile::exists(fullPath))
         {
-            QString fullPath = dir + "/" + name;
             try
             {
                 m_lib = std::make_unique<bit7z::Bit7zLibrary>(fullPath.toStdString());
                 LOG_DBG("Bit7zEngine: loaded %s", qPrintable(fullPath));
                 break;
             }
-            catch (...)
+            catch (const std::exception& e)
             {
-                continue;
-            }
-        }
-        if (m_lib) break;
-    }
-
-    // Also try bare names (system search)
-    if (!m_lib)
-    {
-        for (auto name : kDllNames)
-        {
-            try
-            {
-                m_lib = std::make_unique<bit7z::Bit7zLibrary>(name);
-                LOG_DBG("Bit7zEngine: loaded %s", name);
-                break;
-            }
-            catch (...)
-            {
+                LOG_ERR("Bit7zEngine: failed to load %s: %s", qPrintable(fullPath), e.what());
                 continue;
             }
         }
@@ -145,7 +110,9 @@ bool Bit7zEngine::Open(std::string_view path)
             try {
                 auto cv = item.itemProperty(bit7z::BitProperty::Comment);
                 if (cv.isString()) ae.comment = cv.getString();
-            } catch (...) {}
+            } catch (const std::exception& e) {
+                LOG_WARN("Bit7zEngine: comment property failed: %s", e.what());
+            }
             m_entries.push_back(std::move(ae));
         }
 
@@ -197,7 +164,9 @@ std::string Bit7zEngine::archiveComment() const
     try {
         auto val = m_reader->archiveProperty(bit7z::BitProperty::Comment);
         if (val.isString()) return val.getString();
-    } catch (...) {}
+    } catch (const std::exception& e) {
+        LOG_WARN("Bit7zEngine: archive comment failed: %s", e.what());
+    }
     return {};
 }
 
@@ -207,7 +176,9 @@ bool Bit7zEngine::SupportsViewFile() const
     try {
         if (m_reader->isSolid()) return false;
         if (m_reader->isMultiVolume()) return false;
-    } catch (...) {}
+    } catch (const std::exception& e) {
+        LOG_WARN("Bit7zEngine: supports view check failed: %s", e.what());
+    }
     return true;
 }
 
@@ -221,7 +192,9 @@ std::string Bit7zEngine::ViewUnsupportedReason() const
             return "solid archive";
         if (m_reader->isMultiVolume())
             return "multi-volume archive";
-    } catch (...) {}
+    } catch (const std::exception& e) {
+        LOG_WARN("Bit7zEngine: view unsupported reason failed: %s", e.what());
+    }
     return {};
 }
 
@@ -241,6 +214,8 @@ int Bit7zEngine::findEntry(std::string_view name) const
 bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_isOpen) return false;
+
+    if (!isSafeEntryName(std::string(entryName))) return false;
 
     int idx = findEntry(entryName);
     if (idx < 0) return false;
@@ -539,8 +514,9 @@ bool Bit7zEngine::TestIntegrity(
         if (progressCallback) progressCallback(total, total);
         return true;
     }
-    catch (...)
+    catch (const std::exception& e)
     {
+        LOG_ERR("Bit7zEngine: test integrity failed: %s", e.what());
         return false;
     }
 }

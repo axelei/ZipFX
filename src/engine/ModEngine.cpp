@@ -260,6 +260,7 @@ bool ModEngine::ExtractAll(std::string_view destPath)
 {
     for (size_t i = 0; i < m_entries.size(); ++i)
     {
+        if (!isSafeEntryName(m_entries[i].name)) { LOG_WARN("Tracker: skipping unsafe entry '%s'", m_entries[i].name.c_str()); continue; }
         fs::path outPath = fs::path(destPath) / m_entries[i].name;
         fs::create_directories(outPath.parent_path());
 

@@ -100,6 +100,10 @@ static int doExtract(const std::string& path, const std::string& outDir,
         bool allOk = true;
         for (const auto& f : files)
         {
+            if (!ArchiveEngine::isSafeEntryName(f)) {
+                std::cerr << "Error: unsafe path '" << f << "'" << std::endl;
+                allOk = false; continue;
+            }
             fs::path fullPath = fs::path(outDir) / f;
             fs::create_directories(fullPath.parent_path());
             if (!engine->Extract(f, fullPath.string()))

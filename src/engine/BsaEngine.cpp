@@ -38,6 +38,10 @@ bool BsaEngine::Open(std::string_view path)
     uint32_t fileCount    = readU32(hdr + 20);
     uint32_t totalFNameLen = readU32(hdr + 28);
 
+    if (folderCount > 1000000) { LOG_ERR("BSA: implausible folder count %u", folderCount); return false; }
+    if (fileCount > 10000000) { LOG_ERR("BSA: implausible file count %u", fileCount); return false; }
+    if (totalFNameLen > 100000000) { LOG_ERR("BSA: implausible name block size %u", totalFNameLen); return false; }
+
     // 103 = Morrowind (different layout), 104 = Oblivion/FO3/FONV/Skyrim LE, 105 = Skyrim SE
     if (version != 104 && version != 105)
     {
@@ -137,6 +141,11 @@ bool BsaEngine::Open(std::string_view path)
             uint32_t origSize  = 0;
 
             f.seekg(dataStart);
+            if (!f)
+            {
+                LOG_WARN("BSA: seek to data section failed at offset %u", dataStart);
+                f.clear();
+            }
             if (f)
             {
                 if (embedFileNames)
@@ -263,6 +272,8 @@ bool BsaEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (!m_isOpen) return false;
     m_extractCancelled = false;
 
+    if (!isSafeEntryName(std::string(entryName))) return false;
+
     for (const auto& rec : m_fileRecords)
     {
         if (m_extractCancelled) return false;
@@ -290,6 +301,7 @@ bool BsaEngine::ExtractAll(std::string_view destPath)
     for (const auto& rec : m_fileRecords)
     {
         if (m_extractCancelled) return false;
+        if (!isSafeEntryName(rec.fullPath)) { LOG_WARN("BSA: skipping unsafe entry '%s'", rec.fullPath.c_str()); continue; }
 
         auto data = doRead(rec, SIZE_MAX);
 

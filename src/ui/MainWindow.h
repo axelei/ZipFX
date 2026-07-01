@@ -123,6 +123,7 @@ private:
 #elif defined(__linux__)
     void registerFileAssociationsLinux();
 #endif
+    void clearSensitiveData();
     void doExtract(const QString& destPath, bool all, bool stripPaths = false);
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);

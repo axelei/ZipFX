@@ -20,7 +20,7 @@ bool PakEngine::Open(std::string_view path)
         for (int i = 0; i < count; ++i)
         {
             uint8_t de[64];
-            f.seekg(dirOff + i * 64);
+            f.seekg(static_cast<std::streamoff>(dirOff) + static_cast<std::streamoff>(i) * 64);
             f.read(reinterpret_cast<char*>(de), 64);
             if (!f) return false;
 

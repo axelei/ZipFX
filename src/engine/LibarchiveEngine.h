@@ -5,6 +5,7 @@
 
 #include <atomic>
 #include <functional>
+#include <mutex>
 #include <vector>
 
 struct archive;
@@ -52,6 +53,7 @@ private:
     bool m_supportsCreation = false;
     std::vector<FormatRegistrar> m_registrars;
     std::vector<ArchiveEntry> m_entries;
+    std::mutex m_archiveMutex;
     std::atomic<bool> m_extractCancelled{false};
 };
 

@@ -369,6 +369,7 @@ std::vector<uint8_t> RarEngine::ReadFilePartial(std::string_view entryName, size
 bool RarEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_reader) return false;
+    if (!isSafeEntryName(std::string(entryName))) return false;
     if (m_reader->Extract(entryName, destPath))
         return true;
     if (m_fallbackReader)
@@ -379,6 +380,7 @@ bool RarEngine::Extract(std::string_view entryName, std::string_view destPath)
 bool RarEngine::ExtractAll(std::string_view destPath)
 {
     if (!m_reader) return false;
+    // RarEngine delegates to m_reader; check is applied in the engine's own ExtractAll
     if (m_reader->ExtractAll(destPath))
         return true;
     if (m_fallbackReader)

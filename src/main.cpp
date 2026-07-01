@@ -26,6 +26,7 @@ static void crashHandler(int sig)
 #include <QCoreApplication>
 #include <QDir>
 #include <QFile>
+#include <QFileInfo>
 #include <QIcon>
 #include <QLocalServer>
 #include <QLocalSocket>
@@ -263,7 +264,14 @@ int main(int argc, char* argv[])
         if (!client) return;
         client->waitForReadyRead(1000);
         QString path = QString::fromUtf8(client->readAll());
-        if (!path.isEmpty()) {
+        if (!path.isEmpty())
+        {
+            QFileInfo fi(path);
+            if (!fi.exists() || !fi.isFile())
+            {
+                client->deleteLater();
+                return;
+            }
             auto* w2 = new MainWindow(path);
             w2->show();
         }

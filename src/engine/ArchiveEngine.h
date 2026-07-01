@@ -92,6 +92,15 @@ public:
     virtual bool SupportsViewFile() const { return true; }
     virtual std::string ViewUnsupportedReason() const { return {}; }
 
+    static bool isSafeEntryName(const std::string& entryName)
+    {
+        if (entryName.empty() || entryName.find("..") != std::string::npos)
+            return false;
+        if (entryName.size() > 0 && entryName[0] == '/')
+            return false;
+        return true;
+    }
+
 protected:
     int m_compressionLevel = 6; // 0=store, 9=max
     std::atomic<bool> m_saveCancelled{false};
