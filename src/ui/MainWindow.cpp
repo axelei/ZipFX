@@ -7,6 +7,7 @@
 #include "CreateArchiveDialog.h"
 #include "ChecksumsDialog.h"
 #include "FindFilesDialog.h"
+#include "KeychainHelper.h"
 #include "recovery/RecoveryRecord.h"
 #include "icons.h"
 
@@ -2698,46 +2699,26 @@ void MainWindow::refreshFileList()
 // ── Password manager helpers ───────────────────────────────────────────
 void MainWindow::savePassword(const QString& archive, const QString& password)
 {
+    // Keep an index of which archives have passwords so the dialog can list them.
+    // The actual secrets live in the OS keychain (KeychainHelper).
     QSettings s;
-    QStringList archives, passwords;
-    int count = s.beginReadArray("passwordManager/passwords");
-    for (int i = 0; i < count; ++i)
+    QStringList known = s.value("passwordManager/archives").toStringList();
+    if (password.isEmpty())
     {
-        s.setArrayIndex(i);
-        QString a = s.value("archive").toString();
-        if (a == archive) continue;
-        archives << a;
-        passwords << s.value("password").toString();
+        KeychainHelper::remove(archive);
+        known.removeAll(archive);
     }
-    s.endArray();
-    if (!password.isEmpty()) { archives << archive; passwords << password; }
-    s.remove("passwordManager/passwords");
-    s.beginWriteArray("passwordManager/passwords");
-    for (int i = 0; i < archives.size(); ++i)
+    else
     {
-        s.setArrayIndex(i);
-        s.setValue("archive", archives[i]);
-        s.setValue("password", passwords[i]);
+        KeychainHelper::save(archive, password);
+        if (!known.contains(archive)) known.append(archive);
     }
-    s.endArray();
+    s.setValue("passwordManager/archives", known);
 }
 
 QString MainWindow::loadPassword(const QString& archive)
 {
-    QSettings s;
-    int count = s.beginReadArray("passwordManager/passwords");
-    QString found;
-    for (int i = 0; i < count; ++i)
-    {
-        s.setArrayIndex(i);
-        if (s.value("archive").toString() == archive)
-        {
-            found = s.value("password").toString();
-            break;
-        }
-    }
-    s.endArray();
-    return found;
+    return KeychainHelper::load(archive);
 }
 
 // ── Feature 14: preview pane ───────────────────────────────────────────

@@ -1,5 +1,7 @@
 #include "PasswordManagerDialog.h"
+#include "KeychainHelper.h"
 
+#include <QSettings>
 #include <QVBoxLayout>
 #include <QHBoxLayout>
 #include <QFormLayout>
@@ -11,7 +13,6 @@
 #include <QLineEdit>
 #include <QStyledItemDelegate>
 #include <QPainter>
-#include <QSettings>
 
 PasswordManagerDialog::PasswordManagerDialog(QWidget* parent)
     : QDialog(parent)
@@ -43,11 +44,6 @@ PasswordManagerDialog::PasswordManagerDialog(QWidget* parent)
 
     lay->addWidget(new QLabel(
         tr("Saved passwords are applied automatically when opening archives."), this));
-    auto* warnLabel = new QLabel(
-        tr("Passwords are stored in plaintext in application settings."), this);
-    warnLabel->setStyleSheet(QStringLiteral("color: #888; font-size: 10px;"));
-    lay->addWidget(warnLabel);
-
     auto* table = new QTableWidget(this);
     table->setColumnCount(2);
     table->setHorizontalHeaderLabels({tr("Archive filename"), tr("Password")});
@@ -58,18 +54,18 @@ PasswordManagerDialog::PasswordManagerDialog(QWidget* parent)
     table->setItemDelegateForColumn(1, new PasswordDelegate(table));
     lay->addWidget(table, 1);
 
-    // Load existing passwords
+    // Load existing passwords from OS keychain
     QSettings s;
-    int count = s.beginReadArray("passwordManager/passwords");
-    for (int i = 0; i < count; ++i)
+    QStringList archives = s.value("passwordManager/archives").toStringList();
+    for (const auto& a : archives)
     {
-        s.setArrayIndex(i);
+        QString pwd = KeychainHelper::load(a);
+        if (pwd.isEmpty()) continue;
         int row = table->rowCount();
         table->insertRow(row);
-        table->setItem(row, 0, new QTableWidgetItem(s.value("archive").toString()));
-        table->setItem(row, 1, new QTableWidgetItem(s.value("password").toString()));
+        table->setItem(row, 0, new QTableWidgetItem(a));
+        table->setItem(row, 1, new QTableWidgetItem(pwd));
     }
-    s.endArray();
 
     auto* btnRow = new QHBoxLayout();
     auto* addBtn  = new QPushButton(tr("Add..."), this);
@@ -138,15 +134,21 @@ PasswordManagerDialog::PasswordManagerDialog(QWidget* parent)
 
     connect(saveBtn, &QPushButton::clicked, this, [this, table]() {
         QSettings s2;
-        s2.remove("passwordManager/passwords");
-        s2.beginWriteArray("passwordManager/passwords");
+        QStringList oldArchives = s2.value("passwordManager/archives").toStringList();
+        QStringList newArchives;
         for (int row = 0; row < table->rowCount(); ++row)
         {
-            s2.setArrayIndex(row);
-            s2.setValue("archive",  table->item(row, 0)->text());
-            s2.setValue("password", table->item(row, 1)->text());
+            QString arc = table->item(row, 0)->text();
+            QString pwd = table->item(row, 1)->text();
+            if (arc.isEmpty() || pwd.isEmpty()) continue;
+            KeychainHelper::save(arc, pwd);
+            newArchives.append(arc);
         }
-        s2.endArray();
+        // Remove keychain entries for deleted rows
+        for (const auto& old : oldArchives)
+            if (!newArchives.contains(old))
+                KeychainHelper::remove(old);
+        s2.setValue("passwordManager/archives", newArchives);
         accept();
     });
 

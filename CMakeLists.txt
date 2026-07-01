@@ -357,6 +357,20 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # ====================================================================
+# libsecret  –  optional Linux keychain integration
+# ====================================================================
+if(UNIX AND NOT APPLE)
+    if(PkgConfig_FOUND)
+        pkg_check_modules(LIBSECRET QUIET libsecret-1)
+    endif()
+    if(LIBSECRET_FOUND)
+        message(STATUS "libsecret found — keychain password storage enabled")
+    else()
+        message(STATUS "libsecret not found — passwords stored in QSettings (plaintext)")
+    endif()
+endif()
+
+# ====================================================================
 # CLI11  –  header-only command-line parser
 # ====================================================================
 FetchContent_Declare(
@@ -426,6 +440,7 @@ set(ZIPFX_SOURCES
     src/cli/CliHandler.cpp
     src/recovery/RecoveryRecord.cpp
     src/dnd/TempCleanup.cpp
+    src/ui/KeychainHelper.cpp
 )
 
 if(WIN32)
@@ -464,6 +479,7 @@ target_compile_definitions(ZipFX PRIVATE
     LIBARCHIVE_STATIC
     $<$<CONFIG:Debug>:QT_QML_DEBUG>
     $<$<BOOL:${FUSE3_FOUND}>:ZIPFX_HAVE_FUSE>
+    $<$<BOOL:${LIBSECRET_FOUND}>:ZIPFX_HAVE_LIBSECRET>
 )
 
 target_link_libraries(ZipFX PRIVATE
@@ -490,8 +506,14 @@ if(UNIX AND NOT APPLE)
     target_link_options(ZipFX PRIVATE "-rdynamic")
 endif()
 
+if(LIBSECRET_FOUND)
+    target_include_directories(ZipFX PRIVATE ${LIBSECRET_INCLUDE_DIRS})
+    target_link_libraries(ZipFX PRIVATE ${LIBSECRET_LIBRARIES})
+endif()
+
 if(APPLE)
     target_link_libraries(ZipFX PRIVATE "-framework Cocoa")
+    target_link_libraries(ZipFX PRIVATE "-framework Security" "-framework CoreFoundation")
     string(TIMESTAMP ZIPFX_YEAR "%Y")
     configure_file(
         "${CMAKE_SOURCE_DIR}/src/Info.plist.in"
