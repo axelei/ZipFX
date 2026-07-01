@@ -305,8 +305,8 @@ jobs:
   # ═══════════════════════════════════════════════════════════════════════════
   # Linux  ·  GCC  ·  AppImage  +  tar.gz
   #
-  # Pinned to ubuntu-22.04 because:
-  #   • libfuse2 is the correct package name there (24.04 renames it libfuse2t64)
+  # Pinned to ubuntu-24.04 because:
+  #   • ships libfuse3 ≥ 3.12 (needed for the 2-arg fuse_session_process_buf)
   #   • linuxdeploy x86_64 AppImages run natively (no ARM runner needed yet)
   #   • stable ABI baseline for the produced AppImage
   #
@@ -315,7 +315,7 @@ jobs:
   # stale cached version can produce broken AppImages.
   # ═══════════════════════════════════════════════════════════════════════════
   build-linux:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-24.04
 
     steps:
       - uses: actions/checkout@v4
@@ -325,7 +325,7 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y \
-            libfuse2 \
+            libfuse2t64 \
             libfuse3-dev \
             libglu1-mesa-dev \
             libxcb-cursor0 \
