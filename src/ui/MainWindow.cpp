@@ -1702,6 +1702,8 @@ void MainWindow::onView()
     auto* infoLabel = new QLabel(tr("%1  —  %2 bytes").arg(name).arg(displaySize), dlg);
     layout->addWidget(infoLabel);
 
+    std::function<void()> fitImageFn;
+
     if (imgExts.contains(ext))
     {
         QPixmap pix;
@@ -1714,11 +1716,16 @@ void MainWindow::onView()
             view->setFrameShape(QFrame::NoFrame);
             layout->addWidget(view, 1);
 
-            auto fitImage = [view, pixItem]() {
+            fitImageFn = [view, pixItem]() {
                 view->fitInView(pixItem->sceneBoundingRect(), Qt::KeepAspectRatio);
             };
-            fitImage();
-            dlg->installEventFilter(new ResizeEventFilter(fitImage, dlg));
+            // Don't fit here — the dialog is still its default/uninitialized
+            // size at this point (resize()/show() haven't run yet below), so
+            // fitInView() would scale against the wrong viewport and the
+            // image would render tiny. The initial fit happens after show()
+            // once geometry is final; the event filter refits on later
+            // live resizes.
+            dlg->installEventFilter(new ResizeEventFilter(fitImageFn, dlg));
         }
         else
         {
@@ -1808,6 +1815,8 @@ void MainWindow::onView()
         QSettings().setValue("viewDialog/geometry", dlg->saveGeometry());
     });
     dlg->show();
+    if (fitImageFn)
+        QTimer::singleShot(0, dlg, fitImageFn);
 }
 
 void MainWindow::onInfo()

@@ -12,6 +12,31 @@
 #include <QVBoxLayout>
 #include <QFontDatabase>
 #include <QFileInfo>
+#include <QResizeEvent>
+
+namespace {
+// Plain QGraphicsView doesn't refit its content when the viewport resizes —
+// without this, the image preview only ever gets scaled once at the moment
+// it's set. If that moment happens to be before the view has its final
+// layout size (e.g. the very first image previewed, before the stacked
+// widget page has ever been shown/sized), the fit is computed against a
+// stale/zero viewport and the image renders tiny. Refitting on every resize
+// fixes both that and the (separate) case of resizing the window/panel
+// while an image is already showing.
+class FitOnResizeGraphicsView : public QGraphicsView
+{
+public:
+    using QGraphicsView::QGraphicsView;
+
+protected:
+    void resizeEvent(QResizeEvent* event) override
+    {
+        QGraphicsView::resizeEvent(event);
+        if (scene() && !scene()->items().isEmpty())
+            fitInView(scene()->itemsBoundingRect(), Qt::KeepAspectRatio);
+    }
+};
+} // namespace
 
 PreviewPanel::PreviewPanel(QWidget* parent)
     : QWidget(parent)
@@ -39,7 +64,7 @@ PreviewPanel::PreviewPanel(QWidget* parent)
     m_stack->addWidget(m_text);        // index 1
 
     m_scene     = new QGraphicsScene(this);
-    m_imageView = new QGraphicsView(m_scene, m_stack);
+    m_imageView = new FitOnResizeGraphicsView(m_scene, m_stack);
     m_imageView->setDragMode(QGraphicsView::ScrollHandDrag);
     m_imageView->setFrameShape(QFrame::NoFrame);
     m_stack->addWidget(m_imageView);   // index 2
@@ -84,8 +109,11 @@ void PreviewPanel::showEntry(ArchiveEngine& engine, const QString& entryPath,
             {
                 m_scene->clear();
                 auto* pi = m_scene->addPixmap(pix);
-                m_imageView->fitInView(pi->sceneBoundingRect(), Qt::KeepAspectRatio);
+                // Switch to the image page first — fitInView() scales
+                // against the view's current viewport size, which is only
+                // correct once this is the visible page in the stack.
                 m_stack->setCurrentIndex(2);
+                m_imageView->fitInView(pi->sceneBoundingRect(), Qt::KeepAspectRatio);
                 return;
             }
         }
