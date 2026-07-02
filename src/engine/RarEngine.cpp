@@ -11,6 +11,8 @@
 
 #include <algorithm>
 #include <archive.h>
+#include <filesystem>
+#include <mutex>
 
 extern "C" {
     int archive_read_support_format_rar(struct archive*);
@@ -18,9 +20,46 @@ extern "C" {
 }
 
 namespace {
+    namespace fs = std::filesystem;
     const std::vector<ArchiveEntry> kEmptyEntries;
     std::string g_rarExePath;
     bool        g_rarExeSearched = false;
+    std::mutex  g_rarFindMutex;
+
+    // A PATH search (`which`/`where`) can be hijacked by placing a malicious
+    // binary earlier in PATH than the real install. Only trust the result if
+    // it resolves to a well-known system binary directory.
+    bool isTrustedBinDir(const std::string& exePath)
+    {
+        std::error_code ec;
+        fs::path canonical = fs::weakly_canonical(fs::path(exePath), ec);
+        if (ec) return false;
+        std::string dir = canonical.parent_path().string();
+#ifdef _WIN32
+        static const char* kTrustedDirs[] = {
+            "C:\\Program Files\\WinRAR", "C:\\Program Files (x86)\\WinRAR",
+        };
+#elif defined(__APPLE__)
+        static const char* kTrustedDirs[] = {
+            "/opt/homebrew/bin", "/usr/local/bin", "/usr/bin",
+        };
+#else
+        static const char* kTrustedDirs[] = {
+            "/usr/bin", "/usr/local/bin", "/bin", "/snap/bin",
+        };
+#endif
+        for (const char* trusted : kTrustedDirs)
+        {
+            std::error_code ec2;
+            if (fs::equivalent(dir, trusted, ec2) && !ec2) return true;
+#ifdef _WIN32
+            if (_stricmp(dir.c_str(), trusted) == 0) return true;
+#else
+            if (dir == trusted) return true;
+#endif
+        }
+        return false;
+    }
 }
 
 // ── Constructor / Destructor ───────────────────────────────────────────────
@@ -32,12 +71,14 @@ RarEngine::~RarEngine() = default;
 
 void RarEngine::resetFindCache()
 {
+    std::lock_guard<std::mutex> lock(g_rarFindMutex);
     g_rarExeSearched = false;
     g_rarExePath.clear();
 }
 
 std::string RarEngine::findRarExe()
 {
+    std::lock_guard<std::mutex> lock(g_rarFindMutex);
     if (g_rarExeSearched) return g_rarExePath;
     g_rarExeSearched = true;
 
@@ -94,9 +135,10 @@ std::string RarEngine::findRarExe()
         {
             QString line = QString::fromLocal8Bit(
                 proc.readAllStandardOutput()).split('\n').first().trimmed();
-            if (!line.isEmpty() && QFile::exists(line))
+            std::string candidate = line.toStdString();
+            if (!line.isEmpty() && QFile::exists(line) && isTrustedBinDir(candidate))
             {
-                g_rarExePath = line.toStdString();
+                g_rarExePath = candidate;
                 return g_rarExePath;
             }
         }
@@ -121,8 +163,10 @@ std::string RarEngine::findRarExe()
         proc.start("which", {"rar"});
         if (proc.waitForFinished(3000) && proc.exitCode() == 0)
         {
-            g_rarExePath = QString::fromLocal8Bit(proc.readAllStandardOutput())
+            std::string candidate = QString::fromLocal8Bit(proc.readAllStandardOutput())
                                .trimmed().toStdString();
+            if (isTrustedBinDir(candidate))
+                g_rarExePath = candidate;
         }
     }
 #else
@@ -132,8 +176,10 @@ std::string RarEngine::findRarExe()
         proc.start("which", {"rar"});
         if (proc.waitForFinished(3000) && proc.exitCode() == 0)
         {
-            g_rarExePath = QString::fromLocal8Bit(proc.readAllStandardOutput())
+            std::string candidate = QString::fromLocal8Bit(proc.readAllStandardOutput())
                                .trimmed().toStdString();
+            if (isTrustedBinDir(candidate))
+                g_rarExePath = candidate;
         }
     }
 #endif
@@ -193,6 +239,34 @@ bool wingetAvailable()
     return p.waitForFinished(4000) && p.exitCode() == 0;
 }
 #endif
+
+// Runs rar.exe/rar with an optional password piped over stdin instead of on
+// the command line, where it would otherwise be readable by any other local
+// process via /proc/<pid>/cmdline (Linux) or `ps -Eww` (macOS).
+bool runRarProcess(const QString& rarExe, QStringList args, const std::string& password,
+                   int timeoutMs, int& exitCode, const QString& workDir = {})
+{
+    if (!password.empty())
+        args << "-p";
+
+    QProcess proc;
+    if (!workDir.isEmpty())
+        proc.setWorkingDirectory(workDir);
+    proc.start(rarExe, args);
+    if (!proc.waitForStarted(10000)) { exitCode = -1; return false; }
+
+    if (!password.empty())
+    {
+        proc.write(QString::fromStdString(password).toUtf8());
+        proc.write("\n");
+        proc.closeWriteChannel();
+    }
+
+    if (!proc.waitForFinished(timeoutMs)) { proc.kill(); exitCode = -1; return false; }
+    exitCode = proc.exitCode();
+    return true;
+}
+
 } // namespace
 
 bool RarEngine::canAutoInstall()
@@ -405,11 +479,10 @@ bool RarEngine::RemoveEntry(std::string_view entryName)
          << QDir::toNativeSeparators(QString::fromStdString(m_path))
          << QString::fromStdString(std::string(entryName));
 
-    QProcess proc;
-    proc.start(rarExe, args);
-    if (!proc.waitForFinished(60000)) { proc.kill(); return false; }
+    int exitCode = -1;
+    if (!runRarProcess(rarExe, args, m_password, 60000, exitCode)) return false;
 
-    if (proc.exitCode() == 0)
+    if (exitCode == 0)
     {
         initReader(m_path);
         return true;
@@ -440,18 +513,14 @@ bool RarEngine::Save()
     QStringList args;
     args << "a" << "-r"
          << QString("-m%1").arg(rarCompressionLevel());
-    if (!m_password.empty())
-        args << QString("-p%1").arg(QString::fromStdString(m_password));
     args << "-idq"
          << QDir::toNativeSeparators(QString::fromStdString(m_path))
          << ".";
 
-    QProcess proc;
-    proc.setWorkingDirectory(tmpDir.path());
-    proc.start(rarExe, args);
-    if (!proc.waitForFinished(300000)) { proc.kill(); return false; }
+    int exitCode = -1;
+    if (!runRarProcess(rarExe, args, m_password, 300000, exitCode, tmpDir.path())) return false;
 
-    bool ok = (proc.exitCode() == 0);
+    bool ok = (exitCode == 0);
     if (ok)
     {
         m_pending.clear();
@@ -472,10 +541,9 @@ bool RarEngine::TestIntegrity(
         args << "t" << "-idq"
              << QDir::toNativeSeparators(QString::fromStdString(m_path));
 
-        QProcess proc;
-        proc.start(rarExe, args);
-        if (!proc.waitForFinished(120000)) { proc.kill(); return false; }
-        return (proc.exitCode() == 0);
+        int exitCode = -1;
+        if (!runRarProcess(rarExe, args, m_password, 120000, exitCode)) return false;
+        return exitCode == 0;
     }
 
     if (m_reader)
