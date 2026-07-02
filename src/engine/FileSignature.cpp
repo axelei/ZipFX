@@ -136,7 +136,11 @@ ArchiveType FileSignature::Detect(std::string_view path)
     uint8_t header[32];
     size_t n = std::fread(header, 1, sizeof(header), f);
     std::fseek(f, 0, SEEK_END);
-    long fileSize = std::ftell(f);
+#ifdef _WIN32
+    int64_t fileSize = _ftelli64(f);
+#else
+    int64_t fileSize = ftello(f);
+#endif
 
     for (const auto& sig : kSignatures)
     {
@@ -151,7 +155,12 @@ ArchiveType FileSignature::Detect(std::string_view path)
     if (fileSize > 512)
     {
         uint8_t koly[4];
-        if (std::fseek(f, fileSize - 512, SEEK_SET) == 0 &&
+#ifdef _WIN32
+        bool seekOk = _fseeki64(f, fileSize - 512, SEEK_SET) == 0;
+#else
+        bool seekOk = fseeko(f, fileSize - 512, SEEK_SET) == 0;
+#endif
+        if (seekOk &&
             std::fread(koly, 1, 4, f) == 4 &&
             koly[0] == 'k' && koly[1] == 'o' && koly[2] == 'l' && koly[3] == 'y')
         {
@@ -187,7 +196,17 @@ ArchiveType FileSignature::Detect(std::string_view path)
         bool validFats  = (numFats == 1 || numFats == 2);
         bool validSpc   = (spc >= 1 && (spc & (spc - 1)) == 0);
         bool validMedia = (mediaDesc == 0xF0 || mediaDesc >= 0xF8);
-        if (validJump && validBps && validFats && validSpc && validMedia)
+        // OEM name (bytes 3-10) is conventionally printable ASCII (e.g.
+        // "MSDOS5.0", "MSWIN4.1"); reject binary garbage there to cut down
+        // false positives on arbitrary files that happen to satisfy the
+        // other BPB heuristics above.
+        bool validOem = true;
+        for (int i = 3; i <= 10 && i < static_cast<int>(n); ++i)
+        {
+            uint8_t c = header[i];
+            if (c < 0x20 || c > 0x7E) { validOem = false; break; }
+        }
+        if (validJump && validBps && validFats && validSpc && validMedia && validOem)
             return ArchiveType::Fat;
     }
 
