@@ -119,10 +119,11 @@ bool Iso9660Reader::parseVolumeDescriptors()
     if (!havePvd) return false;
 
     // Prefer Joliet (Unicode names); fall back to PVD (ASCII)
+    std::unordered_set<uint32_t> visited;
     if (haveSvd)
-        walkDir(svdRootLba, svdRootSize, "", true);
+        walkDir(svdRootLba, svdRootSize, "", true, visited);
     else
-        walkDir(pvdRootLba, pvdRootSize, "", false);
+        walkDir(pvdRootLba, pvdRootSize, "", false, visited);
 
     return true;
 }
@@ -130,8 +131,14 @@ bool Iso9660Reader::parseVolumeDescriptors()
 // ── Directory tree walking ────────────────────────────────────────────────────
 
 void Iso9660Reader::walkDir(uint32_t lba, uint32_t size,
-                             const std::string& prefix, bool joliet)
+                             const std::string& prefix, bool joliet,
+                             std::unordered_set<uint32_t>& visitedLbas)
 {
+    // Guard against a directory record whose LBA points back at an ancestor
+    // (or itself), which would otherwise recurse until the stack overflows.
+    if (!visitedLbas.insert(lba).second) return;
+    if (visitedLbas.size() > 65536) return;
+
     uint8_t  sector[2048];
     uint32_t remaining = size;
     uint32_t curLba    = lba;
@@ -216,7 +223,7 @@ void Iso9660Reader::walkDir(uint32_t lba, uint32_t size,
             m_entries.push_back(e);
 
             if (isDir)
-                walkDir(fileLba, fileSize, fullPath, joliet);
+                walkDir(fileLba, fileSize, fullPath, joliet, visitedLbas);
 
             pos += recLen;
         }

@@ -6,6 +6,7 @@
 #include <ctime>
 #include <functional>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 // Self-contained ISO 9660 filesystem reader.
@@ -43,7 +44,8 @@ public:
 
 private:
     bool parseVolumeDescriptors();
-    void walkDir(uint32_t lba, uint32_t size, const std::string& prefix, bool joliet);
+    void walkDir(uint32_t lba, uint32_t size, const std::string& prefix, bool joliet,
+                 std::unordered_set<uint32_t>& visitedLbas);
     static time_t decodeDate(const uint8_t* d7);
 
     SectorFn           m_reader;
