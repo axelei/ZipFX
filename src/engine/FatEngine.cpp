@@ -68,9 +68,11 @@ std::vector<uint8_t> FatEngine::readClusterChain(uint16_t firstCluster,
 // pathPrefix: e.g. "SUBDIR/" or "" for root.
 
 void FatEngine::scanDirectory(const uint8_t* dirData, size_t dirSize,
-                               const std::string& pathPrefix)
+                               const std::string& pathPrefix, int depth)
 {
     static constexpr int kEntrySize = 32;
+    static constexpr int kMaxDepth = 32;
+    if (depth > kMaxDepth) return;
 
     for (size_t off = 0; off + kEntrySize <= dirSize; off += kEntrySize) {
         const uint8_t* e = dirData + off;
@@ -143,7 +145,7 @@ void FatEngine::scanDirectory(const uint8_t* dirData, size_t dirSize,
                     cur = fatEntry(cur);
                 }
                 if (!subData.empty())
-                    scanDirectory(subData.data(), subData.size(), fullPath + "/");
+                    scanDirectory(subData.data(), subData.size(), fullPath + "/", depth + 1);
             }
         } else {
             // Regular file

@@ -42,7 +42,7 @@ private:
     uint64_t clusterOffset(uint16_t cluster) const;
     // Scan a directory (either root or sub).  rootData = null means use root dir.
     void scanDirectory(const uint8_t* dirData, size_t dirSize,
-                       const std::string& pathPrefix);
+                       const std::string& pathPrefix, int depth = 0);
 
     struct FatEntry {
         std::string name;         // archive-relative path
