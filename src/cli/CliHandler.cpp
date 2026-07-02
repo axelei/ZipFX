@@ -277,7 +277,9 @@ static int doInfo(const std::string& path)
     std::cout << "Size: " << totalSize << " bytes" << std::endl;
     std::cout << "Packed: " << totalPacked << " bytes" << std::endl;
     if (totalSize > 0)
-        std::cout << "Ratio: " << (totalPacked * 100 / totalSize) << "%" << std::endl;
+        std::cout << "Ratio: " << std::fixed << std::setprecision(1)
+                   << (static_cast<double>(totalPacked) / static_cast<double>(totalSize) * 100.0)
+                   << "%" << std::endl;
 
     engine->Close();
     return 0;
