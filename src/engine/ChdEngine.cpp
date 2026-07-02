@@ -569,6 +569,80 @@ std::vector<uint8_t> ChdEngine::ReadFile(std::string_view entryName)
     return {};
 }
 
+std::vector<uint8_t> ChdEngine::ReadFilePartial(std::string_view entryName, size_t maxBytes)
+{
+    // Bounded counterpart of ReadFile(), used for previews: only decode the
+    // hunks actually covered by [0, maxBytes) instead of the whole entry.
+    // readRange()'s single-hunk cache means each hunk is only decompressed
+    // once even if touched by multiple sectors/chunks within that range.
+    if (m_hasFilesystem)
+    {
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
+        {
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
+
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
+                std::vector<uint8_t> result;
+                result.reserve(std::min<size_t>(e.size, maxBytes));
+                iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    size_t remaining = maxBytes - result.size();
+                    size_t take = std::min(len, remaining);
+                    result.insert(result.end(), data, data + take);
+                    return result.size() < maxBytes;
+                });
+                return result;
+            }
+        }
+    }
+
+    if (!m_cueSheetName.empty() && entryName == m_cueSheetName)
+    {
+        size_t n = std::min(m_cueSheetText.size(), maxBytes);
+        return std::vector<uint8_t>(m_cueSheetText.begin(), m_cueSheetText.begin() + n);
+    }
+
+    for (const auto& t : m_tracks)
+    {
+        if (t.name != entryName) continue;
+
+        if (t.type != "AUDIO")
+        {
+            uint64_t want = std::min<uint64_t>(t.size, maxBytes);
+            return readTrackData(t, 0, want);
+        }
+
+        // WAV header bytes count against maxBytes too, so cap the PCM
+        // portion to whatever's left after it.
+        if (maxBytes <= sizeof(WavHeader))
+        {
+            WavHeader hdr = buildCdAudioWavHeader(static_cast<uint32_t>(t.size));
+            std::vector<uint8_t> result(sizeof(WavHeader));
+            std::memcpy(result.data(), &hdr, sizeof(WavHeader));
+            result.resize(maxBytes);
+            return result;
+        }
+
+        uint64_t pcmWant = std::min<uint64_t>(t.size, maxBytes - sizeof(WavHeader));
+        auto pcm = readTrackData(t, 0, pcmWant);
+        swapAudioSamples(pcm);
+        // Declare the header's size as the truncated amount actually present
+        // (not the full track size) so this remains a valid, playable WAV
+        // snippet rather than one claiming more data than it contains.
+        WavHeader hdr = buildCdAudioWavHeader(static_cast<uint32_t>(pcm.size()));
+        std::vector<uint8_t> result(sizeof(WavHeader) + pcm.size());
+        std::memcpy(result.data(), &hdr, sizeof(WavHeader));
+        std::memcpy(result.data() + sizeof(WavHeader), pcm.data(), pcm.size());
+        return result;
+    }
+    LOG_WARN("CHD: entry '%.*s' not found", (int)entryName.size(), entryName.data());
+    return {};
+}
+
 bool ChdEngine::Extract(std::string_view entryName, std::string_view destPath)
 {
     if (!m_chd || m_hunkBytes == 0) return false;
