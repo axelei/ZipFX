@@ -1838,6 +1838,49 @@ Cancelled by user.</source>
             <source>Reading entries... %1</source>
             <translation type="unfinished" />
         </message>
+        <message>
+            <source>
+… and %1 more</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 files could not be extracted:
+
+%2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>%1 — %2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>1 file could not be extracted:
+
+%1</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Could not extract "%1".
+
+%2</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Extraction Incomplete</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>No secure credential store is available on this system (libsecret not found), so the password for "%1" was not saved. You will need to re-enter it next time.</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>Password Not Saved</source>
+            <translation type="unfinished" />
+        </message>
+        <message>
+            <source>This entry is encrypted — check that the password is correct.</source>
+            <translation type="unfinished" />
+        </message>
     </context>
     <context>
         <name>QObject</name>
