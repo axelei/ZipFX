@@ -160,6 +160,14 @@ private slots:
         {
             Bit7zEngine reader;
             QVERIFY(reader.Open(archive.string()));
+            const auto& entries = reader.ListContents();
+            QCOMPARE(entries.size(), size_t(1));
+            QVERIFY(entries[0].isEncrypted);
+            // Bit7z, when loaded (guaranteed here via SKIP_IF_NO_LIB),
+            // genuinely supports decryption — never the "can't decrypt"
+            // case that LibarchiveEngine's fallback hits.
+            QVERIFY(reader.EncryptionUnavailableReason().empty());
+
             reader.setPassword("hunter2");
             auto data = reader.ReadFile("hello.txt");
             QCOMPARE(std::string(data.begin(), data.end()), std::string("Hello from Bit7zEngine!"));

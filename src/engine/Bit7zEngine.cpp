@@ -123,6 +123,7 @@ bool Bit7zEngine::Open(std::string_view path)
             ae.size = item.size();
             ae.packedSize = item.packSize();
             ae.isDirectory = item.isDir();
+            ae.isEncrypted = item.isEncrypted();
             ae.permissions = item.attributes() & 0xFFF;
             if (ae.permissions == 0)
                 ae.permissions = ae.isDirectory ? 0755 : 0644;
@@ -518,6 +519,7 @@ bool Bit7zEngine::Save()
             ae.size = item.size();
             ae.packedSize = item.packSize();
             ae.isDirectory = item.isDir();
+            ae.isEncrypted = item.isEncrypted();
             ae.permissions = item.attributes() & 0xFFF;
             if (ae.permissions == 0)
                 ae.permissions = ae.isDirectory ? 0755 : 0644;

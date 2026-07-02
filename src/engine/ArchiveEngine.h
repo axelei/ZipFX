@@ -85,6 +85,12 @@ public:
 
     virtual void setPassword(std::string_view /*pwd*/) {}
     virtual bool SupportsEncryption() const { return false; }
+    // Non-empty when this engine instance cannot decrypt anything at all
+    // (as opposed to a wrong/missing password for a specific archive) —
+    // e.g. a backend whose crypto isn't implemented for this format. Used
+    // to show a precise diagnostic instead of a generic "extraction
+    // failed" when an entry flagged ArchiveEntry::isEncrypted fails to read.
+    virtual std::string EncryptionUnavailableReason() const { return {}; }
 
     virtual std::string_view FormatName() const = 0;
     virtual bool SupportsCreation() const = 0;

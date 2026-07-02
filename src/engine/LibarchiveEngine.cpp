@@ -121,6 +121,8 @@ bool LibarchiveEngine::LoadEntries()
         ae.size = rawSize > 0 ? static_cast<uint64_t>(rawSize) : 0;
         ae.packedSize = ae.size;
         ae.isDirectory = archive_entry_filetype(entry) == AE_IFDIR;
+        ae.isEncrypted = archive_entry_is_data_encrypted(entry) > 0
+                       || archive_entry_is_metadata_encrypted(entry) > 0;
         ae.permissions = archive_entry_perm(entry) & 0xFFF;
         if (ae.permissions == 0)
             ae.permissions = ae.isDirectory ? 0755 : 0644;

@@ -134,6 +134,14 @@ private slots:
 
         QVERIFY(eng.SupportsEncryption());
         QVERIFY(eng.Open(m_7zEncryptedFile.string()));
+
+        const auto& entries = eng.ListContents();
+        QCOMPARE(entries.size(), size_t(1));
+        QVERIFY(entries[0].isEncrypted);
+        // The whole point of this test: the UI can distinguish "this build
+        // can't decrypt" from "wrong password" via this non-empty reason.
+        QVERIFY(!eng.EncryptionUnavailableReason().empty());
+
         eng.setPassword("hunter2"); // the actual, correct password
         auto data = eng.ReadFile("7ztest.txt");
         QVERIFY(data.empty());

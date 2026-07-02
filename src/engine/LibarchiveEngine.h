@@ -49,6 +49,18 @@ public:
     {
         return m_formatName == "7z" || m_formatName == "RAR";
     }
+    // libarchive's 7z/RAR/RAR5 readers unconditionally reject encrypted
+    // content regardless of passphrase (confirmed in its own source: hard
+    // "not currently supported" errors, not a build-config gap) — so any
+    // encrypted entry read through this engine can never succeed.
+    std::string EncryptionUnavailableReason() const override
+    {
+        if (m_formatName == "7z" || m_formatName == "RAR")
+            return "This build can't decrypt " + m_formatName +
+                   " content without the 7-Zip library (7z.dll/lib7z.so) — "
+                   "install 7-Zip, or place the library where ZipFX can find it.";
+        return {};
+    }
 
 private:
     bool openArchive(std::string_view path);

@@ -204,6 +204,13 @@ private slots:
         {
             ZipEngine reader;
             QVERIFY(reader.Open(archivePath.string()));
+            const auto& entries = reader.ListContents();
+            QCOMPARE(entries.size(), size_t(1));
+            QVERIFY(entries[0].isEncrypted);
+            // ZipEngine can always decrypt (libzip has its own AES); it's
+            // never the "this build can't decrypt" case.
+            QVERIFY(reader.EncryptionUnavailableReason().empty());
+
             reader.setPassword("hunter2");
             auto data = reader.ReadFile("secret.txt");
             QCOMPARE(std::string(data.begin(), data.end()), std::string("top secret contents"));

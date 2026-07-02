@@ -125,6 +125,7 @@ private:
 #endif
     void clearSensitiveData();
     void doExtract(const QString& destPath, bool all, bool stripPaths = false);
+    QString extractionFailureDetail(const ArchiveEntry& entry) const;
     void doExtractSelected(const QModelIndexList& selection);
     void doAddPaths(const QStringList& paths);
     void afterActionDialog();

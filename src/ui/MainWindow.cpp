@@ -1402,6 +1402,19 @@ void MainWindow::onExtractSelected()
     doExtractSelected(sel);
 }
 
+// Returns a specific reason to append to a generic extraction-failure
+// message, or an empty string when there's nothing more precise to say
+// (e.g. the entry isn't flagged encrypted, or the active engine can
+// actually decrypt but the password was simply wrong).
+QString MainWindow::extractionFailureDetail(const ArchiveEntry& entry) const
+{
+    if (!entry.isEncrypted || !m_engine) return {};
+    std::string reason = m_engine->EncryptionUnavailableReason();
+    if (!reason.empty())
+        return QString::fromStdString(reason);
+    return tr("This entry is encrypted — check that the password is correct.");
+}
+
 void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
 {
     auto entries = m_engine->ListContents();
@@ -1456,6 +1469,7 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
 
     bool applyToAll = false;
     uint64_t bytesSoFar = 0;
+    QStringList failures;
 
     for (size_t i = 0; i < toExtract.size(); ++i)
     {
@@ -1509,6 +1523,8 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
             if (!m_keepBrokenFiles && QFileInfo::exists(destFile))
                 QFile::remove(destFile);
             qWarning("Failed to extract: %s", entry.path.c_str());
+            QString detail = extractionFailureDetail(entry);
+            failures << (detail.isEmpty() ? name : tr("%1 — %2").arg(name, detail));
         }
     }
 
@@ -1516,7 +1532,20 @@ void MainWindow::doExtract(const QString& destPath, bool all, bool stripPaths)
     delete m_progressDlg;
     m_progressDlg = nullptr;
 
-    statusBar()->showMessage(tr("Extraction complete"), 3000);
+    if (!failures.isEmpty() && !m_extractCancelled)
+    {
+        QString msg = failures.size() == 1
+            ? tr("1 file could not be extracted:\n\n%1").arg(failures.first())
+            : tr("%1 files could not be extracted:\n\n%2")
+                  .arg(failures.size())
+                  .arg(failures.mid(0, 10).join('\n')
+                       + (failures.size() > 10 ? tr("\n… and %1 more").arg(failures.size() - 10) : QString()));
+        QMessageBox::warning(this, tr("Extraction Incomplete"), msg);
+    }
+    else
+    {
+        statusBar()->showMessage(tr("Extraction complete"), 3000);
+    }
 
     if (m_openAfterExtract && !m_extractCancelled)
         QDesktopServices::openUrl(QUrl::fromLocalFile(destPath));
@@ -1997,8 +2026,13 @@ void MainWindow::onOpenEntry(bool pickApp)
         if (!ok)
         {
             if (!m_extractCancelled)
-                QMessageBox::warning(this, tr("Error"),
-                    tr("Could not extract \"%1\".").arg(filename));
+            {
+                QString detail = extractionFailureDetail(*foundEntry);
+                QString msg = detail.isEmpty()
+                    ? tr("Could not extract \"%1\".").arg(filename)
+                    : tr("Could not extract \"%1\".\n\n%2").arg(filename, detail);
+                QMessageBox::warning(this, tr("Error"), msg);
+            }
             return;
         }
 
@@ -2013,7 +2047,11 @@ void MainWindow::onOpenEntry(bool pickApp)
 
     if (!ok)
     {
-        QMessageBox::warning(this, tr("Error"), tr("Could not extract \"%1\".").arg(filename));
+        QString detail = extractionFailureDetail(*foundEntry);
+        QString msg = detail.isEmpty()
+            ? tr("Could not extract \"%1\".").arg(filename)
+            : tr("Could not extract \"%1\".\n\n%2").arg(filename, detail);
+        QMessageBox::warning(this, tr("Error"), msg);
         return;
     }
 

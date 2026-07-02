@@ -136,6 +136,8 @@ void ZipEngine::LoadEntries()
         entry.packedSize = st.comp_size;
         entry.crc = st.crc;
         entry.isDirectory = (name[0] && name[strlen(name) - 1] == '/');
+        entry.isEncrypted = (st.valid & ZIP_STAT_ENCRYPTION_METHOD)
+                          && st.encryption_method != ZIP_EM_NONE;
         // permission bits from zip_file_attributes
         {
             zip_uint8_t opsys;

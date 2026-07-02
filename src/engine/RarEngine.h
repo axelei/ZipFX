@@ -68,6 +68,15 @@ public:
     std::string ViewUnsupportedReason() const override;
     void setPassword(std::string_view pwd) override;
     bool SupportsEncryption() const override { return true; }
+    std::string EncryptionUnavailableReason() const override
+    {
+        // Reflects whichever reader is actually serving reads right now
+        // (Bit7z genuinely supports RAR decryption; the libarchive fallback
+        // does not — see LibarchiveEngine::EncryptionUnavailableReason()).
+        // rar.exe's own write/extract path (m_reader unset, Save()/
+        // RemoveEntry() shell out directly) always supports it.
+        return m_reader ? m_reader->EncryptionUnavailableReason() : std::string{};
+    }
 
 private:
     // pending files for the next Save() call: {srcPath, archiveEntryPath}
