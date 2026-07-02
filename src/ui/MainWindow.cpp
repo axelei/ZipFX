@@ -196,9 +196,17 @@ void MainWindow::clearSensitiveData()
 {
     if (!m_archivePassword.empty())
     {
-        volatile char* p = const_cast<volatile char*>(m_archivePassword.data());
-        for (size_t i = 0; i < m_archivePassword.size(); ++i)
-            p[i] = 0;
+        // A plain loop over a non-volatile pointer can be eliminated by the
+        // optimizer (especially under LTO) since the buffer is about to be
+        // destroyed anyway. Use the platform's guaranteed-not-elided zeroing
+        // primitive instead of relying on `volatile`.
+#ifdef _WIN32
+        SecureZeroMemory(m_archivePassword.data(), m_archivePassword.size());
+#elif defined(__APPLE__)
+        memset_s(m_archivePassword.data(), m_archivePassword.size(), 0, m_archivePassword.size());
+#else
+        explicit_bzero(m_archivePassword.data(), m_archivePassword.size());
+#endif
         m_archivePassword.clear();
     }
 }
@@ -309,7 +317,7 @@ void MainWindow::setupMenus()
                 tr("Remember this password for this archive?"),
                 QMessageBox::Yes | QMessageBox::No, QMessageBox::No);
             if (ans == QMessageBox::Yes)
-                savePassword(QFileInfo(QString::fromStdString(m_currentPath)).fileName(), pwd);
+                savePassword(QFileInfo(QString::fromStdString(m_currentPath)).absoluteFilePath(), pwd);
         }
     });
     m_setPasswordAct->setEnabled(false);
@@ -1155,7 +1163,7 @@ bool MainWindow::openArchive(const QString& path)
     // Auto-load saved password if not already set by the user this session
     if (m_archivePassword.empty())
     {
-        QString saved = loadPassword(QFileInfo(QString::fromStdString(firstVolPath)).fileName());
+        QString saved = loadPassword(QFileInfo(QString::fromStdString(firstVolPath)).absoluteFilePath());
         if (!saved.isEmpty())
             m_archivePassword = saved.toStdString();
     }
