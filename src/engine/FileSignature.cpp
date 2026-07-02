@@ -53,9 +53,9 @@ static const SigEntry kSignatures[] =
         return d[0] == 'K' && d[1] == 'D' && d[2] == 'M' && d[3] == 'V'; }},
     { ArchiveType::Qcow,     4, [](const uint8_t* d, size_t) {
         return d[0] == 'Q' && d[1] == 'F' && d[2] == 'I' && d[3] == 0xFB; }},
-    { ArchiveType::Nrg,      5, [](const uint8_t* d, size_t) {
+    { ArchiveType::Nrg,      4, [](const uint8_t* d, size_t n) {
         return (d[0] == 'N' && d[1] == 'E' && d[2] == 'R' && d[3] == '5') ||
-               (d[0] == 'N' && d[1] == 'e' && d[2] == 'r' && d[3] == 'o' && d[4] == '5'); }},
+               (n >= 5 && d[0] == 'N' && d[1] == 'e' && d[2] == 'r' && d[3] == 'o' && d[4] == '5'); }},
     { ArchiveType::Adf,      3, [](const uint8_t* d, size_t) {
         return d[0] == 'D' && d[1] == 'O' && d[2] == 'S'; }},
     { ArchiveType::Wad,      4, [](const uint8_t* d, size_t) {

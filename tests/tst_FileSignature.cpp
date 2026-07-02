@@ -47,7 +47,9 @@ private slots:
         m_adfFile  = write("test.adf",  {'D', 'O', 'S'});
 
         // D64/D71 Commodore disk images — detected by file size alone (no magic bytes)
-        // Naming these .bin to confirm the new size-only detection (no extension required)
+        // D64/D71 detection requires the matching extension alongside the exact
+        // size (see FileSignature.cpp) to avoid misidentifying arbitrary files
+        // that happen to be exactly 174848/175531/349696 bytes.
         auto writeZeros = [](const std::string& name, size_t size) {
             auto path = baseTempDir() / name;
             std::ofstream out(path, std::ios::binary);
@@ -55,9 +57,9 @@ private slots:
             out.write(zeros.data(), zeros.size());
             return path;
         };
-        m_d64File    = writeZeros("d64_standard.bin", 174848); // standard D64
-        m_d64ErrFile = writeZeros("d64_errinfo.bin",  175531); // D64 + error info bytes
-        m_d71File    = writeZeros("d71.bin",           349696); // D71 (two D64 sides)
+        m_d64File    = writeZeros("d64_standard.d64", 174848); // standard D64
+        m_d64ErrFile = writeZeros("d64_errinfo.d64",  175531); // D64 + error info bytes
+        m_d71File    = writeZeros("d71.d71",           349696); // D71 (two D64 sides)
 
         // Game archive magic bytes
         m_wadIWAD  = write("iwad.wad", {'I', 'W', 'A', 'D'});
@@ -138,7 +140,9 @@ private slots:
         QCOMPARE(FileSignature::Detect(m_adfFile.string()), ArchiveType::Adf);
     }
 
-    // D64/D71 — detected by file size alone, no magic bytes needed, extension irrelevant
+    // D64/D71 — no magic bytes; detected by exact file size plus a matching
+    // .d64/.d71 extension (required to avoid false positives on arbitrary
+    // files of the same size — see FileSignature.cpp).
     void testD64Standard()
     {
         QCOMPARE(FileSignature::Detect(m_d64File.string()), ArchiveType::D64);
