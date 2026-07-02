@@ -147,9 +147,11 @@ void MpqEngine::reloadEntries()
         if (SFileOpenFileEx(hMpq, "(listfile)", SFILE_OPEN_FROM_MPQ, &hFile))
         {
             std::vector<char> listData;
+            constexpr size_t kMaxListFileSize = 64ull * 1024 * 1024;
             char buf[4096];
             DWORD read = 0;
-            while (SFileReadFile(hFile, buf, sizeof(buf), &read, nullptr) && read > 0)
+            while (listData.size() < kMaxListFileSize &&
+                   SFileReadFile(hFile, buf, sizeof(buf), &read, nullptr) && read > 0)
                 listData.insert(listData.end(), buf, buf + read);
             SFileCloseFile(hFile);
 
@@ -309,6 +311,14 @@ std::vector<uint8_t> MpqEngine::ReadFile(std::string_view entryName)
     DWORD fileSize = SFileGetFileSize(hFile, nullptr);
     if (fileSize == SFILE_INVALID_SIZE)
     {
+        SFileCloseFile(hFile);
+        return {};
+    }
+
+    constexpr DWORD kMaxInMemoryFileSize = 512u * 1024 * 1024;
+    if (fileSize > kMaxInMemoryFileSize)
+    {
+        LOG_WARN("MpqEngine: entry '%s' size %u exceeds in-memory read limit", name.c_str(), fileSize);
         SFileCloseFile(hFile);
         return {};
     }
