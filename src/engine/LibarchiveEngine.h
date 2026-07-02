@@ -40,6 +40,16 @@ public:
     bool SupportsCreation() const override { return m_supportsCreation; }
     bool IsOpen() const override { return m_isOpen; }
 
+    // Only 7z and RAR support passphrase-encrypted entries in libarchive;
+    // the other formats routed through this engine (CAB, LHA, CPIO, AR,
+    // compressed tars, standalone compression, ...) have no such concept,
+    // so don't advertise a password field the UI can't do anything with.
+    void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
+    bool SupportsEncryption() const override
+    {
+        return m_formatName == "7z" || m_formatName == "RAR";
+    }
+
 private:
     bool openArchive(std::string_view path);
     bool LoadEntries();
@@ -51,6 +61,7 @@ private:
     std::string m_compressionMethod;
     bool m_isOpen = false;
     bool m_supportsCreation = false;
+    std::string m_password;
     std::vector<FormatRegistrar> m_registrars;
     std::vector<ArchiveEntry> m_entries;
     std::mutex m_archiveMutex;

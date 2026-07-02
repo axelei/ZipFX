@@ -35,6 +35,12 @@ void LibarchiveEngine::registerFormat(struct archive* a)
 {
     for (auto reg : m_registrars)
         reg(a);
+    // Applied on every (re-)open — RAR/7z/ZIP entries encrypted at the
+    // libarchive level (RarEngine's non-Bit7z fallback, or a 7z/ZIP opened
+    // directly via this engine) need the passphrase before headers/data are
+    // read; a no-op if m_password is empty or the format doesn't support it.
+    if (!m_password.empty())
+        archive_read_add_passphrase(a, m_password.c_str());
 }
 
 bool LibarchiveEngine::openArchive(std::string_view path)
