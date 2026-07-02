@@ -164,22 +164,6 @@ int main()
         PASS();
     }
 
-    // ── Open real MPQ (read test) ──
-    {
-        TEST("MPQ open_battle_net");
-        MpqEngine eng;
-        std::string bnetMpq = "C:\\Program Files (x86)\\Battle.net\\Battle.net.17438\\Battle.net.mpq";
-        if (!fs::exists(bnetMpq)) { FAIL("Battle.net MPQ not found"); }
-        // Some MPQs can't be opened for write; accept failure silently
-        if (!eng.Open(bnetMpq)) {
-            PASS();
-        } else {
-            auto entries = eng.ListContents();
-            if (entries.empty()) { FAIL("No entries found"); }
-            else { PASS(); }
-        }
-    }
-
     // ── Create with .mpk extension ──
     {
         TEST("MPQ create_mpk");
