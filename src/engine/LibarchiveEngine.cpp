@@ -5,6 +5,8 @@
 #include <archive.h>
 #include <archive_entry.h>
 
+#include <algorithm>
+#include <climits>
 #include <filesystem>
 #include <fstream>
 #include <array>
@@ -44,6 +46,11 @@ bool LibarchiveEngine::openArchive(std::string_view path)
     m_path = path;
 
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed (out of memory)", m_formatName.c_str());
+        return false;
+    }
     registerFormat(m_archive);
 
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
@@ -94,8 +101,15 @@ bool LibarchiveEngine::LoadEntries()
             m_openProgressCb(info);
         }
 
+        const char* pathname = archive_entry_pathname(entry);
+        if (!pathname)
+        {
+            archive_read_data_skip(m_archive);
+            continue;
+        }
+
         ArchiveEntry ae;
-        ae.name = archive_entry_pathname(entry);
+        ae.name = pathname;
         ae.path = ae.name;
         la_int64_t rawSize = archive_entry_size(entry);
         ae.size = rawSize > 0 ? static_cast<uint64_t>(rawSize) : 0;
@@ -148,6 +162,12 @@ bool LibarchiveEngine::Extract(std::string_view entryName, std::string_view dest
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed for Extract (out of memory)", m_formatName.c_str());
+        m_isOpen = false;
+        return false;
+    }
     registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
@@ -183,10 +203,19 @@ bool LibarchiveEngine::Extract(std::string_view entryName, std::string_view dest
             la_ssize_t bytesRead;
             while ((bytesRead = archive_read_data(m_archive, buf.data(), buf.size())) > 0)
             {
-                if (m_extractCancelled) return false;
+                if (m_extractCancelled)
+                {
+                    out.close();
+                    fs::remove(dest);
+                    return false;
+                }
                 out.write(buf.data(), bytesRead);
             }
-            return bytesRead >= 0 && out.good();
+            bool ok = bytesRead >= 0 && out.good();
+            out.close();
+            if (!ok)
+                fs::remove(dest);
+            return ok;
         }
 
         archive_read_data_skip(m_archive);
@@ -205,6 +234,12 @@ bool LibarchiveEngine::ExtractAll(std::string_view destPath)
     // Re-open for a single sequential pass through the archive
     archive_read_free(m_archive);
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed for ExtractAll (out of memory)", m_formatName.c_str());
+        m_isOpen = false;
+        return false;
+    }
     registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
@@ -278,6 +313,12 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed for ReadFile (out of memory)", m_formatName.c_str());
+        m_isOpen = false;
+        return {};
+    }
     registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
@@ -301,6 +342,13 @@ std::vector<uint8_t> LibarchiveEngine::ReadFile(std::string_view entryName)
             la_int64_t size = archive_entry_size(entry);
             if (size > 0)
             {
+                constexpr la_int64_t kMaxInMemoryFileSize = 512ll * 1024 * 1024;
+                if (size > kMaxInMemoryFileSize)
+                {
+                    LOG_WARN("%s: entry '%s' size %lld exceeds in-memory read limit",
+                             m_formatName.c_str(), name.c_str(), (long long)size);
+                    return {};
+                }
                 std::vector<uint8_t> data(static_cast<size_t>(size));
                 la_ssize_t bytesRead = archive_read_data(
                     m_archive, data.data(), static_cast<size_t>(size));
@@ -348,6 +396,12 @@ std::vector<uint8_t> LibarchiveEngine::ReadFilePartial(std::string_view entryNam
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed for ReadFilePartial (out of memory)", m_formatName.c_str());
+        m_isOpen = false;
+        return {};
+    }
     registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
@@ -400,6 +454,12 @@ bool LibarchiveEngine::ReadFileStreamed(std::string_view entryName, const Stream
 
     archive_read_free(m_archive);
     m_archive = archive_read_new();
+    if (!m_archive)
+    {
+        LOG_ERR("%s: archive_read_new() failed for ReadFileStreamed (out of memory)", m_formatName.c_str());
+        m_isOpen = false;
+        return false;
+    }
     registerFormat(m_archive);
     if (archive_read_open_filename(m_archive, m_path.c_str(), 10240) != ARCHIVE_OK)
     {
@@ -441,6 +501,11 @@ bool LibarchiveEngine::TestIntegrity(
     std::function<bool()> cancelFlag)
 {
     struct archive* a = archive_read_new();
+    if (!a)
+    {
+        LOG_ERR("%s: archive_read_new() failed for TestIntegrity (out of memory)", m_formatName.c_str());
+        return false;
+    }
     registerFormat(a);
 
     if (archive_read_open_filename(a, m_path.c_str(), 10240) != ARCHIVE_OK)
@@ -449,7 +514,7 @@ bool LibarchiveEngine::TestIntegrity(
         return false;
     }
 
-    int total = (int)m_entries.size();
+    int total = static_cast<int>(std::min<size_t>(m_entries.size(), INT_MAX));
     int current = 0;
 
     struct archive_entry* entry;
