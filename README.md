@@ -6,12 +6,14 @@ ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
 a wide range of archive formats through multiple backends: **libzip** for ZIP,
 **libarchive** for 7z, RAR, CAB, LHA, XAR, CPIO, compressed tars, and
 standalone compression, **Bit7z** (7-Zip engine) for extended format support,
-a custom **Iso9660Reader** for ISO and GDI disc images (with optional UDF
-fallback via libarchive), **libchdr** for MAME CHD disc images, a custom
-**CdiEngine** for DiscJuggler CDI images (with on-the-fly sector
-header/ECC stripping), **BSA** for Bethesda game archives, **Brotli** for
-`.br` files, and native engines for game archive formats, Amiga Disk Files,
-retro disk images, and more.
+a custom **Iso9660Reader** for ISO, GDI, and CHD disc images (with optional
+UDF fallback via libarchive), **libchdr** for MAME CHD disc images (CD-ROM,
+GD-ROM, HDD, DVD — mounts real filesystems and exposes playable audio
+tracks), a custom **CdiEngine** for DiscJuggler CDI images (with
+on-the-fly sector header/ECC stripping), **BSA** for Bethesda game
+archives, **Brotli** for `.br` files, and native engines for game archive
+formats, Amiga floppy and hard disk images (ADF/HDF via ADFlib), retro
+disk images, and more.
 
 ---
 
@@ -167,7 +169,8 @@ When creating a 7z archive, the Create Archive dialog exposes:
 | ISO | ✅ | ❌ | IsoEngine | Self-contained ISO 9660 reader; Joliet (Unicode names); UDF fallback via libarchive; cooked (2048-byte) and raw (2352-byte) sector support |
 | CDI | ✅ | ❌ | CdiEngine | DiscJuggler; auto-detects RAW/PQ/CD+G sector types; ISO-9660 parsing or raw `data.iso` fallback |
 | GDI | ✅ | ❌ | GdiEngine + IsoEngine | Dreamcast GDI; mounts the ISO 9660 filesystem from the main data track and exposes actual files; falls back to raw track view if no filesystem found |
-| CHD | ✅ | ❌ | libchdr | MAME Compressed Hunks of Data; CD-ROM, HDD, DVD |
+| CHD | ✅ | ❌ | libchdr | MAME Compressed Hunks of Data; see [CHD Disc Image Support](#chd-disc-image-support) below |
+| DMG | ✅ | ❌ | DmgEngine (macOS) / Bit7z (Windows/Linux) | Apple Disk Images; see notes below |
 | NRG | ✅ | ❌ | Bit7z | Nero CD images |
 | BIN/CUE | ✅ | ❌ | Bit7z | |
 | VHD / VHDX | ✅ | ❌ | Bit7z | Magic `conectix` |
@@ -179,6 +182,7 @@ When creating a 7z archive, the Create Archive dialog exposes:
 | Format | Read | Write | Backend | Notes |
 |--------|------|-------|---------|-------|
 | ADF | ✅ | ✅ | AdfEngine (ADFlib) | Amiga floppy; create 880 KB FFS images |
+| HDF | ✅ | ❌ | AdfEngine (ADFlib) | Amiga hard disk images; both RDB-partitioned (`RDSK` magic; mounts the first partition) and non-partitioned "hardfile" images (`DOS` boot block, same format as floppy ADF) |
 | D64 / D71 | ✅ | ❌ | D64Engine | Commodore 64/128 disk images; detected by file size (174848 / 175531 / 349696 bytes); C64 DOS directory parsing |
 | ATR | ✅ | ❌ | AtrEngine | Atari 8-bit disk images; SIO2PC format |
 | SSD / DSD | ✅ | ❌ | SsdEngine | BBC Micro / Acorn disk images |
@@ -187,10 +191,13 @@ When creating a 7z archive, the Create Archive dialog exposes:
 
 ### Additional Formats (via Bit7z / 7z.dll)
 
-APFS, ARJ, BIN/CUE, CHM, COFF, CRAMFS, DCS, DEX, DMG, ELF, EXT,
+APFS, ARJ, BIN/CUE, CHM, COFF, CRAMFS, DCS, DEX, ELF, EXT,
 FAT, FLV, GPT, HFS, HXS, IHEX, MBR, Mach-O, MSI, NES, NRG, NSIS,
 NTFS, PE, RPM, SquashFS, SWF, TE, UDF, UEFI, VDI, VHD / VHDX,
 WIM, and many more formats that 7-Zip supports.
+
+(DMG has its own dedicated row above — `DmgEngine` mounts a real
+filesystem on macOS; Windows/Linux use this generic Bit7z path instead.)
 
 ---
 
@@ -224,9 +231,9 @@ If the library is not found, Bit7z-based formats will be unavailable but all oth
 
 ## ISO 9660 / UDF / GDI Filesystem Support
 
-ZipFX includes a self-contained **ISO 9660 reader** (`Iso9660Reader`) used
-by both `IsoEngine` (`.iso` files) and `GdiEngine` (Dreamcast `.gdi`
-images):
+ZipFX includes a self-contained **ISO 9660 reader** (`Iso9660Reader`) shared
+by `IsoEngine` (`.iso` files), `GdiEngine` (Dreamcast `.gdi` images), and
+`ChdEngine` (CD-ROM/GD-ROM `.chd` images):
 
 - Scans Volume Descriptors from LBA 16; prefers a **Joliet** Supplementary
   Volume Descriptor (Unicode filenames, UCS-2 BE → UTF-8) over the
@@ -242,6 +249,65 @@ images):
   Dreamcast discs), mounts its ISO 9660 filesystem, and exposes actual
   files. Falls back to the raw-track view for audio-only discs or
   unrecognised sector formats
+- **Cycle-safe directory walking** — a visited-LBA set guards against a
+  crafted or corrupt disc image whose directory records reference an
+  ancestor or themselves, which would otherwise recurse indefinitely
+
+---
+
+## CHD Disc Image Support
+
+`ChdEngine` (via **libchdr**) exposes MAME CHD images (CD-ROM, GD-ROM,
+HDD, DVD, raw) as browsable archive entries rather than one opaque blob:
+
+- **CD-ROM / GD-ROM discs**: mounts the ISO 9660 filesystem from each
+  non-audio data track using `Iso9660Reader`, so the actual files on the
+  disc are listed and extractable. GD-ROM (Dreamcast) discs are detected
+  via the `CHGD` metadata tag (in addition to the standard `CHT2`/`CHTR`
+  tags) and use disc-absolute LBA addressing for their filesystem, unlike
+  ordinary CD-ROM tracks whose filesystem LBAs are relative to that
+  track's own start. Discs with more than one filesystem (GD-ROM has both
+  a small system-info area and the large game-data area) mount each one
+  under its own `Track NN/` folder.
+- **Audio tracks** (CD-DA) are exposed as playable `.wav` entries. CD audio
+  is stored big-endian on disc; ZipFX byte-swaps it to little-endian PCM
+  and wraps it in a standard 44-byte WAV header before exposing it.
+- **Raw-track + CUE fallback**: if no ISO 9660 filesystem can be mounted
+  (e.g. non-ISO9660 game filesystems like PC Engine CD's proprietary
+  format), each track is still exposed as a raw `Track NN.bin`/`.wav`
+  entry, plus a synthesized `.cue` sheet describing the track layout.
+  Because each track gets its own `FILE` statement in the cue sheet,
+  every `INDEX 01` is `00:00:00` (relative to that file's own start) —
+  this is correct multi-FILE cue sheet syntax, not a bug; pregap frames
+  aren't physically stored in the CHD and so are correctly omitted.
+- **Frame-accurate addressing**: CD sectors in a CHD are physically stored
+  as fixed 2448-byte frames (2352-byte raw sector + 96-byte subcode data),
+  regardless of the track's declared TYPE (MODE1, MODE1_RAW, MODE2,
+  MODE2_FORM1/FORM2/FORM_MIX, MODE2_RAW, AUDIO) — the engine computes the
+  correct `headerOff`/`userSize` per sector type to locate the "cooked"
+  user data within each raw frame.
+- **Efficient partial reads**: previewing a file only decompresses the
+  hunks actually covered by the requested byte range (via a single-hunk
+  decode cache), instead of decompressing the entire entry to show a
+  64 KB preview.
+- Write support is not implemented (CHD is read-only in ZipFX).
+
+---
+
+## DMG (Apple Disk Image) Support
+
+DMG support differs by platform, since actually mounting a UDIF image
+requires macOS:
+
+- **macOS**: `DmgEngine` mounts the image via `hdiutil` and walks the
+  resulting HFS+/APFS filesystem directly, so real files are listed and
+  extractable, same as any other archive. Available via **File → Open**
+  only — ZipFX does not register itself as a system handler for `.dmg`
+  (macOS already has strong opinions about what opens disk images).
+- **Windows / Linux**: falls back to `Bit7z`, which parses the UDIF
+  container structure via 7-Zip's DMG codec but does not mount a real
+  filesystem, so behavior can vary by image (compression type, whether
+  it's a plain HFS+ image vs. an APFS/encrypted one, etc.).
 
 ---
 
@@ -265,7 +331,7 @@ The following are fetched automatically by CMake via `FetchContent`:
 - **libzip** — ZIP read/write
 - **libarchive** — 7z, RAR, CAB, LHA, XAR, CPIO, AR, WARC, compressed tars, standalone compression; UDF fallback for ISO images
 - **bit7z** — extended format support via 7-Zip engine
-- **ADFlib** — Amiga Disk File format (.adf)
+- **ADFlib** — Amiga Disk File (.adf) and hard disk image (.hdf) formats
 - **StormLib** — Blizzard MPQ archive format
 - **libchdr** — MAME Compressed Hunks of Data (.chd) disc images
 - **brotli** — Brotli decompression (.br files)
@@ -434,10 +500,20 @@ ArchiveEngine (pure virtual interface)
 ├── GdiEngine — Dreamcast GDI disc images
 │   └── Iso9660Reader — mounts filesystem from main data track;
 │       falls back to raw-track view if no filesystem found
-├── ChdEngine (libchdr) — MAME CHD disc images (CD-ROM/HDD/DVD)
+├── ChdEngine (libchdr) — MAME CHD disc images (CD-ROM/GD-ROM/HDD/DVD);
+│   mounts ISO 9660 filesystem(s) per data track via Iso9660Reader,
+│   exposes CD-DA audio tracks as WAV, falls back to raw tracks + a
+│   synthesized .cue sheet when no filesystem can be mounted; bounded
+│   partial reads for preview (only decodes hunks actually requested)
+├── DmgEngine (hdiutil, macOS only) — Apple Disk Images; mounts via
+│   hdiutil and walks the real HFS+/APFS filesystem; Windows/Linux use
+│   the Bit7zEngine UDIF fallback instead (no real mount)
 ├── BsaEngine — Bethesda BSA v104/v105 with optional zlib decompression
 ├── BrotliEngine (libbrotli) — .br decompression (streaming)
-├── AdfEngine (ADFlib) — Amiga Disk Files (read + write FFS)
+├── AdfEngine (ADFlib) — Amiga Disk Files (.adf, read + write FFS) and
+│   Amiga hard disk images (.hdf, read-only; RDB-partitioned or
+│   non-partitioned "hardfile" — ADFlib's generic device layer
+│   auto-detects which)
 ├── D64Engine — Commodore 64/128 disk images (D64/D71, C64 DOS)
 ├── AtrEngine — Atari 8-bit disk images (SIO2PC ATR format)
 ├── SsdEngine — BBC Micro/Acorn disk images (SSD/DSD)
