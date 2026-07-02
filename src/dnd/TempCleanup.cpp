@@ -20,13 +20,26 @@ static std::mutex& mutex()
 static bool isUnderTempDir(const fs::path& path)
 {
     std::error_code ec;
-    fs::path base = fs::temp_directory_path(ec);
+    fs::path base = fs::weakly_canonical(fs::temp_directory_path(ec), ec);
     if (ec) return false;
-    // Require the candidate to start with the system temp dir.
-    auto b = base.lexically_normal();
-    auto p = path.lexically_normal();
-    auto [bEnd, pIt] = std::mismatch(b.begin(), b.end(), p.begin());
-    return bEnd == b.end() && pIt != p.begin();
+    fs::path candidate = fs::weakly_canonical(path, ec);
+    if (ec) return false;
+
+    // Compare as strings with an explicit separator boundary — comparing
+    // path *iterators* directly is unreliable here because
+    // temp_directory_path() on Windows returns a path with a trailing
+    // separator, and lexically_normal() turns that into a trailing "."
+    // component that never matches a real subdirectory component.
+    std::string baseStr = base.string();
+    std::string candStr = candidate.string();
+    if (!baseStr.empty() && (baseStr.back() == '/' || baseStr.back() == '\\'))
+        baseStr.pop_back();
+
+    if (candStr == baseStr) return true;
+    if (candStr.size() <= baseStr.size()) return false;
+    if (candStr.compare(0, baseStr.size(), baseStr) != 0) return false;
+    char sep = candStr[baseStr.size()];
+    return sep == '/' || sep == '\\';
 }
 
 void TempCleanup::registerPath(const fs::path& path)
@@ -34,8 +47,8 @@ void TempCleanup::registerPath(const fs::path& path)
     if (!isUnderTempDir(path))
     {
         std::fprintf(stderr,
-            "TempCleanup: refusing to register '%s' — not under temp directory\n",
-            path.c_str());
+            "TempCleanup: refusing to register '%s' - not under temp directory\n",
+            path.string().c_str());
         return;
     }
     std::lock_guard<std::mutex> lock(mutex());
@@ -65,8 +78,8 @@ void TempCleanup::cleanupAll()
         if (!isUnderTempDir(path))
         {
             std::fprintf(stderr,
-                "TempCleanup: skipping '%s' — not under temp directory\n",
-                path.c_str());
+                "TempCleanup: skipping '%s' - not under temp directory\n",
+                path.string().c_str());
             continue;
         }
         std::error_code ec;
