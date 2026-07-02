@@ -178,20 +178,33 @@ static void SkipTarData(gzFile f, uint64_t fileSize)
 // Read fileSize bytes from the gzFile stream (the data block following a header)
 static std::string ReadTarDataAsString(gzFile f, uint64_t fileSize)
 {
-    std::string result(static_cast<size_t>(fileSize), '\0');
-    if (fileSize > 0)
+    if (fileSize > UINT64_MAX - TAR_BLOCK_SIZE)
+        fileSize = UINT64_MAX - TAR_BLOCK_SIZE;
+    // Long-name/link and PAX header data blocks are always small; cap the
+    // allocation so a crafted header claiming a huge size can't OOM us.
+    constexpr uint64_t kMaxHeaderDataSize = 1024ull * 1024;
+    uint64_t readSize = std::min(fileSize, kMaxHeaderDataSize);
+    std::string result(static_cast<size_t>(readSize), '\0');
+    if (readSize > 0)
     {
-        int r = gzread(f, result.data(), static_cast<unsigned int>(fileSize));
-        if (r < 0 || static_cast<uint64_t>(r) != fileSize)
-            result.assign(static_cast<size_t>(fileSize), '\0');
+        int r = gzread(f, result.data(), static_cast<unsigned int>(readSize));
+        if (r < 0 || static_cast<uint64_t>(r) != readSize)
+            result.assign(static_cast<size_t>(readSize), '\0');
     }
-    // Skip remaining padding
+    // Skip remaining padding (and any excess beyond the cap), in bounded
+    // chunks — fileSize is attacker-controlled and can be enormous.
     uint64_t padded = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
-    uint64_t remaining = padded - fileSize;
+    uint64_t remaining = padded - readSize;
     if (remaining > 0)
     {
-        std::vector<char> pad(static_cast<size_t>(remaining));
-        gzread(f, pad.data(), static_cast<unsigned int>(remaining));
+        std::vector<char> pad(static_cast<size_t>(std::min<uint64_t>(remaining, 65536)));
+        while (remaining > 0)
+        {
+            size_t toSkip = static_cast<size_t>(std::min<uint64_t>(remaining, pad.size()));
+            int r = gzread(f, pad.data(), static_cast<unsigned int>(toSkip));
+            if (r <= 0) break;
+            remaining -= static_cast<uint64_t>(r);
+        }
     }
     // Trim trailing nulls (GNU long names are null-terminated)
     while (!result.empty() && result.back() == '\0')
@@ -368,7 +381,7 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (linkIt != m_linkTargets.end())
         name = linkIt->second;
 
-    gzclose(m_gzFile);
+    if (m_gzFile) { gzclose(m_gzFile); m_gzFile = nullptr; }
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile) return false;
 
@@ -489,7 +502,7 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
     if (linkIt != m_linkTargets.end())
         name = linkIt->second;
 
-    gzclose(m_gzFile);
+    if (m_gzFile) { gzclose(m_gzFile); m_gzFile = nullptr; }
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile)
         return {};
@@ -579,7 +592,7 @@ std::vector<uint8_t> TarGzEngine::ReadFilePartial(std::string_view entryName, si
     if (linkIt != m_linkTargets.end())
         name = linkIt->second;
 
-    gzclose(m_gzFile);
+    if (m_gzFile) { gzclose(m_gzFile); m_gzFile = nullptr; }
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile) return {};
 
@@ -644,7 +657,7 @@ bool TarGzEngine::ReadFileStreamed(std::string_view entryName, const StreamConsu
     if (linkIt != m_linkTargets.end())
         name = linkIt->second;
 
-    gzclose(m_gzFile);
+    if (m_gzFile) { gzclose(m_gzFile); m_gzFile = nullptr; }
     m_gzFile = gzopen(m_path.c_str(), "rb");
     if (!m_gzFile) return false;
 
@@ -1035,6 +1048,8 @@ bool TarGzEngine::TestIntegrity(
         }
 
         uint64_t fileSize = ParseOctal(hdr.size, 12);
+        if (fileSize > UINT64_MAX - TAR_BLOCK_SIZE)
+            fileSize = UINT64_MAX - TAR_BLOCK_SIZE;
         uint64_t paddedSize = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
 
         std::vector<char> skipBuf(static_cast<size_t>(
