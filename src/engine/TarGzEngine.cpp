@@ -4,6 +4,7 @@
 
 #include <zlib.h>
 
+#include <climits>
 #include <cstring>
 #include <filesystem>
 #include <fstream>
@@ -813,6 +814,26 @@ bool TarGzEngine::Save()
             prefix = name.substr(0, slash);
             name = name.substr(slash + 1);
         }
+        bool needsLongName = name.size() >= TAR_NAME_SIZE || prefix.size() >= TAR_PREFIX_SIZE;
+        if (needsLongName)
+        {
+            // ustar's name+prefix split can't represent this path losslessly;
+            // emit a GNU long-name header carrying the full path instead of
+            // silently truncating it.
+            TarHeader lhdr = {};
+            std::memcpy(lhdr.name, "././@LongLink", 13);
+            FormatOctal(lhdr.size, 12, archivePath.size() + 1);
+            lhdr.typeflag = 'L';
+            std::memcpy(lhdr.magic, "ustar", 5);
+            std::memcpy(lhdr.version, "00", 2);
+            FormatOctal(lhdr.chksum, 8, ComputeChecksum(&lhdr));
+            writeBlock(&lhdr, sizeof(lhdr));
+            std::string padded = archivePath + '\0';
+            writeBlock(padded.c_str(), padded.size());
+
+            name = archivePath;
+            prefix.clear();
+        }
         if (name.size() >= TAR_NAME_SIZE)
             name.resize(TAR_NAME_SIZE - 1);
         if (prefix.size() >= TAR_PREFIX_SIZE)
@@ -1017,7 +1038,7 @@ bool TarGzEngine::TestIntegrity(
         return false;
     }
 
-    int total = (int)m_entries.size();
+    int total = static_cast<int>(std::min<size_t>(m_entries.size(), INT_MAX));
     int current = 0;
 
     TarHeader hdr;
