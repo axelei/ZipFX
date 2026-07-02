@@ -47,7 +47,7 @@ bool GobEngine::doSave(std::ofstream& f)
     f.write("GOB ", 4);
     writeLE32(f, static_cast<uint32_t>(count));
 
-    uint32_t dataOff = 8 + static_cast<uint32_t>(count) * 136;
+    uint32_t dataOff = static_cast<uint32_t>(8ull + static_cast<uint64_t>(count) * 136ull);
 
     // Write directory entries (offset[4] + size[4] + name[128])
     for (const auto& e : m_entries)

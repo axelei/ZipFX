@@ -64,7 +64,7 @@ bool PodEngine::doSave(std::ofstream& f)
     f.write("POD1", 4);
     writeLE32(f, static_cast<uint32_t>(count));
 
-    uint32_t dataOff = 8 + static_cast<uint32_t>(count) * 40;
+    uint32_t dataOff = static_cast<uint32_t>(8ull + static_cast<uint64_t>(count) * 40ull);
 
     // Write directory entries (name[32] + size[4] + offset[4])
     std::vector<uint32_t> offsets;

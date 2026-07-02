@@ -41,7 +41,7 @@ bool HogEngine::doSave(std::ofstream& f)
     f.write("HOG\xF0", 4);
 
     // Compute offsets: entries start at 4, data starts at 4 + count*44
-    uint32_t dataOff = 4 + static_cast<uint32_t>(count) * 44;
+    uint32_t dataOff = static_cast<uint32_t>(4ull + static_cast<uint64_t>(count) * 44ull);
 
     // Write entries with computed data offsets
     for (size_t i = 0; i < count; ++i)

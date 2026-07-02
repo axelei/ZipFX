@@ -2,6 +2,7 @@
 #include "BinaryUtils.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 
 bool GrpEngine::Open(std::string_view path)
@@ -16,7 +17,9 @@ bool GrpEngine::Open(std::string_view path)
         int count = static_cast<int>(readLE32(hdr + 12));
         if (count <= 0) return false;
 
-        uint32_t dataOff = 16 + static_cast<uint32_t>(count) * 16;
+        uint64_t dataOff64 = 16ull + static_cast<uint64_t>(count) * 16ull;
+        if (dataOff64 > UINT32_MAX) return false;
+        uint32_t dataOff = static_cast<uint32_t>(dataOff64);
 
         for (int i = 0; i < count; ++i)
         {
@@ -50,7 +53,7 @@ bool GrpEngine::doSave(std::ofstream& f)
     // Compute sizes and data offsets
     std::vector<uint32_t> sizes;
     sizes.reserve(count);
-    uint32_t dataOff = 16 + static_cast<uint32_t>(count) * 16;
+    uint32_t dataOff = static_cast<uint32_t>(16ull + static_cast<uint64_t>(count) * 16ull);
 
     for (const auto& e : m_entries)
     {
