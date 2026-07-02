@@ -180,7 +180,11 @@ static std::string ReadTarDataAsString(gzFile f, uint64_t fileSize)
 {
     std::string result(static_cast<size_t>(fileSize), '\0');
     if (fileSize > 0)
-        gzread(f, result.data(), static_cast<unsigned int>(fileSize));
+    {
+        int r = gzread(f, result.data(), static_cast<unsigned int>(fileSize));
+        if (r < 0 || static_cast<uint64_t>(r) != fileSize)
+            result.assign(static_cast<size_t>(fileSize), '\0');
+    }
     // Skip remaining padding
     uint64_t padded = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
     uint64_t remaining = padded - fileSize;
@@ -407,7 +411,7 @@ bool TarGzEngine::Extract(std::string_view entryName, std::string_view destPath)
             resolved = fs::weakly_canonical(resolved);
             std::string resolvedStr = resolved.string();
             std::string destParentStr = fs::weakly_canonical(dest.parent_path()).string();
-            if (resolvedStr.rfind(destParentStr, 0) != 0)
+            if (resolvedStr != destParentStr && resolvedStr.rfind(destParentStr + "/", 0) != 0)
             {
                 LOG_WARN("TarGzEngine: rejecting symlink escaping extraction dir: %s -> %s",
                          std::string(destPath).c_str(), target.c_str());
@@ -528,11 +532,13 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
 
         if (currentName == name && fileSize > 0)
         {
+            constexpr uint64_t kMaxInMemoryFileSize = 256ull * 1024 * 1024;
+            uint64_t readSize = std::min(fileSize, kMaxInMemoryFileSize);
             std::vector<uint8_t> result;
-            result.reserve(static_cast<size_t>(fileSize));
+            result.reserve(static_cast<size_t>(readSize));
             constexpr size_t kChunk = 65536;
             uint8_t buf[kChunk];
-            uint64_t remaining = fileSize;
+            uint64_t remaining = readSize;
             while (remaining > 0)
             {
                 size_t toRead = static_cast<size_t>(std::min<uint64_t>(remaining, kChunk));
@@ -541,6 +547,20 @@ std::vector<uint8_t> TarGzEngine::ReadFile(std::string_view entryName)
                 result.insert(result.end(), buf, buf + r);
                 remaining -= static_cast<uint64_t>(r);
             }
+            // If the file exceeded the cap, discard the rest (plus block padding)
+            // so the stream stays aligned for any subsequent read.
+            uint64_t paddedTotal = ((fileSize + TAR_BLOCK_SIZE - 1) / TAR_BLOCK_SIZE) * TAR_BLOCK_SIZE;
+            uint64_t leftover = paddedTotal - readSize;
+            while (leftover > 0)
+            {
+                size_t toSkip = static_cast<size_t>(std::min<uint64_t>(leftover, kChunk));
+                int r = gzread(m_gzFile, buf, static_cast<unsigned int>(toSkip));
+                if (r <= 0) break;
+                leftover -= static_cast<uint64_t>(r);
+            }
+            if (readSize < fileSize)
+                LOG_WARN("TarGzEngine: entry '%s' truncated to %llu bytes (actual size %llu)",
+                         name.c_str(), (unsigned long long)readSize, (unsigned long long)fileSize);
             return result;
         }
 
