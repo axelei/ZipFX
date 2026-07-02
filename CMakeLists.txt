@@ -530,10 +530,15 @@ if(APPLE)
         MACOSX_BUNDLE_INFO_PLIST "${CMAKE_BINARY_DIR}/Info.plist"
         MACOSX_BUNDLE_ICON_FILE "AppIcon"
     )
-    # Copy icon into the bundle
+    # Copy icon and license into the bundle
     set_source_files_properties("${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns"
         PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
-    target_sources(ZipFX PRIVATE "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns")
+    set_source_files_properties("${CMAKE_SOURCE_DIR}/LICENSE"
+        PROPERTIES MACOSX_PACKAGE_LOCATION "Resources")
+    target_sources(ZipFX PRIVATE
+        "${CMAKE_SOURCE_DIR}/src/resources/AppIcon.icns"
+        "${CMAKE_SOURCE_DIR}/LICENSE"
+    )
     # Copy translations into the bundle (also via RESOURCE)
     file(GLOB QM_FILES "${CMAKE_BINARY_DIR}/translations/*.qm")
     foreach(QM ${QM_FILES})

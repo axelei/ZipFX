@@ -473,6 +473,7 @@ void MainWindow::setupMenus()
     helpMenu->addAction(tr("&License"), this, [this]() {
         QStringList paths = {
             QApplication::applicationDirPath() + "/LICENSE",
+            QApplication::applicationDirPath() + "/../Resources/LICENSE",  // macOS bundle
             QApplication::applicationDirPath() + "/../LICENSE",
             QApplication::applicationDirPath() + "/../share/doc/zipfx/LICENSE",
         };
