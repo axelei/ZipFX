@@ -2,90 +2,57 @@
 
 ![ZipFX screenshot](screenshot.png)
 
-**Multi-format archive manager for power users.**
+**A cross-platform archive manager for power users.**
 
-ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
-a wide range of archive formats through multiple backends: **libzip** for ZIP,
-**libarchive** for 7z, RAR, CAB, LHA, XAR, CPIO, compressed tars, and
-standalone compression, **Bit7z** (7-Zip engine) for extended format support,
-a custom **Iso9660Reader** for ISO, GDI, and CHD disc images (with optional
-UDF fallback via libarchive), **libchdr** for MAME CHD disc images (CD-ROM,
-GD-ROM, HDD, DVD — mounts real filesystems and exposes playable audio
-tracks), a custom **CdiEngine** for DiscJuggler CDI images (with
-on-the-fly sector header/ECC stripping), **BSA** for Bethesda game
-archives, **Brotli** for `.br` files, and native engines for game archive
-formats, Amiga floppy and hard disk images (ADF/HDF via ADFlib), retro
-disk images, and more.
+ZipFX is built around the everyday cases — ZIP, 7z, RAR, tar — with the
+controls a advanced user actually wants: real compression tuning instead of
+a single "level" slider, in-place ZIP edits, a scriptable CLI alongside the
+GUI, batch processing, archive conversion/repair, and passwords stored in
+the OS keychain instead of a settings file. The engine architecture behind
+all that also happens to make outrageous format coverage nearly free —
+disc images, game archives, Amiga disks, tracker modules — so it's there
+too, as a side effect rather than the point.
 
 ---
 
-## Features
+## Highlights
 
-### Browsing & Navigation
-- **Hierarchical and flat file tree browsing** with column sorting
-- **Search/filter bar** (case-insensitive substring matching)
-- **Find Files dialog** (`Ctrl+F`) — search by name glob, size range, and date range; double-click navigates to the entry
-- **Column visibility toggle** — right-click the column header to show/hide any column; choices are persistent across refreshes
-- **Status bar** shows selection count and total size of selected files
-- **Recent files list** — address bar remembers last 10 opened archives
-- **Multi-volume VPK support** — reads from `_000.vpk`, `_001.vpk` volume files
+- **Real compression control for 7z**, not just a slider: method (LZMA2,
+  BZip2, PPMd, ...), dictionary size, word size, thread count, and solid
+  mode, all exposed in the Create Archive dialog.
+- **In-place ZIP editing** — add/delete entries without rewriting the whole
+  archive, plus transparent Deflate64 fallback (libzip can't decode it, so
+  ZipFX quietly re-reads those entries through the 7-Zip engine).
+- **CLI mode** alongside the GUI (`list`, `extract`, `create`, `test`,
+  `info`) for scripting, plus batch operations in the GUI for testing or
+  extracting every archive in a folder tree.
+- **Archive conversion and repair** — convert between formats via
+  extract-and-repack, or recover what's readable from a damaged archive.
+- **Passwords go in the OS keychain** (Windows Credential Manager / macOS
+  Keychain / libsecret), not a plaintext settings file — with AES-256 for 7z.
+- **Lazy drag-out on Linux via FUSE** — files are read from the archive on
+  demand as the drop target opens them, instead of pre-extracting everything
+  before the drag even starts. Works even on Wayland.
+- **Checksums on demand** — CRC32 (stored and recomputed) and SHA-256 per
+  file, computed in the background with a progress bar.
 
-### Extraction & Creation
-- **Create, extract, view, and test** archives across dozens of formats
-- **In-place ZIP modification** (add/delete files without full rewrite)
-- **Deflate64 ZIP support** — ZipEngine detects Deflate64-compressed entries (method 9) and transparently routes reads to the 7-Zip engine
-- **Recursive folder add** from filesystem (drag & drop or dialog)
-- **Extract…** toolbar button and menu — the folder picker opens in the same directory as the archive
-- **Extract Here** — extract to the same directory as the archive
-- **Extract without Paths** — strips directory structure on extraction
-- **Exclude patterns** — glob-based patterns to skip files when adding
-- **Keep Broken Files on Extraction** — configurable option to retain partial files
-- **Windows shell drag & drop** with full directory structure preservation
-- **Overwrite confirmation** with apply-to-all
-- **Archive conversion** — convert any supported format to another (ZIP, 7z, TAR.GZ, TAR.BZ2, TAR.XZ) via extract-and-repack
-- **Archive repair** — test integrity, extract what can be recovered, save as a new archive
-- **Symlink support in TAR.GZ** — symlinks are read, preserved on re-save, and recreated on extract (non-Windows); GNU long link records (typeflag `K`) are handled
+And, as a side effect of the same pluggable engine architecture:
 
-### 7z Advanced Compression Options
-When creating a 7z archive, the Create Archive dialog exposes:
-- **Compression method** — Copy, Deflate, Deflate64, BZip2, LZMA, LZMA2, PPMd
-- **Dictionary size** — 256 KB → 1 GB
-- **Word size** — fine-tune match length
-- **Thread count** — override auto-detected CPU count
-- **Solid mode** — toggle solid block compression (on by default); solid archives cannot be randomly accessed entry-by-entry
-
-### Batch & Automation
-- **Batch operations** — test or extract all archives in a folder (recursive optional); live log per archive
-- **CLI mode** (`list`, `extract`, `create`, `test`, `info` subcommands)
-- **Extraction and save after-action** (sleep / hibernate / shutdown)
-
-### Viewing & Preview
-- **Preview pane** (toggle via Options menu) — shows text, hex dump, or image inline for the selected entry; reads only a 64 KB chunk for speed
-- **File preview in viewer** — open or open-with for entries directly from the archive
-- **Archive information panel** (path, format, file/folder counts, packed and unpacked sizes, compression ratio, compression method)
-- **POSIX permissions column** displayed as `rwxrwxrwx`
-- **Magic-number file type detection** — opens files regardless of extension
-
-### Security & Passwords
-- **Password manager** — save passwords per archive filename; auto-applied when opening; editable via Commands menu
-- **Set Password** — prompts to save the password for next time
-- **AES-256 encryption** for 7z archives (with optional header encryption)
-
-### Checksums
-- **Checksums dialog** (right-click → Checksums…) — shows CRC32 stored in the archive, CRC32 computed from extracted bytes, and SHA-256 for each selected file; computes on-the-fly with a progress bar and a Copy to Clipboard button
-
-### UI & UX
-- **Select All / Invert Selection** (Edit menu, `Ctrl+A`)
-- **Right-click context menu** with Open, Open With, Copy Path, Rename, Delete, Properties, Checksums
-- **File rename** (right-click context menu; in-place for ZIP)
-- **16 languages**: English, Spanish, French, German, Italian, Portuguese,
-  Dutch, Swedish, Norwegian, Danish, Finnish, Russian, Japanese, Chinese,
-  Korean, Arabic
-- **Progress dialogs with byte-rate ETA and cancel** for all operations
-- **Cancel actually aborts the save** (engines check a cancel flag at safe abort points; worker thread keeps the UI responsive)
-- **ADF creation** — create Amiga floppy images directly
-- **App icon** on all platforms (`.ico` Windows, `.icns` macOS, `.png` Linux)
-- **Windows shell extension** — right-click context menu on archive files in Explorer
+- **Disc images expose real files, not a blob.** CHD, CDI, GDI, and ISO
+  images are parsed down to the actual ISO 9660 filesystem on disc — CD-ROM,
+  GD-ROM (Dreamcast), and multi-session DiscJuggler images included. Getting
+  there required reverse-engineering the DiscJuggler `.cdi` footer format and
+  handling GD-ROM's disc-absolute LBA addressing; see
+  [CHD Disc Image Support](#chd-disc-image-support) for the gory details.
+  Audio tracks come out as playable WAV files.
+- **Native game archive engines**, most with full write support: WAD (Doom),
+  PAK (Quake/Half-Life), GRP (Duke Nukem 3D), HOG (Descent), VPK (Source,
+  multi-volume), GOB (Dark Forces/Jedi Knight), RFF (Blood), BIG (EA titles),
+  POD (Terminal Velocity), MPQ (Blizzard titles), BSA (Bethesda titles).
+- **Amiga support via ADFlib** — floppy images (`.adf`, read/write) and hard
+  disk images (`.hdf`, RDB-partitioned or plain "hardfile", auto-detected).
+- **Tracker modules become listenable** — MOD/S3M/IT/XM/MTM/MED/669/ULT/STM
+  sample data is exposed as WAV entries, not just raw bytes.
 
 ---
 
