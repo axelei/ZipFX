@@ -96,7 +96,15 @@ public:
     {
         if (entryName.empty() || entryName.find("..") != std::string::npos)
             return false;
-        if (entryName.size() > 0 && entryName[0] == '/')
+        if (entryName[0] == '/' || entryName[0] == '\\')
+            return false;
+        // Reject Windows drive-letter absolute paths (e.g. "C:\..." or
+        // "C:/...") and UNC paths ("\\server\share"), which fs::path treats
+        // as absolute and would discard the destination directory when
+        // joined with operator/.
+        if (entryName.size() >= 2 && entryName[1] == ':' &&
+            ((entryName[0] >= 'A' && entryName[0] <= 'Z') ||
+             (entryName[0] >= 'a' && entryName[0] <= 'z')))
             return false;
         return true;
     }

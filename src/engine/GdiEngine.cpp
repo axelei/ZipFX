@@ -385,6 +385,7 @@ bool GdiEngine::ExtractAll(std::string_view destPath)
     for (const auto& ae : m_entries)
     {
         if (m_extractCancelled) return false;
+        if (!isSafeEntryName(ae.name)) { LOG_WARN("GdiEngine: skipping unsafe entry '%s'", ae.name.c_str()); continue; }
         if (ae.isDirectory)
         {
             fs::create_directories(fs::path(destPath) / ae.path);

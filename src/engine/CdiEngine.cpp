@@ -492,6 +492,7 @@ return Extract("data.iso", rawIsoDest);
         if (!currentName) continue;
 
         std::string name(currentName);
+        if (!isSafeEntryName(name)) { LOG_WARN("CdiEngine: skipping unsafe entry '%s'", name.c_str()); continue; }
         bool isDir = archive_entry_filetype(entry) == AE_IFDIR;
 
         fs::path fullPath = fs::path(destPath) / name;
