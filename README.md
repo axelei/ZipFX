@@ -1,11 +1,11 @@
 # ZipFX
 
-![ZipFX screenshot](screenshot.png)
-
 **A cross-platform archive manager for power users.**
 
+![ZipFX screenshot](screenshot.png)
+
 ZipFX is built around the everyday cases — ZIP, 7z, RAR, tar — with the
-controls a advanced user actually wants: real compression tuning instead of
+controls an advanced user actually wants: real compression tuning instead of
 a single "level" slider, in-place ZIP edits, a scriptable CLI alongside the
 GUI, batch processing, archive conversion/repair, and passwords stored in
 the OS keychain instead of a settings file. The engine architecture behind
