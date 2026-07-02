@@ -70,8 +70,20 @@ private slots:
         QCOMPARE(model.currentDir(), "src");
         QCOMPARE(model.rowCount(), 3); // .., main.cpp, util.h
 
+        // navigateInto() takes a name relative to the current directory
+        // (matching how MainWindow calls it with a listed child entry's
+        // name), so navigating further has to go through a real child of
+        // the current directory — "docs" is a top-level sibling of "src",
+        // not one of its children, so reaching it requires navigating back
+        // up first.
+        model.navigateUp();
+        QCOMPARE(model.currentDir(), "");
+
         model.navigateInto("docs");
         QCOMPARE(model.currentDir(), "docs");
+
+        model.navigateInto("help");
+        QCOMPARE(model.currentDir(), "docs/help");
     }
 
     void testNavigateUp()
