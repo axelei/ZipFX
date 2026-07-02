@@ -387,6 +387,18 @@ int RarEngine::rarCompressionLevel() const
 
 // ── ArchiveEngine interface ────────────────────────────────────────────────
 
+void RarEngine::setPassword(std::string_view pwd)
+{
+    m_password = std::string(pwd);
+    // MainWindow calls Open() first, then applies a saved/typed password
+    // afterward — initReader() already ran by then, so the password must
+    // also be forwarded to the already-constructed sub-reader(s) here, or
+    // it would silently never reach the engine that actually decrypts
+    // entry data.
+    if (m_reader) m_reader->setPassword(m_password);
+    if (m_fallbackReader) m_fallbackReader->setPassword(m_password);
+}
+
 bool RarEngine::Open(std::string_view path)
 {
     Close();

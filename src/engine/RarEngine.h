@@ -66,7 +66,7 @@ public:
     bool SupportsCreation()           const override { return isAvailable(); }
     bool SupportsViewFile()           const override;
     std::string ViewUnsupportedReason() const override;
-    void setPassword(std::string_view pwd) override { m_password = std::string(pwd); }
+    void setPassword(std::string_view pwd) override;
     bool SupportsEncryption() const override { return true; }
 
 private:
