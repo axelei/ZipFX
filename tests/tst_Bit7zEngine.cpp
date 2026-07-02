@@ -144,6 +144,44 @@ private slots:
         QVERIFY(eng.TestIntegrity());
     }
 
+    void testPasswordRoundTrip()
+    {
+        SKIP_IF_NO_LIB();
+
+        auto archive = m_dir.path / "encrypted.7z";
+        Bit7zEngine writer;
+        QVERIFY(writer.Create(archive.string()));
+        writer.setPassword("hunter2");
+        QVERIFY(writer.AddFile((baseTempDir() / "b7src/hello.txt").string(), "hello.txt"));
+        QVERIFY(writer.Save());
+
+        // Correct password, applied after Open() (matching MainWindow's
+        // real open-then-apply-saved-password flow): read succeeds.
+        {
+            Bit7zEngine reader;
+            QVERIFY(reader.Open(archive.string()));
+            reader.setPassword("hunter2");
+            auto data = reader.ReadFile("hello.txt");
+            QCOMPARE(std::string(data.begin(), data.end()), std::string("Hello from Bit7zEngine!"));
+        }
+
+        // Wrong/missing password: extraction must fail closed, not return
+        // garbage or the plaintext.
+        {
+            Bit7zEngine reader;
+            QVERIFY(reader.Open(archive.string()));
+            auto data = reader.ReadFile("hello.txt");
+            QVERIFY(data.empty());
+        }
+        {
+            Bit7zEngine reader;
+            QVERIFY(reader.Open(archive.string()));
+            reader.setPassword("wrong password");
+            auto data = reader.ReadFile("hello.txt");
+            QVERIFY(data.empty());
+        }
+    }
+
     // ── Compression options ───────────────────────────────────────────
     void testCompressionLevelStore()
     {

@@ -63,6 +63,19 @@ Bit7zEngine::~Bit7zEngine()
     Close();
 }
 
+void Bit7zEngine::setPassword(std::string_view pwd)
+{
+    m_password = std::string(pwd);
+    // MainWindow's normal flow is Open() first, then setPassword() with a
+    // saved/typed password afterward. Extract()/ReadFile()/ExtractAll()/
+    // TestIntegrity() read m_password fresh each time they construct a
+    // BitFileExtractor, so they're covered regardless of ordering; m_reader
+    // (used for listing/comment) is updated here too for consistency, though
+    // it only helps archives whose header wasn't already encrypted at Open().
+    if (m_reader)
+        m_reader->setPassword(m_password);
+}
+
 bool Bit7zEngine::Open(std::string_view path)
 {
     if (!m_lib) return false;
@@ -72,6 +85,13 @@ bool Bit7zEngine::Open(std::string_view path)
     {
         auto pathStr = std::string(path);
         m_reader = std::make_unique<bit7z::BitArchiveReader>(*m_lib, pathStr);
+        // Only helps when the password is already known before Open() (e.g.
+        // RarEngine's Bit7z fallback, which calls setPassword() first) —
+        // data-encrypted archives (filenames visible) list fine either way,
+        // and setPassword() after Open() (see below) covers the common
+        // MainWindow flow of opening first, then applying a saved password.
+        if (!m_password.empty())
+            m_reader->setPassword(m_password);
 
         m_path = pathStr;
         m_isOpen = true;
@@ -231,6 +251,8 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
+        if (!m_password.empty())
+            extractor.setPassword(m_password);
 
         // Progress callback keeps UI responsive, reports ETA, enables cancellation
         extractor.setProgressCallback([this, entryName, totalBytes](uint64_t processed) -> bool {
@@ -280,6 +302,8 @@ bool Bit7zEngine::ExtractAll(std::string_view destPath)
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
+        if (!m_password.empty())
+            extractor.setPassword(m_password);
         extractor.extract(m_path, std::string(destPath));
         return true;
     }
@@ -305,6 +329,8 @@ std::vector<uint8_t> Bit7zEngine::ReadFile(std::string_view entryName)
     try
     {
         bit7z::BitFileExtractor extractor(*m_lib);
+        if (!m_password.empty())
+            extractor.setPassword(m_password);
 
         // Report progress for UI responsiveness
         extractor.setProgressCallback([this](uint64_t) -> bool {
@@ -526,6 +552,8 @@ bool Bit7zEngine::TestIntegrity(
             if (progressCallback) progressCallback(i, total);
         }
         bit7z::BitFileExtractor extractor(*m_lib);
+        if (!m_password.empty())
+            extractor.setPassword(m_password);
         extractor.test(m_path);
         if (progressCallback) progressCallback(total, total);
         return true;
