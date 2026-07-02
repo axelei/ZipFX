@@ -319,6 +319,7 @@ void MainWindow::setupMenus()
             if (ans == QMessageBox::Yes)
                 savePassword(QFileInfo(QString::fromStdString(m_currentPath)).absoluteFilePath(), pwd);
         }
+        pwd.fill(QChar(0));
     });
     m_setPasswordAct->setEnabled(false);
     cmdMenu->addAction(tr("E&xclude Patterns..."), this, [this]() {
@@ -3474,7 +3475,7 @@ void MainWindow::registerFileAssociationsLinux()
             contents += "Type=Application\n";
             contents += "Name=ZipFX\n";
             contents += "Comment=Multi-format archive manager\n";
-            contents += "Exec=" + execPath.toUtf8() + " %f\n";
+            contents += "Exec=\"" + execPath.toUtf8() + "\" %f\n";
             contents += "Icon=zipfx\n";
             contents += "StartupWMClass=zipfx\n";
             contents += "Terminal=false\n";
