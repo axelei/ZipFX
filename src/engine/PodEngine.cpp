@@ -1,7 +1,9 @@
 #include "PodEngine.h"
 #include "BinaryUtils.h"
+#include "Logging.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 
 bool PodEngine::Open(std::string_view path)
@@ -61,20 +63,30 @@ bool PodEngine::doSave(std::ofstream& f)
     // Write as POD1 (simplest variant)
     size_t count = m_entries.size();
 
-    f.write("POD1", 4);
-    writeLE32(f, static_cast<uint32_t>(count));
-
-    uint32_t dataOff = static_cast<uint32_t>(8ull + static_cast<uint64_t>(count) * 40ull);
+    uint64_t dataOff64 = 8ull + static_cast<uint64_t>(count) * 40ull;
 
     // Write directory entries (name[32] + size[4] + offset[4])
     std::vector<uint32_t> offsets;
-    uint32_t curOff = dataOff;
+    uint64_t curOff = dataOff64;
     for (const auto& e : m_entries)
     {
         uint32_t sz = e.size > 0 ? e.size : 0;
-        offsets.push_back(curOff);
+        if (curOff > UINT32_MAX)
+        {
+            LOG_ERR("PodEngine: archive exceeds 4 GB, which the POD format cannot address");
+            return false;
+        }
+        offsets.push_back(static_cast<uint32_t>(curOff));
         curOff += sz;
     }
+    if (curOff > UINT32_MAX)
+    {
+        LOG_ERR("PodEngine: archive exceeds 4 GB, which the POD format cannot address");
+        return false;
+    }
+
+    f.write("POD1", 4);
+    writeLE32(f, static_cast<uint32_t>(count));
 
     for (size_t i = 0; i < count; ++i)
     {

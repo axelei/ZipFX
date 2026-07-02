@@ -1,7 +1,9 @@
 #include "PakEngine.h"
 #include "BinaryUtils.h"
+#include "Logging.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 
 bool PakEngine::Open(std::string_view path)
@@ -49,18 +51,29 @@ bool PakEngine::doSave(std::ofstream& f)
     writeLE32(f, 0);
 
     std::vector<uint32_t> offsets;
-    uint32_t curOff = 12;
+    uint64_t curOff = 12;
 
     for (const auto& e : m_entries)
     {
         if (e.size == 0) { offsets.push_back(0); continue; }
-        offsets.push_back(curOff);
+        if (curOff > UINT32_MAX)
+        {
+            LOG_ERR("PakEngine: archive exceeds 4 GB, which the PAK format cannot address");
+            return false;
+        }
+        offsets.push_back(static_cast<uint32_t>(curOff));
         f.write(reinterpret_cast<const char*>(e.data.data()), e.size);
         curOff += e.size;
     }
 
+    if (curOff > UINT32_MAX)
+    {
+        LOG_ERR("PakEngine: archive exceeds 4 GB, which the PAK format cannot address");
+        return false;
+    }
+
     // Write directory (name[56] + offset[4] + size[4])
-    uint32_t dirOff = curOff;
+    uint32_t dirOff = static_cast<uint32_t>(curOff);
     for (size_t i = 0; i < count; ++i)
     {
         if (m_entries[i].size == 0) continue;

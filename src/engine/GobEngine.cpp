@@ -1,7 +1,9 @@
 #include "GobEngine.h"
 #include "BinaryUtils.h"
+#include "Logging.h"
 
 #include <algorithm>
+#include <cstdint>
 #include <cstring>
 
 bool GobEngine::Open(std::string_view path)
@@ -47,13 +49,22 @@ bool GobEngine::doSave(std::ofstream& f)
     f.write("GOB ", 4);
     writeLE32(f, static_cast<uint32_t>(count));
 
-    uint32_t dataOff = static_cast<uint32_t>(8ull + static_cast<uint64_t>(count) * 136ull);
+    uint64_t dataOff = 8ull + static_cast<uint64_t>(count) * 136ull;
+    {
+        uint64_t total = dataOff;
+        for (const auto& e : m_entries) total += e.size > 0 ? e.size : 0;
+        if (total > UINT32_MAX)
+        {
+            LOG_ERR("GobEngine: archive exceeds 4 GB, which the GOB format cannot address");
+            return false;
+        }
+    }
 
     // Write directory entries (offset[4] + size[4] + name[128])
     for (const auto& e : m_entries)
     {
         uint32_t sz = e.size > 0 ? e.size : 0;
-        writeLE32(f, dataOff);
+        writeLE32(f, static_cast<uint32_t>(dataOff));
         writeLE32(f, sz);
 
         char name[128] = {};
