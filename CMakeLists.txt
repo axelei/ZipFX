@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.20)
 set(CMAKE_POLICY_VERSION_MINIMUM 3.5)
-project(ZipFX VERSION 0.8.1 LANGUAGES C CXX)
+project(ZipFX VERSION 0.9.0 LANGUAGES C CXX)
 if(APPLE)
     enable_language(OBJCXX)
 endif()
