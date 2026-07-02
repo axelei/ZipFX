@@ -1953,9 +1953,12 @@ void MainWindow::onOpenEntry(bool pickApp)
     if (!foundEntry) return;
 
     QString filename = fi.fileName();
-    QString tempDir = QDir::tempPath() + "/ZipFX_Open/"
-        + QString::number(QRandomGenerator::global()->generate64(), 16) + "/";
-    QDir().mkpath(tempDir);
+    // QTemporaryDir uses an atomic mkdtemp-equivalent creation (no separate
+    // compute-path-then-mkpath TOCTOU window) with restrictive permissions.
+    QTemporaryDir tempDirObj(QDir::tempPath() + "/ZipFX_Open_XXXXXX");
+    if (!tempDirObj.isValid()) return;
+    tempDirObj.setAutoRemove(false);
+    QString tempDir = tempDirObj.path() + "/";
     TempCleanup::registerPath(tempDir.toStdString());
     QString destFile = tempDir + filename;
 
@@ -2453,10 +2456,11 @@ void MainWindow::onBeginDrag()
         // Without this, cascading re-entrant calls corrupt libzip / Qt heap state.
         m_dragInProgress = true;
 
-        QString tmpRoot = QStandardPaths::writableLocation(
-            QStandardPaths::TempLocation) + "/ZipFX_Drag/"
-            + QString::number(QRandomGenerator::global()->generate64(), 16) + "/";
-        QDir().mkpath(tmpRoot);
+        QTemporaryDir tmpRootObj(QStandardPaths::writableLocation(
+            QStandardPaths::TempLocation) + "/ZipFX_Drag_XXXXXX");
+        if (!tmpRootObj.isValid()) { m_dragInProgress = false; return; }
+        tmpRootObj.setAutoRemove(false);
+        QString tmpRoot = tmpRootObj.path() + "/";
         TempCleanup::registerPath(tmpRoot.toStdString());
 
         uint64_t totalBytesDrag = 0;
@@ -2894,6 +2898,7 @@ void MainWindow::onConvertArchive()
         prog.setValue(i);
         const auto& e = entries[i];
         if (e.isDirectory) continue;
+        if (!ArchiveEngine::isSafeEntryName(e.path)) continue;
         prog.setLabelText(QString::fromUtf8(e.name.c_str()));
         QApplication::processEvents();
         QString dest = tempDir.path() + "/" + QString::fromUtf8(e.path.c_str());
@@ -2997,6 +3002,7 @@ void MainWindow::onRepairArchive()
         for (const auto& e : entries)
         {
             if (e.isDirectory) continue;
+            if (!ArchiveEngine::isSafeEntryName(e.path)) { failed++; continue; }
             QString dest = tempDir.path() + "/" + QString::fromUtf8(e.path.c_str());
             QDir().mkpath(QFileInfo(dest).path());
             if (m_engine->Extract(e.path, dest.toStdString()))
