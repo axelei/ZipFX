@@ -17,6 +17,301 @@ static const uint8_t kSyncHeader[12] = {
     0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0x00
 };
 
+// ── DiscJuggler CDI footer parsing ───────────────────────────────────────
+//
+// DiscJuggler .cdi files store raw track sector data sequentially at the
+// start of the file, followed by a footer (session/track descriptor table)
+// at the end. The footer format was reverse-engineered by the community;
+// see e.g. https://problemkaputt.de/psxspx-cdrom-disk-images-cdi-discjuggler.htm
+//
+// Overall layout, forward from (filesize - footerSize):
+//   Number of Sessions (1 byte)
+//   for each session:
+//     Session Block (15 bytes) — byte[1] = track count for this session
+//     that many Track Blocks
+//   Session Block for "no more sessions" (15 bytes, track count = 0)
+//   Disc Info Block (variable)
+//   Entrypoint (4 bytes, = footer size) at filesize-4
+//
+// Track Start Address in the Track Block is disc/TOC-relative addressing
+// (e.g. GD-ROM's high-density area conventionally starts at LBA 45000) —
+// NOT a file offset. Each track's actual file position is the cumulative
+// byte length of every track stored before it (sectors are packed back to
+// back with no gaps); this is verified against the footer's own start
+// offset as a sanity check below.
+namespace {
+
+uint32_t rdU32(FILE* f) { uint8_t b[4] = {0}; std::fread(b, 1, 4, f); return b[0] | (b[1] << 8) | (b[2] << 16) | (static_cast<uint32_t>(b[3]) << 24); }
+uint16_t rdU16(FILE* f) { uint8_t b[2] = {0}; std::fread(b, 1, 2, f); return static_cast<uint16_t>(b[0] | (b[1] << 8)); }
+uint8_t  rdU8(FILE* f)  { uint8_t b = 0; std::fread(&b, 1, 1, f); return b; }
+void     skipBytes(FILE* f, long n) { if (n > 0) std::fseek(f, n, SEEK_CUR); }
+
+// Track/Disc Header, shared by Track Blocks and the Disc Info Block.
+// Consumes exactly 0x30+F bytes; returns F (filename length).
+long parseCdiHeader(FILE* f, int& totalTracks, int& mediumType, std::string& fname)
+{
+    skipBytes(f, 0x0F);              // 12 + 3 unknown bytes
+    totalTracks = rdU8(f);           // 0x0F
+    uint8_t nameLen = rdU8(f);        // 0x10
+    fname.resize(nameLen);
+    if (nameLen) std::fread(fname.data(), 1, nameLen, f);
+    skipBytes(f, 11);                 // 0x11+F
+    skipBytes(f, 1);                  // 0x1C+F (unknown 02h)
+    skipBytes(f, 10);                 // 0x1D+F
+    skipBytes(f, 1);                  // 0x27+F (unknown 80h)
+    skipBytes(f, 4);                  // 0x28+F (unknown 00057E40h)
+    skipBytes(f, 2);                  // 0x2C+F
+    mediumType = rdU16(f);            // 0x2E+F
+    return nameLen;                   // cursor now at 0x30+F
+}
+
+} // namespace
+
+bool CdiEngine::parseFooter()
+{
+    m_tracks.clear();
+
+    FILE* f = std::fopen(m_path.c_str(), "rb");
+    if (!f) return false;
+
+    std::fseek(f, 0, SEEK_END);
+    long filesize = std::ftell(f);
+    if (filesize < 1024) { std::fclose(f); return false; }
+
+    std::fseek(f, -4, SEEK_END);
+    uint32_t footerSize = rdU32(f);
+    if (footerSize < 20 || static_cast<long>(footerSize) >= filesize)
+    { std::fclose(f); return false; }
+
+    long footerStart = filesize - static_cast<long>(footerSize);
+    std::fseek(f, footerStart, SEEK_SET);
+    uint8_t numSessions = rdU8(f);
+    if (numSessions == 0 || numSessions > 99) { std::fclose(f); return false; }
+
+    uint64_t cumulativeOffset = 0;
+    bool ok = true;
+    for (int s = 0; ok && s < numSessions; ++s)
+    {
+        // Session Block (15 bytes)
+        rdU8(f);                       // 00h unknown
+        uint8_t trackCount = rdU8(f);  // 01h track count
+        skipBytes(f, 7);                // 02h unknown
+        rdU8(f);                       // 09h unknown
+        skipBytes(f, 3);                 // 0Ah unknown
+        skipBytes(f, 2);                 // 0Dh unknown (FFh,FFh)
+
+        if (trackCount == 0 || trackCount > 99) { ok = false; break; }
+
+        for (int t = 0; ok && t < trackCount; ++t)
+        {
+            CdiTrackInfo tr;
+            int totalTracks = 0, mediumType = 0;
+            parseCdiHeader(f, totalTracks, mediumType, tr.name); // -> 0x30+F
+
+            uint16_t numIndices = rdU16(f);       // 0x30+F -> 0x32+F
+            skipBytes(f, static_cast<long>(numIndices) * 4);
+            uint32_t cdTextLen = rdU32(f);        // -> 0x36+FI
+            skipBytes(f, static_cast<long>(cdTextLen)); // -> 0x36+FIT
+
+            skipBytes(f, 2);                        // -> 0x38+FIT
+            tr.trackMode = rdU8(f);                 // -> 0x39+FIT
+            skipBytes(f, 7);                         // -> 0x40+FIT
+            tr.sessionNum = static_cast<int>(rdU32(f)); // -> 0x44+FIT
+            tr.trackNum   = static_cast<int>(rdU32(f)); // -> 0x48+FIT
+            tr.discStartLba = rdU32(f);             // -> 0x4C+FIT (disc/TOC-relative, not a file offset)
+            tr.numSectors = rdU32(f);               // -> 0x50+FIT
+            skipBytes(f, 0x0C);                       // -> 0x5C+FIT
+            skipBytes(f, 4);                          // -> 0x60+FIT
+            uint32_t readMode = rdU32(f);           // -> 0x64+FIT
+            skipBytes(f, 4);                          // Control -> 0x68+FIT
+            skipBytes(f, 1);                          // -> 0x69+FIT
+            rdU32(f);                                // Track Length dup -> 0x6D+FIT
+            skipBytes(f, 4);                          // -> 0x71+FIT
+            skipBytes(f, 0x0C);                       // ISRC code -> 0x7D+FIT
+            skipBytes(f, 4);                          // ISRC valid flag -> 0x81+FIT
+            skipBytes(f, 1);                          // -> 0x82+FIT
+            skipBytes(f, 8);                          // -> 0x8A+FIT
+            skipBytes(f, 4);                          // -> 0x8E+FIT
+            skipBytes(f, 4);                          // -> 0x92+FIT
+            skipBytes(f, 4);                          // -> 0x96+FIT
+            skipBytes(f, 4);                          // -> 0x9A+FIT
+            skipBytes(f, 4);                          // -> 0x9E+FIT
+            skipBytes(f, 0x2A);                       // -> 0xC8+FIT
+            skipBytes(f, 4);                          // -> 0xCC+FIT
+            skipBytes(f, 0x0C);                       // -> 0xD8+FIT
+            skipBytes(f, 1);                          // session_type -> 0xD9+FIT
+            skipBytes(f, 5);                          // -> 0xDE+FIT
+            skipBytes(f, 1);                          // not-last-track flag -> 0xDF+FIT
+            skipBytes(f, 1);                          // -> 0xE0+FIT
+            skipBytes(f, 4);                          // address for last track -> 0xE4+FIT
+
+            switch (readMode)
+            {
+            case 0: tr.sectorSize = 2048; tr.headerOff = 0;  tr.userSize = 2048; break; // Mode1
+            case 1: tr.sectorSize = 2336; tr.headerOff = 8;  tr.userSize = 2048; break; // Mode2 Form1
+            case 2: tr.sectorSize = 2352; tr.headerOff = 0;  tr.userSize = 2352; break; // Audio
+            case 3: tr.sectorSize = 2368; tr.headerOff = 16; tr.userSize = 2048; break; // Raw+PQ
+            case 4: tr.sectorSize = 2448; tr.headerOff = 16; tr.userSize = 2048; break; // Raw+PQRSTUVW
+            default: ok = false; break;
+            }
+            if (!ok) break;
+
+            tr.fileOffset = cumulativeOffset;
+            cumulativeOffset += tr.numSectors * tr.sectorSize;
+            m_tracks.push_back(tr);
+        }
+    }
+
+    // Terminator session block (15 bytes, track count byte should be 0 but
+    // don't hard-require it — just consume it and move on).
+    if (ok) skipBytes(f, 15);
+
+    bool valid = ok && !m_tracks.empty()
+              && static_cast<long>(cumulativeOffset) == footerStart;
+    std::fclose(f);
+
+    if (!valid)
+    {
+        LOG_WARN("CDI: footer parse failed sanity check for %s (cumulative=%llu, footerStart=%ld) — falling back to legacy detection",
+                  m_path.c_str(), (unsigned long long)cumulativeOffset, footerStart);
+        m_tracks.clear();
+        return false;
+    }
+
+    LOG_DBG("CDI: parsed %zu track(s) from footer in %s", m_tracks.size(), m_path.c_str());
+    return true;
+}
+
+bool CdiEngine::tryMountFilesystems()
+{
+    bool anyMounted = false;
+    for (size_t i = 0; i < m_tracks.size(); ++i)
+    {
+        const auto& t = m_tracks[i];
+        if (t.trackMode == 0) continue; // audio track, no filesystem to mount
+
+        // The ISO 9660 structures inside some tracks (observed on GD-ROM-
+        // style discs) reference LBAs that are disc-absolute (relative to
+        // the track's own "Track Start Address" from the footer) rather
+        // than relative to where the track's bytes actually sit in the
+        // file. On top of that, a standard Red Book track physically
+        // stores a 150-sector (2-second) pregap before its logical LBA 0 —
+        // confirmed here empirically (VolSpaceSize was exactly numSectors
+        // minus 150). So: file-relative sector = pregap + (lba -
+        // discStartLba). Try the common pregap=150 case first, then 0 for
+        // discs/rips that don't store one.
+        Iso9660Reader iso;
+        bool opened = false;
+        for (uint32_t pregap : {150u, 0u})
+        {
+            auto sectorFn = [this, &t, pregap](uint32_t lba, uint8_t* out2048) -> bool {
+                uint32_t relLba = pregap + (lba - t.discStartLba);
+                auto data = readTrackRange(t, static_cast<uint64_t>(relLba) * t.userSize, t.userSize);
+                if (data.size() != t.userSize) return false;
+                std::memcpy(out2048, data.data(), t.userSize);
+                return true;
+            };
+            // Iso9660Reader's scan requires the exact starting LBA — it
+            // stops at the first sector that isn't a valid Volume
+            // Descriptor, it doesn't scan forward looking for one.
+            if (iso.open(sectorFn, t.discStartLba + 16) && !iso.entries().empty())
+            { opened = true; break; }
+        }
+        if (!opened) continue;
+
+        m_isoMounts.push_back(std::move(iso));
+        m_isoMountTrackIdx.push_back(static_cast<int>(i));
+        anyMounted = true;
+    }
+
+    // Prefix with "Track NN/" only when more than one filesystem mounted,
+    // matching ChdEngine's convention for multi-filesystem discs.
+    bool multi = m_isoMounts.size() > 1;
+    m_isoMountPrefixes.clear();
+    for (size_t m = 0; m < m_isoMounts.size(); ++m)
+    {
+        int ti = m_isoMountTrackIdx[m];
+        std::string prefix;
+        if (multi)
+        {
+            char buf[32];
+            // trackNum is per-session (each session's tracks start over at
+            // 0), so it's not globally unique across sessions — use the
+            // track's position in the overall file order instead.
+            std::snprintf(buf, sizeof(buf), "Track %02d/", ti + 1);
+            prefix = buf;
+        }
+        m_isoMountPrefixes.push_back(prefix);
+
+        for (const auto& e : m_isoMounts[m].entries())
+        {
+            ArchiveEntry ae;
+            ae.name = prefix + e.path;
+            ae.path = ae.name;
+            ae.size = e.size;
+            ae.packedSize = e.size;
+            ae.isDirectory = e.isDir;
+            ae.permissions = e.isDir ? 0755 : 0644;
+            ae.modified = std::chrono::system_clock::from_time_t(e.mtime);
+            m_entries.push_back(std::move(ae));
+        }
+    }
+
+    // Expose any track that didn't yield a filesystem (audio tracks, or a
+    // data track that failed to mount) as a raw entry so nothing vanishes.
+    std::vector<bool> mounted(m_tracks.size(), false);
+    for (int ti : m_isoMountTrackIdx) mounted[ti] = true;
+    for (size_t i = 0; i < m_tracks.size(); ++i)
+    {
+        if (mounted[i]) continue;
+        char nameBuf[32];
+        std::snprintf(nameBuf, sizeof(nameBuf), "Track %02d.bin", static_cast<int>(i) + 1);
+        ArchiveEntry ae;
+        ae.name = nameBuf;
+        ae.path = ae.name;
+        ae.size = m_tracks[i].numSectors * m_tracks[i].userSize;
+        ae.packedSize = ae.size;
+        ae.isDirectory = false;
+        ae.compressionMethod = (m_tracks[i].trackMode == 0) ? "AUDIO" : "DATA";
+        m_entries.push_back(std::move(ae));
+    }
+
+    m_hasFilesystem = anyMounted;
+    return anyMounted;
+}
+
+std::vector<uint8_t> CdiEngine::readTrackRange(const CdiTrackInfo& t, uint64_t pos, uint64_t len) const
+{
+    std::vector<uint8_t> result;
+    result.reserve(len);
+
+    FILE* f = std::fopen(m_path.c_str(), "rb");
+    if (!f) return result;
+
+    uint64_t remaining = len;
+    uint64_t cur = pos;
+    std::vector<uint8_t> sectorBuf(t.sectorSize);
+    while (remaining > 0)
+    {
+        uint64_t sectorIdx = cur / t.userSize;
+        uint64_t sectorOff = cur % t.userSize;
+        uint64_t fileOff = t.fileOffset + sectorIdx * t.sectorSize + t.headerOff + sectorOff;
+
+        uint64_t chunk = std::min<uint64_t>(t.userSize - sectorOff, remaining);
+
+        if (fseeko(f, static_cast<off_t>(fileOff), SEEK_SET) != 0) break;
+        size_t n = std::fread(sectorBuf.data(), 1, static_cast<size_t>(chunk), f);
+        if (n == 0) break;
+        result.insert(result.end(), sectorBuf.begin(), sectorBuf.begin() + n);
+        cur += n;
+        remaining -= n;
+        if (n < chunk) break;
+    }
+
+    std::fclose(f);
+    return result;
+}
+
 // ── Libarchive callbacks ─────────────────────────────────────────────────
 
 static int cdiOpenCb(struct archive*, void* client_data)
@@ -254,7 +549,24 @@ bool CdiEngine::loadAllEntries()
 
 bool CdiEngine::ensureArchiveOpen()
 {
-    if (m_archive || m_fallbackRaw) return true;
+    if (m_archive || m_fallbackRaw || m_hasRealTracks) return true;
+
+    // Preferred path: parse the real DiscJuggler footer (session/track
+    // table) and mount ISO 9660 filesystems from the actual data track(s),
+    // instead of guessing at a single whole-file sync pattern. Multi-track
+    // CDIs (e.g. Dreamcast GD-ROM dumps, which have a low-density system
+    // track plus the real high-density game-data track) need this — the
+    // legacy path below only ever looks at byte 0 of the file, which is
+    // never the real data track's start for these discs. Once the footer
+    // parses, always use it (even if no track happened to mount a
+    // filesystem, e.g. an audio-only disc) rather than falling through to
+    // the legacy single-blob guess, which would be strictly less accurate.
+    if (parseFooter())
+    {
+        m_hasRealTracks = true;
+        tryMountFilesystems();
+        return true;
+    }
 
     if (m_type == Type::Normal)
     {
@@ -348,6 +660,12 @@ void CdiEngine::Close()
     m_stream.buf.shrink_to_fit();
     m_entries.clear();
     m_fallbackRaw = false;
+    m_tracks.clear();
+    m_hasRealTracks = false;
+    m_hasFilesystem = false;
+    m_isoMounts.clear();
+    m_isoMountPrefixes.clear();
+    m_isoMountTrackIdx.clear();
     m_isOpen = false;
     m_totalSectors = 0;
     m_path.clear();
@@ -401,6 +719,62 @@ bool CdiEngine::Extract(std::string_view entryName, std::string_view destPath)
     if (!ensureArchiveOpen()) return false;
 
     m_extractCancelled = false;
+
+    if (m_hasRealTracks)
+    {
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
+        {
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
+
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
+                fs::path dest(destPath);
+                fs::create_directories(dest.parent_path());
+                std::ofstream out(dest, std::ios::binary);
+                if (!out) return false;
+                return iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    out.write(reinterpret_cast<const char*>(data), static_cast<std::streamsize>(len));
+                    return out.good() && !m_extractCancelled.load();
+                });
+            }
+        }
+
+        // Raw track fallback (e.g. an unmounted audio track's "Track NN.bin")
+        for (size_t ti = 0; ti < m_tracks.size(); ++ti)
+        {
+            const auto& t = m_tracks[ti];
+            char nameBuf[32];
+            std::snprintf(nameBuf, sizeof(nameBuf), "Track %02d.bin", static_cast<int>(ti) + 1);
+            if (entryName != nameBuf) continue;
+
+            fs::path dest(destPath);
+            fs::create_directories(dest.parent_path());
+            std::ofstream out(dest, std::ios::binary);
+            if (!out) return false;
+
+            uint64_t total = t.numSectors * t.userSize;
+            constexpr uint64_t kChunk = 1u << 20;
+            uint64_t pos = 0;
+            while (pos < total)
+            {
+                if (m_extractCancelled) return false;
+                uint64_t want = std::min<uint64_t>(kChunk, total - pos);
+                auto data = readTrackRange(t, pos, want);
+                if (data.empty()) return false;
+                out.write(reinterpret_cast<const char*>(data.data()), static_cast<std::streamsize>(data.size()));
+                if (!out) return false;
+                pos += data.size();
+            }
+            return true;
+        }
+
+        LOG_WARN("CDI: entry '%.*s' not found", (int)entryName.size(), entryName.data());
+        return false;
+    }
 
     if (m_fallbackRaw)
     {
@@ -472,6 +846,25 @@ bool CdiEngine::ExtractAll(std::string_view destPath)
 
     m_extractCancelled = false;
 
+    if (m_hasRealTracks)
+    {
+        for (const auto& e : m_entries)
+        {
+            if (m_extractCancelled) return false;
+            if (!isSafeEntryName(e.path)) { LOG_WARN("CdiEngine: skipping unsafe entry '%s'", e.path.c_str()); continue; }
+
+            if (e.isDirectory)
+            {
+                fs::create_directories(fs::path(destPath) / e.path);
+                continue;
+            }
+            fs::path outPath = fs::path(destPath) / e.path;
+            fs::create_directories(outPath.parent_path());
+            if (!Extract(e.path, outPath.string())) return false;
+        }
+        return true;
+    }
+
     if (m_fallbackRaw)
     {
         std::string rawIsoDest = (fs::path(destPath) / "data.iso").string();
@@ -522,6 +915,41 @@ std::vector<uint8_t> CdiEngine::ReadFile(std::string_view entryName)
     if (!ensureArchiveOpen()) return {};
 
     m_extractCancelled = false;
+
+    if (m_hasRealTracks)
+    {
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
+        {
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
+
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
+                std::vector<uint8_t> result;
+                result.reserve(e.size);
+                iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    result.insert(result.end(), data, data + len);
+                    return true;
+                });
+                return result;
+            }
+        }
+
+        for (size_t ti = 0; ti < m_tracks.size(); ++ti)
+        {
+            const auto& t = m_tracks[ti];
+            char nameBuf[32];
+            std::snprintf(nameBuf, sizeof(nameBuf), "Track %02d.bin", static_cast<int>(ti) + 1);
+            if (entryName != nameBuf) continue;
+            return readTrackRange(t, 0, t.numSectors * t.userSize);
+        }
+
+        LOG_WARN("CDI: entry '%.*s' not found", (int)entryName.size(), entryName.data());
+        return {};
+    }
 
     if (m_fallbackRaw)
     {
@@ -579,6 +1007,43 @@ std::vector<uint8_t> CdiEngine::ReadFilePartial(std::string_view entryName, size
     if (!ensureArchiveOpen()) return {};
 
     m_extractCancelled = false;
+
+    if (m_hasRealTracks)
+    {
+        for (size_t m = 0; m < m_isoMounts.size(); ++m)
+        {
+            const auto& prefix = m_isoMountPrefixes[m];
+            if (entryName.substr(0, prefix.size()) != prefix) continue;
+            std::string_view rel = entryName.substr(prefix.size());
+
+            auto& iso = m_isoMounts[m];
+            for (const auto& e : iso.entries())
+            {
+                if (e.isDir || e.path != rel) continue;
+                std::vector<uint8_t> result;
+                result.reserve(std::min<size_t>(e.size, maxBytes));
+                iso.readData(e.lba, e.size, [&](const uint8_t* data, size_t len) -> bool {
+                    size_t remaining = maxBytes - result.size();
+                    size_t take = std::min(len, remaining);
+                    result.insert(result.end(), data, data + take);
+                    return result.size() < maxBytes;
+                });
+                return result;
+            }
+        }
+
+        for (size_t ti = 0; ti < m_tracks.size(); ++ti)
+        {
+            const auto& t = m_tracks[ti];
+            char nameBuf[32];
+            std::snprintf(nameBuf, sizeof(nameBuf), "Track %02d.bin", static_cast<int>(ti) + 1);
+            if (entryName != nameBuf) continue;
+            uint64_t total = t.numSectors * t.userSize;
+            return readTrackRange(t, 0, std::min<uint64_t>(total, maxBytes));
+        }
+
+        return {};
+    }
 
     if (m_fallbackRaw)
     {
@@ -645,6 +1110,20 @@ bool CdiEngine::TestIntegrity(
 {
     if (!m_isOpen) return false;
     if (!ensureArchiveOpen()) return false;
+
+    if (m_hasRealTracks)
+    {
+        int total = static_cast<int>(m_entries.size());
+        int current = 0;
+        for (const auto& e : m_entries)
+        {
+            if (cancelFlag && cancelFlag()) return false;
+            if (progressCallback) progressCallback(current++, total);
+            if (e.isDirectory) continue;
+            if (e.size > 0 && ReadFile(e.path).empty()) return false;
+        }
+        return true;
+    }
 
     if (m_fallbackRaw)
     {
