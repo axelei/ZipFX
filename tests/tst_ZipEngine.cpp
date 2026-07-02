@@ -188,6 +188,53 @@ private slots:
         QVERIFY(!entries[0].compressionMethod.empty());
     }
 
+    void testPasswordRoundTrip()
+    {
+        auto archivePath = m_dir.path / "encrypted.zip";
+        createTempFile("src/secret.txt", "top secret contents");
+
+        ZipEngine writer;
+        QVERIFY(writer.Create(archivePath.string()));
+        writer.setPassword("hunter2");
+        QVERIFY(writer.AddFile(
+            (baseTempDir() / "src/secret.txt").string(), "secret.txt"));
+        QVERIFY(writer.Save());
+
+        // Correct password: entry reads back intact
+        {
+            ZipEngine reader;
+            QVERIFY(reader.Open(archivePath.string()));
+            reader.setPassword("hunter2");
+            auto data = reader.ReadFile("secret.txt");
+            QCOMPARE(std::string(data.begin(), data.end()), std::string("top secret contents"));
+        }
+
+        // Wrong/missing password: read fails rather than returning garbage
+        {
+            ZipEngine reader;
+            QVERIFY(reader.Open(archivePath.string()));
+            auto data = reader.ReadFile("secret.txt");
+            QVERIFY(data.empty());
+        }
+        {
+            ZipEngine reader;
+            QVERIFY(reader.Open(archivePath.string()));
+            reader.setPassword("wrong password");
+            auto data = reader.ReadFile("secret.txt");
+            QVERIFY(data.empty());
+        }
+
+        // Verify the entry is actually encrypted with AES-256 (not the
+        // legacy weak ZipCrypto, and not accidentally AES-128).
+        zip_t* raw = zip_open(archivePath.string().c_str(), ZIP_RDONLY, nullptr);
+        QVERIFY(raw != nullptr);
+        struct zip_stat st;
+        zip_stat_init(&st);
+        QCOMPARE(zip_stat_index(raw, 0, 0, &st), 0);
+        QCOMPARE(st.encryption_method, static_cast<zip_uint16_t>(ZIP_EM_AES_256));
+        zip_close(raw);
+    }
+
     void testCrcStoredInEntry()
     {
         ZipEngine eng;

@@ -40,7 +40,6 @@ public:
 
     void setPassword(std::string_view pwd) override { m_password = pwd; }
     bool SupportsEncryption() const override { return true; }
-    void setEncryptHeaders(bool enc) { m_encryptHeaders = enc; }
     void cancelExtract() override { m_extractCancelled = true; }
     bool isExtractCancelled() const { return m_extractCancelled; }
 
@@ -55,7 +54,6 @@ private:
     bool    m_modified = false;
     bool    m_isNew = false; // created via Create(), not opened
     std::string m_password;
-    bool m_encryptHeaders = false;
     std::atomic<bool> m_extractCancelled{false};
 
     std::vector<ArchiveEntry> m_entries;

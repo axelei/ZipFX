@@ -656,8 +656,7 @@ bool ZipEngine::Save()
 
         if (idx >= 0 && !m_password.empty())
         {
-            zip_uint16_t method = m_encryptHeaders ? ZIP_EM_AES_256 : ZIP_EM_AES_128;
-            zip_file_set_encryption(m_zip, idx, method, m_password.c_str());
+            zip_file_set_encryption(m_zip, idx, ZIP_EM_AES_256, m_password.c_str());
         }
 
         if (idx >= 0)
