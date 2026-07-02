@@ -516,7 +516,43 @@ bool ZipEngine::RenameEntry(std::string_view entryName, std::string_view newName
 
 bool ZipEngine::Save()
 {
-    if (!m_zip || !m_modified) return true;
+    if (!m_zip || (!m_modified && !m_isNew)) return true;
+
+    // libzip's zip_close() treats "zero entries, zero pending changes" as
+    // nothing-to-do and doesn't write a file at all — so a brand-new,
+    // intentionally empty archive would silently vanish. Write the minimal
+    // valid (22-byte End-Of-Central-Directory-only) zip file directly in
+    // that case instead of relying on libzip's no-op close.
+    if (m_isNew && m_entries.empty() && m_pendingAdds.empty())
+    {
+        zip_close(m_zip);
+        m_zip = nullptr;
+
+        static const uint8_t kEmptyZipEocd[22] = {
+            'P', 'K', 0x05, 0x06,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0, 0, 0, 0, 0, 0, 0,
+            0, 0
+        };
+        std::ofstream out(m_path, std::ios::binary | std::ios::trunc);
+        if (!out) return false;
+        out.write(reinterpret_cast<const char*>(kEmptyZipEocd), sizeof(kEmptyZipEocd));
+        if (!out.good()) return false;
+        out.close();
+
+        int err = 0;
+        m_zip = zip_open(m_path.c_str(), 0, &err);
+        if (!m_zip)
+        {
+            LOG_ERR("ZipEngine: failed to re-open after writing empty archive");
+            return false;
+        }
+        m_isNew = false;
+        m_modified = false;
+        m_entries.clear();
+        LoadEntries();
+        return true;
+    }
 
     // Compute total bytes for progress reporting
     uint64_t totalBytes = 0;
