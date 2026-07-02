@@ -45,6 +45,7 @@ private slots:
         m_nrgFile  = write("test.nrg",  {'N', 'E', 'R', '5'});
         m_nrg5File = write("test.nrg5", {'N', 'e', 'r', 'o', '5'});
         m_adfFile  = write("test.adf",  {'D', 'O', 'S'});
+        m_hdfFile  = write("test.hdf",  {'R', 'D', 'S', 'K'});
 
         // D64/D71 Commodore disk images — detected by file size alone (no magic bytes)
         // D64/D71 detection requires the matching extension alongside the exact
@@ -139,6 +140,11 @@ private slots:
     {
         QCOMPARE(FileSignature::Detect(m_adfFile.string()), ArchiveType::Adf);
     }
+    void testHdf()
+    {
+        // RDB-partitioned Amiga hard disk image — same engine as ADF.
+        QCOMPARE(FileSignature::Detect(m_hdfFile.string()), ArchiveType::Adf);
+    }
 
     // D64/D71 — no magic bytes; detected by exact file size plus a matching
     // .d64/.d71 extension (required to avoid false positives on arbitrary
@@ -193,7 +199,7 @@ private:
     fs::path m_bzip2File, m_xzFile, m_zstdFile, m_lz4File;
     fs::path m_arjFile, m_lzipFile;
     fs::path m_cpioFile, m_lhaFile, m_arFile, m_chdFile;
-    fs::path m_vhdFile, m_vmdkFile, m_qcowFile, m_nrgFile, m_nrg5File, m_adfFile;
+    fs::path m_vhdFile, m_vmdkFile, m_qcowFile, m_nrgFile, m_nrg5File, m_adfFile, m_hdfFile;
     fs::path m_d64File, m_d64ErrFile, m_d71File;
     fs::path m_wadIWAD, m_wadPWAD, m_wadWAD2, m_wadWAD3;
     fs::path m_pakFile, m_grpFile, m_hogFile, m_vpkFile, m_mpqFile;

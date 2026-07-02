@@ -56,8 +56,13 @@ static const SigEntry kSignatures[] =
     { ArchiveType::Nrg,      4, [](const uint8_t* d, size_t n) {
         return (d[0] == 'N' && d[1] == 'E' && d[2] == 'R' && d[3] == '5') ||
                (n >= 5 && d[0] == 'N' && d[1] == 'e' && d[2] == 'r' && d[3] == 'o' && d[4] == '5'); }},
-    { ArchiveType::Adf,      3, [](const uint8_t* d, size_t) {
-        return d[0] == 'D' && d[1] == 'O' && d[2] == 'S'; }},
+    { ArchiveType::Adf,      3, [](const uint8_t* d, size_t n) {
+        // "DOS" boot block: floppy ADF images and non-partitioned ("old
+        // style") Amiga hard disk HDF images share this same format.
+        // "RDSK": the Rigid Disk Block used by partitioned HDF images
+        // (the common case for WinUAE/FS-UAE hard disk files).
+        return (d[0] == 'D' && d[1] == 'O' && d[2] == 'S') ||
+               (n >= 4 && d[0] == 'R' && d[1] == 'D' && d[2] == 'S' && d[3] == 'K'); }},
     { ArchiveType::Wad,      4, [](const uint8_t* d, size_t) {
         return (d[0] == 'I' && d[1] == 'W' && d[2] == 'A' && d[3] == 'D') ||
                (d[0] == 'P' && d[1] == 'W' && d[2] == 'A' && d[3] == 'D') ||

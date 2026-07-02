@@ -221,7 +221,7 @@ static const FormatEntry kFormats[] = {
             std::vector<LibarchiveEngine::FormatRegistrar>{
                 archive_read_support_format_mtree },
             "MTREE"); },                                             false },
-    { "ADF",    ".adf,.adz",                         ArchiveType::Adf,
+    { "ADF",    ".adf,.adz,.hdf",                    ArchiveType::Adf,
         []() { return std::make_unique<AdfEngine>(); },              false },
 
     // ── Game archive formats (flat, no compression) ──
