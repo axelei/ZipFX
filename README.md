@@ -1,5 +1,7 @@
 # ZipFX
 
+![ZipFX screenshot](screenshot.png)
+
 **Multi-format archive manager for power users.**
 
 ZipFX is a cross-platform GUI archive manager built with Qt6. It supports
