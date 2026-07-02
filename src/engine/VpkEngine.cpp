@@ -220,6 +220,11 @@ bool VpkEngine::doSave(std::ofstream& f)
                 put32(dataOff);
                 // entryLength
                 put32(c.size);
+                // terminator (0xFFFF) — Open() reads a fixed 18-byte record
+                // per entry (CRC[4]+preload[2]+archiveIdx[2]+offset[4]+
+                // length[4]+terminator[2]); omitting this desyncs parsing
+                // for every entry after the first.
+                put16(0xFFFF);
 
                 dataOff += c.size;
                 ++ci;
