@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <fstream>
 #include <cstring>
+#include <random>
 
 namespace fs = std::filesystem;
 
@@ -214,6 +215,12 @@ bool FlatArchiveEngine::AddFile(std::string_view srcPath, std::string_view archi
     if (!src) return false;
     auto sz = src.tellg();
     if (sz < 0) return false;
+    if (static_cast<uint64_t>(sz) > UINT32_MAX)
+    {
+        LOG_ERR("FlatArchiveEngine: '%s' is %lld bytes, exceeds the 4 GB limit for this format",
+                std::string(archivePath).c_str(), static_cast<long long>(sz));
+        return false;
+    }
     src.seekg(0);
 
     auto& entry = m_entries.emplace_back();
@@ -285,7 +292,13 @@ bool FlatArchiveEngine::Save()
 
     if (m_saveCancelled) return false;
 
-    std::string tmpPath = m_path + ".zipfx_tmp";
+    // Use an unpredictable suffix rather than a fixed ".zipfx_tmp" name, so a
+    // pre-placed symlink at a guessable path can't redirect this write.
+    std::random_device rd;
+    std::mt19937_64 rng(rd());
+    char suffix[17];
+    std::snprintf(suffix, sizeof(suffix), "%016llx", static_cast<unsigned long long>(rng()));
+    std::string tmpPath = m_path + ".zipfx_tmp_" + suffix;
     {
         std::ofstream f(tmpPath, std::ios::binary);
         if (!f) return false;
