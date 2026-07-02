@@ -101,6 +101,14 @@ void ZipEngine::LoadEntries()
     zip_int64_t num = zip_get_num_entries(m_zip, 0);
     if (num < 0) return;
 
+    constexpr zip_int64_t kMaxEntries = 10'000'000;
+    if (num > kMaxEntries)
+    {
+        LOG_WARN("ZipEngine: archive claims %lld entries, capping at %lld",
+                  (long long)num, (long long)kMaxEntries);
+        num = kMaxEntries;
+    }
+
     for (zip_int64_t i = 0; i < num; ++i)
     {
         if (isOpenCancelled()) return;
@@ -340,6 +348,14 @@ std::vector<uint8_t> ZipEngine::ReadFile(std::string_view entryName)
         return {};
 
     if (st.size == 0) return {};
+
+    constexpr zip_uint64_t kMaxInMemoryFileSize = 512ull * 1024 * 1024;
+    if (st.size > kMaxInMemoryFileSize)
+    {
+        LOG_WARN("ZipEngine: entry '%s' size %llu exceeds in-memory read limit",
+                 name.c_str(), (unsigned long long)st.size);
+        return {};
+    }
 
     zip_file_t* zf = nullptr;
     if (st.encryption_method != ZIP_EM_NONE && !m_password.empty())
