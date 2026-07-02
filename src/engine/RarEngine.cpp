@@ -11,6 +11,7 @@
 
 #include <algorithm>
 #include <archive.h>
+#include <cstdio>
 #include <filesystem>
 #include <mutex>
 
@@ -485,6 +486,13 @@ bool RarEngine::RemoveEntry(std::string_view entryName)
 {
     if (!isAvailable() || m_path.empty()) return false;
 
+    // Release the reader before invoking rar.exe — on Windows, m_reader
+    // (Bit7zEngine or LibarchiveEngine) still holds the archive file open
+    // for reading, which blocks rar.exe from opening it for writing
+    // ("cannot open file"). Same fix as Bit7zEngine::Save().
+    m_reader.reset();
+    m_fallbackReader.reset();
+
     QString rarExe = QString::fromStdString(findRarExe());
     QStringList args;
     args << "d" << "-idq"
@@ -499,6 +507,7 @@ bool RarEngine::RemoveEntry(std::string_view entryName)
         initReader(m_path);
         return true;
     }
+    initReader(m_path); // re-open even on failure so the engine isn't left readerless
     return false;
 }
 
@@ -521,6 +530,13 @@ bool RarEngine::Save()
             return false;
     }
 
+    // Release the reader before invoking rar.exe — on Windows, m_reader
+    // (Bit7zEngine or LibarchiveEngine) still holds the archive file open
+    // for reading, which blocks rar.exe from opening it for writing
+    // ("cannot open file"). Same fix as Bit7zEngine::Save().
+    m_reader.reset();
+    m_fallbackReader.reset();
+
     QString rarExe = QString::fromStdString(findRarExe());
     QStringList args;
     args << "a" << "-r"
@@ -530,15 +546,19 @@ bool RarEngine::Save()
          << ".";
 
     int exitCode = -1;
-    if (!runRarProcess(rarExe, args, m_password, 300000, exitCode, tmpDir.path())) return false;
+    if (!runRarProcess(rarExe, args, m_password, 300000, exitCode, tmpDir.path()))
+    {
+        initReader(m_path); // re-open even on failure so the engine isn't left readerless
+        return false;
+    }
 
     bool ok = (exitCode == 0);
     if (ok)
     {
         m_pending.clear();
-        initReader(m_path);
         m_isOpen = true;
     }
+    initReader(m_path); // re-open either way so the engine isn't left readerless
     return ok;
 }
 
