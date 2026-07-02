@@ -2710,8 +2710,18 @@ void MainWindow::savePassword(const QString& archive, const QString& password)
     }
     else
     {
-        KeychainHelper::save(archive, password);
-        if (!known.contains(archive)) known.append(archive);
+        if (KeychainHelper::save(archive, password))
+        {
+            if (!known.contains(archive)) known.append(archive);
+        }
+        else
+        {
+            QMessageBox::warning(this, tr("Password Not Saved"),
+                tr("No secure credential store is available on this system "
+                   "(libsecret not found), so the password for \"%1\" was not "
+                   "saved. You will need to re-enter it next time.")
+                    .arg(QFileInfo(archive).fileName()));
+        }
     }
     s.setValue("passwordManager/archives", known);
 }

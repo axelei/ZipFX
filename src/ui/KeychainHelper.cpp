@@ -25,7 +25,9 @@ bool KeychainHelper::save(const QString& key, const QString& secret)
     cred.TargetName = const_cast<wchar_t*>(targetW.c_str());
     cred.CredentialBlobSize = static_cast<DWORD>(secretW.size() * sizeof(wchar_t));
     cred.CredentialBlob = reinterpret_cast<BYTE*>(const_cast<wchar_t*>(secretW.c_str()));
-    cred.Persist = CRED_PERSIST_LOCAL_MACHINE;
+    // Session-scoped by default: the credential disappears when the user
+    // logs off, rather than persisting indefinitely on the machine.
+    cred.Persist = CRED_PERSIST_SESSION;
 
     return CredWriteW(&cred, 0) != FALSE;
 }
@@ -71,28 +73,44 @@ static QByteArray toUTF8(const QString& s)
     return s.toUtf8();
 }
 
+static CFStringRef cfString(const QByteArray& utf8)
+{
+    return CFStringCreateWithBytes(kCFAllocatorDefault,
+        reinterpret_cast<const UInt8*>(utf8.constData()),
+        utf8.size(), kCFStringEncodingUTF8, false);
+}
+
+static CFMutableDictionaryRef baseQuery(const QByteArray& keyData)
+{
+    CFMutableDictionaryRef query = CFDictionaryCreateMutable(kCFAllocatorDefault, 0,
+        &kCFTypeDictionaryKeyCallBacks, &kCFTypeDictionaryValueCallBacks);
+    CFDictionarySetValue(query, kSecClass, kSecClassGenericPassword);
+    CFStringRef service = cfString(QByteArray(kKeychainService));
+    CFDictionarySetValue(query, kSecAttrService, service);
+    CFRelease(service);
+    CFStringRef account = cfString(keyData);
+    CFDictionarySetValue(query, kSecAttrAccount, account);
+    CFRelease(account);
+    return query;
+}
+
 bool KeychainHelper::save(const QString& key, const QString& secret)
 {
     QByteArray keyData = toUTF8(key);
     QByteArray secretData = toUTF8(secret);
 
-    // Remove existing first
-    SecKeychainItemRef item = nullptr;
-    if (SecKeychainFindGenericPassword(nullptr,
-            static_cast<uint32_t>(std::strlen(kKeychainService)), kKeychainService,
-            static_cast<uint32_t>(keyData.size()), keyData.constData(),
-            nullptr, nullptr, &item) == errSecSuccess)
-    {
-        SecKeychainItemDelete(item);
-        CFRelease(item);
-    }
+    CFMutableDictionaryRef query = baseQuery(keyData);
+    // Remove any existing item first (SecItemAdd fails if one exists).
+    SecItemDelete(query);
 
-    OSStatus status = SecKeychainAddGenericPassword(nullptr,
-        static_cast<uint32_t>(std::strlen(kKeychainService)), kKeychainService,
-        static_cast<uint32_t>(keyData.size()), keyData.constData(),
-        static_cast<uint32_t>(secretData.size()), secretData.constData(),
-        nullptr);
+    CFDataRef valueData = CFDataCreate(kCFAllocatorDefault,
+        reinterpret_cast<const UInt8*>(secretData.constData()), secretData.size());
+    CFDictionarySetValue(query, kSecValueData, valueData);
 
+    OSStatus status = SecItemAdd(query, nullptr);
+
+    CFRelease(valueData);
+    CFRelease(query);
     return status == errSecSuccess;
 }
 
@@ -100,39 +118,31 @@ QString KeychainHelper::load(const QString& key)
 {
     QByteArray keyData = toUTF8(key);
 
-    void* passwordData = nullptr;
-    uint32_t passwordLength = 0;
+    CFMutableDictionaryRef query = baseQuery(keyData);
+    CFDictionarySetValue(query, kSecReturnData, kCFBooleanTrue);
+    CFDictionarySetValue(query, kSecMatchLimit, kSecMatchLimitOne);
 
-    OSStatus status = SecKeychainFindGenericPassword(nullptr,
-        static_cast<uint32_t>(std::strlen(kKeychainService)), kKeychainService,
-        static_cast<uint32_t>(keyData.size()), keyData.constData(),
-        &passwordLength, &passwordData, nullptr);
+    CFTypeRef result = nullptr;
+    OSStatus status = SecItemCopyMatching(query, &result);
+    CFRelease(query);
 
-    if (status != errSecSuccess)
+    if (status != errSecSuccess || !result)
         return {};
 
-    QString result = QString::fromUtf8(
-        static_cast<const char*>(passwordData),
-        static_cast<int>(passwordLength));
-
-    SecKeychainItemFreeContent(nullptr, passwordData);
-    return result;
+    CFDataRef data = static_cast<CFDataRef>(result);
+    QString value = QString::fromUtf8(
+        reinterpret_cast<const char*>(CFDataGetBytePtr(data)),
+        static_cast<int>(CFDataGetLength(data)));
+    CFRelease(result);
+    return value;
 }
 
 bool KeychainHelper::remove(const QString& key)
 {
     QByteArray keyData = toUTF8(key);
-
-    SecKeychainItemRef item = nullptr;
-    OSStatus status = SecKeychainFindGenericPassword(nullptr,
-        static_cast<uint32_t>(std::strlen(kKeychainService)), kKeychainService,
-        static_cast<uint32_t>(keyData.size()), keyData.constData(),
-        nullptr, nullptr, &item);
-
-    if (status != errSecSuccess) return false;
-
-    status = SecKeychainItemDelete(item);
-    CFRelease(item);
+    CFMutableDictionaryRef query = baseQuery(keyData);
+    OSStatus status = SecItemDelete(query);
+    CFRelease(query);
     return status == errSecSuccess;
 }
 
@@ -224,37 +234,25 @@ bool KeychainHelper::remove(const QString& key)
     return ok;
 }
 
-#else // !ZIPFX_HAVE_LIBSECRET — fallback to QSettings
+#else // !ZIPFX_HAVE_LIBSECRET — no secure backend available on this system
 
-static const char* kSettingsGroup = "passwordManager";
-
-bool KeychainHelper::save(const QString& key, const QString& secret)
+// Without libsecret there is no OS-managed secret store on this Linux
+// system. Rather than silently writing the password in plaintext to
+// ~/.config/<org>/ZipFX.conf (readable by any process running as this
+// user), refuse to persist it at all. Callers must surface this failure
+// to the user instead of assuming the password was saved.
+bool KeychainHelper::save(const QString&, const QString&)
 {
-    QSettings s;
-    s.beginGroup(kSettingsGroup);
-    QStringList keys = s.childKeys();
-    for (const auto& k : keys)
-        if (k == key) { s.remove(k); break; }
-    s.setValue(key, secret);
-    s.endGroup();
-    return true;
+    return false;
 }
 
-QString KeychainHelper::load(const QString& key)
+QString KeychainHelper::load(const QString&)
 {
-    QSettings s;
-    s.beginGroup(kSettingsGroup);
-    QString result = s.value(key).toString();
-    s.endGroup();
-    return result;
+    return {};
 }
 
-bool KeychainHelper::remove(const QString& key)
+bool KeychainHelper::remove(const QString&)
 {
-    QSettings s;
-    s.beginGroup(kSettingsGroup);
-    s.remove(key);
-    s.endGroup();
     return true;
 }
 
