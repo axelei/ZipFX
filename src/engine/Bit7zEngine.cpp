@@ -252,7 +252,14 @@ bool Bit7zEngine::Extract(std::string_view entryName, std::string_view destPath)
         std::ofstream out(dest, std::ios::binary);
         if (!out) return false;
         extractor.extract(m_path, out, static_cast<uint32_t>(idx));
-        return out.good();
+        bool ok = out.good() && !m_extractCancelled;
+        if (!ok)
+        {
+            out.close();
+            std::error_code ec;
+            fs::remove(dest, ec);
+        }
+        return ok;
     }
     catch (const std::exception& e)
     {
@@ -341,7 +348,16 @@ bool Bit7zEngine::AddFile(std::string_view srcPath, std::string_view archivePath
     ArchiveEntry placeholder;
     placeholder.name = normPath;
     placeholder.path = placeholder.name;
-    placeholder.size = fs::file_size(std::string(srcPath));
+    try
+    {
+        placeholder.size = fs::file_size(std::string(srcPath));
+    }
+    catch (const fs::filesystem_error& e)
+    {
+        LOG_WARN("Bit7zEngine: fs::file_size('%s') failed: %s", std::string(srcPath).c_str(), e.what());
+        m_pendingAdds.erase(normPath);
+        return false;
+    }
     m_entries.push_back(std::move(placeholder));
 
     return true;
