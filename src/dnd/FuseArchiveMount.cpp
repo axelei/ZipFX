@@ -10,9 +10,12 @@
 #include <signal.h>
 #include <poll.h>
 #include <cstring>
+#include <cstdlib>
+#include <climits>
 #include <cerrno>
 #include <algorithm>
 #include <chrono>
+#include <vector>
 
 #include "engine/ArchiveEngine.h"
 #include "engine/Logging.h"
@@ -106,7 +109,10 @@ static int op_open(const char* cpath, struct fuse_file_info* fi)
     LOG_DBG("FuseArchiveMount: op_open %s (%zu bytes)",
             cpath, it->second->data.size());
     m->m_everOpened.store(true);
-    ++m->m_openFiles;
+    // Saturate instead of wrapping if something opens without a matching
+    // release many times over a long-lived mount.
+    int cur = m->m_openFiles.load();
+    while (cur < INT_MAX && !m->m_openFiles.compare_exchange_weak(cur, cur + 1)) {}
     m->m_cv.notify_all(); // wake phase-1 of unmount()
     return 0;
 }
@@ -209,14 +215,25 @@ bool FuseArchiveMount::start()
     }
     m_engine = nullptr; // not used after this point
 
-    char tmpl[] = "/tmp/ZipFX_fuse_XXXXXX";
-    if (!mkdtemp(tmpl))
+    // Prefer $XDG_RUNTIME_DIR (per-user, mode 0700, tmpfs, cleared at logout)
+    // over the world-listable /tmp; fall back to $TMPDIR, then /tmp.
+    std::string tmpBase;
+    if (const char* xdg = getenv("XDG_RUNTIME_DIR"); xdg && *xdg)
+        tmpBase = xdg;
+    else if (const char* tmpdir = getenv("TMPDIR"); tmpdir && *tmpdir)
+        tmpBase = tmpdir;
+    else
+        tmpBase = "/tmp";
+    std::string tmplStr = tmpBase + "/ZipFX_fuse_XXXXXX";
+    std::vector<char> tmpl(tmplStr.begin(), tmplStr.end());
+    tmpl.push_back('\0');
+    if (!mkdtemp(tmpl.data()))
     {
         LOG_ERR("FuseArchiveMount: mkdtemp failed: %s", strerror(errno));
         m_active = false; --s_activeMounts;
         return false;
     }
-    m_mountPoint = tmpl;
+    m_mountPoint = tmpl.data();
 
     const char* argv[] = { "ZipFX", nullptr };
     struct fuse_args args = FUSE_ARGS_INIT(1, const_cast<char**>(argv));
@@ -288,6 +305,8 @@ bool FuseArchiveMount::start()
                 if (res == -EINTR) continue;
                 if (res <= 0) break;
                 fuse_session_process_buf(se, &fbuf);
+                free(fbuf.mem);
+                fbuf.mem = nullptr;
             }
         }
 
