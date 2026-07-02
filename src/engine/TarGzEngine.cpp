@@ -1011,6 +1011,12 @@ bool TarGzEngine::Save()
 
     gzclose(out);
 
+    // ReadFile() (used above to merge preserved entries) reopens m_gzFile on
+    // m_path and leaves it open; close it now so the rename below can
+    // replace m_path (Windows refuses to rename over a file with an open
+    // handle, even from the same process).
+    if (m_gzFile) { gzclose(m_gzFile); m_gzFile = nullptr; }
+
     std::error_code ec;
     fs::rename(tmpPath, m_path, ec);
     if (ec)
